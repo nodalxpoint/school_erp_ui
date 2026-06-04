@@ -1,0 +1,133 @@
+<!-- Assign Teacher Component -->
+<div class="assign-wrapper">
+
+  <!-- Toast -->
+  <div
+    class="toast"
+    [class.visible]="toast.visible"
+    [class.success]="toast.type === 'success'"
+    [class.error]="toast.type === 'error'"
+  >
+    <span class="toast-icon">{{ toast.type === 'success' ? '✓' : '✕' }}</span>
+    {{ toast.message }}
+  </div>
+
+  <!-- Form Card -->
+  <div class="card">
+    <div class="card-header">
+      <div class="header-left">
+        <span class="header-icon">📌</span>
+        <div>
+          <h3>Assign Class Teacher</h3>
+          <p>Assign a teacher to a class-section for an academic session</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skeleton while loading -->
+    <div class="form-skeleton" *ngIf="isLoading">
+      <div class="sk" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="assignForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+      <div class="form-grid">
+
+        <!-- Teacher searchable dropdown -->
+        <div class="field-group">
+          <label>Teacher</label>
+          <div class="search-dropdown-wrapper">
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search teacher by name or code…"
+              [value]="teacherSearch"
+              (input)="onTeacherSearchInput($event)"
+              (focus)="onTeacherFocus()"
+              (blur)="onTeacherBlur()"
+              autocomplete="off"
+            />
+            <span class="search-icon">⌕</span>
+
+            <div
+              class="dropdown-list"
+              *ngIf="showTeacherDropdown && filteredTeachers.length > 0"
+            >
+              <div
+                class="dropdown-item"
+                *ngFor="let teacher of filteredTeachers"
+                (mousedown)="selectTeacher(teacher)"
+              >
+                <span class="item-avatar">{{ teacher.firstName?.charAt(0) }}</span>
+                <span class="item-name">{{ fullName(teacher) }}</span>
+                <span class="item-code">{{ teacher.employeeCode }}</span>
+              </div>
+            </div>
+
+            <div
+              class="dropdown-list empty-dd"
+              *ngIf="showTeacherDropdown && filteredTeachers.length === 0"
+            >
+              <p>No teachers found</p>
+            </div>
+          </div>
+
+          <!-- TODO note visible only in dev — remove in prod -->
+          <span class="todo-note">
+            ⚠ Backend: add <code>id</code> field to <code>TeacherResponseDto</code> for this to work
+          </span>
+        </div>
+
+        <!-- Academic Session dropdown — from real API -->
+        <div class="field-group">
+          <label>Academic Session</label>
+          <select formControlName="academicSessionId">
+            <option value="" disabled selected>Select session…</option>
+            <option *ngFor="let session of sessions" [value]="session.id">
+              {{ session.sessionName }}
+              <ng-container *ngIf="session.isActive"> (Active)</ng-container>
+            </option>
+          </select>
+          <span class="api-badge">✓ Live from API</span>
+        </div>
+
+        <!-- Class ID — manual text input until GET API is ready -->
+        <div class="field-group">
+          <label>Class ID</label>
+          <input
+            type="text"
+            formControlName="classId"
+            placeholder="Paste class UUID…"
+          />
+          <span class="todo-note">
+            🔧 TODO: Replace with dropdown when
+            <code>GET /api/school/classAndSection/list</code> is built
+          </span>
+        </div>
+
+        <!-- Section ID — manual text input until GET API is ready -->
+        <div class="field-group">
+          <label>Section ID</label>
+          <input
+            type="text"
+            formControlName="sectionId"
+            placeholder="Paste section UUID…"
+          />
+          <span class="todo-note">
+            🔧 TODO: Replace with dropdown when
+            <code>GET /api/school/section/by-class/:classId</code> is built
+          </span>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="isSubmitting">
+          <span *ngIf="isSubmitting" class="spinner"></span>
+          {{ isSubmitting ? 'Assigning…' : 'Assign Teacher' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>

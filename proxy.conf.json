@@ -1,0 +1,8 @@
+{
+  "/sms": {
+    "target": "http://72.61.229.22",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

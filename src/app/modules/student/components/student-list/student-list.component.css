@@ -1,0 +1,297 @@
+@charset "UTF-8";
+.student-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Filter Bar ─────────────────────────────────────── */
+.filter-bar {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.filter-bar .filter-fields {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.filter-bar .field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 150px;
+}
+.filter-bar .field-group label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #6b7280);
+}
+.filter-bar .field-group input {
+  padding: 0.55rem 0.85rem;
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: 7px;
+  font-size: 0.875rem;
+  background: var(--bg, #fff);
+  color: var(--text, #111);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.filter-bar .field-group input:focus {
+  border-color: var(--primary, #4f46e5);
+}
+.filter-bar .field-group input::-moz-placeholder {
+  color: var(--text-muted, #9ca3af);
+  opacity: 0.7;
+}
+.filter-bar .field-group input::placeholder {
+  color: var(--text-muted, #9ca3af);
+  opacity: 0.7;
+}
+.filter-bar .filter-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ── Table ──────────────────────────────────────────── */
+.table-wrapper {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table-wrapper table thead tr {
+  background: var(--surface, #f9fafb);
+  border-bottom: 2px solid var(--border, #e5e7eb);
+}
+.table-wrapper table thead tr th {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted, #6b7280);
+  white-space: nowrap;
+}
+.table-wrapper table tbody tr {
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  transition: background 0.12s;
+}
+.table-wrapper table tbody tr:last-child {
+  border-bottom: none;
+}
+.table-wrapper table tbody tr:hover {
+  background: var(--surface, #f9fafb);
+}
+.table-wrapper table tbody tr td {
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text, #111);
+  vertical-align: middle;
+}
+
+.serial {
+  color: var(--text-muted, #9ca3af);
+  font-size: 0.8rem;
+}
+
+.avatar-name {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 500;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary-light, #e8f0fe);
+  color: var(--primary, #4f46e5);
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  background: var(--surface, #f3f4f6);
+  border: 1px solid var(--border, #e5e7eb);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: monospace;
+  color: var(--text-muted, #6b7280);
+}
+
+.gender-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.gender-badge.male {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+}
+.gender-badge.female {
+  background: #fdf2f8;
+  border: 1px solid #f9a8d4;
+  color: #9d174d;
+}
+
+.action-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border, #e5e7eb);
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.15s;
+  display: grid;
+  place-items: center;
+}
+.action-btn.edit:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+/* ── Skeleton ───────────────────────────────────────── */
+.skeleton-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.skeleton-row {
+  height: 52px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--surface, #f3f4f6) 25%, var(--border, #e5e7eb) 50%, var(--surface, #f3f4f6) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+/* ── States ─────────────────────────────────────────── */
+.state-message {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+}
+.state-message.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+.state-message.empty {
+  background: var(--surface, #f9fafb);
+  border: 1px dashed var(--border, #e5e7eb);
+  color: var(--text-muted, #9ca3af);
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+  text-align: center;
+}
+.state-message.empty .empty-icon {
+  font-size: 2.5rem;
+}
+.state-message.empty p {
+  margin: 0;
+}
+
+/* ── Pagination ─────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border, #e5e7eb);
+  background: var(--bg, #fff);
+  color: var(--text, #111);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.page-btn:hover:not(:disabled) {
+  border-color: var(--primary, #4f46e5);
+  color: var(--primary, #4f46e5);
+}
+.page-btn.active {
+  background: var(--primary, #4f46e5);
+  border-color: var(--primary, #4f46e5);
+  color: #fff;
+}
+.page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.total-count {
+  font-size: 0.78rem;
+  color: var(--text-muted, #9ca3af);
+  margin: 0;
+}
+
+/* ── Buttons ────────────────────────────────────────── */
+.btn-primary {
+  padding: 0.55rem 1.25rem;
+  background: var(--primary, #4f46e5);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  opacity: 0.88;
+}
+
+.btn-secondary {
+  padding: 0.55rem 1.25rem;
+  background: transparent;
+  color: var(--text-muted, #6b7280);
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: 7px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}/*# sourceMappingURL=student-list.component.css.map */

@@ -1,0 +1,46 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  background: hsl(var(--background));
+}
+.shell__main {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.3s ease;
+  min-width: 0;
+}
+@media (max-width: 1023px) {
+  .shell__main {
+    margin-left: 0;
+  }
+}
+.shell__main--collapsed {
+  margin-left: 64px;
+}
+@media (max-width: 1023px) {
+  .shell__main--collapsed {
+    margin-left: 0;
+  }
+}
+.shell__content {
+  margin-top: var(--topbar-height);
+  padding: 1.5rem;
+  min-height: calc(100vh - var(--topbar-height));
+  animation: fadeIn 0.2s ease-out;
+}
+@media (max-width: 640px) {
+  .shell__content {
+    padding: 1rem;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}/*# sourceMappingURL=shell.component.css.map */

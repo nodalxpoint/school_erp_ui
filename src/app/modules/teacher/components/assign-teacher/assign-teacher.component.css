@@ -1,0 +1,478 @@
+@charset "UTF-8";
+.assign-teacher-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  position: relative;
+}
+
+/* ── Toast ──────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 1000;
+  padding: 0.85rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  opacity: 0;
+  transform: translateY(-12px);
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  max-width: 360px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+.toast.success {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+}
+.toast.success .toast-icon {
+  color: #16a34a;
+}
+.toast.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+.toast.error .toast-icon {
+  color: #dc2626;
+}
+.toast .toast-icon {
+  font-weight: 700;
+}
+
+/* ── Cards ──────────────────────────────────────────────── */
+.assign-card,
+.assignments-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  background: var(--bg, #fafafa);
+}
+.card-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+.card-header .header-icon {
+  font-size: 1.25rem;
+  width: 38px;
+  height: 38px;
+  background: var(--primary-light, #e8f0fe);
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+}
+.card-header h3 {
+  margin: 0 0 0.15rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text, #111);
+}
+.card-header p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted, #6b7280);
+}
+
+/* ── Form ───────────────────────────────────────────────── */
+form {
+  padding: 1.5rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem 1.5rem;
+}
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.field-group label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #6b7280);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.field-group select,
+.field-group input:not(.search-input) {
+  padding: 0.6rem 0.9rem;
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: var(--bg, #fff);
+  color: var(--text, #111);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+}
+.field-group select:focus,
+.field-group input:not(.search-input):focus {
+  border-color: var(--primary, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+}
+.field-group select:disabled,
+.field-group input:not(.search-input):disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: var(--surface, #f9fafb);
+}
+.field-group.has-error select, .field-group.has-error .search-input {
+  border-color: #ef4444;
+}
+
+.req {
+  color: #ef4444;
+}
+
+.error-msg {
+  font-size: 0.72rem;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.loading-chip {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background: #fef9c3;
+  color: #92400e;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+/* ── Searchable Dropdown ────────────────────────────────── */
+.search-dropdown-wrapper {
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.6rem 2.5rem 0.6rem 0.9rem;
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: var(--bg, #fff);
+  color: var(--text, #111);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  box-sizing: border-box;
+}
+.search-input:focus {
+  border-color: var(--primary, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+}
+.search-input::-moz-placeholder {
+  color: var(--text-muted, #9ca3af);
+}
+.search-input::placeholder {
+  color: var(--text-muted, #9ca3af);
+}
+
+.search-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted, #9ca3af);
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+.dropdown-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--surface, #fff);
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 100;
+}
+.dropdown-list.empty-dd p {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted, #9ca3af);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.dropdown-item:hover {
+  background: var(--bg, #f9fafb);
+}
+.dropdown-item .item-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary-light, #e8f0fe);
+  color: var(--primary, #4f46e5);
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.dropdown-item .item-name {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text, #111);
+}
+.dropdown-item .item-code {
+  font-size: 0.72rem;
+  font-family: monospace;
+  color: var(--text-muted, #9ca3af);
+  background: var(--bg, #f3f4f6);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* ── Form Actions ───────────────────────────────────────── */
+.form-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Skeleton ───────────────────────────────────────────── */
+.form-skeleton {
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.form-skeleton .sk {
+  height: 64px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--surface, #f3f4f6) 25%, var(--border, #e5e7eb) 50%, var(--surface, #f3f4f6) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+/* ── Assignments Table ──────────────────────────────────── */
+.table-wrapper {
+  overflow-x: auto;
+}
+.table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table-wrapper table thead tr {
+  background: var(--bg, #f9fafb);
+  border-bottom: 2px solid var(--border, #e5e7eb);
+}
+.table-wrapper table thead tr th {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted, #6b7280);
+  white-space: nowrap;
+}
+.table-wrapper table tbody tr {
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  transition: background 0.12s;
+}
+.table-wrapper table tbody tr:last-child {
+  border-bottom: none;
+}
+.table-wrapper table tbody tr:hover {
+  background: var(--surface, #f9fafb);
+}
+.table-wrapper table tbody tr.editing-row {
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
+}
+.table-wrapper table tbody tr td {
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text, #111);
+  vertical-align: middle;
+}
+
+.serial {
+  color: var(--text-muted, #9ca3af);
+  font-size: 0.8rem;
+}
+
+.avatar-name {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 500;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary-light, #e8f0fe);
+  color: var(--primary, #4f46e5);
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.section-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.session-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.action-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border, #e5e7eb);
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.15s;
+  display: grid;
+  place-items: center;
+}
+.action-btn.edit:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+/* ── State Messages ─────────────────────────────────────── */
+.state-message.empty {
+  padding: 2.5rem;
+  text-align: center;
+  color: var(--text-muted, #9ca3af);
+  font-size: 0.875rem;
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn-primary {
+  padding: 0.65rem 1.5rem;
+  background: var(--primary, #4f46e5);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.88;
+}
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--text-muted, #6b7280);
+  border: 1.5px solid var(--border, #e5e7eb);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.btn-ghost:hover {
+  border-color: var(--text-muted, #6b7280);
+}
+
+/* ── Spinner ────────────────────────────────────────────── */
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}/*# sourceMappingURL=assign-teacher.component.css.map */

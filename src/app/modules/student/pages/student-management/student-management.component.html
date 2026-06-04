@@ -1,0 +1,39 @@
+<div class="page-wrapper">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Student Management</h1>
+      <p>Add, view and manage student records</p>
+    </div>
+    <button class="btn-primary" (click)="onAddStudent()" *ngIf="activeTab === 'list'">
+      + Add Student
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-nav">
+    <button class="tab-btn" [class.active]="activeTab === 'list'" (click)="setTab('list')">
+      <span>📋</span> All Students
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'form'" (click)="onAddStudent()">
+      <span>➕</span> {{ studentToEdit ? 'Edit Student' : 'Add Student' }}
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="tab-content">
+    <app-student-list
+      *ngIf="activeTab === 'list'"
+      (editStudentClicked)="onEditStudent($event)"
+    ></app-student-list>
+
+    <app-student-form
+      *ngIf="activeTab === 'form'"
+      [editStudent]="studentToEdit"
+      (studentSaved)="onStudentSaved()"
+      (cancelled)="onFormCancelled()"
+    ></app-student-form>
+  </div>
+
+</div>

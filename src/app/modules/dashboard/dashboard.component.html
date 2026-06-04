@@ -1,0 +1,233 @@
+<!-- dashboard.component.html -->
+<div class="dashboard animate-fade-in">
+
+  <!-- Header -->
+  <div class="dashboard__header">
+    <div>
+    <h2 class="dashboard__title">
+  {{ greeting }}, {{ firstName }} 👋
+</h2>
+      <p class="dashboard__date">
+        {{ today | date:'EEEE, d MMMM yyyy' }} &nbsp;·&nbsp;
+        <span class="dashboard__role-badge dashboard__role-badge--{{ user?.role }}">{{ user?.role | titlecase }}</span>
+      </p>
+    </div>
+    <div class="dashboard__header-actions">
+      <button class="btn btn--outline btn--sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export
+      </button>
+      <button *ngIf="isAdmin" class="btn btn--primary btn--sm" routerLink="/students/new">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Add Student
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats grid -->
+  <div class="stat-grid">
+    <div *ngFor="let s of stats; let i = index" class="stat-card stat-card--{{ s.color }}"
+         [style.animation-delay]="(i * 0.06) + 's'">
+      <div class="stat-card__top">
+        <p class="stat-card__title">{{ s.title }}</p>
+        <div class="stat-card__icon-wrap stat-card__icon-wrap--{{ s.color }}">
+          <!-- Icon switcher -->
+          <svg class="stat-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <ng-container [ngSwitch]="s.icon">
+              <ng-container *ngSwitchCase="'graduation-cap'">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'users'">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'credit-card'">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'calendar-check'">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'book-open'">
+                <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'clipboard'">
+                <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'bell'">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 01-3.46 0"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'file-text'">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+              </ng-container>
+            </ng-container>
+          </svg>
+        </div>
+      </div>
+      <p class="stat-card__value">{{ s.value }}</p>
+      <div class="stat-card__change">
+        <svg *ngIf="s.changeType === 'up'" class="stat-card__change-icon stat-card__change-icon--up" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <polyline points="18 15 12 9 6 15"/>
+        </svg>
+        <svg *ngIf="s.changeType === 'down'" class="stat-card__change-icon stat-card__change-icon--down" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+        <span class="stat-card__change-text"
+          [class.stat-card__change-text--up]="s.changeType === 'up'"
+          [class.stat-card__change-text--down]="s.changeType === 'down'">
+          {{ s.change }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="section">
+    <h3 class="section__title">Quick Actions</h3>
+    <div class="quick-actions">
+      <a *ngFor="let qa of quickActions" [routerLink]="qa.route" class="quick-action quick-action--{{ qa.color }}">
+        <div class="quick-action__icon-wrap">
+          <svg class="quick-action__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <ng-container [ngSwitch]="qa.icon">
+              <ng-container *ngSwitchCase="'user-plus'">
+                <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'credit-card'">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'bar-chart-3'">
+                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'calendar-check'">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'users'">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'book-open'">
+                <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'clock'">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'award'">
+                <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+              </ng-container>
+              <ng-container *ngSwitchCase="'bell'">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 01-3.46 0"/>
+              </ng-container>
+            </ng-container>
+          </svg>
+        </div>
+        <span class="quick-action__label">{{ qa.label }}</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Bottom grid: charts + activity -->
+  <div class="bottom-grid">
+
+    <!-- Admin: Attendance chart -->
+    <div *ngIf="isAdmin" class="card">
+      <div class="card__header">
+        <h3 class="card__title">Weekly Attendance</h3>
+        <span class="badge badge--blue">This Week</span>
+      </div>
+      <div class="attendance-chart">
+        <div *ngFor="let d of weekAttendance" class="attendance-chart__col">
+          <span class="attendance-chart__pct">{{ d.pct }}%</span>
+          <div class="attendance-chart__bar-wrap">
+            <div class="attendance-chart__bar"
+                 [style.height.%]="d.pct"
+                 [class.attendance-chart__bar--low]="d.pct < 85">
+            </div>
+          </div>
+          <span class="attendance-chart__day">{{ d.day }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin: Fee breakdown -->
+    <div *ngIf="isAdmin" class="card">
+      <div class="card__header">
+        <h3 class="card__title">Fee Collection</h3>
+        <span class="badge badge--green">October 2025</span>
+      </div>
+      <div class="fee-breakdown">
+        <div class="fee-breakdown__total">
+          <p class="fee-breakdown__total-label">Total Expected</p>
+          <p class="fee-breakdown__total-value">₹9.12L</p>
+        </div>
+        <div class="fee-breakdown__list">
+          <div *ngFor="let f of feeBreakdown" class="fee-breakdown__item">
+            <div class="fee-breakdown__item-info">
+              <span class="fee-dot fee-dot--{{ f.color }}"></span>
+              <span class="fee-breakdown__item-label">{{ f.label }}</span>
+            </div>
+            <div class="fee-breakdown__bar-wrap">
+              <div class="fee-breakdown__bar fee-breakdown__bar--{{ f.color }}" [style.width.%]="f.pct"></div>
+            </div>
+            <span class="fee-breakdown__item-val">{{ formatCurrency(f.value) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teacher: today's schedule (dummy) -->
+    <div *ngIf="isTeacher" class="card">
+      <div class="card__header">
+        <h3 class="card__title">Today's Schedule</h3>
+        <span class="badge badge--purple">{{ today | date:'EEE, d MMM' }}</span>
+      </div>
+      <div class="schedule-list">
+        <div *ngFor="let cls of [
+          {time:'8:00', subject:'Mathematics', class:'10-A', status:'done'},
+          {time:'9:30', subject:'Mathematics', class:'9-B',  status:'done'},
+          {time:'11:00',subject:'Mathematics', class:'11-C', status:'active'},
+          {time:'1:00', subject:'Mathematics', class:'12-A', status:'upcoming'},
+          {time:'2:30', subject:'Mathematics', class:'10-B', status:'upcoming'}
+        ]" class="schedule-item schedule-item--{{ cls.status }}">
+          <span class="schedule-item__time">{{ cls.time }}</span>
+          <div class="schedule-item__info">
+            <p class="schedule-item__subject">{{ cls.subject }}</p>
+            <p class="schedule-item__class">Class {{ cls.class }}</p>
+          </div>
+          <span class="schedule-badge schedule-badge--{{ cls.status }}">
+            {{ cls.status === 'done' ? 'Done' : cls.status === 'active' ? 'Now' : 'Upcoming' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card" [class.card--full]="!isAdmin && !isTeacher">
+      <div class="card__header">
+        <h3 class="card__title">Recent Activity</h3>
+        <button class="card__link">View all</button>
+      </div>
+      <div class="activity-list">
+        <div *ngFor="let item of recentActivity" class="activity-item">
+          <div class="activity-item__dot activity-item__dot--{{ item.type }}"></div>
+          <div class="activity-item__body">
+            <p class="activity-item__msg">{{ item.message }}</p>
+            <p class="activity-item__time">{{ item.time }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

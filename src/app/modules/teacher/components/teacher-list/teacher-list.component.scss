@@ -1,0 +1,252 @@
+.teacher-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Filter Bar ─────────────────────────────────────────── */
+.filter-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  .filter-fields {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+    flex-wrap: wrap;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 180px;
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input {
+      padding: 0.55rem 0.85rem;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: 0.875rem;
+      background: var(--bg);
+      color: var(--text);
+      transition: border-color 0.2s;
+      outline: none;
+
+      &:focus {
+        border-color: var(--primary);
+      }
+
+      &::placeholder {
+        color: var(--text-muted);
+        opacity: 0.6;
+      }
+    }
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-bottom: 0.05rem;
+  }
+}
+
+/* ── Table ──────────────────────────────────────────────── */
+.table-wrapper {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead tr {
+      background: var(--surface);
+      border-bottom: 2px solid var(--border);
+
+      th {
+        padding: 0.85rem 1rem;
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+
+      &:last-child { border-bottom: none; }
+      &:hover { background: var(--surface); }
+
+      td {
+        padding: 0.9rem 1rem;
+        font-size: 0.875rem;
+        color: var(--text);
+        vertical-align: middle;
+      }
+    }
+  }
+}
+
+.serial { color: var(--text-muted); font-size: 0.8rem; }
+
+.avatar-name {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 500;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary-light, #e8f0fe);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+/* ── Skeleton ───────────────────────────────────────────── */
+.skeleton-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.skeleton-row {
+  height: 52px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── States ─────────────────────────────────────────────── */
+.state-message {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+
+  .icon { font-size: 1.25rem; }
+
+  &.error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+  }
+
+  &.empty {
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    color: var(--text-muted);
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem;
+    text-align: center;
+
+    .icon { font-size: 2.5rem; }
+    p { margin: 0; }
+  }
+}
+
+/* ── Pagination ─────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+  &.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+  &:disabled { opacity: 0.35; cursor: not-allowed; }
+}
+
+.total-count {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Buttons (local overrides) ──────────────────────────── */
+.btn-primary {
+  padding: 0.55rem 1.25rem;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  &:hover { opacity: 0.88; }
+}
+
+.btn-secondary {
+  padding: 0.55rem 1.25rem;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  &:hover { border-color: var(--text-muted); }
+}

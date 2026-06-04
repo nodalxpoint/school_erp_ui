@@ -1,0 +1,36 @@
+// core/models/auth.model.ts
+
+export type UserRole = 'admin' | 'teacher' | 'student' | 'parent';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  avatar?: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword?: string;
+  role?: UserRole;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+  message?: string;
+}
+
+export interface ApiError {
+  message: string;
+  errors?: Record<string, string[]>;
+  statusCode?: number;
+}

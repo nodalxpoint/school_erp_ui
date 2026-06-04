@@ -1,0 +1,31 @@
+<!-- Teacher Management Page -->
+<div class="page-wrapper">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Teacher Management</h1>
+      <p>Manage teachers and their class-section assignments</p>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-nav">
+    <button
+      *ngFor="let tab of tabs"
+      class="tab-btn"
+      [class.active]="activeTab === tab.id"
+      (click)="setTab(tab.id)"
+    >
+      <span class="tab-icon">{{ tab.icon }}</span>
+      {{ tab.label }}
+    </button>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <app-teacher-list *ngIf="activeTab === 'list'"></app-teacher-list>
+    <app-assign-teacher *ngIf="activeTab === 'assign'"></app-assign-teacher>
+  </div>
+
+</div>

@@ -1,0 +1,10 @@
+<!-- shell.component.html -->
+<div class="shell">
+  <app-sidebar></app-sidebar>
+  <div class="shell__main" [class.shell__main--collapsed]="sidebarCollapsed">
+    <app-topbar></app-topbar>
+    <main class="shell__content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

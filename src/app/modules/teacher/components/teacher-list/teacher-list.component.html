@@ -1,0 +1,104 @@
+<!-- Teacher List Component -->
+<div class="teacher-list">
+
+  <!-- Filter Bar -->
+  <div class="filter-bar" [formGroup]="filterForm">
+    <div class="filter-fields">
+      <div class="field-group">
+        <label>Employee Code</label>
+        <input
+          type="text"
+          formControlName="employeeCode"
+          placeholder="Search by code…"
+          (keyup.enter)="applyFilter()"
+        />
+      </div>
+      <div class="field-group">
+        <label>Qualification</label>
+        <input
+          type="text"
+          formControlName="qualification"
+          placeholder="e.g. B.Ed, M.Sc…"
+          (keyup.enter)="applyFilter()"
+        />
+      </div>
+    </div>
+    <div class="filter-actions">
+      <button class="btn-secondary" (click)="resetFilter()">Reset</button>
+      <button class="btn-primary" (click)="applyFilter()">Search</button>
+    </div>
+  </div>
+
+  <!-- Loading Skeleton -->
+  <div class="skeleton-wrapper" *ngIf="isLoading">
+    <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
+  </div>
+
+  <!-- Error State -->
+  <div class="state-message error" *ngIf="error && !isLoading">
+    <span class="icon">⚠</span> {{ error }}
+  </div>
+
+  <!-- Empty State -->
+  <div class="state-message empty" *ngIf="!isLoading && !error && teachers.length === 0">
+    <span class="icon">🎓</span>
+    <p>No teachers found. Try adjusting filters.</p>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper" *ngIf="!isLoading && teachers.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Employee Code</th>
+          <th>Qualification</th>
+          <th>Joining Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let teacher of teachers; let i = index">
+          <td class="serial">{{ currentPage * 10 + i + 1 }}</td>
+          <td class="name-cell">
+            <div class="avatar-name">
+              <span class="avatar">{{ fullName(teacher).charAt(0) }}</span>
+              <span>{{ fullName(teacher) }}</span>
+            </div>
+          </td>
+          <td>{{ teacher.email }}</td>
+          <td><span class="badge">{{ teacher.employeeCode }}</span></td>
+          <td>{{ teacher.qualification }}</td>
+          <td>{{ teacher.joiningDate | date: 'dd MMM yyyy' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button
+      class="page-btn"
+      [disabled]="currentPage === 0"
+      (click)="onPageChange(currentPage - 1)"
+    >‹</button>
+
+    <button
+      *ngFor="let page of pages"
+      class="page-btn"
+      [class.active]="page === currentPage"
+      (click)="onPageChange(page)"
+    >{{ page + 1 }}</button>
+
+    <button
+      class="page-btn"
+      [disabled]="currentPage === totalPages - 1"
+      (click)="onPageChange(currentPage + 1)"
+    >›</button>
+  </div>
+
+  <p class="total-count" *ngIf="totalElements > 0">
+    Showing {{ teachers.length }} of {{ totalElements }} teachers
+  </p>
+</div>

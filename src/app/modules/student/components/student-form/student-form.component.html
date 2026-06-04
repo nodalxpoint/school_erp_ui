@@ -1,0 +1,173 @@
+<div class="student-form-wrapper">
+
+  <!-- Toast -->
+  <div class="toast" [class.visible]="toast.visible" [class.success]="toast.type==='success'" [class.error]="toast.type==='error'">
+    <span class="toast-icon">{{ toast.type === 'success' ? '✓' : '✕' }}</span>
+    {{ toast.message }}
+  </div>
+
+  <div class="card" [formGroup]="studentForm">
+
+    <!-- Header -->
+    <div class="card-header">
+      <span class="header-icon">🎓</span>
+      <div>
+        <h3>{{ isEditMode ? 'Edit Student' : 'Add New Student' }}</h3>
+        <p>{{ isEditMode ? 'Update student details' : 'Fill in student and parent information' }}</p>
+      </div>
+    </div>
+
+    <div class="card-body">
+
+      <!-- Section: Student Info -->
+      <div class="form-section">
+        <h4 class="section-title">Student Information</h4>
+        <div class="form-grid">
+
+          <div class="field-group">
+            <label>First Name</label>
+            <input type="text" formControlName="firstName" placeholder="Alex" />
+          </div>
+
+          <div class="field-group">
+            <label>Last Name</label>
+            <input type="text" formControlName="lastName" placeholder="Smith" />
+          </div>
+
+          <div class="field-group">
+            <label>Gender</label>
+            <select formControlName="gender">
+              <option value="" disabled selected>Select gender…</option>
+              <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label>Date of Birth</label>
+            <input type="date" formControlName="dob" />
+          </div>
+
+          <div class="field-group">
+            <label>Admission Date</label>
+            <input type="date" formControlName="admissionDate" />
+          </div>
+
+          <div class="field-group">
+            <label>Roll No</label>
+            <input type="text" formControlName="rollNo" placeholder="101" />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Section: Enrollment -->
+      <div class="form-section">
+        <h4 class="section-title">Enrollment Details</h4>
+        <div class="form-grid">
+
+          <div class="field-group">
+            <label>Academic Session</label>
+            <select formControlName="academicSessionId">
+              <option value="" disabled selected>
+                {{ isLoadingSessions ? 'Loading…' : 'Select session…' }}
+              </option>
+              <option *ngFor="let s of sessions" [value]="s.id">
+                {{ s.sessionName }}{{ s.isActive ? ' (Active)' : '' }}
+              </option>
+            </select>
+            <span class="api-badge">✓ Live from API</span>
+          </div>
+
+          <div class="field-group">
+            <label>Class ID</label>
+            <input type="text" formControlName="classId" placeholder="Paste class UUID…" />
+            <span class="todo-note">🔧 TODO: Dropdown when GET API is ready</span>
+          </div>
+
+          <div class="field-group">
+            <label>Section ID</label>
+            <input type="text" formControlName="sectionId" placeholder="Paste section UUID…" />
+            <span class="todo-note">🔧 TODO: Dropdown when GET API is ready</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Section: Family -->
+      <div class="form-section">
+        <h4 class="section-title">Family Information</h4>
+        <div class="form-grid">
+
+          <div class="field-group">
+            <label>Father's Name</label>
+            <input type="text" formControlName="fatherName" placeholder="George Smith" />
+          </div>
+
+          <div class="field-group">
+            <label>Mother's Name</label>
+            <input type="text" formControlName="motherName" placeholder="Martha Smith" />
+          </div>
+
+          <div class="field-group">
+            <label>Emergency Contact</label>
+            <input type="text" formControlName="emergencyContact" placeholder="9876543210" />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Section: Parent Account -->
+      <div class="form-section">
+        <h4 class="section-title">Parent Account</h4>
+        <p class="section-note" *ngIf="!isEditMode">
+          A parent login account will be created with these credentials.
+        </p>
+        <div class="form-grid">
+
+          <div class="field-group">
+            <label>Parent First Name</label>
+            <input type="text" formControlName="parentFirstName" placeholder="George" />
+          </div>
+
+          <div class="field-group">
+            <label>Parent Last Name</label>
+            <input type="text" formControlName="parentLastName" placeholder="Smith" />
+          </div>
+
+          <div class="field-group">
+            <label>Parent Email</label>
+            <input type="email" formControlName="parentEmail" placeholder="georgesmith@gmail.com" />
+          </div>
+
+          <div class="field-group">
+            <label>Parent Phone</label>
+            <input type="text" formControlName="parentPhone" placeholder="9876543210" />
+          </div>
+
+          <div class="field-group" *ngIf="!isEditMode">
+            <label>Parent Password</label>
+            <input type="password" formControlName="parentPassword" placeholder="password@123" />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn-ghost" (click)="onCancel()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="onSubmit()"
+          [disabled]="isSubmitting"
+        >
+          <span *ngIf="isSubmitting" class="spinner"></span>
+          {{ isSubmitting ? 'Saving…' : isEditMode ? 'Update Student' : 'Add Student' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

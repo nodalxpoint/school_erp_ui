@@ -1,0 +1,187 @@
+<!-- register.component.html -->
+<div class="auth-page">
+
+  <!-- Left branding panel -->
+  <div class="auth-brand">
+    <div class="auth-brand__bg" style="background: radial-gradient(circle at 70% 30%, hsl(var(--secondary) / 0.3) 0%, transparent 50%), radial-gradient(circle at 20% 80%, hsl(var(--primary) / 0.2) 0%, transparent 50%);"></div>
+    <div class="auth-brand__grid"></div>
+    <div class="auth-brand__content">
+      <div class="auth-brand__logo">
+        <div class="auth-brand__logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div>
+          <p class="auth-brand__logo-name">SchoolERP</p>
+          <p class="auth-brand__logo-tag">Management System</p>
+        </div>
+      </div>
+      <div class="auth-brand__hero">
+        <h2 class="auth-brand__heading">
+          Join thousands of<br>
+          <span style="color: hsl(var(--secondary))">educators today.</span>
+        </h2>
+        <p class="auth-brand__desc">Create your account and start managing your school efficiently from day one.</p>
+        <ul class="auth-brand__features">
+          <li *ngFor="let f of ['Setup in minutes', 'All roles supported', 'Secure & reliable']" class="auth-brand__feature">
+            <span class="auth-brand__feature-check">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+            </span>
+            {{ f }}
+          </li>
+        </ul>
+      </div>
+      <p class="auth-brand__footer">© 2025 SchoolERP. All rights reserved.</p>
+    </div>
+  </div>
+
+  <!-- Right form panel -->
+  <div class="auth-form-panel">
+    <div class="auth-form-wrap animate-fade-in" style="max-width: 28rem; padding: 2rem 0;">
+
+      <div class="auth-form-wrap__mobile-logo">
+        <div class="auth-brand__logo-icon auth-brand__logo-icon--sm">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <p class="auth-form-wrap__mobile-name">SchoolERP</p>
+      </div>
+
+      <div class="auth-form-wrap__header">
+        <h1 class="auth-form-wrap__title">Create your account</h1>
+        <p class="auth-form-wrap__sub">Fill in the details below to get started</p>
+      </div>
+
+      <div *ngIf="error" class="auth-alert auth-alert--error animate-fade-in">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>{{ error }}</span>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="auth-form">
+
+        <!-- Role selector -->
+        <div class="role-selector">
+          <label class="form-field__label">Account type</label>
+          <div class="role-selector__grid">
+            <button *ngFor="let r of roles" type="button"
+              class="role-selector__btn"
+              [class.role-selector__btn--active]="selectedRole === r.value"
+              (click)="selectRole(r.value)">
+              <span class="role-selector__label">{{ r.label }}</span>
+              <span class="role-selector__desc">{{ r.desc }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Full name -->
+        <div class="form-field">
+          <label class="form-field__label">Full name</label>
+          <div class="form-field__input-wrap">
+            <svg class="form-field__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input type="text" formControlName="name" placeholder="Rajesh Kumar"
+              class="form-field__input"
+              [class.form-field__input--error]="name.invalid && name.touched"
+              autocomplete="name"/>
+          </div>
+          <p *ngIf="name.invalid && name.touched" class="form-field__error">
+            {{ name.errors?.['required'] ? 'Full name is required' : 'Minimum 2 characters' }}
+          </p>
+        </div>
+
+        <!-- Email -->
+        <div class="form-field">
+          <label class="form-field__label">Email address</label>
+          <div class="form-field__input-wrap">
+            <svg class="form-field__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <input type="email" formControlName="email" placeholder="you@school.com"
+              class="form-field__input"
+              [class.form-field__input--error]="email.invalid && email.touched"
+              autocomplete="email"/>
+          </div>
+          <p *ngIf="email.invalid && email.touched" class="form-field__error">
+            {{ email.errors?.['required'] ? 'Email is required' : 'Enter a valid email address' }}
+          </p>
+        </div>
+
+        <!-- Password -->
+        <div class="form-field">
+          <label class="form-field__label">Password</label>
+          <div class="form-field__input-wrap">
+            <svg class="form-field__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+            <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Min. 8 characters"
+              class="form-field__input form-field__input--with-right"
+              [class.form-field__input--error]="password.invalid && password.touched"
+              autocomplete="new-password"/>
+            <button type="button" class="form-field__eye" (click)="showPassword = !showPassword">
+              <svg *ngIf="showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+              <svg *ngIf="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <!-- Password strength -->
+          <div *ngIf="passwordStrength" class="pwd-strength">
+            <div class="pwd-strength__bars">
+              <div *ngFor="let i of [1,2,3,4]" class="pwd-strength__bar"
+                [style.background]="i <= passwordStrength!.score ? passwordStrength!.color : 'hsl(var(--border))'">
+              </div>
+            </div>
+            <span class="pwd-strength__label" [style.color]="passwordStrength!.color">
+              {{ passwordStrength!.label }}
+            </span>
+          </div>
+          <p *ngIf="password.invalid && password.touched" class="form-field__error">
+            {{ password.errors?.['required'] ? 'Password is required' : 'Minimum 8 characters required' }}
+          </p>
+        </div>
+
+        <!-- Confirm password -->
+        <div class="form-field">
+          <label class="form-field__label">Confirm password</label>
+          <div class="form-field__input-wrap">
+            <svg class="form-field__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+            <input [type]="showConfirm ? 'text' : 'password'" formControlName="confirmPassword" placeholder="Repeat your password"
+              class="form-field__input form-field__input--with-right"
+              [class.form-field__input--error]="(confirmPassword.touched && form.errors?.['passwordMismatch'])"
+              autocomplete="new-password"/>
+            <button type="button" class="form-field__eye" (click)="showConfirm = !showConfirm">
+              <svg *ngIf="showConfirm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+              <svg *ngIf="!showConfirm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <p *ngIf="confirmPassword.touched && form.errors?.['passwordMismatch']" class="form-field__error">Passwords do not match</p>
+        </div>
+
+        <button type="submit" class="auth-form__submit" [disabled]="isLoading">
+          <svg *ngIf="isLoading" class="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          </svg>
+          {{ isLoading ? 'Creating account...' : 'Create account' }}
+        </button>
+      </form>
+
+      <p class="auth-form-wrap__footer-text">
+        Already have an account?
+        <a routerLink="/auth/login" class="auth-form-wrap__link">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>

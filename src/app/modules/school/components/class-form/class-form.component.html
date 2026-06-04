@@ -1,0 +1,110 @@
+<div class="class-form-wrapper">
+
+  <!-- Toast -->
+  <div class="toast" [class.visible]="toast.visible" [class.success]="toast.type==='success'" [class.error]="toast.type==='error'">
+    <span class="toast-icon">{{ toast.type === 'success' ? '✓' : '✕' }}</span>
+    {{ toast.message }}
+  </div>
+
+  <div class="card" [formGroup]="classForm">
+    <div class="card-header">
+      <span class="header-icon">🏫</span>
+      <div>
+        <h3>Class Management</h3>
+        <p>Create a new class or add sections to an existing one</p>
+      </div>
+    </div>
+
+    <div class="card-body">
+
+      <!-- Mode Toggle -->
+      <div class="mode-toggle">
+        <label class="mode-option" [class.active]="classForm.get('mode')?.value === 'create'">
+          <input type="radio" formControlName="mode" value="create" />
+          <span class="mode-icon">✦</span>
+          Create New Class
+        </label>
+        <label class="mode-option" [class.active]="classForm.get('mode')?.value === 'addSections'">
+          <input type="radio" formControlName="mode" value="addSections" />
+          <span class="mode-icon">＋</span>
+          Add Sections to Existing Class
+        </label>
+      </div>
+
+      <div class="form-fields">
+
+        <!-- Create mode: class name input -->
+        <div class="field-group" *ngIf="classForm.get('mode')?.value === 'create'">
+          <label>Class Name</label>
+          <input
+            type="text"
+            formControlName="className"
+            placeholder="e.g. Class 10, Grade 5…"
+          />
+        </div>
+
+        <!-- Add sections mode: existing class ID -->
+        <div class="field-group" *ngIf="classForm.get('mode')?.value === 'addSections'">
+          <label>Existing Class ID</label>
+          <input
+            type="text"
+            formControlName="existingClassId"
+            placeholder="Paste class UUID…"
+          />
+          <span class="todo-note">
+            🔧 TODO: Replace with dropdown once
+            <code>GET /api/school/classAndSection/list</code> is ready
+          </span>
+        </div>
+
+        <!-- Sections (dynamic list) -->
+        <div class="sections-block">
+          <div class="sections-header">
+            <label>Sections</label>
+            <button type="button" class="btn-add-section" (click)="addSection()">
+              + Add Section
+            </button>
+          </div>
+
+          <div class="sections-list" formArrayName="sections">
+            <div
+              class="section-row"
+              *ngFor="let ctrl of sectionControls; let i = index"
+            >
+              <input
+                type="text"
+                [formControlName]="i"
+                placeholder="e.g. A, B, C…"
+                class="section-input"
+              />
+              <button
+                type="button"
+                class="btn-remove-section"
+                (click)="removeSection(i)"
+                [disabled]="sectionControls.length === 1"
+                title="Remove"
+              >✕</button>
+            </div>
+          </div>
+
+          <p class="sections-hint">Sections will be auto-uppercased (a → A)</p>
+        </div>
+
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="onSubmit()"
+          [disabled]="isSubmitting"
+        >
+          <span *ngIf="isSubmitting" class="spinner"></span>
+          {{ isSubmitting ? 'Saving…' : classForm.get('mode')?.value === 'create' ? 'Create Class' : 'Add Sections' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

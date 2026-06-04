@@ -1,0 +1,93 @@
+<div class="student-list">
+
+  <!-- Filter Bar -->
+  <div class="filter-bar" [formGroup]="filterForm">
+    <div class="filter-fields">
+      <div class="field-group">
+        <label>First Name</label>
+        <input type="text" formControlName="firstName" placeholder="Search…" (keyup.enter)="applyFilter()" />
+      </div>
+      <div class="field-group">
+        <label>Last Name</label>
+        <input type="text" formControlName="lastName" placeholder="Search…" (keyup.enter)="applyFilter()" />
+      </div>
+      <div class="field-group">
+        <label>Admission No</label>
+        <input type="text" formControlName="admissionNo" placeholder="ADM-2026-001" (keyup.enter)="applyFilter()" />
+      </div>
+      <div class="field-group">
+        <label>Class ID</label>
+        <input type="text" formControlName="classId" placeholder="UUID…" (keyup.enter)="applyFilter()" />
+      </div>
+      <div class="field-group">
+        <label>Section ID</label>
+        <input type="text" formControlName="sectionId" placeholder="UUID…" (keyup.enter)="applyFilter()" />
+      </div>
+    </div>
+    <div class="filter-actions">
+      <button class="btn-secondary" (click)="resetFilter()">Reset</button>
+      <button class="btn-primary" (click)="applyFilter()">Search</button>
+    </div>
+  </div>
+
+  <!-- Skeleton -->
+  <div class="skeleton-wrapper" *ngIf="isLoading">
+    <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
+  </div>
+
+  <!-- Error -->
+  <div class="state-message error" *ngIf="error && !isLoading">
+    <span>⚠</span> {{ error }}
+  </div>
+
+  <!-- Empty -->
+  <div class="state-message empty" *ngIf="!isLoading && !error && students.length === 0">
+    <span class="empty-icon">🎓</span>
+    <p>No students found. Try adjusting filters or add a new student.</p>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper" *ngIf="!isLoading && students.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Admission No</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of students; let i = index">
+          <td class="serial">{{ currentPage * pageSize + i + 1 }}</td>
+          <td>
+            <div class="avatar-name">
+              <span class="avatar">{{ fullName(s).charAt(0) }}</span>
+              <span>{{ fullName(s) }}</span>
+            </div>
+          </td>
+          <td><span class="badge">{{ s.admissionNo }}</span></td>
+          <td>
+            <button class="action-btn edit" (click)="onEditStudent(s)" title="Edit">✎</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button class="page-btn" [disabled]="currentPage === 0" (click)="onPageChange(currentPage - 1)">‹</button>
+    <button
+      *ngFor="let page of pages"
+      class="page-btn"
+      [class.active]="page === currentPage"
+      (click)="onPageChange(page)"
+    >{{ page + 1 }}</button>
+    <button class="page-btn" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 1)">›</button>
+  </div>
+
+  <p class="total-count" *ngIf="totalElements > 0">
+    Showing {{ students.length }} of {{ totalElements }} students
+  </p>
+</div>
