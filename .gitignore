@@ -72,4 +72,4 @@ Thumbs.db
 *.log
 
 # Test coverage
-/coverage
+/coverage"build.bat" 
