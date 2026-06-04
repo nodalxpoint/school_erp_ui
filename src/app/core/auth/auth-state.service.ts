@@ -3,8 +3,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { User } from '../models/auth.model';
+import { User, UserRole } from '../models/auth.model';
 import { TokenService } from './token.service';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({ providedIn: 'root' })
 export class AuthStateService {
@@ -21,11 +22,32 @@ export class AuthStateService {
 
   initialize(): void {
     const token = this.tokenService.getToken();
-    const user = this.tokenService.getUser();
-    if (token && user) {
-      this._user$.next(user);
-      this._isAuthenticated$.next(true);
+    if (!token) return;
+
+    // Pehle localStorage se try karo
+    let user = this.tokenService.getUser();
+
+    // Agar user nahi mila — token decode karo
+    if (!user) {
+      try {
+        const decoded: any = jwtDecode(token);
+        const builtUser: User = {
+          id:       decoded.userId ?? decoded.sub ?? '',
+          name:     decoded.name ?? decoded.email ?? decoded.sub ?? '',
+          email:    decoded.sub ?? '',
+          role:     decoded.role as UserRole,
+          schoolId: decoded.schoolId ?? '',   // ← FIX 1: schoolId add kiya
+        };
+        this.tokenService.setUser(builtUser); // ← FIX 2: null nahi, typed User
+        user = builtUser;
+      } catch {
+        this.tokenService.clearAll();
+        return;
+      }
     }
+
+    this._user$.next(user);
+    this._isAuthenticated$.next(true);
   }
 
   setAuth(token: string, user: User): void {

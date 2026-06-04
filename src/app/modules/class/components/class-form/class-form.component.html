@@ -1,0 +1,75 @@
+<div class="form-card">
+  <div class="form-header">
+    <div class="form-header-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+      </svg>
+    </div>
+    <h3 class="form-title">{{ isEditMode ? 'Edit Class' : 'Add New Class' }}</h3>
+  </div>
+
+  <div class="form-body">
+    <!-- Class Name -->
+    <div class="field-group" [class.has-error]="errors['className']">
+      <label class="field-label">Class Name <span class="required">*</span></label>
+      <input
+        class="field-input"
+        type="text"
+        [(ngModel)]="form.className"
+        placeholder="e.g. Grade 10, Class XI"
+        [disabled]="isSubmitting"
+      />
+      <span class="error-msg" *ngIf="errors['className']">{{ errors['className'] }}</span>
+    </div>
+
+    <!-- Class ID (optional) -->
+    <div class="field-group">
+      <label class="field-label">Class ID <span class="optional">(optional)</span></label>
+      <input
+        class="field-input"
+        type="text"
+        [(ngModel)]="form.classId"
+        placeholder="Custom identifier"
+        [disabled]="isSubmitting"
+      />
+    </div>
+
+    <!-- Sections -->
+    <div class="field-group">
+      <label class="field-label">Sections</label>
+      <div class="section-input-row">
+        <input
+          class="field-input"
+          type="text"
+          [(ngModel)]="newSection"
+          placeholder="e.g. A, B, C"
+          (keydown)="onSectionKeydown($event)"
+          [disabled]="isSubmitting"
+        />
+        <button class="btn-add-section" type="button" (click)="addSection()" [disabled]="!newSection.trim()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add
+        </button>
+      </div>
+      <div class="sections-chips" *ngIf="form.sections.length > 0">
+        <span class="chip" *ngFor="let s of form.sections">
+          {{ s }}
+          <button class="chip-remove" (click)="removeSection(s)" type="button">×</button>
+        </span>
+      </div>
+      <p class="field-hint">Press Enter or click Add. Sections auto-uppercased.</p>
+    </div>
+  </div>
+
+  <div class="form-footer">
+    <button class="btn-cancel" type="button" (click)="onCancel()" [disabled]="isSubmitting">
+      Cancel
+    </button>
+    <button class="btn-submit" type="button" (click)="onSubmit()" [disabled]="isSubmitting">
+      <span *ngIf="isSubmitting" class="spinner"></span>
+      {{ isEditMode ? 'Update Class' : 'Create Class' }}
+    </button>
+  </div>
+</div>

@@ -1,6 +1,6 @@
 // core/models/auth.model.ts
 
-export type UserRole = 'admin' | 'teacher' | 'student' | 'parent';
+export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'TEACHER' | 'STUDENT' | 'PARENT';
 
 export interface User {
   id: string;
@@ -8,6 +8,7 @@ export interface User {
   email: string;
   role: UserRole;
   avatar?: string;
+  schoolId: string;
 }
 
 export interface LoginRequest {
@@ -21,6 +22,17 @@ export interface RegisterRequest {
   password: string;
   confirmPassword?: string;
   role?: UserRole;
+}
+
+// ✅ Backend actual response structure
+export interface LoginApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    role: UserRole;
+    token: string;
+  };
+  timestamp: string;
 }
 
 export interface AuthResponse {

@@ -1,0 +1,172 @@
+<div class="page-wrapper">
+
+  <!-- Toast -->
+  <div class="toast" *ngIf="toast" [class.toast-success]="toast.type === 'success'" [class.toast-error]="toast.type === 'error'">
+    <svg *ngIf="toast.type === 'success'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <svg *ngIf="toast.type === 'error'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+    </svg>
+    {{ toast.message }}
+  </div>
+
+  <!-- Delete confirm modal -->
+  <div class="modal-backdrop" *ngIf="deleteTargetId">
+    <div class="confirm-modal">
+      <div class="confirm-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+          <path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+        </svg>
+      </div>
+      <h3 class="confirm-title">Delete Class?</h3>
+      <p class="confirm-text">This action cannot be undone. All associated data will be removed.</p>
+      <div class="confirm-actions">
+        <button class="btn-secondary" (click)="cancelDelete()">Cancel</button>
+        <button class="btn-danger" (click)="doDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="4"/>
+          <path d="M8 12h8M8 8h8M8 16h5"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="page-title">Class Management</h1>
+        <p class="page-sub">{{ filteredCount }} {{ filteredCount === 1 ? 'class' : 'classes' }} in this school</p>
+      </div>
+    </div>
+    <div class="page-header-right">
+      <button class="btn-bulk-delete" *ngIf="selectedIds.size > 0" (click)="bulkDelete()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+        </svg>
+        Delete ({{ selectedIds.size }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab" [class.active]="activeTab === 'list'" (click)="setTab('list')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+        <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+        <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+      </svg>
+      All Classes
+    </button>
+    <button class="tab" [class.active]="activeTab === 'add'" (click)="setTab('add')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      {{ editTarget ? 'Edit Class' : 'Add Class' }}
+    </button>
+    <button class="tab" [class.active]="activeTab === 'bulk'" (click)="setTab('bulk')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+      </svg>
+      Bulk Import
+    </button>
+  </div>
+
+  <!-- Tab Content -->
+
+  <!-- LIST TAB -->
+  <div *ngIf="activeTab === 'list'">
+    <app-class-list
+      [classes]="classes"
+      [isLoading]="isLoading"
+      [selectedIds]="selectedIds"
+      (editClass)="onEdit($event)"
+      (deleteClass)="confirmDelete($event)"
+      (toggleSelect)="toggleSelect($event)"
+      (toggleSelectAll)="toggleSelectAll($event)"
+    ></app-class-list>
+  </div>
+
+  <!-- ADD/EDIT TAB -->
+  <div *ngIf="activeTab === 'add'" class="form-tab-wrap">
+    <app-class-form
+      [editClass]="editTarget"
+      [isSubmitting]="isSubmitting"
+      (formSubmit)="onFormSubmit($event)"
+      (cancelEdit)="onCancelEdit()"
+    ></app-class-form>
+  </div>
+
+  <!-- BULK IMPORT TAB -->
+  <div *ngIf="activeTab === 'bulk'" class="bulk-tab">
+    <div class="bulk-card">
+      <div class="bulk-header">
+        <div class="bulk-header-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="bulk-title">Bulk Import Classes</h3>
+          <p class="bulk-sub">Add multiple classes at once. Sections comma-separated (e.g. A, B, C).</p>
+        </div>
+      </div>
+
+      <div class="bulk-table-wrap">
+        <table class="bulk-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Class Name <span class="req">*</span></th>
+              <th>Class ID <span class="opt">(optional)</span></th>
+              <th>Sections <span class="opt">(comma separated)</span></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of bulkRows; let i = index" [class.has-row-error]="row.error">
+              <td class="row-num">{{ i + 1 }}</td>
+              <td>
+                <input class="bulk-input" type="text" [(ngModel)]="row.className" placeholder="Class name" />
+                <span class="row-error" *ngIf="row.error">{{ row.error }}</span>
+              </td>
+              <td>
+                <input class="bulk-input" type="text" [(ngModel)]="row.classId" placeholder="Optional ID" />
+              </td>
+              <td>
+                <input class="bulk-input" type="text" [(ngModel)]="row.sections" placeholder="A, B, C" />
+              </td>
+              <td>
+                <button class="row-remove-btn" (click)="removeBulkRow(i)" [disabled]="bulkRows.length === 1">×</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bulk-footer">
+        <button class="btn-add-row" (click)="addBulkRow()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add Row
+        </button>
+        <div class="bulk-actions">
+          <button class="btn-secondary" (click)="setTab('list')" [disabled]="isSubmitting">Cancel</button>
+          <button class="btn-primary" (click)="submitBulk()" [disabled]="isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner"></span>
+            Import {{ bulkRows.length }} {{ bulkRows.length === 1 ? 'Class' : 'Classes' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

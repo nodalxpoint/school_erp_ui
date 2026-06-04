@@ -29,15 +29,15 @@ export class RegisterComponent {
   showConfirm = false;
 
   roles: RoleOption[] = [
-    { value: 'admin',   label: 'Admin',   desc: 'Full access' },
-    { value: 'teacher', label: 'Teacher', desc: 'Manage classes' },
-    { value: 'student', label: 'Student', desc: 'View only' },
-    { value: 'parent',  label: 'Parent',  desc: 'Child info' },
+    { value: 'ADMIN',   label: 'Admin',   desc: 'Full access' },
+    { value: 'TEACHER', label: 'Teacher', desc: 'Manage classes' },
+    { value: 'STUDENT', label: 'Student', desc: 'View only' },
+    { value: 'PARENT',  label: 'Parent',  desc: 'Child info' },
   ];
 
   constructor(private fb: FormBuilder, private authService: AuthService) {
     this.form = this.fb.group({
-      role: ['admin'],
+      role: ['ADMIN'],
       name:  ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],

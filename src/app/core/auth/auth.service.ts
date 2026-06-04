@@ -1,4 +1,4 @@
-// core/auth/auth.service.ts — Auth API calls + state management
+// core/auth/auth.service.ts
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -7,7 +7,8 @@ import { Router } from '@angular/router';
 import { HttpService } from '../services/http.service';
 import { AuthStateService } from './auth-state.service';
 import { ENDPOINTS } from '../services/endpoints';
-import { LoginRequest, RegisterRequest, AuthResponse } from '../models/auth.model';
+import { LoginRequest, RegisterRequest, AuthResponse, LoginApiResponse, User } from '../models/auth.model';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -17,12 +18,41 @@ export class AuthService {
     private router: Router,
   ) {}
 
-  login(payload: LoginRequest): Observable<AuthResponse> {
-    return this.http.publicPost<AuthResponse>(ENDPOINTS.auth.login, payload).pipe(
+  login(payload: LoginRequest): Observable<LoginApiResponse> {
+    return this.http.publicPost<LoginApiResponse>(ENDPOINTS.auth.login, payload).pipe(
       tap((res) => {
-        this.authState.setAuth(res.token, res.user);
-        // Role-based redirect
-        this.redirectAfterLogin(res.user.role);
+        if (!res?.data?.token) {
+          console.error('[AuthService] login: token missing in response', res);
+          return;
+        }
+
+        const { token, role } = res.data;
+
+        // JWT decode karo — backend se sub=email, userId, role aata hai
+        let decoded: any = {};
+        try {
+          decoded = jwtDecode(token);
+        } catch (e) {
+          console.error('[AuthService] JWT decode failed', e);
+        }
+
+        // name JWT mein nahi hai — email se build karo (profile API baad mein)
+        const email = decoded.sub ?? '';
+        const nameFromEmail = email.split('@')[0] ?? 'User';
+
+        const user: User = {
+          id:    decoded.userId ?? '',
+          name:  decoded.name ?? decoded.firstName
+                   ? `${decoded.firstName} ${decoded.lastName ?? ''}`.trim()
+                   : nameFromEmail,
+          email,
+          role,   // backend response se aata hai — 'SUPER_ADMIN' etc.
+          schoolId: decoded.schoolId ?? '',
+        };
+
+        console.log('[AuthService] Storing user:', user); // debug — baad mein hata dena
+        this.authState.setAuth(token, user);
+        this.router.navigate(['/dashboard']);
       })
     );
   }
@@ -31,7 +61,7 @@ export class AuthService {
     return this.http.publicPost<AuthResponse>(ENDPOINTS.auth.register, payload).pipe(
       tap((res) => {
         this.authState.setAuth(res.token, res.user);
-        this.redirectAfterLogin(res.user.role);
+        this.router.navigate(['/dashboard']);
       })
     );
   }
@@ -41,18 +71,11 @@ export class AuthService {
       error: () => {},
       complete: () => this.clearAndRedirect(),
     });
-    // Clear immediately regardless of API response
     this.clearAndRedirect();
   }
 
   private clearAndRedirect(): void {
     this.authState.clearAuth();
     this.router.navigate(['/auth/login']);
-  }
-
-  // Role-based dashboard redirect
-  private redirectAfterLogin(role: string): void {
-    // All roles go to /dashboard — the dashboard component renders role-specific content
-    this.router.navigate(['/dashboard']);
   }
 }

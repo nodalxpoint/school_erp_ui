@@ -54,9 +54,15 @@ export const routes: Routes = [
 
       // Classes & Sections
       {
-        path: 'classes',
+        path: 'school',
         loadChildren: () =>
           import('./modules/school/school.routes').then(m => m.SCHOOL_ROUTES)
+      },
+
+       {
+        path: 'classes',
+        loadChildren: () =>
+          import('./modules/class/class.routes').then(m => m.CLASS_ROUTES)
       },
 
       // ── Placeholder routes — uncomment as backend modules get built ──

@@ -9,26 +9,33 @@ export type Permission =
   | 'attendance:read' | 'attendance:write'
   | 'reports:read'
   | 'dashboard:read';
-
+  
 const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
-  admin: [
+  SUPER_ADMIN: [
     'students:read', 'students:write', 'students:delete',
     'teachers:read', 'teachers:write', 'teachers:delete',
     'fees:read', 'fees:write',
     'attendance:read', 'attendance:write',
     'reports:read', 'dashboard:read',
   ],
-  teacher: [
+  ADMIN: [
+    'students:read', 'students:write', 'students:delete',
+    'teachers:read', 'teachers:write', 'teachers:delete',
+    'fees:read', 'fees:write',
+    'attendance:read', 'attendance:write',
+    'reports:read', 'dashboard:read',
+  ],
+  TEACHER: [
     'students:read',
     'attendance:read', 'attendance:write',
     'dashboard:read',
   ],
-  student: [
+  STUDENT: [
     'fees:read',
     'attendance:read',
     'dashboard:read',
   ],
-  parent: [
+  PARENT: [
     'fees:read',
     'attendance:read',
     'dashboard:read',
