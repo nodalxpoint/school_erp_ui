@@ -1,7 +1,8 @@
 <div class="form-card">
+
   <div class="form-header">
     <div class="form-header-icon">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
       </svg>
     </div>
@@ -9,58 +10,70 @@
   </div>
 
   <div class="form-body">
+
     <!-- Class Name -->
     <div class="field-group" [class.has-error]="errors['className']">
-      <label class="field-label">Class Name <span class="required">*</span></label>
+      <label class="field-label">
+        Class Name
+        <span class="required">*</span>
+      </label>
       <input
         class="field-input"
         type="text"
         [(ngModel)]="form.className"
-        placeholder="e.g. Grade 10, Class XI"
+        placeholder="e.g. Grade 10, Class XI, Standard 8"
         [disabled]="isSubmitting"
+        autocomplete="off"
       />
-      <span class="error-msg" *ngIf="errors['className']">{{ errors['className'] }}</span>
-    </div>
-
-    <!-- Class ID (optional) -->
-    <div class="field-group">
-      <label class="field-label">Class ID <span class="optional">(optional)</span></label>
-      <input
-        class="field-input"
-        type="text"
-        [(ngModel)]="form.classId"
-        placeholder="Custom identifier"
-        [disabled]="isSubmitting"
-      />
+      <span class="error-msg" *ngIf="errors['className']">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        {{ errors['className'] }}
+      </span>
     </div>
 
     <!-- Sections -->
     <div class="field-group">
-      <label class="field-label">Sections</label>
+      <label class="field-label">Sections <span class="optional">(optional)</span></label>
       <div class="section-input-row">
         <input
           class="field-input"
           type="text"
           [(ngModel)]="newSection"
-          placeholder="e.g. A, B, C"
+          placeholder="Type a section e.g. A, B or Science"
           (keydown)="onSectionKeydown($event)"
           [disabled]="isSubmitting"
+          autocomplete="off"
         />
-        <button class="btn-add-section" type="button" (click)="addSection()" [disabled]="!newSection.trim()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <button
+          class="btn-add-section"
+          type="button"
+          (click)="addSection()"
+          [disabled]="!newSection.trim() || isSubmitting"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
           Add
         </button>
       </div>
+
       <div class="sections-chips" *ngIf="form.sections.length > 0">
         <span class="chip" *ngFor="let s of form.sections">
           {{ s }}
-          <button class="chip-remove" (click)="removeSection(s)" type="button">×</button>
+          <button class="chip-remove" (click)="removeSection(s)" type="button" [disabled]="isSubmitting">×</button>
         </span>
       </div>
-      <p class="field-hint">Press Enter or click Add. Sections auto-uppercased.</p>
+
+      <p class="field-hint">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        Press Enter or click Add. Sections are auto-uppercased.
+      </p>
     </div>
+
   </div>
 
   <div class="form-footer">
@@ -68,8 +81,12 @@
       Cancel
     </button>
     <button class="btn-submit" type="button" (click)="onSubmit()" [disabled]="isSubmitting">
-      <span *ngIf="isSubmitting" class="spinner"></span>
+      <span class="spinner" *ngIf="isSubmitting"></span>
+      <svg *ngIf="!isSubmitting" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
       {{ isEditMode ? 'Update Class' : 'Create Class' }}
     </button>
   </div>
+
 </div>

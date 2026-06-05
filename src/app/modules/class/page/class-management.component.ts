@@ -1,104 +1,86 @@
-import { Component, OnInit } from '@angular/core';
+// class-management.component.ts
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ClassFormComponent } from '../components/class-form/class-form.component';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ClassListComponent } from '../components/class-list/class-list.component';
 import { ClassService } from '../services/class.service';
-import { BulkCreateClassDto, Class, ClassesDto, CreateClassDto } from '../models/class.model';
+import { ClassesDto } from '../models/class.model';
 import { AuthStateService } from '../../../core/auth/auth-state.service';
+import { ChangeDetectorRef } from '@angular/core';  // ← add ChangeDetectorRef
 
-type Tab = 'list' | 'add' | 'bulk';
-
+//  Component, OnDestroy, OnInit
 @Component({
   selector: 'app-class-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, ClassFormComponent, ClassListComponent],
+  imports: [CommonModule, FormsModule, ClassListComponent],
   templateUrl: './class-management.component.html',
   styleUrls: ['./class-management.component.scss']
 })
-export class ClassManagementComponent implements OnInit {
+export class ClassManagementComponent implements OnInit, OnDestroy {
   private schoolId = '';
 
-  activeTab: Tab = 'list';
   classes: ClassesDto[] = [];
-  editTarget: Class | null = null;
   isLoading = false;
-  isSubmitting = false;
   toast: { message: string; type: 'success' | 'error' } | null = null;
-
   selectedIds = new Set<string>();
-
-  bulkRows: { className: string; classId: string; sections: string; error?: string }[] = [
-    { className: '', classId: '', sections: '' }
-  ];
-
   deleteTargetId: string | null = null;
 
   constructor(
     private classService: ClassService,
-    private authState: AuthStateService
+    private authState: AuthStateService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     this.schoolId = this.authState.currentUser?.schoolId ?? '';
+    console.log('[ClassMgmt] schoolId:', this.schoolId);
+    this.initPage();
+  }
+
+  ngOnDestroy(): void {}
+
+  private initPage(): void {
+    const state = history.state as { toast?: { message: string; type: 'success' | 'error' } };
+    if (state?.toast) {
+      this.showToast(state.toast.message, state.toast.type);
+    }
     this.loadClasses();
   }
 
-  loadClasses(): void {
+loadClasses(): void {
     this.isLoading = true;
+    this.classes = [];
+
     this.classService.getAllClasses(this.schoolId).subscribe({
-      next: data => { this.classes = data; this.isLoading = false; },
-      error: () => { this.isLoading = false; this.showToast('Failed to load classes', 'error'); }
+      next: data => {
+        // setTimeout HATAO, seedha assign karo
+        this.classes = [...data];
+        this.isLoading = false;
+        this.cdr.detectChanges();   // ← yeh add karo
+        console.log('[ClassMgmt] loaded:', this.classes.length);
+      },
+      error: () => {
+        // setTimeout HATAO yahan bhi
+        this.isLoading = false;
+        this.showToast('Failed to load classes', 'error');
+        this.cdr.detectChanges();   // ← yahan bhi
+      }
     });
   }
 
-  onFormSubmit(dto: CreateClassDto): void {
-    this.isSubmitting = true;
-    if (this.editTarget) {
-      // UPDATE — classId pass karo
-      this.classService.updateClass(this.editTarget.id, this.schoolId, dto).subscribe({
-        next: (res) => {
-          this.isSubmitting = false;
-          this.editTarget = null;
-          this.activeTab = 'list';
-          this.showToast(res.message ?? 'Class updated successfully', 'success');
-          this.loadClasses();
-        },
-        error: () => { this.isSubmitting = false; this.showToast('Failed to update class', 'error'); }
-      });
-    } else {
-      // CREATE — classId nahi bhejo
-      this.classService.createClass(this.schoolId, dto).subscribe({
-        next: (res) => {
-          this.isSubmitting = false;
-          this.activeTab = 'list';
-          this.showToast(res.message ?? 'Class created successfully', 'success');
-          this.loadClasses();
-        },
-        error: () => { this.isSubmitting = false; this.showToast('Failed to create class', 'error'); }
-      });
-    }
+  onAdd(): void {
+    this.router.navigate(['form'], { relativeTo: this.route });
   }
 
   onEdit(cls: ClassesDto): void {
-    this.classService.getClassById(cls.id).subscribe({
-      next: full => { this.editTarget = full; this.activeTab = 'add'; },
-      error: () => this.showToast('Failed to load class details', 'error')
-    });
+    this.router.navigate(['form', cls.id], { relativeTo: this.route });
   }
 
-  onCancelEdit(): void {
-    this.editTarget = null;
-    this.activeTab = 'list';
-  }
-
-  confirmDelete(id: string): void {
-    this.deleteTargetId = id;
-  }
-
-  cancelDelete(): void {
-    this.deleteTargetId = null;
-  }
+  confirmDelete(id: string): void { this.deleteTargetId = id; }
+  cancelDelete(): void { this.deleteTargetId = null; }
 
   doDelete(): void {
     if (!this.deleteTargetId) return;
@@ -110,46 +92,10 @@ export class ClassManagementComponent implements OnInit {
         this.showToast(res.message ?? 'Class deleted', 'success');
         this.loadClasses();
       },
-      error: () => { this.deleteTargetId = null; this.showToast('Failed to delete class', 'error'); }
-    });
-  }
-
-  addBulkRow(): void {
-    this.bulkRows.push({ className: '', classId: '', sections: '' });
-  }
-
-  removeBulkRow(i: number): void {
-    if (this.bulkRows.length > 1) this.bulkRows.splice(i, 1);
-  }
-
-  validateBulkRows(): boolean {
-    let valid = true;
-    this.bulkRows.forEach(row => {
-      row.error = '';
-      if (!row.className.trim()) { row.error = 'Required'; valid = false; }
-    });
-    return valid;
-  }
-
-  submitBulk(): void {
-    if (!this.validateBulkRows()) return;
-    const dto: BulkCreateClassDto = {
-      classes: this.bulkRows.map(r => ({
-        className: r.className.trim(),
-        classId:   r.classId.trim() || undefined,
-        sections:  r.sections ? r.sections.split(',').map(s => s.trim().toUpperCase()).filter(Boolean) : []
-      }))
-    };
-    this.isSubmitting = true;
-    this.classService.bulkCreateClasses(this.schoolId, dto).subscribe({
-      next: created => {
-        this.isSubmitting = false;
-        this.bulkRows = [{ className: '', classId: '', sections: '' }];
-        this.activeTab = 'list';
-        this.showToast(`${created.length} classes imported successfully`, 'success');
-        this.loadClasses();
-      },
-      error: () => { this.isSubmitting = false; this.showToast('Bulk import failed', 'error'); }
+      error: () => {
+        this.deleteTargetId = null;
+        this.showToast('Failed to delete class', 'error');
+      }
     });
   }
 
@@ -175,12 +121,7 @@ export class ClassManagementComponent implements OnInit {
 
   showToast(message: string, type: 'success' | 'error'): void {
     this.toast = { message, type };
-    setTimeout(() => this.toast = null, 3500);
-  }
-
-  setTab(tab: Tab): void {
-    this.activeTab = tab;
-    if (tab !== 'add') this.editTarget = null;
+    setTimeout(() => (this.toast = null), 3500);
   }
 
   get filteredCount(): number { return this.classes.length; }

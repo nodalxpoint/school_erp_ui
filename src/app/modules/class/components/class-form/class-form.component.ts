@@ -18,12 +18,11 @@ export class ClassFormComponent implements OnInit, OnChanges {
 
   form: ClassFormState = {
     className: '',
-    classId: '',
     sections: []
   };
 
   newSection = '';
-  errors: Partial<ClassFormState> = {};
+  errors: { className?: string } = {};
 
   get isEditMode(): boolean {
     return !!this.editClass;
@@ -38,9 +37,10 @@ export class ClassFormComponent implements OnInit, OnChanges {
       if (this.editClass) {
         this.form = {
           className: this.editClass.className,
-          classId: this.editClass.id,
           sections: []
         };
+        this.errors = {};
+        this.newSection = '';
       } else {
         this.resetForm();
       }
@@ -78,8 +78,7 @@ export class ClassFormComponent implements OnInit, OnChanges {
     if (!this.validate()) return;
     this.formSubmit.emit({
       className: this.form.className.trim(),
-      classId: this.form.classId || undefined,
-      sections: this.form.sections
+      sections:  this.form.sections,
     });
   }
 
@@ -89,7 +88,7 @@ export class ClassFormComponent implements OnInit, OnChanges {
   }
 
   resetForm(): void {
-    this.form = { className: '', classId: '', sections: [] };
+    this.form = { className: '', sections: [] };
     this.newSection = '';
     this.errors = {};
   }

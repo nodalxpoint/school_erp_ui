@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { BulkCreateClassDto, Class, ClassesDto, CreateClassDto } from '../models/class.model';
+import { Observable, map } from 'rxjs';
+import {
+  BulkCreateClassDto,
+  Class,
+  ClassesDto,
+  ClassListApiResponse,
+  CreateClassDto
+} from '../models/class.model';
 import { environment } from '../../../../environments/environment';
 
 export interface ApiResponse {
@@ -16,33 +22,42 @@ export class ClassService {
 
   constructor(private http: HttpClient) {}
 
-  getAllClasses(schoolId: string): Observable<ClassesDto[]> {
-    return this.http.get<ClassesDto[]>(`${this.baseUrl}/getAll?schoolId=${schoolId}`);
-  }
+  // POST /list — paginated response, data[] ke andar classId field hai
+getAllClasses(schoolId: string): Observable<ClassesDto[]> {
+  return this.http
+    .post<any>(`${this.baseUrl}/list`, { schoolId, page: 0, size: 200 })
+    .pipe(
+      map(res => {
+        console.log('[ClassService] raw response:', res); // ← YE DEKH
+        const list = res?.data ?? res; // interceptor unwrap kare toh direct array milega
+        return (Array.isArray(list) ? list : []).map((item: any) => ({
+          id:        item.classId,
+          className: item.className,
+          sections:  item.sections ?? [],
+        }));
+      })
+    );
+}
 
   getClassById(id: string): Observable<Class> {
     return this.http.get<Class>(`${this.baseUrl}/get/${id}`);
   }
 
-  // CREATE — schoolId body mein, classId nahi
   createClass(schoolId: string, dto: CreateClassDto): Observable<ApiResponse> {
-    const body = {
-      schoolId:  schoolId,        // ← backend ko chahiye
+    return this.http.post<ApiResponse>(`${this.baseUrl}/addOrUpdate`, {
+      schoolId,
       className: dto.className,
       sections:  dto.sections ?? [],
-    };
-    return this.http.post<ApiResponse>(`${this.baseUrl}/addOrUpdate`, body);
+    });
   }
 
-  // UPDATE — schoolId + classId dono body mein
   updateClass(id: string, schoolId: string, dto: Partial<CreateClassDto>): Observable<ApiResponse> {
-    const body = {
-      schoolId:  schoolId,        // ← backend ko chahiye
+    return this.http.post<ApiResponse>(`${this.baseUrl}/addOrUpdate`, {
+      schoolId,
       classId:   id,
       className: dto.className,
       sections:  dto.sections ?? [],
-    };
-    return this.http.post<ApiResponse>(`${this.baseUrl}/addOrUpdate`, body);
+    });
   }
 
   bulkCreateClasses(schoolId: string, dto: BulkCreateClassDto): Observable<Class[]> {

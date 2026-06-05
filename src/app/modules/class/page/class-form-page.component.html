@@ -1,0 +1,49 @@
+<div class="page-wrapper">
+
+  <!-- Toast (for errors on this page) -->
+  <div class="toast" *ngIf="toast"
+       [class.toast-success]="toast.type === 'success'"
+       [class.toast-error]="toast.type === 'error'">
+    <svg *ngIf="toast.type === 'success'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <svg *ngIf="toast.type === 'error'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+    </svg>
+    {{ toast.message }}
+  </div>
+
+  <!-- Page header with back button -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <button class="btn-back" (click)="onCancel()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Back
+      </button>
+      <div>
+        <h1 class="page-title">{{ isEditMode ? 'Edit Class' : 'Add New Class' }}</h1>
+        <p class="page-sub">{{ isEditMode ? 'Update class details below' : 'Fill in the details to create a new class' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading skeleton for edit mode -->
+  <div class="form-skeleton" *ngIf="isLoading">
+    <div class="skel skel-field"></div>
+    <div class="skel skel-field short"></div>
+  </div>
+
+  <!-- Form card -->
+  <div class="form-page-card" *ngIf="!isLoading">
+    <app-class-form
+      [editClass]="editClass"
+      [isSubmitting]="isSubmitting"
+      (formSubmit)="onFormSubmit($event)"
+      (cancelEdit)="onCancel()"
+    ></app-class-form>
+  </div>
+
+</div>

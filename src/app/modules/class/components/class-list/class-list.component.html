@@ -1,87 +1,136 @@
-<div class="list-container">
+<div class="list-wrap">
 
   <!-- Loading skeleton -->
   <ng-container *ngIf="isLoading">
-    <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
-      <div class="skeleton w-5"></div>
-      <div class="skeleton w-48"></div>
-      <div class="skeleton w-24"></div>
+    <div class="skeleton-list">
+      <div class="skel-row" *ngFor="let i of [1,2,3,4,5]">
+        <div class="skel skel-check"></div>
+        <div class="skel skel-name"></div>
+        <div class="skel skel-badge"></div>
+        <div class="skel skel-actions"></div>
+      </div>
     </div>
   </ng-container>
 
   <!-- Empty state -->
   <div class="empty-state" *ngIf="!isLoading && classes.length === 0">
     <div class="empty-icon">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M8 8h8M8 16h5"/>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="18" height="18" rx="4"/>
+        <path d="M8 12h8M8 8h8M8 16h5"/>
       </svg>
     </div>
     <p class="empty-title">No classes yet</p>
-    <p class="empty-sub">Create a class or use bulk import to get started.</p>
+    <p class="empty-sub">Click "Add Class" to get started.</p>
   </div>
 
   <!-- Table -->
-  <table class="class-table" *ngIf="!isLoading && classes.length > 0">
-    <thead>
-      <tr>
-        <th class="col-check">
-          <label class="checkbox-wrap">
-            <input
-              type="checkbox"
-              [checked]="allSelected"
-              [indeterminate]="someSelected"
-              (change)="toggleSelectAll.emit($any($event.target).checked)"
-            />
-            <span class="custom-check"></span>
-          </label>
-        </th>
-        <th class="col-name">Class Name</th>
-        <th class="col-id">Class ID</th>
-        <th class="col-actions">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        *ngFor="let cls of classes; trackBy: trackById"
-        [class.selected]="selectedIds.has(cls.id)"
-        class="table-row"
-      >
-        <td class="col-check">
-          <label class="checkbox-wrap">
-            <input
-              type="checkbox"
-              [checked]="selectedIds.has(cls.id)"
-              (change)="toggleSelect.emit(cls.id)"
-            />
-            <span class="custom-check"></span>
-          </label>
-        </td>
-        <td class="col-name">
-          <div class="class-name-cell">
-            <span class="class-badge">{{ cls.className[0] }}</span>
-            <span class="class-name">{{ cls.className }}</span>
-          </div>
-        </td>
-        <td class="col-id">
-          <code class="id-chip">{{ cls.id.substring(0, 8) }}…</code>
-        </td>
-        <td class="col-actions">
-          <div class="action-btns">
-            <button class="action-btn edit-btn" (click)="editClass.emit(cls)" title="Edit">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              </svg>
-            </button>
-            <button class="action-btn delete-btn" (click)="deleteClass.emit(cls.id)" title="Delete">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
-                <path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
-              </svg>
-            </button>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="table-wrap" *ngIf="!isLoading && classes.length > 0">
+    <table class="class-table">
+      <thead>
+        <tr>
+          <th class="col-check">
+            <label class="checkbox-wrap" title="Select all">
+              <input
+                type="checkbox"
+                [checked]="allSelected"
+                [indeterminate]="someSelected"
+                (change)="toggleSelectAll.emit($any($event.target).checked)"
+              />
+              <span class="custom-check"></span>
+            </label>
+          </th>
+          <th class="col-name">Class Name</th>
+          <th class="col-sections">Sections</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let cls of classes; trackBy: trackById"
+          [class.row-selected]="_selectedIds.has(cls.id)"
+          class="table-row"
+        >
+          <!-- Checkbox -->
+          <td class="col-check">
+            <label class="checkbox-wrap">
+              <input
+                type="checkbox"
+                [checked]="_selectedIds.has(cls.id)"
+                (change)="toggleSelect.emit(cls.id)"
+              />
+              <span class="custom-check"></span>
+            </label>
+          </td>
+
+          <!-- Class Name -->
+          <td class="col-name">
+            <div class="class-cell">
+              <span class="class-name-text">{{ cls.className }}</span>
+            </div>
+          </td>
+
+          <!-- Sections -->
+          <td class="col-sections">
+            <div class="section-chips" *ngIf="cls.sections && cls.sections.length > 0; else noSections">
+              <span class="section-chip" *ngFor="let s of cls.sections">
+                {{ s.sectionName }}
+              </span>
+            </div>
+            <ng-template #noSections>
+              <span class="no-sections">—</span>
+            </ng-template>
+          </td>
+
+          <!-- Actions -->
+          <td class="col-actions">
+            <div class="action-row">
+              <!-- ✅ View Button -->
+              <button class="act-btn view" (click)="onViewClass(cls)" title="View class details">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                View
+              </button>
+
+              <button class="act-btn edit" (click)="editClass.emit(cls)" title="Edit class">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Edit
+              </button>
+              <button class="act-btn delete" (click)="deleteClass.emit(cls.id)" title="Delete class">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6l-1 14H6L5 6"/>
+                  <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
+                </svg>
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Footer count -->
+    <div class="table-footer">
+      <span class="total-count">{{ classes.length }} {{ classes.length === 1 ? 'class' : 'classes' }} total</span>
+      <span class="selected-count" *ngIf="_selectedIds.size > 0">
+        {{ _selectedIds.size }} selected
+      </span>
+    </div>
+  </div>
+
+  
+  <app-class-detail
+    *ngIf="selectedClass"
+    [cls]="selectedClass"
+    (close)="selectedClass = null"
+    (edit)="onDetailEdit($event)"
+    (delete)="onDetailDelete($event)"
+  ></app-class-detail>
+
 </div>

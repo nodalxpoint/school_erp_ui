@@ -1,0 +1,133 @@
+// ── class-form-page.component.scss ────────────────────────────────────────────
+// Matches list page: same blue primary, white bg, consistent typography
+
+:host {
+  --primary:        #2b6cb0;
+  --primary-light:  #ebf4ff;
+  --primary-hover:  #2c5282;
+  --primary-border: #bee3f8;
+  --border:         #e2e8f0;
+  --border-dark:    #cbd5e0;
+  --bg-white:       #ffffff;
+  --bg-page:        #f4f6f8;
+  --text-primary:   #2d3748;
+  --text-muted:     #718096;
+}
+
+.page-wrapper {
+  padding: 28px 28px 40px;
+  max-width: 660px;
+}
+
+// ── Page header ───────────────────────────────────────────────────────────────
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-dark);
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--primary-light);
+    border-color: var(--primary-border);
+    color: var(--primary);
+  }
+
+  svg { flex-shrink: 0; }
+}
+
+.page-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 2px;
+  line-height: 1.2;
+}
+
+.page-sub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+// ── Loading skeleton ──────────────────────────────────────────────────────────
+.form-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+  background: var(--bg-white);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+
+.skel {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 6px;
+}
+
+.skel-field {
+  height: 38px;
+  width: 100%;
+  &.short { width: 55%; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0,0,0,.12);
+  animation: slideIn .2s ease;
+}
+
+.toast-success {
+  background: #276749;
+  color: #fff;
+}
+
+.toast-error {
+  background: #c53030;
+  color: #fff;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(20px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
