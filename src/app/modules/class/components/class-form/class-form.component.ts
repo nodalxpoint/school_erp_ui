@@ -28,24 +28,29 @@ export class ClassFormComponent implements OnInit, OnChanges {
     return !!this.editClass;
   }
 
-  ngOnInit(): void {
-    this.resetForm();
+ ngOnInit(): void {
+  // resetForm() mat karo — ngOnChanges already handle karta hai
+  if (this.editClass) {
+    this.fillForm(this.editClass);
   }
+}
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['editClass']) {
-      if (this.editClass) {
-        this.form = {
-          className: this.editClass.className,
-          sections: []
-        };
-        this.errors = {};
-        this.newSection = '';
-      } else {
-        this.resetForm();
-      }
-    }
+ngOnChanges(changes: SimpleChanges): void {
+  if (changes['editClass'] && this.editClass) {
+    this.fillForm(this.editClass);
   }
+}
+
+private fillForm(cls: any): void {
+  this.form.className = cls.className ?? '';
+  this.form.sections = (cls.sections ?? []).map((s: any) =>
+    typeof s === 'string' ? s : (s.sectionName ?? '')
+  ).filter(Boolean);
+  this.errors = {};
+  this.newSection = '';
+}
+
+
 
   addSection(): void {
     const s = this.newSection.trim().toUpperCase();
@@ -55,9 +60,10 @@ export class ClassFormComponent implements OnInit, OnChanges {
     }
   }
 
-  removeSection(section: string): void {
-    this.form.sections = this.form.sections.filter(s => s !== section);
-  }
+ removeSection(section: string): void {
+  this.form.sections = this.form.sections.filter(s => s !== section);
+}
+
 
   onSectionKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
@@ -75,12 +81,12 @@ export class ClassFormComponent implements OnInit, OnChanges {
   }
 
   onSubmit(): void {
-    if (!this.validate()) return;
-    this.formSubmit.emit({
-      className: this.form.className.trim(),
-      sections:  this.form.sections,
-    });
-  }
+  if (!this.validate()) return;
+  this.formSubmit.emit({
+    className: this.form.className.trim(),
+    sections:  this.form.sections,
+  });
+}
 
   onCancel(): void {
     this.resetForm();

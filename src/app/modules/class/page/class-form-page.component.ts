@@ -29,15 +29,38 @@ export class ClassFormPageComponent implements OnInit {
     private authState: AuthStateService
   ) {}
 
-  ngOnInit(): void {
-    this.schoolId = this.authState.currentUser?.schoolId ?? '';
-    this.classId = this.route.snapshot.paramMap.get('id');
 
-    if (this.classId) {
-      // Edit mode — fetch class details
-      this.isLoading = true;
-      this.classService.getClassById(this.classId).subscribe({
-        next: cls => { this.editClass = cls; this.isLoading = false; },
+
+
+ngOnInit(): void {
+  this.schoolId = this.authState.currentUser?.schoolId ?? '';
+  this.classId = this.route.snapshot.paramMap.get('id');
+
+  if (this.classId) {
+    this.isLoading = true;  // ← pehle loading true
+    
+    const stateData = history.state?.['classData'];
+
+    if (stateData) {
+      this.editClass = {
+        id:        stateData.id,
+        className: stateData.className,
+        sections:  stateData.sections ?? []
+      } as Class;
+      this.isLoading = false;  // ← data set hone ke baad false
+    } else {
+      this.classService.getAllClasses(this.schoolId).subscribe({
+        next: (classes) => {
+          const found = classes.find(c => c.id === this.classId);
+          if (found) {
+            this.editClass = {
+              id:        found.id,
+              className: found.className,
+              sections:  found.sections ?? []
+            } as Class;
+          }
+          this.isLoading = false;
+        },
         error: () => {
           this.isLoading = false;
           this.showToast('Failed to load class details', 'error');
@@ -45,40 +68,30 @@ export class ClassFormPageComponent implements OnInit {
       });
     }
   }
+}
 
   get isEditMode(): boolean {
     return !!this.classId;
   }
 
-  onFormSubmit(dto: CreateClassDto): void {
-    this.isSubmitting = true;
+  
+onFormSubmit(dto: CreateClassDto): void {
+  this.isSubmitting = true;
 
-    if (this.isEditMode && this.classId) {
-      // UPDATE
-      this.classService.updateClass(this.classId, this.schoolId, dto).subscribe({
-        next: (res) => {
-          this.isSubmitting = false;
-          this.goBack(res.message ?? 'Class updated successfully', 'success');
-        },
-        error: () => {
-          this.isSubmitting = false;
-          this.showToast('Failed to update class', 'error');
-        }
-      });
-    } else {
-      // CREATE
-      this.classService.createClass(this.schoolId, dto).subscribe({
-        next: (res) => {
-          this.isSubmitting = false;
-          this.goBack(res.message ?? 'Class created successfully', 'success');
-        },
-        error: () => {
-          this.isSubmitting = false;
-          this.showToast('Failed to create class', 'error');
-        }
-      });
-    }
+  if (this.isEditMode && this.classId) {
+    this.classService.updateClass(this.classId, this.schoolId, dto).subscribe({
+      next: (res) => {
+        this.isSubmitting = false;
+        this.goBack(res.message ?? 'Class updated successfully', 'success');
+      },
+      error: (err) => {
+        console.log('UPDATE ERROR:', err); // ← ye dekho
+        this.isSubmitting = false;
+        this.showToast('Failed to update class', 'error');
+      }
+    });
   }
+}
 
   onCancel(): void {
     this.goBack();

@@ -51,14 +51,20 @@ getAllClasses(schoolId: string): Observable<ClassesDto[]> {
     });
   }
 
-  updateClass(id: string, schoolId: string, dto: Partial<CreateClassDto>): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(`${this.baseUrl}/addOrUpdate`, {
-      schoolId,
-      classId:   id,
-      className: dto.className,
-      sections:  dto.sections ?? [],
-    });
-  }
+updateClass(id: string, schoolId: string, dto: Partial<CreateClassDto>): Observable<ApiResponse> {
+  const payload = {
+    classId:   id,
+    schoolId,
+    className: dto.className,
+    sections:  (dto.sections ?? []).map(s => 
+      typeof s === 'string' ? s : (s as any).sectionName
+    ),
+  };
+  console.log('UPDATE PAYLOAD:', payload); // ← postman jaisa payload dekho
+  return this.http.post<ApiResponse>(`${this.baseUrl}/addOrUpdate`, payload);
+}
+
+
 
   bulkCreateClasses(schoolId: string, dto: BulkCreateClassDto): Observable<Class[]> {
     return this.http.post<Class[]>(`${this.baseUrl}/bulk?schoolId=${schoolId}`, dto);

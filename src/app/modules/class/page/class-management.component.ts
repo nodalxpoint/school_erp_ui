@@ -75,9 +75,13 @@ loadClasses(): void {
     this.router.navigate(['form'], { relativeTo: this.route });
   }
 
-  onEdit(cls: ClassesDto): void {
-    this.router.navigate(['form', cls.id], { relativeTo: this.route });
-  }
+ onEdit(cls: ClassesDto): void {
+  console.log('EDIT CLICKED, sending state:', cls);  // ← ye bhi add karo
+  this.router.navigate(['form', cls.id], {
+    relativeTo: this.route,
+    state: { classData: cls }
+  });
+}
 
   confirmDelete(id: string): void { this.deleteTargetId = id; }
   cancelDelete(): void { this.deleteTargetId = null; }
