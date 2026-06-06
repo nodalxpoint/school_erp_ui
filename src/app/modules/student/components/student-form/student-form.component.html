@@ -1,173 +1,247 @@
-<div class="student-form-wrapper">
+<div class="form-page">
 
-  <!-- Toast -->
-  <div class="toast" [class.visible]="toast.visible" [class.success]="toast.type==='success'" [class.error]="toast.type==='error'">
-    <span class="toast-icon">{{ toast.type === 'success' ? '✓' : '✕' }}</span>
-    {{ toast.message }}
+  <!-- Header -->
+  <div class="form-header">
+    <div class="breadcrumb">
+      <span class="breadcrumb-link" (click)="onCancel()">Student Management</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-link" (click)="onCancel()">Student List</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">{{ isEditMode ? 'Edit Student' : 'Add New' }}</span>
+    </div>
+    <button class="btn-back" (click)="onCancel()">← Back to List</button>
   </div>
 
-  <div class="card" [formGroup]="studentForm">
+  <!-- Page Title -->
+  <div class="form-title-row">
+    <h1>{{ isEditMode ? 'Edit Student' : 'Add New Student' }}</h1>
+    <p>{{ isEditMode ? 'Update the student record below' : 'Fill in the details to register a new student' }}</p>
+  </div>
 
-    <!-- Header -->
-    <div class="card-header">
-      <span class="header-icon">🎓</span>
-      <div>
-        <h3>{{ isEditMode ? 'Edit Student' : 'Add New Student' }}</h3>
-        <p>{{ isEditMode ? 'Update student details' : 'Fill in student and parent information' }}</p>
+  <!-- Alerts -->
+  <div class="alert success" *ngIf="successMessage">✔ {{ successMessage }}</div>
+  <div class="alert error"   *ngIf="errorMessage">
+    ⚠ {{ errorMessage }}
+    <button class="alert-back-btn" *ngIf="errorMessage.includes('go back')" (click)="onCancel()">
+      ← Go to List
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+
+    <!-- ── Section 01: Student Information ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-badge">01</div>
+        <div>
+          <h2>Student Information</h2>
+          <p>Basic academic and personal details</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label">First Name <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('firstName')"
+            formControlName="firstName" placeholder="e.g. Rahul" />
+          <span class="field-error" *ngIf="isInvalid('firstName')">{{ getError('firstName') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Last Name <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('lastName')"
+            formControlName="lastName" placeholder="e.g. Sharma" />
+          <span class="field-error" *ngIf="isInvalid('lastName')">{{ getError('lastName') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Gender <span class="req">*</span></label>
+          <select class="form-control" [class.invalid]="isInvalid('gender')" formControlName="gender">
+            <option value="" disabled>Select gender</option>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+            <option value="OTHER">Other</option>
+          </select>
+          <span class="field-error" *ngIf="isInvalid('gender')">{{ getError('gender') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Date of Birth <span class="req">*</span></label>
+          <input type="date" class="form-control" [class.invalid]="isInvalid('dob')"
+            formControlName="dob" />
+          <span class="field-error" *ngIf="isInvalid('dob')">{{ getError('dob') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Admission Date <span class="req">*</span></label>
+          <input type="date" class="form-control" [class.invalid]="isInvalid('admissionDate')"
+            formControlName="admissionDate" />
+          <span class="field-error" *ngIf="isInvalid('admissionDate')">{{ getError('admissionDate') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Roll No <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('rollNo')"
+            formControlName="rollNo" placeholder="e.g. 101" />
+          <span class="field-error" *ngIf="isInvalid('rollNo')">{{ getError('rollNo') }}</span>
+        </div>
+
+        <!-- Class dropdown — from params API -->
+        <div class="form-group">
+          <label class="form-label">Class <span class="req">*</span></label>
+          <div class="select-wrapper">
+            <select
+              class="form-control"
+              [class.invalid]="isInvalid('classId')"
+              formControlName="classId"
+              (change)="onClassChange()"
+              [attr.disabled]="loadingClasses ? true : null"
+            >
+              <option value="" disabled>
+                {{ loadingClasses ? 'Loading classes...' : 'Select class' }}
+              </option>
+              <option *ngFor="let cls of classes" [value]="cls.id">
+                {{ cls.label }}
+              </option>
+            </select>
+            <span class="select-loader" *ngIf="loadingClasses">⟳</span>
+          </div>
+          <span class="field-error" *ngIf="isInvalid('classId')">{{ getError('classId') }}</span>
+        </div>
+
+        <!-- Section dropdown — depends on class -->
+        <div class="form-group">
+          <label class="form-label">Section <span class="req">*</span></label>
+          <div class="select-wrapper">
+            <select
+              class="form-control"
+              [class.invalid]="isInvalid('sectionId')"
+              formControlName="sectionId"
+              [attr.disabled]="(!form.get('classId')?.value || loadingSections) ? true : null"
+            >
+              <option value="" disabled>
+                <ng-container *ngIf="!form.get('classId')?.value">Select class first</ng-container>
+                <ng-container *ngIf="form.get('classId')?.value && loadingSections">Loading sections...</ng-container>
+                <ng-container *ngIf="form.get('classId')?.value && !loadingSections">Select section</ng-container>
+              </option>
+              <option *ngFor="let sec of sections" [value]="sec.id">
+                {{ sec.label }}
+              </option>
+            </select>
+            <span class="select-loader" *ngIf="loadingSections">⟳</span>
+          </div>
+          <span class="field-error" *ngIf="isInvalid('sectionId')">{{ getError('sectionId') }}</span>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Academic Session ID <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('academicSessionId')"
+            formControlName="academicSessionId" placeholder="Academic Session UUID" />
+          <span class="field-error" *ngIf="isInvalid('academicSessionId')">{{ getError('academicSessionId') }}</span>
+        </div>
+
       </div>
     </div>
 
-    <div class="card-body">
-
-      <!-- Section: Student Info -->
-      <div class="form-section">
-        <h4 class="section-title">Student Information</h4>
-        <div class="form-grid">
-
-          <div class="field-group">
-            <label>First Name</label>
-            <input type="text" formControlName="firstName" placeholder="Alex" />
-          </div>
-
-          <div class="field-group">
-            <label>Last Name</label>
-            <input type="text" formControlName="lastName" placeholder="Smith" />
-          </div>
-
-          <div class="field-group">
-            <label>Gender</label>
-            <select formControlName="gender">
-              <option value="" disabled selected>Select gender…</option>
-              <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
-            </select>
-          </div>
-
-          <div class="field-group">
-            <label>Date of Birth</label>
-            <input type="date" formControlName="dob" />
-          </div>
-
-          <div class="field-group">
-            <label>Admission Date</label>
-            <input type="date" formControlName="admissionDate" />
-          </div>
-
-          <div class="field-group">
-            <label>Roll No</label>
-            <input type="text" formControlName="rollNo" placeholder="101" />
-          </div>
-
+    <!-- ── Section 02: Family Information ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-badge">02</div>
+        <div>
+          <h2>Family Information</h2>
+          <p>Parent and emergency contact details</p>
         </div>
       </div>
 
-      <!-- Section: Enrollment -->
-      <div class="form-section">
-        <h4 class="section-title">Enrollment Details</h4>
-        <div class="form-grid">
+      <div class="form-grid">
 
-          <div class="field-group">
-            <label>Academic Session</label>
-            <select formControlName="academicSessionId">
-              <option value="" disabled selected>
-                {{ isLoadingSessions ? 'Loading…' : 'Select session…' }}
-              </option>
-              <option *ngFor="let s of sessions" [value]="s.id">
-                {{ s.sessionName }}{{ s.isActive ? ' (Active)' : '' }}
-              </option>
-            </select>
-            <span class="api-badge">✓ Live from API</span>
-          </div>
-
-          <div class="field-group">
-            <label>Class ID</label>
-            <input type="text" formControlName="classId" placeholder="Paste class UUID…" />
-            <span class="todo-note">🔧 TODO: Dropdown when GET API is ready</span>
-          </div>
-
-          <div class="field-group">
-            <label>Section ID</label>
-            <input type="text" formControlName="sectionId" placeholder="Paste section UUID…" />
-            <span class="todo-note">🔧 TODO: Dropdown when GET API is ready</span>
-          </div>
-
+        <div class="form-group">
+          <label class="form-label">Father's Name <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('fatherName')"
+            formControlName="fatherName" placeholder="e.g. Robert Sharma" />
+          <span class="field-error" *ngIf="isInvalid('fatherName')">{{ getError('fatherName') }}</span>
         </div>
-      </div>
 
-      <!-- Section: Family -->
-      <div class="form-section">
-        <h4 class="section-title">Family Information</h4>
-        <div class="form-grid">
-
-          <div class="field-group">
-            <label>Father's Name</label>
-            <input type="text" formControlName="fatherName" placeholder="George Smith" />
-          </div>
-
-          <div class="field-group">
-            <label>Mother's Name</label>
-            <input type="text" formControlName="motherName" placeholder="Martha Smith" />
-          </div>
-
-          <div class="field-group">
-            <label>Emergency Contact</label>
-            <input type="text" formControlName="emergencyContact" placeholder="9876543210" />
-          </div>
-
+        <div class="form-group">
+          <label class="form-label">Mother's Name <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('motherName')"
+            formControlName="motherName" placeholder="e.g. Priya Sharma" />
+          <span class="field-error" *ngIf="isInvalid('motherName')">{{ getError('motherName') }}</span>
         </div>
-      </div>
 
-      <!-- Section: Parent Account -->
-      <div class="form-section">
-        <h4 class="section-title">Parent Account</h4>
-        <p class="section-note" *ngIf="!isEditMode">
-          A parent login account will be created with these credentials.
-        </p>
-        <div class="form-grid">
-
-          <div class="field-group">
-            <label>Parent First Name</label>
-            <input type="text" formControlName="parentFirstName" placeholder="George" />
-          </div>
-
-          <div class="field-group">
-            <label>Parent Last Name</label>
-            <input type="text" formControlName="parentLastName" placeholder="Smith" />
-          </div>
-
-          <div class="field-group">
-            <label>Parent Email</label>
-            <input type="email" formControlName="parentEmail" placeholder="georgesmith@gmail.com" />
-          </div>
-
-          <div class="field-group">
-            <label>Parent Phone</label>
-            <input type="text" formControlName="parentPhone" placeholder="9876543210" />
-          </div>
-
-          <div class="field-group" *ngIf="!isEditMode">
-            <label>Parent Password</label>
-            <input type="password" formControlName="parentPassword" placeholder="password@123" />
-          </div>
-
+        <div class="form-group full-width">
+          <label class="form-label">Emergency Contact <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('emergencyContact')"
+            formControlName="emergencyContact" placeholder="+91 98765 43210" />
+          <span class="field-error" *ngIf="isInvalid('emergencyContact')">{{ getError('emergencyContact') }}</span>
         </div>
-      </div>
 
-      <!-- Actions -->
-      <div class="form-actions">
-        <button type="button" class="btn-ghost" (click)="onCancel()">
-          Cancel
-        </button>
-        <button
-          type="button"
-          class="btn-primary"
-          (click)="onSubmit()"
-          [disabled]="isSubmitting"
-        >
-          <span *ngIf="isSubmitting" class="spinner"></span>
-          {{ isSubmitting ? 'Saving…' : isEditMode ? 'Update Student' : 'Add Student' }}
-        </button>
       </div>
-
     </div>
-  </div>
+
+    <!-- ── Section 03: Parent Account ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-badge">03</div>
+        <div>
+          <h2>Parent Account</h2>
+          <p>Portal login credentials for the parent</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label">Parent First Name <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('parentFirstName')"
+            formControlName="parentFirstName" placeholder="e.g. Robert" />
+          <span class="field-error" *ngIf="isInvalid('parentFirstName')">{{ getError('parentFirstName') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Parent Last Name <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('parentLastName')"
+            formControlName="parentLastName" placeholder="e.g. Sharma" />
+          <span class="field-error" *ngIf="isInvalid('parentLastName')">{{ getError('parentLastName') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Parent Email <span class="req">*</span></label>
+          <input type="email" class="form-control" [class.invalid]="isInvalid('parentEmail')"
+            formControlName="parentEmail" placeholder="parent@example.com" />
+          <span class="field-error" *ngIf="isInvalid('parentEmail')">{{ getError('parentEmail') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Parent Phone <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('parentPhone')"
+            formControlName="parentPhone" placeholder="+91 98765 43210" />
+          <span class="field-error" *ngIf="isInvalid('parentPhone')">{{ getError('parentPhone') }}</span>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">
+            Parent Password
+            <span class="req" *ngIf="!isEditMode">*</span>
+            <span class="optional-tag" *ngIf="isEditMode">Leave blank to keep current password</span>
+          </label>
+          <input type="password" class="form-control" [class.invalid]="isInvalid('parentPassword')"
+            formControlName="parentPassword" placeholder="Min 8 characters" />
+          <span class="field-error" *ngIf="isInvalid('parentPassword')">{{ getError('parentPassword') }}</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
+      <button type="submit" class="btn-submit" [disabled]="submitting">
+        <span class="btn-spinner" *ngIf="submitting"></span>
+        {{ submitting ? 'Saving...' : (isEditMode ? 'Update Student' : 'Add Student') }}
+      </button>
+    </div>
+
+  </form>
 </div>

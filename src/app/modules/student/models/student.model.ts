@@ -1,12 +1,26 @@
-// ─── Matches StudentResponseDto.java exactly ─────────────────────
+// ─── Full student response (list me aata hai) ────────────────────
 export interface StudentResponseDto {
-  id: string;          // UUID as string
+  id: string;
   firstName: string;
   lastName: string;
   admissionNo: string;
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
+  dob?: string;
+  admissionDate?: string;
+  classId?: string;
+  sectionId?: string;
+  academicSessionId?: string;
+  rollNo?: string;
+  fatherName?: string;
+  motherName?: string;
+  emergencyContact?: string;
+  parentFirstName?: string;
+  parentLastName?: string;
+  parentEmail?: string;
+  parentPhone?: string;
 }
 
-// ─── Matches addOrUpdate payload exactly ─────────────────────────
+// ─── addOrUpdate payload ──────────────────────────────────────────
 export interface CreateStudentRequest {
   firstName: string;
   lastName: string;
@@ -24,11 +38,11 @@ export interface CreateStudentRequest {
   parentLastName: string;
   parentEmail: string;
   parentPhone: string;
-  parentPassword: string;
+  parentPassword?: string;
   studentId?: string;
 }
 
-// ─── Matches /api/students/list payload ──────────────────────────
+// ─── /api/students/list payload ──────────────────────────────────
 export interface StudentFilterRequest {
   page: number;
   size: number;
@@ -41,7 +55,7 @@ export interface StudentFilterRequest {
   sectionId?: string;
 }
 
-// ─── Matches PagedResponse<T> from backend ────────────────────────
+// ─── PagedResponse<T> ─────────────────────────────────────────────
 export interface PagedResponse<T> {
   data: T[];
   totalElements: number;
@@ -50,7 +64,6 @@ export interface PagedResponse<T> {
   size: number;
   message?: string;
   success?: boolean;
-  timestamp?: string;
 }
 
 // ─── Generic API response ─────────────────────────────────────────
@@ -58,5 +71,20 @@ export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T | null;
-  timestamp?: string;
+}
+
+// ─── Params API (/api/params/list) ───────────────────────────────
+export interface ParamListRequest {
+  page: number;
+  size: number;
+  sortBy: string;
+  sortDirection: 'ASC' | 'DESC';
+  type: 'classes' | 'sections' | 'teachers' | 'subjects' | 'students';
+  classId?: string;   // required when type = 'sections'
+  search?: string;
+}
+
+export interface DropdownOption {
+  id: string;
+  label: string;
 }
