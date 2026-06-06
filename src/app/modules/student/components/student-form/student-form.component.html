@@ -135,9 +135,25 @@
         </div>
 
         <div class="form-group full-width">
-          <label class="form-label">Academic Session ID <span class="req">*</span></label>
-          <input class="form-control" [class.invalid]="isInvalid('academicSessionId')"
-            formControlName="academicSessionId" placeholder="Academic Session UUID" />
+          <label class="form-label">Academic Session <span class="req">*</span></label>
+          <div class="select-wrapper">
+            <select
+              class="form-control"
+              [class.invalid]="isInvalid('academicSessionId')"
+              formControlName="academicSessionId"
+              [attr.disabled]="(!form.get('classId')?.value || loadingAcademicSessions) ? true : null"
+            >
+              <option value="" disabled>
+                <ng-container *ngIf="!form.get('classId')?.value">Select class first</ng-container>
+                <ng-container *ngIf="form.get('classId')?.value && loadingAcademicSessions">Loading sessions...</ng-container>
+                <ng-container *ngIf="form.get('classId')?.value && !loadingAcademicSessions">Select session</ng-container>
+              </option>
+              <option *ngFor="let session of academicSessions" [value]="session.id">
+                {{ session.label }}
+              </option>
+            </select>
+            <span class="select-loader" *ngIf="loadingAcademicSessions">⟳</span>
+          </div>
           <span class="field-error" *ngIf="isInvalid('academicSessionId')">{{ getError('academicSessionId') }}</span>
         </div>
 

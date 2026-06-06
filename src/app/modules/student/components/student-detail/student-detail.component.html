@@ -1,0 +1,155 @@
+<div class="detail-page" *ngIf="student">
+
+  <!-- Header -->
+  <div class="detail-header">
+    <div class="breadcrumb">
+      <span class="link" (click)="onBack()">Student Management</span>
+      <span class="sep">/</span>
+      <span class="link" (click)="onBack()">Student List</span>
+      <span class="sep">/</span>
+      <span class="current">Student Detail</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-back" (click)="onBack()">← Back</button>
+      <button class="btn-edit" (click)="onEdit()">✏ Edit Student</button>
+    </div>
+  </div>
+
+  <!-- Profile Card -->
+  <div class="profile-card">
+    <div class="profile-left">
+      <div class="big-avatar">
+        {{ student.firstName.charAt(0) }}{{ student.lastName.charAt(0) }}
+      </div>
+      <div class="profile-info">
+        <h2>{{ student.firstName }} {{ student.lastName }}</h2>
+        <p class="admission-no">{{ student.admissionNo }}</p>
+        <div class="profile-badges">
+          <span class="badge-gender"
+            [class.male]="student.gender==='MALE'"
+            [class.female]="student.gender==='FEMALE'"
+            [class.other]="student.gender==='OTHER'">
+            {{ formatGender(student.gender) }}
+          </span>
+          <span class="badge-class" *ngIf="student.className">
+            {{ student.className }}
+            <span *ngIf="student.sectionName"> – {{ student.sectionName }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="profile-right">
+      <div class="stat-item">
+        <span class="stat-label">Roll No</span>
+        <span class="stat-val">{{ student.rollNo || '—' }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Admission Date</span>
+        <span class="stat-val">{{ formatDate(student.admissionDate) }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Date of Birth</span>
+        <span class="stat-val">{{ formatDate(student.dob) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Sections -->
+  <div class="detail-grid">
+
+    <!-- Academic Info -->
+    <div class="info-card">
+      <div class="info-card-header">
+        <div class="info-badge">01</div>
+        <div>
+          <h3>Academic Information</h3>
+          <p>Class, section and session details</p>
+        </div>
+      </div>
+      <div class="info-body">
+        <div class="info-row">
+          <span class="info-label">Class</span>
+          <span class="info-val">{{ student.className || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Section</span>
+          <span class="info-val">
+            <span class="section-chip" *ngIf="student.sectionName">{{ student.sectionName }}</span>
+            <span *ngIf="!student.sectionName">—</span>
+          </span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Roll No</span>
+          <span class="info-val fw">{{ student.rollNo || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Admission No</span>
+          <span class="info-val"><span class="badge-blue">{{ student.admissionNo }}</span></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Admission Date</span>
+          <span class="info-val">{{ formatDate(student.admissionDate) }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Date of Birth</span>
+          <span class="info-val">{{ formatDate(student.dob) }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Gender</span>
+          <span class="info-val">{{ formatGender(student.gender) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Family Info -->
+    <div class="info-card">
+      <div class="info-card-header">
+        <div class="info-badge">02</div>
+        <div>
+          <h3>Family Information</h3>
+          <p>Parents and emergency contact</p>
+        </div>
+      </div>
+      <div class="info-body">
+        <div class="info-row">
+          <span class="info-label">Father's Name</span>
+          <span class="info-val fw">{{ student.fatherName || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Mother's Name</span>
+          <span class="info-val fw">{{ student.motherName || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Emergency Contact</span>
+          <span class="info-val">{{ student.emergencyContact || '—' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parent Account -->
+    <div class="info-card full-width">
+      <div class="info-card-header">
+        <div class="info-badge">03</div>
+        <div>
+          <h3>Parent Account</h3>
+          <p>Portal login details for parent</p>
+        </div>
+      </div>
+      <div class="info-body info-body-grid">
+        <div class="info-row">
+          <span class="info-label">Parent Name</span>
+          <span class="info-val fw">{{ student.parentFirstName }} {{ student.parentLastName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email</span>
+          <span class="info-val">{{ student.parentEmail || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Phone</span>
+          <span class="info-val">{{ student.parentPhone || '—' }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

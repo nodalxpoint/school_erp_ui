@@ -1,16 +1,8 @@
 import {
-  Component,
-  OnInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
+  Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StudentService, StudentStateService } from '../../services/student.service';
 import { CreateStudentRequest, DropdownOption } from '../../models/student.model';
@@ -31,11 +23,12 @@ export class StudentFormComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
-  // Dropdown options from params API
   classes: DropdownOption[] = [];
   sections: DropdownOption[] = [];
+  academicSessions: DropdownOption[] = [];
   loadingClasses = false;
   loadingSections = false;
+  loadingAcademicSessions = false;
 
   constructor(
     private fb: FormBuilder,
@@ -43,13 +36,12 @@ export class StudentFormComponent implements OnInit {
     private router: Router,
     private studentService: StudentService,
     private studentState: StudentStateService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     this.studentId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.studentId;
-
     this.buildForm();
     this.loadClasses();
   }
@@ -76,7 +68,7 @@ export class StudentFormComponent implements OnInit {
     });
   }
 
-  // ─── Params API — dropdowns ─────────────────────────────────────
+  // ── Dropdowns ──────────────────────────────────────────────────
 
   loadClasses(): void {
     this.loadingClasses = true;
@@ -84,16 +76,13 @@ export class StudentFormComponent implements OnInit {
       next: (data) => {
         this.classes = data;
         this.loadingClasses = false;
-
-        // Ab edit student ka data patch karte hain (classes load hone ke baad)
-        if (this.isEditMode) {
-          this.patchEditData();
-        }
+        if (this.isEditMode) this.patchEditData();
         this.cdr.markForCheck();
       },
       error: () => {
         this.loadingClasses = false;
-        this.errorMessage = 'Could not load classes.';
+        this.errorMessage = 'Could not load classes from server.';
+        if (this.isEditMode) this.patchEditData(); // still patch even if classes fail
         this.cdr.markForCheck();
       },
     });
@@ -101,37 +90,37 @@ export class StudentFormComponent implements OnInit {
 
   onClassChange(): void {
     const classId = this.form.get('classId')?.value;
-    this.form.patchValue({ sectionId: '' });
+    this.form.patchValue({ sectionId: '', academicSessionId: '' });
     this.sections = [];
+    this.academicSessions = [];
     if (classId) {
       this.loadSections(classId);
+      this.loadAcademicSessions(classId);
     }
+  }
+
+  loadAcademicSessions(classId: string): void {
+    this.loadingAcademicSessions = true;
+    this.studentService.getAcademicSessions(classId).subscribe({
+      next: (data) => { this.academicSessions = data; this.loadingAcademicSessions = false; this.cdr.markForCheck(); },
+      error: ()     => { this.loadingAcademicSessions = false; this.cdr.markForCheck(); },
+    });
   }
 
   loadSections(classId: string): void {
     this.loadingSections = true;
     this.studentService.getSections(classId).subscribe({
-      next: (data) => {
-        this.sections = data;
-        this.loadingSections = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.loadingSections = false;
-        this.cdr.markForCheck();
-      },
+      next: (data) => { this.sections = data; this.loadingSections = false; this.cdr.markForCheck(); },
+      error: ()     => { this.loadingSections = false; this.cdr.markForCheck(); },
     });
   }
 
-  // ─── Edit: state service se data patch karo ──────────────────────
+  // ── Patch edit data from state service ─────────────────────────
 
   private patchEditData(): void {
-    const student = this.studentState.getEditStudent();
-
+    const student = this.studentState.get();
     if (!student) {
-      // State clear ho gayi (page refresh etc.) — list pe wapas jaao
-      this.errorMessage =
-        'Student data not found. Please go back to the list and click Edit again.';
+      this.errorMessage = 'Student data not found. Please go back to the list and click Edit again.';
       this.cdr.markForCheck();
       return;
     }
@@ -155,19 +144,19 @@ export class StudentFormComponent implements OnInit {
       parentPhone:       student.parentPhone ?? '',
     });
 
-    // Password optional in edit mode
+    // Password optional in edit
     this.form.get('parentPassword')?.clearValidators();
     this.form.get('parentPassword')?.updateValueAndValidity();
 
-    // Load sections for the pre-filled classId
+    // Load sections for pre-filled classId
     if (student.classId) {
       this.loadSections(student.classId);
+      this.loadAcademicSessions(student.classId);
     }
-
     this.cdr.markForCheck();
   }
 
-  // ─── Submit ─────────────────────────────────────────────────────
+  // ── Submit ─────────────────────────────────────────────────────
 
   onSubmit(): void {
     if (this.form.invalid) {
@@ -175,30 +164,19 @@ export class StudentFormComponent implements OnInit {
       this.cdr.markForCheck();
       return;
     }
-
     this.submitting = true;
     this.errorMessage = '';
     this.successMessage = '';
 
-    const formVal = this.form.value;
-    const payload: CreateStudentRequest = { ...formVal };
-
-    if (this.isEditMode && this.studentId) {
-      payload.studentId = this.studentId;
-    }
-
-    // Remove password if empty on edit
-    if (!payload.parentPassword) {
-      delete payload.parentPassword;
-    }
+    const payload: CreateStudentRequest = { ...this.form.value };
+    if (this.isEditMode && this.studentId) payload.studentId = this.studentId;
+    if (!payload.parentPassword) delete payload.parentPassword;
 
     this.studentService.saveStudent(payload).subscribe({
       next: (res) => {
         this.submitting = false;
         if (res.success) {
-          this.successMessage = this.isEditMode
-            ? 'Student updated successfully!'
-            : 'Student added successfully!';
+          this.successMessage = this.isEditMode ? 'Student updated successfully!' : 'Student added successfully!';
           this.studentState.clear();
           this.cdr.markForCheck();
           setTimeout(() => this.router.navigate(['students', 'list']), 1200);
@@ -209,8 +187,7 @@ export class StudentFormComponent implements OnInit {
       },
       error: (err) => {
         this.submitting = false;
-        this.errorMessage =
-          err?.error?.message || 'Failed to save student. Please try again.';
+        this.errorMessage = err?.error?.message || 'Failed to save student. Please try again.';
         this.cdr.markForCheck();
       },
     });
@@ -221,20 +198,18 @@ export class StudentFormComponent implements OnInit {
     this.router.navigate(['students', 'list']);
   }
 
-  // ─── Validation helpers ─────────────────────────────────────────
-
-  isInvalid(field: string): boolean {
-    const ctrl = this.form.get(field);
-    return !!(ctrl && ctrl.invalid && ctrl.touched);
+  isInvalid(f: string): boolean {
+    const c = this.form.get(f);
+    return !!(c && c.invalid && c.touched);
   }
 
-  getError(field: string): string {
-    const ctrl = this.form.get(field);
-    if (!ctrl?.errors) return '';
-    if (ctrl.errors['required'])   return 'This field is required.';
-    if (ctrl.errors['email'])      return 'Enter a valid email address.';
-    if (ctrl.errors['minlength'])  return `Minimum ${ctrl.errors['minlength'].requiredLength} characters.`;
-    if (ctrl.errors['pattern'])    return 'Enter a valid phone number (e.g. +919876543210).';
+  getError(f: string): string {
+    const c = this.form.get(f);
+    if (!c?.errors) return '';
+    if (c.errors['required'])  return 'This field is required.';
+    if (c.errors['email'])     return 'Enter a valid email address.';
+    if (c.errors['minlength']) return `Minimum ${c.errors['minlength'].requiredLength} characters.`;
+    if (c.errors['pattern'])   return 'Enter a valid phone number (e.g. +919876543210).';
     return 'Invalid value.';
   }
 }

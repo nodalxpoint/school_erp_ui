@@ -1,18 +1,11 @@
 import {
-  Component,
-  OnInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
+  Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StudentService, StudentStateService } from '../../services/student.service';
-import {
-  StudentResponseDto,
-  StudentFilterRequest,
-  DropdownOption,
-} from '../../models/student.model';
+import { StudentResponseDto, StudentFilterRequest, DropdownOption } from '../../models/student.model';
 
 @Component({
   selector: 'app-student-list',
@@ -27,14 +20,14 @@ export class StudentListComponent implements OnInit {
   loading = false;
   error = '';
 
-  // Column filters
+  // Filters
   searchFirstName = '';
   searchLastName = '';
   searchAdmissionNo = '';
   selectedClassId = '';
   selectedSectionId = '';
 
-  // Dropdown options from params API
+  // Dropdowns
   classes: DropdownOption[] = [];
   sections: DropdownOption[] = [];
   loadingClasses = false;
@@ -50,7 +43,7 @@ export class StudentListComponent implements OnInit {
     private studentService: StudentService,
     private studentState: StudentStateService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -58,20 +51,13 @@ export class StudentListComponent implements OnInit {
     this.loadStudents();
   }
 
-  // ─── Params API calls ───────────────────────────────────────────
+  // ── Dropdowns ──────────────────────────────────────────────────
 
   loadClasses(): void {
     this.loadingClasses = true;
     this.studentService.getClasses().subscribe({
-      next: (data) => {
-        this.classes = data;
-        this.loadingClasses = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.loadingClasses = false;
-        this.cdr.markForCheck();
-      },
+      next: (data) => { this.classes = data; this.loadingClasses = false; this.cdr.markForCheck(); },
+      error: ()     => { this.loadingClasses = false; this.cdr.markForCheck(); },
     });
   }
 
@@ -79,54 +65,43 @@ export class StudentListComponent implements OnInit {
     this.selectedSectionId = '';
     this.sections = [];
     if (this.selectedClassId) {
-      this.loadSections(this.selectedClassId);
+      this.loadingSections = true;
+      this.studentService.getSections(this.selectedClassId).subscribe({
+        next: (data) => { this.sections = data; this.loadingSections = false; this.cdr.markForCheck(); },
+        error: ()     => { this.loadingSections = false; this.cdr.markForCheck(); },
+      });
     }
     this.onSearch();
   }
 
-  loadSections(classId: string): void {
-    this.loadingSections = true;
-    this.studentService.getSections(classId).subscribe({
-      next: (data) => {
-        this.sections = data;
-        this.loadingSections = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.loadingSections = false;
-        this.cdr.markForCheck();
-      },
-    });
-  }
-
-  // ─── Student list ───────────────────────────────────────────────
+  // ── Students ───────────────────────────────────────────────────
 
   loadStudents(): void {
     this.loading = true;
     this.error = '';
 
-    const request: StudentFilterRequest = {
+    const req: StudentFilterRequest = {
       page: this.currentPage,
       size: this.pageSize,
       sortBy: 'firstName',
       sortDirection: 'ASC',
-      firstName: this.searchFirstName.trim() || undefined,
-      lastName: this.searchLastName.trim() || undefined,
-      admissionNo: this.searchAdmissionNo.trim() || undefined,
-      classId: this.selectedClassId || undefined,
-      sectionId: this.selectedSectionId || undefined,
+      firstName:   this.searchFirstName.trim()   || undefined,
+      lastName:    this.searchLastName.trim()     || undefined,
+      admissionNo: this.searchAdmissionNo.trim()  || undefined,
+      classId:     this.selectedClassId           || undefined,
+      sectionId:   this.selectedSectionId         || undefined,
     };
 
-    this.studentService.filterStudents(request).subscribe({
+    this.studentService.filterStudents(req).subscribe({
       next: (res) => {
-        this.students = res.data;
+        this.students      = res.data;
         this.totalElements = res.totalElements;
-        this.totalPages = res.totalPages;
-        this.loading = false;
+        this.totalPages    = res.totalPages;
+        this.loading       = false;
         this.cdr.markForCheck();
       },
       error: () => {
-        this.error = 'Failed to load students. Please try again.';
+        this.error   = 'Failed to load students. Please try again.';
         this.loading = false;
         this.cdr.markForCheck();
       },
@@ -138,15 +113,20 @@ export class StudentListComponent implements OnInit {
     this.loadStudents();
   }
 
-  clearSearch(): void {
-    this.searchFirstName = '';
-    this.searchLastName = '';
+  clearFilters(): void {
+    this.searchFirstName  = '';
+    this.searchLastName   = '';
     this.searchAdmissionNo = '';
-    this.selectedClassId = '';
+    this.selectedClassId  = '';
     this.selectedSectionId = '';
-    this.sections = [];
-    this.currentPage = 0;
+    this.sections          = [];
+    this.currentPage       = 0;
     this.loadStudents();
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.searchFirstName || this.searchLastName ||
+              this.searchAdmissionNo || this.selectedClassId || this.selectedSectionId);
   }
 
   goToPage(page: number): void {
@@ -155,41 +135,37 @@ export class StudentListComponent implements OnInit {
     this.loadStudents();
   }
 
-  // ─── Navigation ─────────────────────────────────────────────────
+  // ── Navigation ─────────────────────────────────────────────────
 
   onAddStudent(): void {
     this.studentState.clear();
     this.router.navigate(['students', 'add']);
   }
 
-  /**
-   * Student object ko state service mein store karke edit page pe jaate hain.
-   * Kyunki backend pe getById endpoint nahi hai, list ka data hi use karte hain.
-   */
+  onViewStudent(student: StudentResponseDto): void {
+    this.studentState.set(student);
+    this.router.navigate(['students', 'detail', student.id]);
+  }
+
   onEditStudent(student: StudentResponseDto): void {
-    this.studentState.setEditStudent(student);
+    this.studentState.set(student);
     this.router.navigate(['students', 'edit', student.id]);
   }
 
-  // ─── Pagination helpers ─────────────────────────────────────────
+  // ── Pagination helpers ─────────────────────────────────────────
 
   get pages(): number[] {
     const total = this.totalPages;
-    const cur = this.currentPage;
-    let start = Math.max(0, cur - 2);
-    let end = Math.min(total - 1, cur + 2);
+    const cur   = this.currentPage;
+    let start   = Math.max(0, cur - 2);
+    let end     = Math.min(total - 1, cur + 2);
     if (end - start < 4) {
       if (start === 0) end = Math.min(total - 1, 4);
-      else start = Math.max(0, end - 4);
+      else             start = Math.max(0, end - 4);
     }
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
-  get startIndex(): number {
-    return this.currentPage * this.pageSize + 1;
-  }
-
-  get endIndex(): number {
-    return Math.min((this.currentPage + 1) * this.pageSize, this.totalElements);
-  }
+  get startIndex(): number { return this.currentPage * this.pageSize + 1; }
+  get endIndex(): number   { return Math.min((this.currentPage + 1) * this.pageSize, this.totalElements); }
 }

@@ -85,9 +85,21 @@ onFormSubmit(dto: CreateClassDto): void {
         this.goBack(res.message ?? 'Class updated successfully', 'success');
       },
       error: (err) => {
-        console.log('UPDATE ERROR:', err); // ← ye dekho
+        console.log('UPDATE ERROR:', err);
         this.isSubmitting = false;
         this.showToast('Failed to update class', 'error');
+      }
+    });
+  } else {
+    this.classService.createClass(this.schoolId, dto).subscribe({
+      next: (res) => {
+        this.isSubmitting = false;
+        this.goBack(res.message ?? 'Class created successfully', 'success');
+      },
+      error: (err) => {
+        console.log('CREATE ERROR:', err);
+        this.isSubmitting = false;
+        this.showToast('Failed to create class', 'error');
       }
     });
   }

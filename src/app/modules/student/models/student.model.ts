@@ -1,4 +1,4 @@
-// ─── Full student response (list me aata hai) ────────────────────
+// ─── Full student response (backend se aata hai) ──────────────────
 export interface StudentResponseDto {
   id: string;
   firstName: string;
@@ -8,7 +8,9 @@ export interface StudentResponseDto {
   dob?: string;
   admissionDate?: string;
   classId?: string;
+  className?: string;      // ← backend se directly aata hai
   sectionId?: string;
+  sectionName?: string;    // ← backend se directly aata hai
   academicSessionId?: string;
   rollNo?: string;
   fatherName?: string;
@@ -55,15 +57,17 @@ export interface StudentFilterRequest {
   sectionId?: string;
 }
 
-// ─── PagedResponse<T> ─────────────────────────────────────────────
+// ─── Backend PagedResponse (exact structure) ──────────────────────
 export interface PagedResponse<T> {
-  data: T[];
+  success: boolean;
+  message: string;
+  page: number;
+  size: number;
   totalElements: number;
   totalPages: number;
-  currentPage: number;
-  size: number;
-  message?: string;
-  success?: boolean;
+  last: boolean;
+  timestamp: string;
+  data: T[];
 }
 
 // ─── Generic API response ─────────────────────────────────────────
@@ -71,16 +75,17 @@ export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T | null;
+  timestamp?: string;
 }
 
-// ─── Params API (/api/params/list) ───────────────────────────────
+// ─── Params API ───────────────────────────────────────────────────
 export interface ParamListRequest {
   page: number;
   size: number;
   sortBy: string;
   sortDirection: 'ASC' | 'DESC';
-  type: 'classes' | 'sections' | 'teachers' | 'subjects' | 'students';
-  classId?: string;   // required when type = 'sections'
+  type: 'classes' | 'sections' | 'teachers' | 'subjects' | 'students' | 'academic_sessions';
+  classId?: string;
   search?: string;
 }
 
