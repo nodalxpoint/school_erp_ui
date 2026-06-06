@@ -35,7 +35,7 @@ export class StudentStateService {
 @Injectable({ providedIn: 'root' })
 export class StudentService {
   private readonly BASE = '/students';
-  private readonly PARAMS_BASE = '/params';
+  private readonly PARAMS_BASE = '/param';
 
   constructor(private http: HttpService) {}
 
