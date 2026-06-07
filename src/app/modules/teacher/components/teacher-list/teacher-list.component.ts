@@ -21,51 +21,51 @@ export class TeacherListComponent implements OnInit {
   error = '';
 
   // Column filters
-  searchFirstName  = '';
-  searchLastName   = '';
-  searchEmail      = '';
-  searchEmpCode    = '';
+  searchFirstName = '';
+  searchLastName = '';
+  searchEmail = '';
+  searchEmpCode = '';
 
   // Pagination
-  currentPage   = 0;
-  pageSize      = 10;
+  currentPage = 0;
+  pageSize = 10;
   totalElements = 0;
-  totalPages    = 0;
+  totalPages = 0;
 
   constructor(
     private teacherService: TeacherService,
     private teacherState: TeacherStateService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) { }
 
   ngOnInit(): void { this.loadTeachers(); }
 
   loadTeachers(): void {
     this.loading = true;
-    this.error   = '';
+    this.error = '';
 
     const req: TeacherFilterRequest = {
       page: this.currentPage,
       size: this.pageSize,
-      sortBy: 'firstName',
+      // sortBy: 'firstName',
       sortDirection: 'ASC',
-      firstName:    this.searchFirstName.trim()  || undefined,
-      lastName:     this.searchLastName.trim()   || undefined,
-      email:        this.searchEmail.trim()      || undefined,
-      employeeCode: this.searchEmpCode.trim()    || undefined,
+      firstName: this.searchFirstName.trim() || undefined,
+      lastName: this.searchLastName.trim() || undefined,
+      email: this.searchEmail.trim() || undefined,
+      employeeCode: this.searchEmpCode.trim() || undefined,
     };
 
     this.teacherService.filterTeachers(req).subscribe({
       next: (res) => {
-        this.teachers      = res.data;
+        this.teachers = res.data;
         this.totalElements = res.totalElements;
-        this.totalPages    = res.totalPages;
-        this.loading       = false;
+        this.totalPages = res.totalPages;
+        this.loading = false;
         this.cdr.markForCheck();
       },
       error: () => {
-        this.error   = 'Failed to load teachers. Please try again.';
+        this.error = 'Failed to load teachers. Please try again.';
         this.loading = false;
         this.cdr.markForCheck();
       },
@@ -76,16 +76,16 @@ export class TeacherListComponent implements OnInit {
 
   clearFilters(): void {
     this.searchFirstName = '';
-    this.searchLastName  = '';
-    this.searchEmail     = '';
-    this.searchEmpCode   = '';
-    this.currentPage     = 0;
+    this.searchLastName = '';
+    this.searchEmail = '';
+    this.searchEmpCode = '';
+    this.currentPage = 0;
     this.loadTeachers();
   }
 
   hasActiveFilters(): boolean {
     return !!(this.searchFirstName || this.searchLastName ||
-              this.searchEmail     || this.searchEmpCode);
+      this.searchEmail || this.searchEmpCode);
   }
 
   goToPage(p: number): void {
@@ -114,13 +114,13 @@ export class TeacherListComponent implements OnInit {
     let start = Math.max(0, cur - 2), end = Math.min(total - 1, cur + 2);
     if (end - start < 4) {
       if (start === 0) end = Math.min(total - 1, 4);
-      else             start = Math.max(0, end - 4);
+      else start = Math.max(0, end - 4);
     }
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
   get startIndex(): number { return this.currentPage * this.pageSize + 1; }
-  get endIndex(): number   { return Math.min((this.currentPage + 1) * this.pageSize, this.totalElements); }
+  get endIndex(): number { return Math.min((this.currentPage + 1) * this.pageSize, this.totalElements); }
 
   initials(t: TeacherResponseDto): string {
     return (t.firstName?.charAt(0) ?? '') + (t.lastName?.charAt(0) ?? '');

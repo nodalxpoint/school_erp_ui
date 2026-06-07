@@ -42,7 +42,7 @@ export interface AssignClassTeacherResponse {
 export interface TeacherFilterRequest {
   page: number;
   size: number;
-  sortBy: string;
+  sortBy?: string;
   sortDirection: 'ASC' | 'DESC';
   firstName?: string;
   lastName?: string;
