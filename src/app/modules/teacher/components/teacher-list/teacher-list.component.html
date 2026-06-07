@@ -1,104 +1,133 @@
-<!-- Teacher List Component -->
-<div class="teacher-list">
+<div class="list-page">
 
-  <!-- Filter Bar -->
-  <div class="filter-bar" [formGroup]="filterForm">
-    <div class="filter-fields">
-      <div class="field-group">
-        <label>Employee Code</label>
-        <input
-          type="text"
-          formControlName="employeeCode"
-          placeholder="Search by code…"
-          (keyup.enter)="applyFilter()"
-        />
-      </div>
-      <div class="field-group">
-        <label>Qualification</label>
-        <input
-          type="text"
-          formControlName="qualification"
-          placeholder="e.g. B.Ed, M.Sc…"
-          (keyup.enter)="applyFilter()"
-        />
-      </div>
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <span>Teacher Management</span>
+    <span class="sep">/</span>
+    <span class="active">Teacher List</span>
+  </div>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Teachers &amp; Staff</h1>
+      <p>{{ totalElements }} teachers in this school</p>
     </div>
-    <div class="filter-actions">
-      <button class="btn-secondary" (click)="resetFilter()">Reset</button>
-      <button class="btn-primary" (click)="applyFilter()">Search</button>
+    <button class="btn-primary" (click)="onAdd()">+ Add Teacher</button>
+  </div>
+
+  <!-- Error -->
+  <div class="alert-error" *ngIf="error">⚠ {{ error }}</div>
+
+  <!-- Table Card -->
+  <div class="table-card">
+
+    <div class="loading-overlay" *ngIf="loading">
+      <div class="spinner"></div>
+      <span>Loading teachers...</span>
     </div>
-  </div>
 
-  <!-- Loading Skeleton -->
-  <div class="skeleton-wrapper" *ngIf="isLoading">
-    <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
-  </div>
-
-  <!-- Error State -->
-  <div class="state-message error" *ngIf="error && !isLoading">
-    <span class="icon">⚠</span> {{ error }}
-  </div>
-
-  <!-- Empty State -->
-  <div class="state-message empty" *ngIf="!isLoading && !error && teachers.length === 0">
-    <span class="icon">🎓</span>
-    <p>No teachers found. Try adjusting filters.</p>
-  </div>
-
-  <!-- Table -->
-  <div class="table-wrapper" *ngIf="!isLoading && teachers.length > 0">
-    <table>
+    <table class="data-table">
       <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Employee Code</th>
-          <th>Qualification</th>
-          <th>Joining Date</th>
+        <!-- Blue header -->
+        <tr class="header-row">
+          <th class="col-no">No</th>
+          <th class="col-name">Teacher Name</th>
+          <th class="col-emp">Employee Code</th>
+          <th class="col-email">Email</th>
+          <th class="col-qual">Qualification</th>
+          <th class="col-date">Joining Date</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+
+        <!-- Filter row -->
+        <tr class="filter-row">
+          <td></td>
+          <td>
+            <input class="col-filter" type="text" placeholder="Filter name..."
+              [(ngModel)]="searchFirstName" (input)="onSearch()" />
+          </td>
+          <td>
+            <input class="col-filter" type="text" placeholder="Emp code..."
+              [(ngModel)]="searchEmpCode" (input)="onSearch()" />
+          </td>
+          <td>
+            <input class="col-filter" type="text" placeholder="Email..."
+              [(ngModel)]="searchEmail" (input)="onSearch()" />
+          </td>
+          <td></td>
+          <td></td>
+          <td class="filter-clear-cell">
+            <button class="btn-clear-filter" *ngIf="hasActiveFilters()" (click)="clearFilters()">
+              ✕ Clear
+            </button>
+          </td>
         </tr>
       </thead>
+
       <tbody>
-        <tr *ngFor="let teacher of teachers; let i = index">
-          <td class="serial">{{ currentPage * 10 + i + 1 }}</td>
-          <td class="name-cell">
-            <div class="avatar-name">
-              <span class="avatar">{{ fullName(teacher).charAt(0) }}</span>
-              <span>{{ fullName(teacher) }}</span>
+        <!-- Data rows -->
+        <ng-container *ngIf="!loading && teachers.length > 0">
+          <tr *ngFor="let t of teachers; let i = index" class="data-row">
+            <td class="col-no text-muted">{{ startIndex + i }}</td>
+            <td class="col-name">
+              <div class="teacher-cell">
+                <div class="avatar">{{ initials(t) }}</div>
+                <div>
+                  <div class="teacher-name">{{ t.firstName }} {{ t.lastName }}</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge-emp">{{ t.employeeCode || '—' }}</span></td>
+            <td class="text-email">{{ t.email || '—' }}</td>
+            <td class="text-muted-sm">{{ t.qualification || '—' }}</td>
+            <td class="text-muted-sm">{{ formatDate(t.joiningDate) }}</td>
+            <td class="col-actions">
+              <div class="action-btns">
+                <button class="btn-view" (click)="onView(t)">👁 View</button>
+                <button class="btn-edit" (click)="onEdit(t)">✏ Edit</button>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+
+        <!-- Empty state INSIDE table -->
+        <tr *ngIf="!loading && teachers.length === 0" class="empty-row">
+          <td colspan="7">
+            <div class="empty-state" *ngIf="hasActiveFilters()">
+              <div class="empty-icon">🔍</div>
+              <p class="empty-title">No teachers match your filters</p>
+              <p class="empty-sub">Try different search criteria</p>
+              <button class="btn-clear-center" (click)="clearFilters()">✕ Clear Filters</button>
+            </div>
+            <div class="empty-state" *ngIf="!hasActiveFilters()">
+              <div class="empty-icon">👨‍🏫</div>
+              <p class="empty-title">No teachers found</p>
+              <p class="empty-sub">Add your first teacher to get started</p>
             </div>
           </td>
-          <td>{{ teacher.email }}</td>
-          <td><span class="badge">{{ teacher.employeeCode }}</span></td>
-          <td>{{ teacher.qualification }}</td>
-          <td>{{ teacher.joiningDate | date: 'dd MMM yyyy' }}</td>
         </tr>
       </tbody>
+
+      <tfoot *ngIf="totalElements > 0">
+        <tr class="footer-row">
+          <td colspan="7">{{ totalElements }} teachers total</td>
+        </tr>
+      </tfoot>
     </table>
   </div>
 
   <!-- Pagination -->
   <div class="pagination" *ngIf="totalPages > 1">
-    <button
-      class="page-btn"
-      [disabled]="currentPage === 0"
-      (click)="onPageChange(currentPage - 1)"
-    >‹</button>
-
-    <button
-      *ngFor="let page of pages"
-      class="page-btn"
-      [class.active]="page === currentPage"
-      (click)="onPageChange(page)"
-    >{{ page + 1 }}</button>
-
-    <button
-      class="page-btn"
-      [disabled]="currentPage === totalPages - 1"
-      (click)="onPageChange(currentPage + 1)"
-    >›</button>
+    <span class="page-info">Showing {{ startIndex }}–{{ endIndex }} of {{ totalElements }}</span>
+    <div class="page-btns">
+      <button class="page-btn" (click)="goToPage(0)" [disabled]="currentPage === 0">«</button>
+      <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">‹</button>
+      <button *ngFor="let p of pages" class="page-btn" [class.active]="p === currentPage"
+        (click)="goToPage(p)">{{ p + 1 }}</button>
+      <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">›</button>
+      <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1">»</button>
+    </div>
   </div>
 
-  <p class="total-count" *ngIf="totalElements > 0">
-    Showing {{ teachers.length }} of {{ totalElements }} teachers
-  </p>
 </div>

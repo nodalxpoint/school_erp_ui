@@ -16,6 +16,7 @@ import {
   TeacherResponseDto,
   TeacherFilterRequest,
   AssignClassTeacherRequest,
+  AssignClassTeacherResponse,
 } from '../../models/teacher.model';
 import { AcademicSessionResponseDto } from '../../../academic/models/academic-session.model';
 
@@ -193,11 +194,11 @@ export class AssignTeacherComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
 
     this.teacherService.assignClassTeacher(payload).subscribe({
-      next: (res) => {
+      next: (res: AssignClassTeacherResponse) => {
         this.showToast('success', res?.message ?? 'Teacher assigned successfully!');
         this._resetForm();
       },
-      error: (err) => {
+      error: (err: { error?: { message?: string } }) => {
         this.showToast('error', err?.error?.message ?? 'Assignment failed. Please try again.');
         this.isSubmitting = false;
         this.cdr.markForCheck();

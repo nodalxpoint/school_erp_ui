@@ -1,0 +1,125 @@
+<div class="form-page">
+
+  <!-- Header -->
+  <div class="form-header">
+    <div class="breadcrumb">
+      <span class="link" (click)="onCancel()">Teacher Management</span>
+      <span class="sep">/</span>
+      <span class="link" (click)="onCancel()">Teacher List</span>
+      <span class="sep">/</span>
+      <span class="current">{{ isEditMode ? 'Edit Teacher' : 'Add New' }}</span>
+    </div>
+    <button class="btn-back" (click)="onCancel()">← Back to List</button>
+  </div>
+
+  <div class="form-title-row">
+    <h1>{{ isEditMode ? 'Edit Teacher' : 'Add New Teacher' }}</h1>
+    <p>{{ isEditMode ? 'Update teacher record details' : 'Fill in the details to register a new teacher' }}</p>
+  </div>
+
+  <div class="alert success" *ngIf="successMsg">✔ {{ successMsg }}</div>
+  <div class="alert error"   *ngIf="errorMsg">
+    ⚠ {{ errorMsg }}
+    <button class="alert-link" *ngIf="errorMsg.includes('go back')" (click)="onCancel()">← Go to List</button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
+
+    <!-- Section 01: Personal Information -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-badge">01</div>
+        <div>
+          <h2>Personal Information</h2>
+          <p>Basic details about the teacher</p>
+        </div>
+      </div>
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label">First Name <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('firstName')"
+            formControlName="firstName" placeholder="e.g. Erling" />
+          <span class="field-error" *ngIf="isInvalid('firstName')">{{ getError('firstName') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Last Name <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('lastName')"
+            formControlName="lastName" placeholder="e.g. Haaland" />
+          <span class="field-error" *ngIf="isInvalid('lastName')">{{ getError('lastName') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address <span class="req">*</span></label>
+          <input type="email" class="form-control" [class.invalid]="isInvalid('email')"
+            formControlName="email" placeholder="teacher@school.com" />
+          <span class="field-error" *ngIf="isInvalid('email')">{{ getError('email') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            Password
+            <span class="req" *ngIf="!isEditMode">*</span>
+            <span class="optional-tag" *ngIf="isEditMode">Leave blank to keep current</span>
+          </label>
+          <div class="password-wrap">
+            <input [type]="showPassword ? 'text' : 'password'"
+              class="form-control" [class.invalid]="isInvalid('password')"
+              formControlName="password" placeholder="Min 6 characters" />
+            <button type="button" class="toggle-pass" (click)="togglePassword()">
+              {{ showPassword ? '🙈' : '👁' }}
+            </button>
+          </div>
+          <span class="field-error" *ngIf="isInvalid('password')">{{ getError('password') }}</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Section 02: Professional Information -->
+    <div class="form-section">
+      <div class="section-header">
+        <div class="section-badge">02</div>
+        <div>
+          <h2>Professional Information</h2>
+          <p>Employment and qualification details</p>
+        </div>
+      </div>
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label">Employee Code <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('employeeCode')"
+            formControlName="employeeCode" placeholder="e.g. TCH-2026-001" />
+          <span class="field-error" *ngIf="isInvalid('employeeCode')">{{ getError('employeeCode') }}</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Joining Date <span class="req">*</span></label>
+          <input type="date" class="form-control" [class.invalid]="isInvalid('joiningDate')"
+            formControlName="joiningDate" />
+          <span class="field-error" *ngIf="isInvalid('joiningDate')">{{ getError('joiningDate') }}</span>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Qualification <span class="req">*</span></label>
+          <input class="form-control" [class.invalid]="isInvalid('qualification')"
+            formControlName="qualification" placeholder="e.g. Stanford University / M.Sc. Mathematics" />
+          <span class="field-error" *ngIf="isInvalid('qualification')">{{ getError('qualification') }}</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
+      <button type="submit" class="btn-submit" [disabled]="submitting">
+        <span class="btn-spinner" *ngIf="submitting"></span>
+        {{ submitting ? 'Saving...' : (isEditMode ? 'Update Teacher' : 'Add Teacher') }}
+      </button>
+    </div>
+
+  </form>
+</div>

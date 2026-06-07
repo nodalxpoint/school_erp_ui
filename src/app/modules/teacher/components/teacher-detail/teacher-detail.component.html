@@ -1,0 +1,90 @@
+<div class="detail-page" *ngIf="teacher">
+
+  <!-- Header -->
+  <div class="detail-header">
+    <div class="breadcrumb">
+      <span class="link" (click)="onBack()">Teacher Management</span>
+      <span class="sep">/</span>
+      <span class="link" (click)="onBack()">Teacher List</span>
+      <span class="sep">/</span>
+      <span class="current">Teacher Detail</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-back" (click)="onBack()">← Back</button>
+      <button class="btn-edit-top" (click)="onEdit()">✏ Edit Teacher</button>
+    </div>
+  </div>
+
+  <!-- Profile card -->
+  <div class="profile-card">
+    <div class="profile-left">
+      <div class="big-avatar">{{ initials() }}</div>
+      <div>
+        <h2>{{ teacher.firstName }} {{ teacher.lastName }}</h2>
+        <p class="emp-code">{{ teacher.employeeCode }}</p>
+        <span class="badge-email">{{ teacher.email }}</span>
+      </div>
+    </div>
+    <div class="profile-stats">
+      <div class="stat-item">
+        <span class="stat-label">Joining Date</span>
+        <span class="stat-val">{{ formatDate(teacher.joiningDate) }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Qualification</span>
+        <span class="stat-val">{{ teacher.qualification || '—' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail sections -->
+  <div class="detail-grid">
+
+    <!-- Professional Info -->
+    <div class="info-card">
+      <div class="info-card-header">
+        <div class="info-badge">01</div>
+        <div>
+          <h3>Professional Details</h3>
+          <p>Employment information</p>
+        </div>
+      </div>
+      <div class="info-body">
+        <div class="info-row">
+          <span class="info-label">Employee Code</span>
+          <span class="info-val"><span class="badge-emp">{{ teacher.employeeCode }}</span></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Qualification</span>
+          <span class="info-val fw">{{ teacher.qualification || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Joining Date</span>
+          <span class="info-val">{{ formatDate(teacher.joiningDate) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Info -->
+    <div class="info-card">
+      <div class="info-card-header">
+        <div class="info-badge">02</div>
+        <div>
+          <h3>Account Information</h3>
+          <p>Login and contact details</p>
+        </div>
+      </div>
+      <div class="info-body">
+        <div class="info-row">
+          <span class="info-label">Full Name</span>
+          <span class="info-val fw">{{ teacher.firstName }} {{ teacher.lastName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email Address</span>
+          <span class="info-val">{{ teacher.email || '—' }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

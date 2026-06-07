@@ -1,44 +1,29 @@
-// ─── Teacher ──────────────────────────────────────────────────────
+// ─── Matches TeacherResponseDto.java exactly ──────────────────────
+export interface TeacherResponseDto {
+  teacherId?: string;      // may come as id depending on mapping
+  id?: string;
+  userId?: string;         // needed for update
+  firstName: string;
+  lastName: string;
+  email: string;
+  employeeCode: string;
+  qualification?: string;
+  joiningDate?: string;    // LocalDate → "YYYY-MM-DD" string in JSON
+}
 
+// ─── Add / Update payload ─────────────────────────────────────────
 export interface CreateTeacherRequest {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
-  employeeCode: string;
-  qualification: string;
-  joiningDate: string; // "YYYY-MM-DD"
-  userId?: string;     // present = update
-}
-
-export interface TeacherFilterRequest {
-  employeeCode?: string;
-  qualification?: string;
-  page: number;
-  size: number;
-  sortBy: string;
-  sortDirection: 'ASC' | 'DESC';
-}
-
-// Matches TeacherResponseDto.java exactly
-export interface TeacherResponseDto {
-  firstName: string;
-  lastName: string;
-  email: string;
+  password?: string;       // required on add, optional on edit
   employeeCode: string;
   qualification: string;
   joiningDate: string;
+  userId?: string;         // present only on update
 }
 
-// Extended for dropdown use — id comes from the entity
-// TeacherResponseDto doesn't have id, so we use a union when needed
-export interface TeacherDropdownItem extends TeacherResponseDto {
-  id: string;
-}
-
-// ─── Assignment ───────────────────────────────────────────────────
-
-// Matches AssignClassTeacherDto.java exactly
+// ─── Assign class teacher — matches AssignClassTeacherDto.java ────
 export interface AssignClassTeacherRequest {
   classId: string;
   sectionId: string;
@@ -46,37 +31,43 @@ export interface AssignClassTeacherRequest {
   academicSessionId: string;
 }
 
-// ─── Class & Section ──────────────────────────────────────────────
-// TODO: update field names once GET API is built
-// Backend entity fields: id (UUID), className, schoolId
-
-export interface ClassItem {
-  id: string;
-  className: string; // matches Classes.java → getClassName()
+export interface AssignClassTeacherResponse {
+  success: boolean;
+  message: string;
+  data?: unknown;
+  timestamp?: string;
 }
 
-// Backend entity fields: id (UUID), classId, sectionName
-export interface SectionItem {
-  id: string;
-  sectionName: string; // matches SectionEntity.java → getSectionName()
-  classId: string;
+// ─── Filter request — matches TeacherFilterRequest.java ──────────
+export interface TeacherFilterRequest {
+  page: number;
+  size: number;
+  sortBy: string;
+  sortDirection: 'ASC' | 'DESC';
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  employeeCode?: string;
+  qualification?: string;
 }
 
-// ─── Shared API wrappers ──────────────────────────────────────────
-
-// Matches PagedResponse<T> from backend
+// ─── PagedResponse (exact backend structure) ──────────────────────
 export interface PagedResponse<T> {
-  data: T[];
+  success: boolean;
+  message: string;
+  page: number;
+  size: number;
   totalElements: number;
   totalPages: number;
-  currentPage: number;
-  size: number;
-  message: string;
+  last: boolean;
+  timestamp: string;
+  data: T[];
 }
 
-// Matches ApiResponse<T> from backend
+// ─── Generic API response ─────────────────────────────────────────
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
-  data: T | null;
+  data?: T | null;
+  timestamp?: string;
 }
