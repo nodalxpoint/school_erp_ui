@@ -1,18 +1,35 @@
-// Matches AcademicSessionResponseDto.java exactly
 export interface AcademicSessionResponseDto {
-  id: string;           // UUID as string
+  id: string;
   sessionName: string;
-  startDate: string;    // LocalDate → "YYYY-MM-DD"
+  startDate: string;
   endDate: string;
   isActive: boolean;
 }
 
-// Matches AcademicSessionFilterRequest.java + BaseFilterRequest
 export interface AcademicSessionFilterRequest {
-  sessionName?: string;
-  isActive?: boolean;
   page: number;
   size: number;
-  sortBy: string;
-  sortDirection: 'ASC' | 'DESC';
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+  schoolId?: string;
+}
+
+export interface CreateAcademicSessionDto {
+  sessionName: string;
+  startDate: string;
+  endDate: string;
+  isActive?: boolean;
+  schoolId?: string;
+}
+
+export interface PagedResponse<T> {
+  success: boolean;
+  message?: string;
+  data: T[];
+  totalElements: number;
+  totalPages: number;
+  page: number;
+  size: number;
+  last?: boolean;
+  timestamp?: string;
 }

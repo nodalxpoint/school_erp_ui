@@ -25,8 +25,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Attendance', href: '/attendance', icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
   { label: 'Fees',       href: '/fees',       icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT', 'PARENT'] },
   { label: 'Reports',    href: '/reports',    icon: 'bar-chart-3',      roles: ['SUPER_ADMIN', 'ADMIN'] },
-  { label: 'School',    href: '/school',    icon: 'book-open',       roles: 'all' },
-  { label: 'Classes',    href: '/classes',    icon: 'book-open',       roles: 'all' },
+  { label: 'School',     href: '/school',     icon: 'book-open',        roles: 'all' },
+  { label: 'Classes',    href: '/classes',    icon: 'book-open',        roles: 'all' },
   { label: 'Settings',   href: '/settings',   icon: 'settings',         roles: 'all' },
 ];
 
@@ -42,6 +42,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   sidebarCollapsed = false;
   currentPath = '';
   currentRole: UserRole | null = null;
+  teachersDropdownOpen = false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -58,9 +59,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
     this.uiState.sidebarCollapsed$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(v => this.sidebarCollapsed = v);
+      .subscribe(v => {
+        this.sidebarCollapsed = v;
+        // Collapsed hone pe dropdown close ho jaye
+        if (v) this.teachersDropdownOpen = false;
+      });
 
-    // Role ko reactively track karo — yahi asli fix hai
     this.authState.user$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
@@ -73,7 +77,18 @@ export class SidebarComponent implements OnInit, OnDestroy {
         filter(e => e instanceof NavigationEnd),
         takeUntil(this.destroy$)
       )
-      .subscribe((e: any) => this.currentPath = e.urlAfterRedirects);
+      .subscribe((e: any) => {
+        this.currentPath = e.urlAfterRedirects;
+        // Auto-open teachers dropdown if on a teachers route
+        if (this.currentPath.startsWith('/teachers') || this.currentPath.startsWith('/teacher-mapping')) {
+          this.teachersDropdownOpen = true;
+        }
+      });
+
+    // Also check on init
+    if (this.currentPath.startsWith('/teachers') || this.currentPath.startsWith('/teacher-mapping')) {
+      this.teachersDropdownOpen = true;
+    }
   }
 
   ngOnDestroy(): void {
@@ -90,6 +105,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   isActive(href: string): boolean {
     return this.currentPath === href || this.currentPath.startsWith(href + '/');
+  }
+
+  isTeachersActive(): boolean {
+    return this.currentPath.startsWith('/teachers') || this.currentPath.startsWith('/teacher-mapping');
+  }
+
+  toggleTeachersDropdown(): void {
+    this.teachersDropdownOpen = !this.teachersDropdownOpen;
   }
 
   getInitials(name: string): string {

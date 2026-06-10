@@ -1,45 +1,45 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { HttpService } from '../../../core/services/http.service';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import {
-  CreateTeacherRequest,
-  TeacherFilterRequest,
-  TeacherResponseDto,
+  AssignClassTeacherDto,
+  ClassTeacherAssignmentFilterRequest,
+  ClassTeacherAssignmentResponseDto,
+  CreateTeacherDto,
   PagedResponse,
-  ApiResponse,
-  AssignClassTeacherRequest,
-  AssignClassTeacherResponse,
+  TeacherFilterRequest,
+  TeacherResponseDto
 } from '../models/teacher.model';
+import { environment } from '../../../../environments/environment';
 
-// ─── State service: list → form/detail pe teacher pass karne ke liye
-@Injectable({ providedIn: 'root' })
-export class TeacherStateService {
-  private _teacher = new BehaviorSubject<TeacherResponseDto | null>(null);
-
-  set(t: TeacherResponseDto | null): void { this._teacher.next(t); }
-  get(): TeacherResponseDto | null        { return this._teacher.getValue(); }
-  clear(): void                           { this._teacher.next(null); }
-}
-
-// ─── Main teacher service ─────────────────────────────────────────
 @Injectable({ providedIn: 'root' })
 export class TeacherService {
-  private readonly BASE = '/teacher';
+  private base = `${environment.apiUrl}/teacher`;
 
-  constructor(private http: HttpService) {}
+  constructor(private http: HttpClient) {}
 
-  /** POST /api/teacher/list */
-  filterTeachers(req: TeacherFilterRequest): Observable<PagedResponse<TeacherResponseDto>> {
-    return this.http.post<PagedResponse<TeacherResponseDto>>(`${this.BASE}/list`, req);
+  // ── Teacher CRUD ──────────────────────────────────────────────────────────
+
+  filterTeachers(request: TeacherFilterRequest): Observable<PagedResponse<TeacherResponseDto>> {  // data[] is top-level
+    return this.http.post<PagedResponse<TeacherResponseDto>>(`${this.base}/list`, request);
   }
 
-  /** POST /api/teacher/addOrUpdate */
-  saveTeacher(req: CreateTeacherRequest): Observable<ApiResponse<string>> {
-    return this.http.post<ApiResponse<string>>(`${this.BASE}/addOrUpdate`, req);
+  addOrUpdateTeacher(dto: CreateTeacherDto): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/addOrUpdate`, dto);
   }
 
-  /** POST /api/teacher/assignClassTeacher */
-  assignClassTeacher(req: AssignClassTeacherRequest): Observable<AssignClassTeacherResponse> {
-    return this.http.post<AssignClassTeacherResponse>(`${this.BASE}/assignClassTeacher`, req);
+  // ── Assign Class Teacher ──────────────────────────────────────────────────
+
+  assignClassTeacher(dto: AssignClassTeacherDto): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/assign`, dto);
+  }
+
+  filterClassTeacherAssignments(
+    request: ClassTeacherAssignmentFilterRequest
+  ): Observable<PagedResponse<ClassTeacherAssignmentResponseDto>> {
+    return this.http.post<PagedResponse<ClassTeacherAssignmentResponseDto>>(
+      `${this.base}/assignedList`,
+      request
+    );
   }
 }

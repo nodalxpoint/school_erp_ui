@@ -1,28 +1,33 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { HttpService } from '../../../core/services/http.service';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
 import {
-  AcademicSessionResponseDto,
   AcademicSessionFilterRequest,
+  AcademicSessionResponseDto,
+  CreateAcademicSessionDto,
+  PagedResponse
 } from '../models/academic-session.model';
-import { PagedResponse } from '../../teacher/models/teacher.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AcademicSessionService {
-  private readonly BASE = '/api/academic-session';
+  private base = `${environment.apiUrl}/academic-session`;
 
-  constructor(private http: HttpService) {}
+  constructor(private http: HttpClient) {}
 
-  /**
-   * POST /api/academic-session/list
-   * Fetch all sessions — pass isActive: true to get only active ones
-   */
-  listSessions(
-    request: AcademicSessionFilterRequest
-  ): Observable<PagedResponse<AcademicSessionResponseDto>> {
-    return this.http.post<PagedResponse<AcademicSessionResponseDto>>(
-      `${this.BASE}/list`,
-      request
-    );
+  filter(request: AcademicSessionFilterRequest): Observable<PagedResponse<AcademicSessionResponseDto>> {
+    return this.http.post<PagedResponse<AcademicSessionResponseDto>>(`${this.base}/list`, request);
+  }
+
+  // Convenience: sirf active sessions as dropdown options
+  getActiveSessionOptions(schoolId?: string): Observable<{ id: string; name: string }[]> {
+    return this.filter({ page: 0, size: 100, sortBy: 'startDate', sortDirection: 'desc', schoolId })
+      .pipe(
+        map(res => (res.data ?? []).map(s => ({ id: s.id, name: s.sessionName })))
+      );
+  }
+
+  addOrUpdate(dto: CreateAcademicSessionDto): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/addOrUpdate`, dto);
   }
 }

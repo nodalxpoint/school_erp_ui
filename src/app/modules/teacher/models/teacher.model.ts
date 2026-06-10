@@ -1,73 +1,101 @@
-// ─── Matches TeacherResponseDto.java exactly ──────────────────────
+// ─── Entities / Response DTOs ───────────────────────────────────────────────
+
 export interface TeacherResponseDto {
-  teacherId?: string;      // may come as id depending on mapping
-  id?: string;
-  userId?: string;         // needed for update
+  id?: string;         
+  teacherId?: string;   
+  userId?: string;
   firstName: string;
-  lastName: string;
+  lastName?: string;
   email: string;
-  employeeCode: string;
+  employeeCode?: string;
   qualification?: string;
-  joiningDate?: string;    // LocalDate → "YYYY-MM-DD" string in JSON
+  joiningDate?: string;
+}
+export interface ClassTeacherAssignmentResponseDto {
+  id: string;
+  classId: string;
+  className?: string;
+  sectionId: string;
+  sectionName?: string;
+  teacherId: string;
+  teacherName?: string;
+  academicSessionId: string;
+  academicSessionName?: string;
+  createdAt?: string;
 }
 
-// ─── Add / Update payload ─────────────────────────────────────────
-export interface CreateTeacherRequest {
+// ─── Request DTOs ────────────────────────────────────────────────────────────
+
+export interface CreateTeacherDto {
+  userId?: string;          // present = update, absent = create
   firstName: string;
-  lastName: string;
+  lastName?: string;
   email: string;
-  password?: string;       // required on add, optional on edit
-  employeeCode: string;
-  qualification: string;
-  joiningDate: string;
-  userId?: string;         // present only on update
+  password?: string;        // only for create
+  employeeCode?: string;
+  qualification?: string;
+  joiningDate?: string;
 }
 
-// ─── Assign class teacher — matches AssignClassTeacherDto.java ────
-export interface AssignClassTeacherRequest {
+export interface AssignClassTeacherDto {
   classId: string;
   sectionId: string;
   teacherId: string;
   academicSessionId: string;
 }
 
-export interface AssignClassTeacherResponse {
-  success: boolean;
-  message: string;
-  data?: unknown;
-  timestamp?: string;
-}
+// ─── Filter requests (mirrors BaseFilterRequest + extra fields) ───────────────
 
-// ─── Filter request — matches TeacherFilterRequest.java ──────────
 export interface TeacherFilterRequest {
   page: number;
   size: number;
-  sortBy?: string;
-  sortDirection: 'ASC' | 'DESC';
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  employeeCode?: string;
-  qualification?: string;
+  sortBy: string;
+  sortDirection: 'asc' | 'desc';
+  search?: string;
+  schoolId?: string;
 }
 
-// ─── PagedResponse (exact backend structure) ──────────────────────
-export interface PagedResponse<T> {
-  success: boolean;
-  message: string;
+export interface ClassTeacherAssignmentFilterRequest {
   page: number;
   size: number;
-  totalElements: number;
-  totalPages: number;
-  last: boolean;
-  timestamp: string;
-  data: T[];
+  sortBy: string;
+  sortDirection: 'asc' | 'desc';
+  classId?: string;
+  sectionId?: string;
+  teacherId?: string;
+  teacherName?: string;
+  academicSessionId?: string;
 }
 
-// ─── Generic API response ─────────────────────────────────────────
-export interface ApiResponse<T> {
+
+export interface PagedResponse<T> {
   success: boolean;
-  message: string;
-  data?: T | null;
+  message?: string;
+  data: T[];
+  totalElements: number;
+  totalPages: number;
+  page: number;
+  size: number;
+  last?: boolean;
   timestamp?: string;
+}
+
+// ─── Form state helpers ───────────────────────────────────────────────────────
+
+export interface TeacherFormState {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  employeeCode: string;
+  qualification: string;
+  joiningDate: string;
+}
+
+export interface AssignTeacherFormState {
+  classId: string;
+  sectionId: string;
+  teacherId: string;
+  academicSessionId: string;
 }

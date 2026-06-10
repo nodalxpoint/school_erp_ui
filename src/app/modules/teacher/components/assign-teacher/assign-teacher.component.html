@@ -1,133 +1,173 @@
-<!-- Assign Teacher Component -->
-<div class="assign-wrapper">
+<div class="assign-wrap">
 
-  <!-- Toast -->
-  <div
-    class="toast"
-    [class.visible]="toast.visible"
-    [class.success]="toast.type === 'success'"
-    [class.error]="toast.type === 'error'"
-  >
-    <span class="toast-icon">{{ toast.type === 'success' ? '✓' : '✕' }}</span>
-    {{ toast.message }}
+  <!-- ── Assignment Form ── -->
+  <div class="assign-card">
+    <div class="card-header">
+      <div class="card-header-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="card-title">Assign Class Teacher</h3>
+        <p class="card-sub">Assign or reassign a teacher to a class-section for an academic session.</p>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="field-grid">
+
+        <!-- Class -->
+        <div class="field-group" [class.has-error]="errors['classId']">
+          <label class="field-label">Class <span class="req">*</span></label>
+          <select class="field-select"
+                  [(ngModel)]="form.classId"
+                  (ngModelChange)="onClassChange()"
+                  [disabled]="isSubmitting">
+            <option value="">Select class</option>
+            <option *ngFor="let c of classes" [value]="c.id">{{ c.name }}</option>
+          </select>
+          <span class="err" *ngIf="errors['classId']">{{ errors['classId'] }}</span>
+        </div>
+
+        <!-- Section -->
+        <div class="field-group" [class.has-error]="errors['sectionId']">
+          <label class="field-label">Section <span class="req">*</span></label>
+          <select class="field-select"
+                  [(ngModel)]="form.sectionId"
+                  [disabled]="isSubmitting">
+            <option value="">Select section</option>
+            <option *ngFor="let s of filteredSections" [value]="s.id">{{ s.name }}</option>
+          </select>
+          <span class="err" *ngIf="errors['sectionId']">{{ errors['sectionId'] }}</span>
+        </div>
+
+        <!-- Teacher -->
+        <div class="field-group" [class.has-error]="errors['teacherId']">
+          <label class="field-label">Teacher <span class="req">*</span></label>
+          <select class="field-select"
+                  [(ngModel)]="form.teacherId"
+                  [disabled]="isSubmitting">
+            <option value="">Select teacher</option>
+            <option *ngFor="let t of teachers" [value]="t.id">{{ teacherName(t) }}</option>
+          </select>
+          <span class="err" *ngIf="errors['teacherId']">{{ errors['teacherId'] }}</span>
+        </div>
+
+        <!-- Academic Session -->
+        <div class="field-group" [class.has-error]="errors['academicSessionId']">
+          <label class="field-label">Academic Session <span class="req">*</span></label>
+          <select class="field-select"
+                  [(ngModel)]="form.academicSessionId"
+                  [disabled]="isSubmitting">
+            <option value="">Select session</option>
+            <option *ngFor="let a of academicSessions" [value]="a.id">{{ a.name }}</option>
+          </select>
+          <span class="err" *ngIf="errors['academicSessionId']">{{ errors['academicSessionId'] }}</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <button class="btn-reset" type="button" (click)="resetForm()" [disabled]="isSubmitting">Reset</button>
+      <button class="btn-assign" type="button" (click)="onSubmit()" [disabled]="isSubmitting">
+        <span *ngIf="isSubmitting" class="spinner"></span>
+        <svg *ngIf="!isSubmitting" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        {{ isSubmitting ? 'Assigning…' : 'Assign Teacher' }}
+      </button>
+    </div>
   </div>
 
-  <!-- Form Card -->
-  <div class="card">
-    <div class="card-header">
-      <div class="header-left">
-        <span class="header-icon">📌</span>
-        <div>
-          <h3>Assign Class Teacher</h3>
-          <p>Assign a teacher to a class-section for an academic session</p>
-        </div>
+  <!-- ── Assigned List ── -->
+  <div class="list-section">
+    <div class="list-header">
+      <div>
+        <h3 class="list-title">Assigned Teachers</h3>
+        <p class="list-sub">{{ totalElements }} total assignment{{ totalElements !== 1 ? 's' : '' }}</p>
       </div>
-    </div>
-
-    <!-- Skeleton while loading -->
-    <div class="form-skeleton" *ngIf="isLoading">
-      <div class="sk" *ngFor="let i of [1,2,3,4]"></div>
-    </div>
-
-    <!-- Form -->
-    <form [formGroup]="assignForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
-      <div class="form-grid">
-
-        <!-- Teacher searchable dropdown -->
-        <div class="field-group">
-          <label>Teacher</label>
-          <div class="search-dropdown-wrapper">
-            <input
-              type="text"
-              class="search-input"
-              placeholder="Search teacher by name or code…"
-              [value]="teacherSearch"
-              (input)="onTeacherSearchInput($event)"
-              (focus)="onTeacherFocus()"
-              (blur)="onTeacherBlur()"
-              autocomplete="off"
-            />
-            <span class="search-icon">⌕</span>
-
-            <div
-              class="dropdown-list"
-              *ngIf="showTeacherDropdown && filteredTeachers.length > 0"
-            >
-              <div
-                class="dropdown-item"
-                *ngFor="let teacher of filteredTeachers"
-                (mousedown)="selectTeacher(teacher)"
-              >
-                <span class="item-avatar">{{ teacher.firstName?.charAt(0) }}</span>
-                <span class="item-name">{{ fullName(teacher) }}</span>
-                <span class="item-code">{{ teacher.employeeCode }}</span>
-              </div>
-            </div>
-
-            <div
-              class="dropdown-list empty-dd"
-              *ngIf="showTeacherDropdown && filteredTeachers.length === 0"
-            >
-              <p>No teachers found</p>
-            </div>
-          </div>
-
-          <!-- TODO note visible only in dev — remove in prod -->
-          <span class="todo-note">
-            ⚠ Backend: add <code>id</code> field to <code>TeacherResponseDto</code> for this to work
-          </span>
-        </div>
-
-        <!-- Academic Session dropdown — from real API -->
-        <div class="field-group">
-          <label>Academic Session</label>
-          <select formControlName="academicSessionId">
-            <option value="" disabled selected>Select session…</option>
-            <option *ngFor="let session of sessions" [value]="session.id">
-              {{ session.sessionName }}
-              <ng-container *ngIf="session.isActive"> (Active)</ng-container>
-            </option>
-          </select>
-          <span class="api-badge">✓ Live from API</span>
-        </div>
-
-        <!-- Class ID — manual text input until GET API is ready -->
-        <div class="field-group">
-          <label>Class ID</label>
-          <input
-            type="text"
-            formControlName="classId"
-            placeholder="Paste class UUID…"
-          />
-          <span class="todo-note">
-            🔧 TODO: Replace with dropdown when
-            <code>GET /api/school/classAndSection/list</code> is built
-          </span>
-        </div>
-
-        <!-- Section ID — manual text input until GET API is ready -->
-        <div class="field-group">
-          <label>Section ID</label>
-          <input
-            type="text"
-            formControlName="sectionId"
-            placeholder="Paste section UUID…"
-          />
-          <span class="todo-note">
-            🔧 TODO: Replace with dropdown when
-            <code>GET /api/school/section/by-class/:classId</code> is built
-          </span>
-        </div>
-
-      </div>
-
-      <div class="form-actions">
-        <button type="submit" class="btn-primary" [disabled]="isSubmitting">
-          <span *ngIf="isSubmitting" class="spinner"></span>
-          {{ isSubmitting ? 'Assigning…' : 'Assign Teacher' }}
+      <div class="list-filter">
+        <input class="filter-input" type="text" [(ngModel)]="filterTeacherName"
+               placeholder="Search teacher name…"
+               (keyup.enter)="applyFilter()" />
+        <button class="btn-filter" (click)="applyFilter()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
         </button>
       </div>
-    </form>
+    </div>
+
+    <!-- Skeleton -->
+    <ng-container *ngIf="isLoadingList">
+      <div class="skeleton-row" *ngFor="let i of [1,2,3,4]">
+        <div class="sk sk-40"></div>
+        <div class="sk sk-28"></div>
+        <div class="sk sk-28"></div>
+        <div class="sk sk-36"></div>
+      </div>
+    </ng-container>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="!isLoadingList && assignments.length === 0">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+      </svg>
+      <p>No assignments found</p>
+    </div>
+
+    <!-- Table -->
+    <table class="assign-table" *ngIf="!isLoadingList && assignments.length > 0">
+      <thead>
+        <tr>
+          <th>Teacher</th>
+          <th>Class</th>
+          <th>Section</th>
+          <th>Session</th>
+          <th>Assigned On</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of assignments">
+          <td>
+            <div class="teacher-cell">
+              <span class="avatar">{{ (a.teacherName || '?')[0].toUpperCase() }}</span>
+              <span class="teacher-name">{{ a.teacherName || '—' }}</span>
+            </div>
+          </td>
+          <td><span class="badge-class">{{ a.className || '—' }}</span></td>
+          <td><span class="badge-section">{{ a.sectionName || '—' }}</span></td>
+          <td><span class="session-tag">{{ a.academicSessionName || '—' }}</span></td>
+          <td class="date-cell">{{ a.createdAt ? (a.createdAt | date:'dd MMM yyyy') : '—' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="pg-btn" [disabled]="filter.page === 0" (click)="changePage(filter.page - 1)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <button
+        *ngFor="let p of pages"
+        class="pg-btn"
+        [class.active]="p === filter.page"
+        (click)="changePage(p)"
+      >{{ p + 1 }}</button>
+      <button class="pg-btn" [disabled]="filter.page === totalPages - 1" (click)="changePage(filter.page + 1)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
   </div>
 
 </div>

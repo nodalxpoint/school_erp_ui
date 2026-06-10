@@ -1,31 +1,121 @@
-<!-- Teacher Management Page -->
 <div class="page-wrapper">
 
-  <!-- Page Header -->
+  <!-- Toast -->
+  <div class="toast" *ngIf="toast"
+       [class.toast-success]="toast.type === 'success'"
+       [class.toast-error]="toast.type === 'error'">
+    <svg *ngIf="toast.type === 'success'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <svg *ngIf="toast.type === 'error'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+    </svg>
+    {{ toast.message }}
+  </div>
+
+  <!-- Page header -->
   <div class="page-header">
-    <div class="header-content">
-      <h1>Teacher Management</h1>
-      <p>Manage teachers and their class-section assignments</p>
+    <div class="page-header-left">
+      <div class="page-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="page-title">Teacher Management</h1>
+        <p class="page-sub">{{ totalElements }} teacher{{ totalElements !== 1 ? 's' : '' }} enrolled</p>
+      </div>
     </div>
   </div>
 
-  <!-- Tab Navigation -->
-  <div class="tab-nav">
-    <button
-      *ngFor="let tab of tabs"
-      class="tab-btn"
-      [class.active]="activeTab === tab.id"
-      (click)="setTab(tab.id)"
-    >
-      <span class="tab-icon">{{ tab.icon }}</span>
-      {{ tab.label }}
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab" [class.active]="activeTab === 'list'" (click)="setTab('list')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+        <line x1="8" y1="18" x2="21" y2="18"/>
+        <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+        <line x1="3" y1="18" x2="3.01" y2="18"/>
+      </svg>
+      All Teachers
+    </button>
+    <button class="tab" [class.active]="activeTab === 'add'" (click)="setTab('add')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      {{ editTeacher ? 'Edit Teacher' : 'Add Teacher' }}
+    </button>
+    <button class="tab" [class.active]="activeTab === 'assign'" (click)="setTab('assign')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      Assign Teacher
     </button>
   </div>
 
-  <!-- Tab Content -->
-  <div class="tab-content">
-    <app-teacher-list *ngIf="activeTab === 'list'"></app-teacher-list>
-    <app-assign-teacher *ngIf="activeTab === 'assign'"></app-assign-teacher>
+  <!-- ── LIST TAB ── -->
+  <div *ngIf="activeTab === 'list'">
+
+    <!-- Search bar -->
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          class="search-input"
+          type="text"
+          [(ngModel)]="searchText"
+          placeholder="Search by name…"
+          (keyup.enter)="onSearch()"
+        />
+        <button class="search-clear" *ngIf="searchText" (click)="searchText = ''; onSearch()">×</button>
+      </div>
+      <button class="btn-search" (click)="onSearch()">Search</button>
+    </div>
+
+    <!-- Main layout: list + optional detail panel -->
+    <div class="list-layout" [class.with-detail]="detailTeacher">
+      <app-teacher-list
+        [teachers]="teachers"
+        [isLoading]="isLoading"
+        [totalElements]="totalElements"
+        [totalPages]="totalPages"
+        [currentPage]="filter.page"
+        (editTeacher)="onEditTeacher($event)"
+        (pageChange)="onPageChange($event)"
+      ></app-teacher-list>
+
+      <app-teacher-detail
+        *ngIf="detailTeacher"
+        [teacher]="detailTeacher"
+        (edit)="onEditTeacher($event)"
+        (close)="onDetailClose()"
+      ></app-teacher-detail>
+    </div>
   </div>
+
+  <!-- ── ADD / EDIT TAB ── -->
+  <div *ngIf="activeTab === 'add'" class="form-tab-wrap">
+    <app-teacher-form
+      [editTeacher]="editTeacher"
+      [isSubmitting]="isSubmitting"
+      (formSubmit)="onFormSubmit($event)"
+      (cancelEdit)="onCancelEdit()"
+    ></app-teacher-form>
+  </div>
+
+  <!-- ── ASSIGN TAB ── -->
+<!-- ── ASSIGN TAB ── -->
+<div *ngIf="activeTab === 'assign'">
+  <app-assign-teacher
+    [schoolId]="schoolId"
+    (assigned)="onAssigned()"
+  ></app-assign-teacher>
+</div>
 
 </div>
