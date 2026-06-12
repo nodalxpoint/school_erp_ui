@@ -26,45 +26,51 @@
           <select class="field-select"
                   [(ngModel)]="form.classId"
                   (ngModelChange)="onClassChange()"
-                  [disabled]="isSubmitting">
-            <option value="">Select class</option>
-            <option *ngFor="let c of classes" [value]="c.id">{{ c.name }}</option>
+                  [disabled]="isSubmitting || loadingClasses">
+            <option value="">{{ loadingClasses ? 'Loading...' : 'Select class' }}</option>
+            <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
           </select>
           <span class="err" *ngIf="errors['classId']">{{ errors['classId'] }}</span>
         </div>
 
-        <!-- Section -->
+        <!-- Section — class select hone ke baad enabled -->
         <div class="field-group" [class.has-error]="errors['sectionId']">
           <label class="field-label">Section <span class="req">*</span></label>
           <select class="field-select"
                   [(ngModel)]="form.sectionId"
-                  [disabled]="isSubmitting">
-            <option value="">Select section</option>
-            <option *ngFor="let s of filteredSections" [value]="s.id">{{ s.name }}</option>
+                  [disabled]="isSubmitting || loadingSections || !form.classId">
+            <option value="">
+              {{ !form.classId ? 'Select class first' : loadingSections ? 'Loading...' : 'Select section' }}
+            </option>
+            <option *ngFor="let s of sections" [value]="s.id">{{ s.label }}</option>
           </select>
           <span class="err" *ngIf="errors['sectionId']">{{ errors['sectionId'] }}</span>
         </div>
 
-        <!-- Teacher -->
+        <!-- Teacher — class select hone ke baad enabled -->
         <div class="field-group" [class.has-error]="errors['teacherId']">
           <label class="field-label">Teacher <span class="req">*</span></label>
           <select class="field-select"
                   [(ngModel)]="form.teacherId"
-                  [disabled]="isSubmitting">
-            <option value="">Select teacher</option>
-            <option *ngFor="let t of teachers" [value]="t.id">{{ teacherName(t) }}</option>
+                  [disabled]="isSubmitting || loadingTeachers || !form.classId">
+            <option value="">
+              {{ !form.classId ? 'Select class first' : loadingTeachers ? 'Loading...' : 'Select teacher' }}
+            </option>
+            <option *ngFor="let t of teachers" [value]="t.id">{{ t.label }}</option>
           </select>
           <span class="err" *ngIf="errors['teacherId']">{{ errors['teacherId'] }}</span>
         </div>
 
-        <!-- Academic Session -->
+        <!-- Academic Session — class select hone ke baad enabled -->
         <div class="field-group" [class.has-error]="errors['academicSessionId']">
           <label class="field-label">Academic Session <span class="req">*</span></label>
           <select class="field-select"
                   [(ngModel)]="form.academicSessionId"
-                  [disabled]="isSubmitting">
-            <option value="">Select session</option>
-            <option *ngFor="let a of academicSessions" [value]="a.id">{{ a.name }}</option>
+                  [disabled]="isSubmitting || loadingSessions || !form.classId">
+            <option value="">
+              {{ !form.classId ? 'Select class first' : loadingSessions ? 'Loading...' : 'Select session' }}
+            </option>
+            <option *ngFor="let a of academicSessions" [value]="a.id">{{ a.label }}</option>
           </select>
           <span class="err" *ngIf="errors['academicSessionId']">{{ errors['academicSessionId'] }}</span>
         </div>

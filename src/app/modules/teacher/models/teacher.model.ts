@@ -49,8 +49,8 @@ export interface AssignClassTeacherDto {
 export interface TeacherFilterRequest {
   page: number;
   size: number;
-  sortBy: string;
-  sortDirection: 'asc' | 'desc';
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
   search?: string;
   schoolId?: string;
 }
@@ -58,8 +58,8 @@ export interface TeacherFilterRequest {
 export interface ClassTeacherAssignmentFilterRequest {
   page: number;
   size: number;
-  sortBy: string;
-  sortDirection: 'asc' | 'desc';
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
   classId?: string;
   sectionId?: string;
   teacherId?: string;

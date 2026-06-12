@@ -45,6 +45,13 @@ export const routes: Routes = [
           import('./modules/teacher/teacher.routes').then(m => m.TEACHER_ROUTES)
       },
 
+      // ── Subjects Module (Added here matching your SUBJECT_ROUTES) ──
+      {
+        path: 'subjects',
+        loadChildren: () =>
+          import('./modules/subject/subject.routes').then(m => m.SUBJECT_ROUTES)
+      },
+
       // Students
       {
         path: 'students',
@@ -67,11 +74,11 @@ export const routes: Routes = [
 
       // ── Placeholder routes — uncomment as backend modules get built ──
 
-      // {
-      //   path: 'attendance',
-      //   loadChildren: () =>
-      //     import('./modules/attendance/attendance.routes').then(m => m.ATTENDANCE_ROUTES)
-      // },
+      {
+  path: 'attendance',
+  loadChildren: () =>
+    import('./modules/attendance/attendance.routes').then(m => m.ATTENDANCE_ROUTES)
+}
       // {
       //   path: 'fees',
       //   loadChildren: () =>

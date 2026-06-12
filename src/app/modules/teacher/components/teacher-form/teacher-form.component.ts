@@ -1,48 +1,70 @@
-import {
-  Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges
-} from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CreateTeacherDto, TeacherFormState, TeacherResponseDto } from '../../models/teacher.model';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TeacherService } from '../../services/teacher.service';
+import { CreateTeacherDto, TeacherFormState } from '../../models/teacher.model';
 
 @Component({
   selector: 'app-teacher-form',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './teacher-form.component.html',
-  styleUrls: ['./teacher-form.component.scss']
+  styleUrls: ['./teacher-form.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TeacherFormComponent implements OnInit, OnChanges {
-  @Input() editTeacher: TeacherResponseDto | null = null;
-  @Input() isSubmitting = false;
-  @Output() formSubmit = new EventEmitter<CreateTeacherDto>();
-  @Output() cancelEdit = new EventEmitter<void>();
+export class TeacherFormComponent implements OnInit {
+  isEditMode = false;
+  isSubmitting = false;
+  showPassword = false;
+  userId = '';
 
   form: TeacherFormState = this.blank();
   errors: Partial<TeacherFormState> = {};
-  showPassword = false;
 
-  get isEditMode(): boolean { return !!this.editTeacher; }
+  constructor(
+    private teacherService: TeacherService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  ngOnInit(): void { this.resetForm(); }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['editTeacher']) {
-      if (this.editTeacher) {
-        this.form = {
-          userId:        this.editTeacher.userId ?? '',
-          firstName:     this.editTeacher.firstName ?? '',
-          lastName:      this.editTeacher.lastName ?? '',
-          email:         this.editTeacher.email ?? '',
-          password:      '',
-          employeeCode:  this.editTeacher.employeeCode ?? '',
-          qualification: this.editTeacher.qualification ?? '',
-          joiningDate:   this.editTeacher.joiningDate?.substring(0, 10) ?? ''
-        };
-      } else {
-        this.resetForm();
-      }
+  ngOnInit(): void {
+    // Route se check karo ki id mil rahi hai ya nahi (Edit mode criteria)
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEditMode = true;
+      this.userId = id;
+      this.loadTeacherDetails(id);
     }
+  }
+
+  loadTeacherDetails(id: string): void {
+    this.isSubmitting = true;
+    // PagedResponse filter se single teacher details nikalenge fallback mechanism ke liye
+    this.teacherService.filterTeachers({ page: 0, size: 1, search: id }).subscribe({
+      next: (res) => {
+        const teacher = res.data?.[0];
+        if (teacher) {
+          this.form = {
+            userId:        teacher.userId ?? teacher.id ?? '',
+            firstName:     teacher.firstName ?? '',
+            lastName:      teacher.lastName ?? '',
+            email:         teacher.email ?? '',
+            password:      '',
+            employeeCode:  teacher.employeeCode ?? '',
+            qualification: teacher.qualification ?? '',
+            joiningDate:   teacher.joiningDate?.substring(0, 10) ?? ''
+          };
+        }
+        this.isSubmitting = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.isSubmitting = false;
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   validate(): boolean {
@@ -58,6 +80,10 @@ export class TeacherFormComponent implements OnInit, OnChanges {
 
   onSubmit(): void {
     if (!this.validate()) return;
+    
+    this.isSubmitting = true;
+    this.cdr.markForCheck();
+
     const dto: CreateTeacherDto = {
       firstName:     this.form.firstName.trim(),
       lastName:      this.form.lastName.trim() || undefined,
@@ -66,14 +92,31 @@ export class TeacherFormComponent implements OnInit, OnChanges {
       qualification: this.form.qualification.trim() || undefined,
       joiningDate:   this.form.joiningDate || undefined
     };
-    if (this.isEditMode)   dto.userId   = this.form.userId;
-    else                   dto.password = this.form.password;
-    this.formSubmit.emit(dto);
+
+    if (this.isEditMode) {
+      dto.userId = this.userId;
+    } else {
+      dto.password = this.form.password;
+    }
+
+    // Direct service hitting trigger
+    this.teacherService.addOrUpdateTeacher(dto).subscribe({
+      next: (res) => {
+        this.isSubmitting = false;
+        // Action complete hone par teacher list page par navigate kar jao
+        this.router.navigate(['/teachers']);
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        this.cdr.markForCheck();
+        console.error('Save failed:', err);
+      }
+    });
   }
 
-  onCancel(): void { this.resetForm(); this.cancelEdit.emit(); }
-
-  resetForm(): void { this.form = this.blank(); this.errors = {}; }
+  onCancel(): void {
+    this.router.navigate(['/teachers']);
+  }
 
   private blank(): TeacherFormState {
     return { userId: '', firstName: '', lastName: '', email: '',

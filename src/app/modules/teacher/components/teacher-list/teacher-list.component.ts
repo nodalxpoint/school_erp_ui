@@ -66,6 +66,10 @@ export class TeacherListComponent implements OnInit {
   this.cdr.markForCheck(); // ← yeh add karo
 }
 
+onAddTeacher(): void {
+  this.router.navigate(['/teachers/add']);
+}
+
 onDetailClose(): void {
   this.selectedTeacher = null;
   this.cdr.markForCheck(); // ← yeh bhi

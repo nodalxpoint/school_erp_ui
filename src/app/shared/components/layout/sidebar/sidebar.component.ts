@@ -22,6 +22,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard',  href: '/dashboard',  icon: 'layout-dashboard', roles: 'all' },
   { label: 'Students',   href: '/students',   icon: 'graduation-cap',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
   { label: 'Teachers',   href: '/teachers',   icon: 'users',            roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { label: 'Subjects',   href: '/subjects',   icon: 'book-open',        roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Attendance', href: '/attendance', icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
   { label: 'Fees',       href: '/fees',       icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT', 'PARENT'] },
   { label: 'Reports',    href: '/reports',    icon: 'bar-chart-3',      roles: ['SUPER_ADMIN', 'ADMIN'] },
@@ -30,8 +31,11 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Settings',   href: '/settings',   icon: 'settings',         roles: 'all' },
 ];
 
-// Routes jahan teachers dropdown active rahe
-const TEACHERS_ROUTES = ['/teachers', '/teacher-mapping'];
+// Fix 1: /subjects/assign-teacher ko ab Teachers view array me move kar diya hai
+const TEACHERS_ROUTES = ['/teachers', '/teacher-mapping', '/subjects/assign-teacher'];
+
+// Fix 2: Is array se assign-teacher link hata di taaki cross-highlight conflict na ho
+const SUBJECTS_ROUTES = ['/subjects/manage', '/subjects']; 
 
 @Component({
   selector: 'app-sidebar',
@@ -46,6 +50,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   currentPath = '';
   currentRole: UserRole | null = null;
   teachersDropdownOpen = false;
+  subjectsDropdownOpen = false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -64,7 +69,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(v => {
         this.sidebarCollapsed = v;
-        if (v) this.teachersDropdownOpen = false;
+        if (v) {
+          this.teachersDropdownOpen = false;
+          this.subjectsDropdownOpen = false;
+        }
       });
 
     this.authState.user$
@@ -92,10 +100,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /** Auto-open teachers dropdown when on any teachers-related route */
   private _autoOpenDropdown(path: string): void {
+    // Ab jab aap assign subject teacher page par hoge, ye auto-detect karke Teachers dropdown ko open rakhega
     if (TEACHERS_ROUTES.some(r => path.startsWith(r))) {
       this.teachersDropdownOpen = true;
+    }
+    if (SUBJECTS_ROUTES.some(r => path.startsWith(r)) && !path.includes('assign-teacher')) {
+      this.subjectsDropdownOpen = true;
     }
   }
 
@@ -106,12 +117,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
     );
   }
 
-  /** Prefix match — used for parent routes like /teachers/assign, /teachers/add */
   isActive(href: string): boolean {
     return this.currentPath === href || this.currentPath.startsWith(href + '/');
   }
 
-  /** Exact match — used for /teachers and /teachers/add to avoid both being active */
   isExactActive(href: string): boolean {
     return this.currentPath === href;
   }
@@ -120,8 +129,19 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return TEACHERS_ROUTES.some(r => this.currentPath.startsWith(r));
   }
 
+  isSubjectsActive(): boolean {
+    // Fix: Ensure subject parent highlight stays clean and doesn't bleed into assignment URL
+    return SUBJECTS_ROUTES.some(r => this.currentPath.startsWith(r)) && !this.currentPath.includes('assign-teacher');
+  }
+
   toggleTeachersDropdown(): void {
     this.teachersDropdownOpen = !this.teachersDropdownOpen;
+    if (this.teachersDropdownOpen) this.subjectsDropdownOpen = false;
+  }
+
+  toggleSubjectsDropdown(): void {
+    this.subjectsDropdownOpen = !this.subjectsDropdownOpen;
+    if (this.subjectsDropdownOpen) this.teachersDropdownOpen = false;
   }
 
   getInitials(name: string): string {

@@ -4,6 +4,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router'; // ← Router import kiya
 import {
   ClassTeacherAssignmentFilterRequest,
   ClassTeacherAssignmentResponseDto,
@@ -32,6 +33,7 @@ export class ClassTeacherListComponent implements OnInit {
 
   constructor(
     private teacherService: TeacherService,
+    private router: Router, // ← Inject router reference
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -56,6 +58,12 @@ export class ClassTeacherListComponent implements OnInit {
       },
       error: () => { this.isLoadingList = false; this.cdr.markForCheck(); }
     });
+  }
+
+  // ── Navigation Hook ──
+  onAssignTeacherRoute(): void {
+    // teacher.routes.ts ke static route parameter ke mutabik jump trigger kiya
+    this.router.navigate(['/teachers/assign']); 
   }
 
   // ── Pagination & Filter ───────────────────────────────────────────────────

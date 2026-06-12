@@ -1,17 +1,12 @@
-<!-- sidebar.component.html -->
-
-<!-- Mobile overlay -->
 <div *ngIf="sidebarOpen"
      class="sidebar-overlay"
      (click)="closeSidebar()">
 </div>
 
-<!-- Sidebar -->
 <aside class="sidebar"
        [class.sidebar--collapsed]="sidebarCollapsed"
        [class.sidebar--open]="sidebarOpen">
 
-  <!-- Logo -->
   <div class="sidebar__logo" [class.sidebar__logo--collapsed]="sidebarCollapsed">
     <div class="sidebar__logo-icon">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -29,7 +24,6 @@
     </button>
   </div>
 
-  <!-- Navigation -->
   <nav class="sidebar__nav">
     <p class="sidebar__nav-section-label" [class.sidebar__nav-section-label--collapsed]="sidebarCollapsed">
       {{ sidebarCollapsed ? '·' : 'Main Menu' }}
@@ -38,8 +32,7 @@
     <ul class="sidebar__nav-list">
       <li *ngFor="let item of filteredNavItems">
 
-        <!-- Teachers dropdown -->
-        <ng-container *ngIf="item.href === '/teachers'; else regularItem">
+        <ng-container *ngIf="item.href === '/teachers'; else subjectsCheck">
           <div class="sidebar__nav-item sidebar__nav-item--dropdown"
                [class.sidebar__nav-item--active]="isTeachersActive()"
                [class.sidebar__nav-item--collapsed]="sidebarCollapsed"
@@ -60,48 +53,55 @@
             </svg>
           </div>
 
-          <!-- Dropdown children -->
           <ul *ngIf="teachersDropdownOpen && !sidebarCollapsed" class="sidebar__dropdown-list">
             <li>
-             <a routerLink="/teachers"
-   class="sidebar__dropdown-item"
-   [class.sidebar__dropdown-item--active]="isExactActive('/teachers')"
-   (click)="closeSidebar()">
-  <span class="sidebar__dropdown-dot"></span>
-  All Teachers
-</a>
-            </li>
-            <li>
-              <a routerLink="/teachers/add"
-                 class="sidebar__dropdown-item"
-                 [class.sidebar__dropdown-item--active]="isExactActive('/teachers/add')"
-                 (click)="closeSidebar()">
-                <span class="sidebar__dropdown-dot"></span>
-                Add Teacher
+              <a routerLink="/teachers" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/teachers')" (click)="closeSidebar()">
+                <span class="sidebar__dropdown-dot"></span>All Teachers
               </a>
             </li>
             <li>
-              <a routerLink="/teachers/assign"
-                 class="sidebar__dropdown-item"
-                 [class.sidebar__dropdown-item--active]="isActive('/teachers/assign')"
-                 (click)="closeSidebar()">
-                <span class="sidebar__dropdown-dot"></span>
-                Assign Teacher
+              <a routerLink="/subjects/assign-teacher" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/subjects/assign-teacher')" (click)="closeSidebar()">
+                <span class="sidebar__dropdown-dot"></span>Assign Teacher
               </a>
             </li>
             <li>
-              <a routerLink="/teachers/class-teacher"
-                 class="sidebar__dropdown-item"
-                 [class.sidebar__dropdown-item--active]="isActive('/teachers/class-teacher')"
-                 (click)="closeSidebar()">
-                <span class="sidebar__dropdown-dot"></span>
-                Class Teacher
+              <a routerLink="/teachers/class-teacher" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/teachers/class-teacher')" (click)="closeSidebar()">
+                <span class="sidebar__dropdown-dot"></span>Class Teacher
               </a>
             </li>
           </ul>
         </ng-container>
 
-        <!-- Regular nav item -->
+        <ng-template #subjectsCheck>
+          <ng-container *ngIf="item.href === '/subjects'; else regularItem">
+            <div class="sidebar__nav-item sidebar__nav-item--dropdown"
+                 [class.sidebar__nav-item--active]="isSubjectsActive()"
+                 [class.sidebar__nav-item--collapsed]="sidebarCollapsed"
+                 [title]="sidebarCollapsed ? item.label : ''"
+                 (click)="toggleSubjectsDropdown()">
+              <svg class="sidebar__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+              <span *ngIf="!sidebarCollapsed" class="sidebar__nav-label-text">{{ item.label }}</span>
+              <svg *ngIf="!sidebarCollapsed"
+                   class="sidebar__dropdown-chevron"
+                   [class.sidebar__dropdown-chevron--open]="subjectsDropdownOpen"
+                   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+
+            <ul *ngIf="subjectsDropdownOpen && !sidebarCollapsed" class="sidebar__dropdown-list">
+              <li>
+                <a routerLink="/subjects/manage" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/subjects/manage')" (click)="closeSidebar()">
+                  <span class="sidebar__dropdown-dot"></span>Subject Management
+                </a>
+              </li>
+            </ul>
+          </ng-container>
+        </ng-template>
+
         <ng-template #regularItem>
           <a [routerLink]="item.href"
              class="sidebar__nav-item"
@@ -153,7 +153,6 @@
     </ul>
   </nav>
 
-  <!-- User card -->
   <div class="sidebar__footer" [class.sidebar__footer--collapsed]="sidebarCollapsed">
     <ng-container *ngIf="authState.user$ | async as user">
       <div class="sidebar__user" [class.sidebar__user--collapsed]="sidebarCollapsed">
@@ -173,7 +172,6 @@
     </ng-container>
   </div>
 
-  <!-- Collapse toggle (desktop) -->
   <button class="sidebar__collapse-btn" (click)="toggleCollapsed()">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
          [style.transform]="sidebarCollapsed ? 'rotate(180deg)' : ''">

@@ -1,0 +1,154 @@
+<div class="list-wrapper" [class.has-detail]="isFormOpen">
+
+  <div class="table-pane">
+    
+    <div class="filter-dashboard">
+      <div class="filter-grid">
+        <div class="select-item">
+          <label>Class</label>
+          <select [(ngModel)]="filter.classId" (change)="onFilterClassChange(filter.classId!)">
+            <option value="">All Classes</option>
+            <option *ngFor="let c of classes" [value]="c.id">{{c.label}}</option>
+          </select>
+        </div>
+
+        <div class="select-item">
+          <label>Section</label>
+          <select [(ngModel)]="filter.sectionId" (change)="onApplyFilters()" [disabled]="!filter.classId">
+            <option value="">All Sections</option>
+            <option *ngFor="let s of sections" [value]="s.id">{{s.label}}</option>
+          </select>
+        </div>
+
+        <div class="select-item">
+          <label>Subject</label>
+          <select [(ngModel)]="filter.subjectId" (change)="onApplyFilters()">
+            <option value="">All Subjects</option>
+            <option *ngFor="let sb of subjects" [value]="sb.id">{{sb.label}}</option>
+          </select>
+        </div>
+
+        <div class="select-item">
+          <label>Teacher</label>
+          <select [(ngModel)]="filter.teacherId" (change)="onApplyFilters()">
+            <option value="">All Teachers</option>
+            <option *ngFor="let t of teachers" [value]="t.id">{{t.label}}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="action-trigger">
+        <button class="btn-add" (click)="onOpenForm()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Assign Teacher
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="skeleton-wrap">
+      <div class="sk-row" *ngFor="let i of [1,2,3]"></div>
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoading && assignments.length === 0">
+      <p class="empty-title">No subject-teacher assignments found</p>
+      <p class="empty-sub">Select different filters or allocate a new teacher to a subject.</p>
+    </div>
+
+    <table class="teacher-table" *ngIf="!isLoading && assignments.length > 0">
+      <thead>
+        <tr>
+          <th>Class & Section</th>
+          <th>Subject Mapping</th>
+          <th>Assigned Teacher</th>
+          <th>Academic Session</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of assignments" class="table-row">
+          <td>
+            <span class="main-text">{{ a.className }}</span>
+            <span class="sub-text">Section: {{ a.sectionName }}</span>
+          </td>
+          <td>
+            <code class="code-chip">{{ a.subjectCode }}</code>
+            <span class="sub-text d-block">{{ a.subjectName }}</span>
+          </td>
+          <td>
+            <div class="teacher-cell">
+              <div class="avatar-sm">{{ a.teacherName ? a.teacherName[0].toUpperCase() : 'T' }}</div>
+              <span class="name-text">{{ a.teacherName }}</span>
+            </div>
+          </td>
+          <td><span class="session-tag">{{ a.academicSessionName }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="pg-btn" [disabled]="currentPage === 0" (click)="onPageChange(currentPage - 1)">‹</button>
+      <button *ngFor="let p of pages" class="pg-btn" [class.active]="p === currentPage" (click)="onPageChange(p)">{{ p + 1 }}</button>
+      <button class="pg-btn" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 1)">›</button>
+    </div>
+  </div>
+
+  <div class="detail-pane" *ngIf="isFormOpen">
+    <div class="form-card">
+      <div class="card-header">
+        <h3>New Assignment Mapping</h3>
+        <button class="close-btn" (click)="isFormOpen = false">×</button>
+      </div>
+
+      <form (ngSubmit)="onSubmitAssignment()" #assignForm="ngForm" class="card-body">
+        <div class="form-group">
+          <label class="form-label">Academic Session *</label>
+          <select class="form-control" [(ngModel)]="formModel.academicSessionId" name="academicSession" required>
+            <option value="">Select Session</option>
+            <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Class *</label>
+          <select class="form-control" [(ngModel)]="formModel.classId" name="class" (change)="onFormClassChange(formModel.classId)" required>
+            <option value="">Select Class</option>
+            <option *ngFor="let c of classes" [value]="c.id">{{c.label}}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Section *</label>
+          <select class="form-control" [(ngModel)]="formModel.sectionId" name="section" [disabled]="!formModel.classId" required>
+            <option value="">Select Section</option>
+            <option *ngFor="let s of sections" [value]="s.id">{{s.label}}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Subject *</label>
+          <select class="form-control" [(ngModel)]="formModel.subjectId" name="subject" required>
+            <option value="">Select Subject</option>
+            <option *ngFor="let sb of subjects" [value]="sb.id">{{sb.label}}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Teacher *</label>
+          <select class="form-control" [(ngModel)]="formModel.teacherId" name="teacher" required>
+            <option value="">Select Teacher</option>
+            <option *ngFor="let t of teachers" [value]="t.id">{{t.label}}</option>
+          </select>
+        </div>
+
+        <div class="action-footer">
+          <button type="button" class="btn-secondary" (click)="isFormOpen = false">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="!assignForm.form.valid || isSaving">
+            {{ isSaving ? 'Mapping...' : 'Confirm Mapping' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>

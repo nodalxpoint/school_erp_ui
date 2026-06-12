@@ -5,17 +5,10 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
-  AssignClassTeacherDto, AssignTeacherFormState,
-  TeacherFilterRequest, TeacherResponseDto
+  AssignClassTeacherDto,
+  AssignTeacherFormState,
 } from '../../models/teacher.model';
-import { TeacherService } from '../../services/teacher.service';
-import { ClassService } from '../../../class/services/class.service';
-import { AcademicSessionService } from '../../../academic/services/academic-session.service';
-
-export interface DropdownOption { id: string; name: string; }
-
-// Section dropdown — classId ke saath taaki filter ho sake
-export interface SectionOption { id: string; name: string; classId: string; }
+import { TeacherService, ParamDropdownOption } from '../../services/teacher.service';
 
 @Component({
   selector: 'app-assign-teacher',
@@ -26,18 +19,20 @@ export interface SectionOption { id: string; name: string; classId: string; }
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AssignTeacherComponent implements OnInit {
-  // schoolId parent se aayega (auth store / route se jo bhi use ho raha hai)
   @Input() schoolId: string = '';
-
-  // assign ho jaane ke baad parent ko batane ke liye (toast dikhana ho to)
   @Output() assigned = new EventEmitter<void>();
 
-  // Dropdown data
-  teachers: TeacherResponseDto[]     = [];
-  classes: DropdownOption[]          = [];
-  allSections: SectionOption[]       = [];   // sab sections store
-  filteredSections: SectionOption[]  = [];
-  academicSessions: DropdownOption[] = [];
+  // ── Dropdown data ─────────────────────────────────────────────────────────
+  classes:          ParamDropdownOption[] = [];
+  sections:         ParamDropdownOption[] = [];   // class select hone ke baad
+  teachers:         ParamDropdownOption[] = [];   // class select hone ke baad
+  academicSessions: ParamDropdownOption[] = [];   // class select hone ke baad
+
+  // ── Loading states ────────────────────────────────────────────────────────
+  loadingClasses  = false;
+  loadingSections = false;
+  loadingTeachers = false;
+  loadingSessions = false;
 
   form: AssignTeacherFormState = {
     classId: '', sectionId: '', teacherId: '', academicSessionId: ''
@@ -47,89 +42,117 @@ export class AssignTeacherComponent implements OnInit {
 
   constructor(
     private teacherService: TeacherService,
-    private classService: ClassService,
-    private academicSessionService: AcademicSessionService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.loadTeachers();
+    // ✅ Sirf classes load hongi — baaki sab lazy (class select pe)
     this.loadClasses();
-    this.loadAcademicSessions();
   }
 
-  // ── Loaders ────────────────────────────────────────────────────────────────
+  // ── Loaders ───────────────────────────────────────────────────────────────
 
-  loadTeachers(): void {
-    const req: TeacherFilterRequest = {
-      page: 0, size: 100, sortBy: 'createdAt', sortDirection: 'asc'
-    };
-    this.teacherService.filterTeachers(req).subscribe({
-      next: res => {
-        this.teachers = res.data.map((t: any) => ({
-          ...t,
-          id: t.teacherId ?? t.id ?? t.userId   // ← teacherId first
-        }));
+  loadClasses(): void {
+    this.loadingClasses = true;
+    this.teacherService.getClassOptions().subscribe({
+      next: data => {
+        this.classes        = data;
+        this.loadingClasses = false;
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('loadTeachers error:', err);
+      error: () => {
+        this.loadingClasses = false;
         this.cdr.markForCheck();
       }
     });
   }
 
-  loadClasses(): void {
-    this.classService.getAllClasses(this.schoolId).subscribe({
-      next: (classesDto) => {
-        this.classes = classesDto.map(c => ({
-          id: c.id,
-          name: c.className
-        }));
+  loadSections(classId: string): void {
+    this.loadingSections = true;
+    this.sections        = [];
+    this.teacherService.getSectionOptions(classId).subscribe({
+      next: data => {
+        this.sections        = data;
+        this.loadingSections = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.loadingSections = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
-        this.allSections = classesDto.flatMap(c =>
-          (c.sections ?? []).map((s: any) => ({
-            id:      s.sectionId,
-            name:    s.sectionName,
-            classId: c.id
-          }))
-        );
+  loadTeachers(): void {
+    this.loadingTeachers = true;
+    this.teachers        = [];
+    this.teacherService.getTeacherOptions().subscribe({
+      next: data => {
+        this.teachers        = data;
+        this.loadingTeachers = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.loadingTeachers = false;
         this.cdr.markForCheck();
       }
     });
   }
 
   loadAcademicSessions(): void {
-    this.academicSessionService.getActiveSessionOptions(this.schoolId || undefined).subscribe({
-      next: sessions => {
-        this.academicSessions = sessions;
+    this.loadingSessions  = true;
+    this.academicSessions = [];
+    this.teacherService.getAcademicSessionOptions().subscribe({
+      next: data => {
+        this.academicSessions = data;
+        this.loadingSessions  = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.loadingSessions = false;
         this.cdr.markForCheck();
       }
     });
   }
 
-  // ── Class change → section filter ─────────────────────────────────────────
+  // ── Class change → sections + teachers + sessions lazy load ───────────────
 
   onClassChange(): void {
-    this.form.sectionId    = '';   // reset section
-    this.filteredSections  = this.allSections.filter(s => s.classId === this.form.classId);
+    // Reset dependent fields
+    this.form.sectionId        = '';
+    this.form.teacherId        = '';
+    this.form.academicSessionId = '';
+    this.sections              = [];
+    this.teachers              = [];
+    this.academicSessions      = [];
+
+    if (!this.form.classId) {
+      this.cdr.markForCheck();
+      return;
+    }
+
+    // ✅ Ab teeno ek saath load honge — lekin sirf class select ke BAAD
+    this.loadSections(this.form.classId);
+    this.loadTeachers();
+    this.loadAcademicSessions();
     this.cdr.markForCheck();
   }
 
-  // ── Validation & Submit ────────────────────────────────────────────────────
+  // ── Validation & Submit ───────────────────────────────────────────────────
 
   validate(): boolean {
     this.errors = {};
-    if (!this.form.classId)           this.errors.classId = 'Required';
-    if (!this.form.sectionId)         this.errors.sectionId = 'Required';
-    if (!this.form.teacherId)         this.errors.teacherId = 'Required';
-    if (!this.form.academicSessionId) this.errors.academicSessionId = 'Required';
+    if (!this.form.classId)            this.errors.classId = 'Required';
+    if (!this.form.sectionId)          this.errors.sectionId = 'Required';
+    if (!this.form.teacherId)          this.errors.teacherId = 'Required';
+    if (!this.form.academicSessionId)  this.errors.academicSessionId = 'Required';
     return !Object.keys(this.errors).length;
   }
 
   onSubmit(): void {
     if (!this.validate()) return;
     this.isSubmitting = true;
+
     const dto: AssignClassTeacherDto = { ...this.form };
     this.teacherService.assignClassTeacher(dto).subscribe({
       next: () => {
@@ -138,19 +161,20 @@ export class AssignTeacherComponent implements OnInit {
         this.assigned.emit();
         this.cdr.markForCheck();
       },
-      error: () => { this.isSubmitting = false; this.cdr.markForCheck(); }
+      error: () => {
+        this.isSubmitting = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  teacherName(t: TeacherResponseDto): string {
-    return t.lastName ? `${t.firstName} ${t.lastName}` : t.firstName;
-  }
-
   resetForm(): void {
     this.form             = { classId: '', sectionId: '', teacherId: '', academicSessionId: '' };
     this.errors           = {};
-    this.filteredSections = [];
+    this.sections         = [];
+    this.teachers         = [];
+    this.academicSessions = [];
   }
 }
