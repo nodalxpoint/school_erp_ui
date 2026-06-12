@@ -6,8 +6,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   AssignClassTeacherDto, AssignTeacherFormState,
-  ClassTeacherAssignmentFilterRequest, ClassTeacherAssignmentResponseDto,
-  PagedResponse, TeacherFilterRequest, TeacherResponseDto
+  TeacherFilterRequest, TeacherResponseDto
 } from '../../models/teacher.model';
 import { TeacherService } from '../../services/teacher.service';
 import { ClassService } from '../../../class/services/class.service';
@@ -29,13 +28,15 @@ export interface SectionOption { id: string; name: string; classId: string; }
 export class AssignTeacherComponent implements OnInit {
   // schoolId parent se aayega (auth store / route se jo bhi use ho raha hai)
   @Input() schoolId: string = '';
+
+  // assign ho jaane ke baad parent ko batane ke liye (toast dikhana ho to)
   @Output() assigned = new EventEmitter<void>();
 
   // Dropdown data
   teachers: TeacherResponseDto[]     = [];
   classes: DropdownOption[]          = [];
   allSections: SectionOption[]       = [];   // sab sections store
-  filteredSections: SectionOption[]  = []; 
+  filteredSections: SectionOption[]  = [];
   academicSessions: DropdownOption[] = [];
 
   form: AssignTeacherFormState = {
@@ -43,16 +44,6 @@ export class AssignTeacherComponent implements OnInit {
   };
   errors: Partial<AssignTeacherFormState> = {};
   isSubmitting = false;
-
-  // Assigned list
-  assignments: ClassTeacherAssignmentResponseDto[] = [];
-  isLoadingList = false;
-  totalPages    = 0;
-  totalElements = 0;
-  filter: ClassTeacherAssignmentFilterRequest = {
-    page: 0, size: 10, sortBy: 'createdAt', sortDirection: 'desc'
-  };
-  filterTeacherName = '';
 
   constructor(
     private teacherService: TeacherService,
@@ -65,50 +56,48 @@ export class AssignTeacherComponent implements OnInit {
     this.loadTeachers();
     this.loadClasses();
     this.loadAcademicSessions();
-    this.loadAssignments();
   }
 
   // ── Loaders ────────────────────────────────────────────────────────────────
 
-loadTeachers(): void {
-  const req: TeacherFilterRequest = {
-    page: 0, size: 100, sortBy: 'createdAt', sortDirection: 'asc'
-  };
-  this.teacherService.filterTeachers(req).subscribe({
-    next: res => {
-      this.teachers = res.data.map((t: any) => ({
-        ...t,
-        id: t.teacherId ?? t.id ?? t.userId   // ← teacherId first
-      }));
-      this.cdr.markForCheck();
-    },
-    error: (err) => {
-      console.error('loadTeachers error:', err);
-      this.cdr.markForCheck();
-    }
-  });
-}
+  loadTeachers(): void {
+    const req: TeacherFilterRequest = {
+      page: 0, size: 100, sortBy: 'createdAt', sortDirection: 'asc'
+    };
+    this.teacherService.filterTeachers(req).subscribe({
+      next: res => {
+        this.teachers = res.data.map((t: any) => ({
+          ...t,
+          id: t.teacherId ?? t.id ?? t.userId   // ← teacherId first
+        }));
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('loadTeachers error:', err);
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
-
-loadClasses(): void {
-  this.classService.getAllClasses(this.schoolId).subscribe({
-    next: (classesDto) => {
+  loadClasses(): void {
+    this.classService.getAllClasses(this.schoolId).subscribe({
+      next: (classesDto) => {
         this.classes = classesDto.map(c => ({
-        id: c.id,      
-        name: c.className
-      }));
+          id: c.id,
+          name: c.className
+        }));
 
-      this.allSections = classesDto.flatMap(c =>
-        (c.sections ?? []).map((s: any) => ({
-          id:      s.sectionId,
-          name:    s.sectionName,
-          classId: c.id    
-        }))
-      );
-      this.cdr.markForCheck();
-    }
-  });
-}
+        this.allSections = classesDto.flatMap(c =>
+          (c.sections ?? []).map((s: any) => ({
+            id:      s.sectionId,
+            name:    s.sectionName,
+            classId: c.id
+          }))
+        );
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   loadAcademicSessions(): void {
     this.academicSessionService.getActiveSessionOptions(this.schoolId || undefined).subscribe({
@@ -116,23 +105,6 @@ loadClasses(): void {
         this.academicSessions = sessions;
         this.cdr.markForCheck();
       }
-    });
-  }
-
-  loadAssignments(): void {
-    this.isLoadingList = true;
-    this.teacherService.filterClassTeacherAssignments({
-      ...this.filter,
-      teacherName: this.filterTeacherName || undefined
-    }).subscribe({
-      next: (res: PagedResponse<ClassTeacherAssignmentResponseDto>) => {
-        this.assignments   = res.data;
-        this.totalPages    = res.totalPages;
-        this.totalElements = res.totalElements;
-        this.isLoadingList = false;
-        this.cdr.markForCheck();
-      },
-      error: () => { this.isLoadingList = false; this.cdr.markForCheck(); }
     });
   }
 
@@ -163,28 +135,11 @@ loadClasses(): void {
       next: () => {
         this.isSubmitting = false;
         this.resetForm();
-        this.loadAssignments();
         this.assigned.emit();
         this.cdr.markForCheck();
       },
       error: () => { this.isSubmitting = false; this.cdr.markForCheck(); }
     });
-  }
-
-  // ── Pagination & Filter ───────────────────────────────────────────────────
-
-  applyFilter(): void {
-    this.filter.page = 0;
-    this.loadAssignments();
-  }
-
-  changePage(p: number): void {
-    this.filter.page = p;
-    this.loadAssignments();
-  }
-
-  get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i);
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────

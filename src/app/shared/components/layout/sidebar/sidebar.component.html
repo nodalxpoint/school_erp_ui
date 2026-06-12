@@ -38,7 +38,7 @@
     <ul class="sidebar__nav-list">
       <li *ngFor="let item of filteredNavItems">
 
-        <!-- Teachers dropdown item -->
+        <!-- Teachers dropdown -->
         <ng-container *ngIf="item.href === '/teachers'; else regularItem">
           <div class="sidebar__nav-item sidebar__nav-item--dropdown"
                [class.sidebar__nav-item--active]="isTeachersActive()"
@@ -63,18 +63,36 @@
           <!-- Dropdown children -->
           <ul *ngIf="teachersDropdownOpen && !sidebarCollapsed" class="sidebar__dropdown-list">
             <li>
-              <a routerLink="/teachers"
+             <a routerLink="/teachers"
+   class="sidebar__dropdown-item"
+   [class.sidebar__dropdown-item--active]="isExactActive('/teachers')"
+   (click)="closeSidebar()">
+  <span class="sidebar__dropdown-dot"></span>
+  All Teachers
+</a>
+            </li>
+            <li>
+              <a routerLink="/teachers/add"
                  class="sidebar__dropdown-item"
-                 [class.sidebar__dropdown-item--active]="isActive('/teachers')"
+                 [class.sidebar__dropdown-item--active]="isExactActive('/teachers/add')"
+                 (click)="closeSidebar()">
+                <span class="sidebar__dropdown-dot"></span>
+                Add Teacher
+              </a>
+            </li>
+            <li>
+              <a routerLink="/teachers/assign"
+                 class="sidebar__dropdown-item"
+                 [class.sidebar__dropdown-item--active]="isActive('/teachers/assign')"
                  (click)="closeSidebar()">
                 <span class="sidebar__dropdown-dot"></span>
                 Assign Teacher
               </a>
             </li>
             <li>
-              <a routerLink="/teacher-mapping"
+              <a routerLink="/teachers/class-teacher"
                  class="sidebar__dropdown-item"
-                 [class.sidebar__dropdown-item--active]="isActive('/teacher-mapping')"
+                 [class.sidebar__dropdown-item--active]="isActive('/teachers/class-teacher')"
                  (click)="closeSidebar()">
                 <span class="sidebar__dropdown-dot"></span>
                 Class Teacher

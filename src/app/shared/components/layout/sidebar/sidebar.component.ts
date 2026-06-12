@@ -30,6 +30,9 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Settings',   href: '/settings',   icon: 'settings',         roles: 'all' },
 ];
 
+// Routes jahan teachers dropdown active rahe
+const TEACHERS_ROUTES = ['/teachers', '/teacher-mapping'];
+
 @Component({
   selector: 'app-sidebar',
   standalone: true,
@@ -61,7 +64,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(v => {
         this.sidebarCollapsed = v;
-        // Collapsed hone pe dropdown close ho jaye
         if (v) this.teachersDropdownOpen = false;
       });
 
@@ -72,6 +74,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
       });
 
     this.currentPath = this.router.url;
+    this._autoOpenDropdown(this.currentPath);
+
     this.router.events
       .pipe(
         filter(e => e instanceof NavigationEnd),
@@ -79,21 +83,20 @@ export class SidebarComponent implements OnInit, OnDestroy {
       )
       .subscribe((e: any) => {
         this.currentPath = e.urlAfterRedirects;
-        // Auto-open teachers dropdown if on a teachers route
-        if (this.currentPath.startsWith('/teachers') || this.currentPath.startsWith('/teacher-mapping')) {
-          this.teachersDropdownOpen = true;
-        }
+        this._autoOpenDropdown(this.currentPath);
       });
-
-    // Also check on init
-    if (this.currentPath.startsWith('/teachers') || this.currentPath.startsWith('/teacher-mapping')) {
-      this.teachersDropdownOpen = true;
-    }
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /** Auto-open teachers dropdown when on any teachers-related route */
+  private _autoOpenDropdown(path: string): void {
+    if (TEACHERS_ROUTES.some(r => path.startsWith(r))) {
+      this.teachersDropdownOpen = true;
+    }
   }
 
   get filteredNavItems(): NavItem[] {
@@ -103,12 +106,18 @@ export class SidebarComponent implements OnInit, OnDestroy {
     );
   }
 
+  /** Prefix match — used for parent routes like /teachers/assign, /teachers/add */
   isActive(href: string): boolean {
     return this.currentPath === href || this.currentPath.startsWith(href + '/');
   }
 
+  /** Exact match — used for /teachers and /teachers/add to avoid both being active */
+  isExactActive(href: string): boolean {
+    return this.currentPath === href;
+  }
+
   isTeachersActive(): boolean {
-    return this.currentPath.startsWith('/teachers') || this.currentPath.startsWith('/teacher-mapping');
+    return TEACHERS_ROUTES.some(r => this.currentPath.startsWith(r));
   }
 
   toggleTeachersDropdown(): void {

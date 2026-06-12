@@ -1,5 +1,42 @@
 /* Shell component — layout handled by child components */
 :host {
+  // ─── Design tokens ─────────────────────────────────────────────────────────
+  // accent — indigo (matches shared system)
+  --accent:        #2b6cb0;
+  --accent-hover:  #2c5282;
+  --accent-soft:   #ebf4ff;
+  --accent-glow:   rgba(43, 108, 176, 0.15);
+  --accent-border: #bee3f8;
+  --danger:        #e53e3e;
+  --danger-light:  #fff5f5;
+  --danger-border: #fed7d7;
+
+  // surfaces
+  --surface:        #ffffff;
+  --surface-raised: #f4f6f8;
+  --surface-hover:  #ebf4ff;
+  --surface-input:  #f7fafc;
+
+  // borders
+  --border:         #e2e8f0;
+  --border-strong:  #cbd5e0;
+
+  // text
+  --text-primary:   #2d3748;
+  --text-secondary: #4a5568;
+  --text-muted:     #718096;
+  --text-hint:      #a0aec0;
+
+  // teal (section badges)
+  --teal:           #2c7a7b;
+  --teal-light:     #e6fffa;
+  --teal-border:    #81e6d9;
+
+  // violet (view btn)
+  --violet:         #6b46c1;
+  --violet-light:   #faf5ff;
+  --violet-border:  #d6bcfa;
+
   display: block;
   height: 100%;
 }
