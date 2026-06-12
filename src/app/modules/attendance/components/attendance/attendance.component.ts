@@ -11,30 +11,32 @@ import { TeacherService, ParamDropdownOption } from '../../../teacher/services/t
   imports: [CommonModule, FormsModule],
   templateUrl: './attendance.component.html',
   styleUrls: ['./attendance.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AttendanceComponent implements OnInit {
-  classes:          ParamDropdownOption[] = [];
-  sections:         ParamDropdownOption[] = [];   
-  sessions:         ParamDropdownOption[] = [];   
+  classes: ParamDropdownOption[] = [];
+  sections: ParamDropdownOption[] = [];
+  sessions: ParamDropdownOption[] = [];
 
   selectedClassId = '';
   selectedSectionId = '';
   selectedSessionId = '';
-  selectedDate = new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000).toISOString().split('T')[0];
+  selectedDate = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+    .toISOString()
+    .split('T')[0];
 
   studentRows: StudentAttendanceRow[] = [];
   isLoading = false;
   isSaving = false;
-  isTeacherClassAllocated = false; 
-  isAttendanceAlreadyTaken = false; 
+  isTeacherClassAllocated = false;
+  isAttendanceAlreadyTaken = false;
 
   toast: { message: string; type: 'success' | 'error' } | null = null;
 
   constructor(
     private attendanceService: AttendanceService,
-    private teacherService: TeacherService, 
-    private cdr: ChangeDetectorRef
+    private teacherService: TeacherService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -51,7 +53,7 @@ export class AttendanceComponent implements OnInit {
   }
 
   loadInitialConfigurations(): void {
-    this.teacherService.getAcademicSessionOptions().subscribe(data => {
+    this.teacherService.getAcademicSessionOptions().subscribe((data) => {
       this.sessions = data;
       if (this.sessions.length > 0) {
         this.selectedSessionId = this.sessions[0].id;
@@ -68,7 +70,7 @@ export class AttendanceComponent implements OnInit {
           this.selectedClassId = res.data.classId;
           this.selectedSectionId = res.data.sectionId;
           this.isTeacherClassAllocated = true;
-          
+
           // ✅ FIX 1: Evaluate backend attendance status constraints immediately
           if (res.data.attendanceCheck === 'ATTENDANCE_TAKEN') {
             this.isAttendanceAlreadyTaken = true;
@@ -76,7 +78,7 @@ export class AttendanceComponent implements OnInit {
 
           this.classes = [{ id: res.data.classId, label: res.data.className }];
           this.sections = [{ id: res.data.sectionId, label: res.data.sectionName }];
-          
+
           this.loadAttendanceSheet();
         } else {
           // ✅ FIX 2: Call list lookup endpoints only when the user is an Admin
@@ -86,26 +88,26 @@ export class AttendanceComponent implements OnInit {
       },
       error: () => {
         this.loadAllClassesViaParam();
-      }
+      },
     });
   }
 
   loadAllClassesViaParam(): void {
-    this.teacherService.getClassOptions().subscribe(data => {
+    this.teacherService.getClassOptions().subscribe((data) => {
       this.classes = data;
       this.cdr.markForCheck();
     });
   }
 
   onClassChange(): void {
-    if (this.isTeacherClassAllocated) return; 
+    if (this.isTeacherClassAllocated) return;
 
     this.selectedSectionId = '';
     this.sections = [];
     this.studentRows = [];
-    
+
     if (this.selectedClassId) {
-      this.teacherService.getSectionOptions(this.selectedClassId).subscribe(data => {
+      this.teacherService.getSectionOptions(this.selectedClassId).subscribe((data) => {
         this.sections = data;
         this.cdr.markForCheck();
       });
@@ -113,42 +115,53 @@ export class AttendanceComponent implements OnInit {
   }
 
   loadAttendanceSheet(): void {
-    if (!this.selectedClassId || !this.selectedSectionId || !this.selectedSessionId || !this.selectedDate) {
-      return; 
+    if (
+      !this.selectedClassId ||
+      !this.selectedSectionId ||
+      !this.selectedSessionId ||
+      !this.selectedDate
+    ) {
+      return;
     }
 
     this.isLoading = true;
     this.studentRows = [];
     this.cdr.markForCheck();
 
-    this.attendanceService.getStudentsForAttendance(
-      this.selectedClassId,
-      this.selectedSectionId,
-      this.selectedSessionId
-    ).subscribe({
-      next: (res: any) => {
-        const studentList = res?.data ?? [];
-        this.studentRows = studentList.map((stu: any) => ({
-          studentId: stu.id ?? stu.studentId,
-          rollNumber: stu.rollNo ?? '—', 
-          firstName: stu.firstName,
-          lastName: stu.lastName ?? '',
-          status: 'PRESENT', 
-          remarks: ''
-        }));
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.isLoading = false;
-        this.showToast('Failed to load students register list.', 'error');
-      }
-    });
+    this.attendanceService
+      .getStudentsForAttendance(
+        this.selectedClassId,
+        this.selectedSectionId,
+        this.selectedSessionId,
+      )
+      .subscribe({
+        next: (res: any) => {
+          const studentList = res?.data ?? [];
+          this.studentRows = studentList.map((stu: any) => ({
+            studentId: stu.id ?? stu.studentId,
+            rollNumber: stu.rollNo ?? '—',
+            firstName: stu.firstName,
+            lastName: stu.lastName ?? '',
+
+            // If attendance exists, use it; otherwise default to ABSENT
+            status: stu.attendance?.status ?? 'ABSENT',
+
+            // If attendance exists, show remarks
+            remarks: stu.attendance?.remarks ?? '',
+          }));
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.isLoading = false;
+          this.showToast('Failed to load students register list.', 'error');
+        },
+      });
   }
 
   markAllStatus(status: 'PRESENT' | 'ABSENT'): void {
     if (this.isAttendanceAlreadyTaken) return; // Prevent mutation
-    this.studentRows.forEach(row => row.status = status);
+    this.studentRows.forEach((row) => (row.status = status));
     this.cdr.markForCheck();
   }
 
@@ -168,11 +181,11 @@ export class AttendanceComponent implements OnInit {
       sectionId: this.selectedSectionId,
       academicSessionId: this.selectedSessionId,
       attendanceDate: this.selectedDate,
-      records: this.studentRows.map(row => ({
+      records: this.studentRows.map((row) => ({
         studentId: row.studentId,
         status: row.status,
-        remarks: row.remarks || ''
-      }))
+        remarks: row.remarks || '',
+      })),
     };
 
     this.attendanceService.submitBulkAttendance(payload).subscribe({
@@ -180,16 +193,17 @@ export class AttendanceComponent implements OnInit {
         this.isSaving = false;
         this.isAttendanceAlreadyTaken = true; // Block UI actions locally immediately upon success
         this.showToast('Attendance records saved successfully to server!', 'success');
-        this.loadAttendanceSheet(); 
+        this.loadAttendanceSheet();
         this.cdr.markForCheck();
       },
       error: (err: any) => {
         this.isSaving = false;
         // ✅ FIX 3: Dynamic fallback parsing logic to intercept exception response payload text
-        const backendMessage = err?.error?.message || 'Attendance has already been submitted for this class.';
+        const backendMessage =
+          err?.error?.message || 'Attendance has already been submitted for this class.';
         this.showToast(backendMessage, 'error');
         this.cdr.markForCheck();
-      }
+      },
     });
   }
 }
