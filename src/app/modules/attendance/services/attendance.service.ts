@@ -43,6 +43,7 @@ export class AttendanceService {
       classId: classId,
       sectionId: sectionId,
       academicSessionId: sessionId,
+      attendanceDate: new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000).toISOString().split('T')[0],
       sortBy: 'firstName',
       sortDirection: 'asc'
     };
