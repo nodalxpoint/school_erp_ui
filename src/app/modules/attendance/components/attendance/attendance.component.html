@@ -1,5 +1,24 @@
 <div class="attendance-container">
 
+  <!-- ✅ Premium Live Date-Time Header Strip -->
+  <div class="live-clock-banner">
+    <div class="clock-left">
+      <div class="clock-icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="clock-text-block">
+        <span class="clock-label">Current Date &amp; Time</span>
+        <span class="clock-value">{{ currentDateTime }}</span>
+      </div>
+    </div>
+    <div class="clock-right">
+      <div class="clock-live-dot"></div>
+      <span class="clock-live-text">Live</span>
+    </div>
+  </div>
+
   <div class="custom-toast" *ngIf="toast" [ngClass]="'custom-toast--' + toast.type">
     <div class="toast-icon-wrap">
       <svg *ngIf="toast.type === 'success'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">

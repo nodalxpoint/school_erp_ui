@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AttendanceService } from '../../services/attendance.service';
@@ -13,7 +13,11 @@ import { TeacherService, ParamDropdownOption } from '../../../teacher/services/t
   styleUrls: ['./attendance.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AttendanceComponent implements OnInit {
+export class AttendanceComponent implements OnInit, OnDestroy {
+  // Live clock
+  currentDateTime = '';
+  private clockInterval: ReturnType<typeof setInterval> | null = null;
+
   classes: ParamDropdownOption[] = [];
   sections: ParamDropdownOption[] = [];
   sessions: ParamDropdownOption[] = [];
@@ -40,7 +44,32 @@ export class AttendanceComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.updateClock();
+    this.clockInterval = setInterval(() => {
+      this.updateClock();
+    }, 1000);
     this.loadInitialConfigurations();
+  }
+
+  ngOnDestroy(): void {
+    if (this.clockInterval) {
+      clearInterval(this.clockInterval);
+    }
+  }
+
+  updateClock(): void {
+    const now = new Date();
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const day = days[now.getDay()];
+    const date = now.getDate();
+    const month = months[now.getMonth()];
+    const year = now.getFullYear();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    this.currentDateTime = `${day}, ${date} ${month} ${year} — ${hours}:${minutes}:${seconds}`;
+    this.cdr.markForCheck();
   }
 
   showToast(message: string, type: 'success' | 'error'): void {
@@ -133,6 +162,7 @@ export class AttendanceComponent implements OnInit {
         this.selectedClassId,
         this.selectedSectionId,
         this.selectedSessionId,
+        this.selectedDate, // ✅ FIX: Pass user-selected date to service
       )
       .subscribe({
         next: (res: any) => {

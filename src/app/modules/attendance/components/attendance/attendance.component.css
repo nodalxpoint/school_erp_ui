@@ -394,4 +394,92 @@
   cursor: not-allowed !important;
   box-shadow: none !important;
   transform: none !important;
+}
+
+.live-clock-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 12px;
+  padding: 14px 20px;
+  box-shadow: 0 2px 8px -2px rgba(43, 108, 176, 0.1);
+}
+
+.clock-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.clock-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.clock-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.clock-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.clock-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.5px;
+}
+
+.clock-right {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  border-radius: 20px;
+  padding: 5px 12px;
+}
+
+.clock-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2f855a;
+  animation: livePulse 1.5s ease-in-out infinite;
+}
+
+.clock-live-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2f855a;
+  letter-spacing: 0.05em;
+}
+
+@keyframes livePulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
 }/*# sourceMappingURL=attendance.component.css.map */

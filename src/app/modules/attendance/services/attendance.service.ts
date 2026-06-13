@@ -36,14 +36,15 @@ export class AttendanceService {
   }
 
   // ── Added this method to load dynamic student check sheets ──
-  getStudentsForAttendance(classId: string, sectionId: string, sessionId: string): Observable<PagedResponse<any>> {
+  // ✅ FIX: attendanceDate ab parameter se aa raha hai, hardcoded nahi
+  getStudentsForAttendance(classId: string, sectionId: string, sessionId: string, attendanceDate: string): Observable<PagedResponse<any>> {
     const filterReq = {
       page: 0,
-      size: 200, // Large chunk data reading
+      size: 200,
       classId: classId,
       sectionId: sectionId,
       academicSessionId: sessionId,
-      attendanceDate: new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000).toISOString().split('T')[0],
+      attendanceDate: attendanceDate,
       sortBy: 'firstName',
       sortDirection: 'asc'
     };
