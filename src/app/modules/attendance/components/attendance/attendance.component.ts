@@ -192,7 +192,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
             rollNumber: stu.rollNo ?? '—',
             firstName: stu.firstName,
             lastName: stu.lastName ?? '',
-            status: stu.attendance?.status ?? 'PRESENT', // Default layout state value
+            status: stu.attendance?.status ?? 'ABSENT',
             remarks: stu.attendance?.remarks ?? '',
           }));
           this.isLoading = false;
