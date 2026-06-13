@@ -83,12 +83,15 @@
         <span *ngIf="isTeacherClassAllocated" class="class-title-badge">
           Class: <strong>{{classes[0]?.label}}</strong> | Section: <strong>{{sections[0]?.label}}</strong>
         </span>
-        <span *ngIf="isAttendanceAlreadyTaken" class="taken-warning-tag">
+        <span *ngIf="isAttendanceAlreadyTaken && isTeacherRole" class="taken-warning-tag">
           ⚠️ Records Locked (Today's Attendance Done)
+        </span>
+        <span *ngIf="isAttendanceAlreadyTaken && !isTeacherRole" class="taken-warning-tag" style="background:#ebf4ff; color:#2b6cb0; border-color:#bee3f8;">
+          ℹ️ Attendance already taken (Admin Override Enabled)
         </span>
         <span class="d-block text-muted-sub">Mark status row-wise or perform bulk override operations.</span>
       </div>
-      <div class="quick-bulk-controls" *ngIf="!isAttendanceAlreadyTaken">
+      <div class="quick-bulk-controls" *ngIf="!(isAttendanceAlreadyTaken && isTeacherRole)">
         <span class="quick-lbl">Set All As:</span>
         <button class="bulk-btn present-accent" (click)="markAllStatus('PRESENT')">Present</button>
         <button class="bulk-btn absent-accent" (click)="markAllStatus('ABSENT')">Absent</button>
@@ -115,21 +118,21 @@
             <span class="stu-fullName">{{ r.firstName }} {{ r.lastName }}</span>
           </td>
           <td class="txt-center">
-            <div class="status-toggle-group" [class.toggles--disabled]="isAttendanceAlreadyTaken">
+            <div class="status-toggle-group" [class.toggles--disabled]="isAttendanceAlreadyTaken && isTeacherRole">
               <button type="button" class="toggle-choice p-btn" 
                       [class.choice--active]="r.status === 'PRESENT'" 
-                      [disabled]="isAttendanceAlreadyTaken"
+                      [disabled]="isAttendanceAlreadyTaken && isTeacherRole"
                       (click)="setStatus(r, 'PRESENT')">P</button>
               <button type="button" class="toggle-choice a-btn" 
                       [class.choice--active]="r.status === 'ABSENT'" 
-                      [disabled]="isAttendanceAlreadyTaken"
+                      [disabled]="isAttendanceAlreadyTaken && isTeacherRole"
                       (click)="setStatus(r, 'ABSENT')">A</button>
             </div>
           </td>
           <td>
             <input type="text" [(ngModel)]="r.remarks" 
-                   [disabled]="isAttendanceAlreadyTaken"
-                   placeholder="{{isAttendanceAlreadyTaken ? 'Remarks locked' : 'Provide note'}}" 
+                   [disabled]="isAttendanceAlreadyTaken && isTeacherRole"
+                   placeholder="{{isAttendanceAlreadyTaken && isTeacherRole ? 'Remarks locked' : 'Provide note'}}" 
                    class="remarks-ctrl-input" />
           </td>
         </tr>
@@ -139,8 +142,8 @@
     <div class="sheet-submit-footer" *ngIf="!isLoading && studentRows.length > 0">
       <button class="btn-save-attendance" 
               (click)="onSubmitAttendance()" 
-              [disabled]="isSaving || isAttendanceAlreadyTaken">
-        {{ isSaving ? 'Syncing Records Database...' : isAttendanceAlreadyTaken ? 'Attendance Submitted' : 'Submit Attendance' }}
+              [disabled]="isSaving || (isAttendanceAlreadyTaken && isTeacherRole)">
+        {{ isSaving ? 'Syncing Records Database...' : (isAttendanceAlreadyTaken && isTeacherRole) ? 'Attendance Submitted' : 'Submit Attendance' }}
       </button>
     </div>
   </div>

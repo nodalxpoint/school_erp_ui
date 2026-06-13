@@ -4,6 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { AttendanceService } from '../../services/attendance.service';
 import { StudentAttendanceRow } from '../../models/attendance.model';
 import { TeacherService, ParamDropdownOption } from '../../../teacher/services/teacher.service';
+import { AuthStateService } from '../../../../core/auth/auth-state.service'; // ← Shared Auth State import kiya
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-attendance',
@@ -14,9 +17,9 @@ import { TeacherService, ParamDropdownOption } from '../../../teacher/services/t
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AttendanceComponent implements OnInit, OnDestroy {
-  // Live clock
   currentDateTime = '';
   private clockInterval: ReturnType<typeof setInterval> | null = null;
+  private destroy$ = new Subject<void>(); // ← Subscriptions cleanup ke liye
 
   classes: ParamDropdownOption[] = [];
   sections: ParamDropdownOption[] = [];
@@ -25,6 +28,8 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   selectedClassId = '';
   selectedSectionId = '';
   selectedSessionId = '';
+  
+  // Flawless Timezone Offset Calculation Fixed
   selectedDate = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
     .toISOString()
     .split('T')[0];
@@ -34,12 +39,14 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   isSaving = false;
   isTeacherClassAllocated = false;
   isAttendanceAlreadyTaken = false;
+  isTeacherRole = false; // ← Track karega ki login user Teacher hai ya nahi
 
   toast: { message: string; type: 'success' | 'error' } | null = null;
 
   constructor(
     private attendanceService: AttendanceService,
     private teacherService: TeacherService,
+    private authState: AuthStateService, // ← Inject AuthState reference
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -48,6 +55,19 @@ export class AttendanceComponent implements OnInit, OnDestroy {
     this.clockInterval = setInterval(() => {
       this.updateClock();
     }, 1000);
+
+    // ✅ FIX 1: User ke current role ko monitor karo dynamic component configuration ke liye
+    this.authState.user$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        if (user?.role === 'TEACHER') {
+          this.isTeacherRole = true;
+        } else {
+          this.isTeacherRole = false;
+        }
+        this.cdr.markForCheck();
+      });
+
     this.loadInitialConfigurations();
   }
 
@@ -55,6 +75,8 @@ export class AttendanceComponent implements OnInit, OnDestroy {
     if (this.clockInterval) {
       clearInterval(this.clockInterval);
     }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   updateClock(): void {
@@ -78,7 +100,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.toast = null;
       this.cdr.markForCheck();
-    }, 4500); // 4.5 seconds for enhanced readability of bad request text
+    }, 4500);
   }
 
   loadInitialConfigurations(): void {
@@ -100,7 +122,6 @@ export class AttendanceComponent implements OnInit, OnDestroy {
           this.selectedSectionId = res.data.sectionId;
           this.isTeacherClassAllocated = true;
 
-          // ✅ FIX 1: Evaluate backend attendance status constraints immediately
           if (res.data.attendanceCheck === 'ATTENDANCE_TAKEN') {
             this.isAttendanceAlreadyTaken = true;
           }
@@ -110,7 +131,6 @@ export class AttendanceComponent implements OnInit, OnDestroy {
 
           this.loadAttendanceSheet();
         } else {
-          // ✅ FIX 2: Call list lookup endpoints only when the user is an Admin
           this.loadAllClassesViaParam();
         }
         this.cdr.markForCheck();
@@ -162,7 +182,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
         this.selectedClassId,
         this.selectedSectionId,
         this.selectedSessionId,
-        this.selectedDate, // ✅ FIX: Pass user-selected date to service
+        this.selectedDate,
       )
       .subscribe({
         next: (res: any) => {
@@ -172,11 +192,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
             rollNumber: stu.rollNo ?? '—',
             firstName: stu.firstName,
             lastName: stu.lastName ?? '',
-
-            // If attendance exists, use it; otherwise default to ABSENT
-            status: stu.attendance?.status ?? 'ABSENT',
-
-            // If attendance exists, show remarks
+            status: stu.attendance?.status ?? 'PRESENT', // Default layout state value
             remarks: stu.attendance?.remarks ?? '',
           }));
           this.isLoading = false;
@@ -190,19 +206,22 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   }
 
   markAllStatus(status: 'PRESENT' | 'ABSENT'): void {
-    if (this.isAttendanceAlreadyTaken) return; // Prevent mutation
+    // ✅ FIX 2: Mutation lock checks only applicable if user is a Teacher
+    if (this.isAttendanceAlreadyTaken && this.isTeacherRole) return; 
     this.studentRows.forEach((row) => (row.status = status));
     this.cdr.markForCheck();
   }
 
   setStatus(row: StudentAttendanceRow, status: 'PRESENT' | 'ABSENT'): void {
-    if (this.isAttendanceAlreadyTaken) return; // Prevent mutation
+    // ✅ FIX 3: Mutation lock checks only applicable if user is a Teacher
+    if (this.isAttendanceAlreadyTaken && this.isTeacherRole) return; 
     row.status = status;
     this.cdr.markForCheck();
   }
 
   onSubmitAttendance(): void {
-    if (this.studentRows.length === 0 || this.isAttendanceAlreadyTaken) return;
+    // ✅ FIX 4: Block submit if attendance taken AND user is a Teacher
+    if (this.studentRows.length === 0 || (this.isAttendanceAlreadyTaken && this.isTeacherRole)) return;
     this.isSaving = true;
     this.cdr.markForCheck();
 
@@ -221,14 +240,13 @@ export class AttendanceComponent implements OnInit, OnDestroy {
     this.attendanceService.submitBulkAttendance(payload).subscribe({
       next: () => {
         this.isSaving = false;
-        this.isAttendanceAlreadyTaken = true; // Block UI actions locally immediately upon success
+        this.isAttendanceAlreadyTaken = true; // Flag true set ho jayega backend verification ke sath synchronization ke lea
         this.showToast('Attendance records saved successfully to server!', 'success');
         this.loadAttendanceSheet();
         this.cdr.markForCheck();
       },
       error: (err: any) => {
         this.isSaving = false;
-        // ✅ FIX 3: Dynamic fallback parsing logic to intercept exception response payload text
         const backendMessage =
           err?.error?.message || 'Attendance has already been submitted for this class.';
         this.showToast(backendMessage, 'error');

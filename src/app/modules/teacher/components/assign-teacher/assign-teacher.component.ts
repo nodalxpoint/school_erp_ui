@@ -4,6 +4,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router'; // ← Router ko import kiya
 import {
   AssignClassTeacherDto,
   AssignTeacherFormState,
@@ -24,9 +25,9 @@ export class AssignTeacherComponent implements OnInit {
 
   // ── Dropdown data ─────────────────────────────────────────────────────────
   classes:          ParamDropdownOption[] = [];
-  sections:         ParamDropdownOption[] = [];   // class select hone ke baad
-  teachers:         ParamDropdownOption[] = [];   // class select hone ke baad
-  academicSessions: ParamDropdownOption[] = [];   // class select hone ke baad
+  sections:         ParamDropdownOption[] = [];   
+  teachers:         ParamDropdownOption[] = [];   
+  academicSessions: ParamDropdownOption[] = [];   
 
   // ── Loading states ────────────────────────────────────────────────────────
   loadingClasses  = false;
@@ -42,11 +43,11 @@ export class AssignTeacherComponent implements OnInit {
 
   constructor(
     private teacherService: TeacherService,
+    private router: Router, // ← Router reference inject kiya
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    // ✅ Sirf classes load hongi — baaki sab lazy (class select pe)
     this.loadClasses();
   }
 
@@ -115,10 +116,7 @@ export class AssignTeacherComponent implements OnInit {
     });
   }
 
-  // ── Class change → sections + teachers + sessions lazy load ───────────────
-
   onClassChange(): void {
-    // Reset dependent fields
     this.form.sectionId        = '';
     this.form.teacherId        = '';
     this.form.academicSessionId = '';
@@ -131,7 +129,6 @@ export class AssignTeacherComponent implements OnInit {
       return;
     }
 
-    // ✅ Ab teeno ek saath load honge — lekin sirf class select ke BAAD
     this.loadSections(this.form.classId);
     this.loadTeachers();
     this.loadAcademicSessions();
@@ -159,6 +156,9 @@ export class AssignTeacherComponent implements OnInit {
         this.isSubmitting = false;
         this.resetForm();
         this.assigned.emit();
+        
+        // ✅ SUCCESS REDIRECTION: Form submit hote hi automatic Class Teacher list par redirect ho jayega
+        this.router.navigate(['/teachers/class-teacher']); 
         this.cdr.markForCheck();
       },
       error: () => {
@@ -168,7 +168,10 @@ export class AssignTeacherComponent implements OnInit {
     });
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // ── Back Button Action Trigger ──
+  onBack(): void {
+    this.router.navigate(['/teachers/class-teacher']); // List par wapas bhej dega
+  }
 
   resetForm(): void {
     this.form             = { classId: '', sectionId: '', teacherId: '', academicSessionId: '' };
