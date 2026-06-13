@@ -17,13 +17,13 @@ export class SubjectManagementComponent implements OnInit {
   isLoading = false;
   totalElements = 0;
   totalPages = 0;
-  
+
   // Sidebar visibility flags
   isSidebarOpen = false;
   isSaving = false;
 
   // Form Model
- formModel: CreateSubjectDto = { subjectName: '', subjectCode: '' };
+  formModel: CreateSubjectDto = { subjectName: '', subjectCode: '' };
 
   // Filter Request state
   filter: SubjectFilterRequest = {
@@ -37,7 +37,7 @@ export class SubjectManagementComponent implements OnInit {
   constructor(
     private subjectService: SubjectService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadSubjects();
@@ -49,7 +49,7 @@ export class SubjectManagementComponent implements OnInit {
 
     this.subjectService.filterSubjects({
       ...this.filter,
-      search: this.searchText.trim() || undefined
+      name: this.searchText.trim() || undefined
     }).subscribe({
       next: (res: any) => {
         // Mapping as per PagedResponse implementation
@@ -82,18 +82,18 @@ export class SubjectManagementComponent implements OnInit {
   }
 
   // Open pane for adding
- onAddSubject(): void {
+  onAddSubject(): void {
     this.formModel = { subjectName: '', subjectCode: '' };
     this.isSidebarOpen = true;
     this.cdr.markForCheck();
   }
 
   // Open pane for editing
-onEditSubject(sub: SubjectResponseDto): void {
+  onEditSubject(sub: SubjectResponseDto): void {
     this.formModel = {
       id: sub.id,
       subjectName: sub.name,
-      subjectCode: sub.code  
+      subjectCode: sub.code
     };
     this.isSidebarOpen = true;
     this.cdr.markForCheck();
@@ -104,15 +104,15 @@ onEditSubject(sub: SubjectResponseDto): void {
     this.cdr.markForCheck();
   }
 
-onSubmit(): void {
+  onSubmit(): void {
     if (!this.formModel.subjectName || !this.formModel.subjectCode) return;
-    
+
     this.isSaving = true;
     this.subjectService.addOrUpdateSubject(this.formModel).subscribe({
       next: () => {
         this.isSaving = false;
         this.isSidebarOpen = false;
-        this.loadSubjects(); 
+        this.loadSubjects();
       },
       error: () => {
         this.isSaving = false;
@@ -124,7 +124,7 @@ onSubmit(): void {
   get safeSubjects(): SubjectResponseDto[] { return this.subjects ?? []; }
   get pages(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i); }
   get currentPage(): number { return this.filter.page; }
-  
+
   trackById(_: number, item: SubjectResponseDto): string {
     return item.id ?? '';
   }

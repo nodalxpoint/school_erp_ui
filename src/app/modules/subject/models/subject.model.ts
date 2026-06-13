@@ -26,7 +26,7 @@ export interface SubjectTeacherAssignmentResponseDto {
 // ─── Request DTOs ────────────────────────────────────────────────────────────
 
 export interface CreateSubjectDto {
-  id?: string;  
+  id?: string;
   subjectName: string;
   subjectCode: string;
 }
@@ -46,7 +46,7 @@ export interface SubjectFilterRequest {
   size: number;
   sortBy?: string;
   sortDirection?: 'ASC' | 'DESC';
-  search?: string;
+  name?: string;
 }
 
 export interface SubjectTeacherAssignmentFilterRequest {
