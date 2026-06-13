@@ -27,7 +27,7 @@ export class TeacherFormComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Route se check karo ki id mil rahi hai ya nahi (Edit mode criteria)
@@ -42,19 +42,19 @@ export class TeacherFormComponent implements OnInit {
   loadTeacherDetails(id: string): void {
     this.isSubmitting = true;
     // PagedResponse filter se single teacher details nikalenge fallback mechanism ke liye
-    this.teacherService.filterTeachers({ page: 0, size: 1, search: id }).subscribe({
+    this.teacherService.filterTeachers({ page: 0, size: 1, firstName: id }).subscribe({
       next: (res) => {
         const teacher = res.data?.[0];
         if (teacher) {
           this.form = {
-            userId:        teacher.userId ?? teacher.id ?? '',
-            firstName:     teacher.firstName ?? '',
-            lastName:      teacher.lastName ?? '',
-            email:         teacher.email ?? '',
-            password:      '',
-            employeeCode:  teacher.employeeCode ?? '',
+            userId: teacher.userId ?? teacher.id ?? '',
+            firstName: teacher.firstName ?? '',
+            lastName: teacher.lastName ?? '',
+            email: teacher.email ?? '',
+            password: '',
+            employeeCode: teacher.employeeCode ?? '',
             qualification: teacher.qualification ?? '',
-            joiningDate:   teacher.joiningDate?.substring(0, 10) ?? ''
+            joiningDate: teacher.joiningDate?.substring(0, 10) ?? ''
           };
         }
         this.isSubmitting = false;
@@ -70,7 +70,7 @@ export class TeacherFormComponent implements OnInit {
   validate(): boolean {
     this.errors = {};
     if (!this.form.firstName.trim()) this.errors.firstName = 'First name required';
-    if (!this.form.email.trim())     this.errors.email = 'Email required';
+    if (!this.form.email.trim()) this.errors.email = 'Email required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email))
       this.errors.email = 'Invalid email';
     if (!this.isEditMode && !this.form.password.trim())
@@ -80,17 +80,17 @@ export class TeacherFormComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.validate()) return;
-    
+
     this.isSubmitting = true;
     this.cdr.markForCheck();
 
     const dto: CreateTeacherDto = {
-      firstName:     this.form.firstName.trim(),
-      lastName:      this.form.lastName.trim() || undefined,
-      email:         this.form.email.trim(),
-      employeeCode:  this.form.employeeCode.trim() || undefined,
+      firstName: this.form.firstName.trim(),
+      lastName: this.form.lastName.trim() || undefined,
+      email: this.form.email.trim(),
+      employeeCode: this.form.employeeCode.trim() || undefined,
       qualification: this.form.qualification.trim() || undefined,
-      joiningDate:   this.form.joiningDate || undefined
+      joiningDate: this.form.joiningDate || undefined
     };
 
     if (this.isEditMode) {
@@ -119,7 +119,9 @@ export class TeacherFormComponent implements OnInit {
   }
 
   private blank(): TeacherFormState {
-    return { userId: '', firstName: '', lastName: '', email: '',
-             password: '', employeeCode: '', qualification: '', joiningDate: '' };
+    return {
+      userId: '', firstName: '', lastName: '', email: '',
+      password: '', employeeCode: '', qualification: '', joiningDate: ''
+    };
   }
 }

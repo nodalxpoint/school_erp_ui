@@ -1,8 +1,8 @@
 // ─── Entities / Response DTOs ───────────────────────────────────────────────
 
 export interface TeacherResponseDto {
-  id?: string;         
-  teacherId?: string;   
+  id?: string;
+  teacherId?: string;
   userId?: string;
   firstName: string;
   lastName?: string;
@@ -51,7 +51,7 @@ export interface TeacherFilterRequest {
   size: number;
   sortBy?: string;
   sortDirection?: 'asc' | 'desc';
-  search?: string;
+  firstName?: string;
   schoolId?: string;
 }
 

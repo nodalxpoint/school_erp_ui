@@ -18,10 +18,10 @@ import { TeacherDetailComponent } from '../teacher-detail/teacher-detail.compone
 })
 export class TeacherListComponent implements OnInit {
 
-  teachers:      TeacherResponseDto[] = [];
-  isLoading      = false;
-  totalElements  = 0;
-  totalPages     = 0;
+  teachers: TeacherResponseDto[] = [];
+  isLoading = false;
+  totalElements = 0;
+  totalPages = 0;
   selectedTeacher: TeacherResponseDto | null = null;   // detail panel
 
   filter: TeacherFilterRequest = {
@@ -33,7 +33,7 @@ export class TeacherListComponent implements OnInit {
     private teacherService: TeacherService,
     private router: Router,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void { this.loadTeachers(); }
 
@@ -41,13 +41,13 @@ export class TeacherListComponent implements OnInit {
     this.isLoading = true;
     this.teacherService.filterTeachers({
       ...this.filter,
-      search: this.searchText || undefined
+      firstName: this.searchText || undefined
     }).subscribe({
       next: (res: any) => {
-        this.teachers     = res?.data          ?? [];
+        this.teachers = res?.data ?? [];
         this.totalElements = res?.totalElements ?? 0;
-        this.totalPages   = res?.totalPages    ?? 0;
-        this.isLoading    = false;
+        this.totalPages = res?.totalPages ?? 0;
+        this.isLoading = false;
         this.cdr.markForCheck();
       },
       error: () => {
@@ -57,32 +57,32 @@ export class TeacherListComponent implements OnInit {
     });
   }
 
-  onSearch(): void      { this.filter.page = 0; this.loadTeachers(); }
+  onSearch(): void { this.filter.page = 0; this.loadTeachers(); }
   onPageChange(p: number): void { this.filter.page = p; this.loadTeachers(); }
 
- onView(t: TeacherResponseDto): void {
-  const currentId = this.selectedTeacher?.teacherId;
-  this.selectedTeacher = currentId === t.teacherId ? null : t;
-  this.cdr.markForCheck(); // ← yeh add karo
-}
+  onView(t: TeacherResponseDto): void {
+    const currentId = this.selectedTeacher?.teacherId;
+    this.selectedTeacher = currentId === t.teacherId ? null : t;
+    this.cdr.markForCheck(); // ← yeh add karo
+  }
 
-onAddTeacher(): void {
-  this.router.navigate(['/teachers/add']);
-}
+  onAddTeacher(): void {
+    this.router.navigate(['/teachers/add']);
+  }
 
-onDetailClose(): void {
-  this.selectedTeacher = null;
-  this.cdr.markForCheck(); // ← yeh bhi
-}
+  onDetailClose(): void {
+    this.selectedTeacher = null;
+    this.cdr.markForCheck(); // ← yeh bhi
+  }
 
-onEdit(t: TeacherResponseDto): void {
-  this.router.navigate(['/teachers', t.teacherId, 'edit']); // id hata, teacherId use karo
-}
+  onEdit(t: TeacherResponseDto): void {
+    this.router.navigate(['/teachers', t.teacherId, 'edit']); // id hata, teacherId use karo
+  }
 
-onDetailEdit(t: TeacherResponseDto): void {
-  this.selectedTeacher = null;
-  this.router.navigate(['/teachers', t.teacherId, 'edit']); // yahan bhi
-}
+  onDetailEdit(t: TeacherResponseDto): void {
+    this.selectedTeacher = null;
+    this.router.navigate(['/teachers', t.teacherId, 'edit']); // yahan bhi
+  }
 
   get safeTeachers(): TeacherResponseDto[] { return this.teachers ?? []; }
   get pages(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i); }
