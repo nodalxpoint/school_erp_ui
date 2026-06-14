@@ -1,0 +1,152 @@
+<div class="tl-page">
+
+  <!-- ── Filter / Header Card ── -->
+  <div class="tl-header-card">
+    <div class="tl-header-top">
+      <div class="tl-title-block">
+        <div class="tl-eyebrow">School ERP · Timetable</div>
+        <h1 class="tl-title">Class Timetable</h1>
+      </div>
+
+      <div class="tl-view-toggle">
+        <button class="tl-toggle-btn" [class.active]="viewMode === 'weekly'" (click)="viewMode = 'weekly'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Weekly View
+        </button>
+        <button class="tl-toggle-btn" [class.active]="viewMode === 'daily'" (click)="viewMode = 'daily'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="3" y1="14" x2="21" y2="14"/></svg>
+          Daily View
+        </button>
+      </div>
+    </div>
+
+    <div class="tl-filter-row">
+      <div class="tl-select-group">
+        <label class="tl-select-label">Class</label>
+        <div class="tl-select-wrap">
+          <svg class="tl-select-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <select class="tl-select" [(ngModel)]="filter.classId" (change)="onClassChangeChange()">
+            <option value="">Select Class</option>
+            <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
+          </select>
+          <svg class="tl-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+
+      <div class="tl-select-group">
+        <label class="tl-select-label">Section</label>
+        <div class="tl-select-wrap" [class.disabled]="!filter.classId">
+          <svg class="tl-select-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          <select class="tl-select" [(ngModel)]="filter.sectionId" (change)="loadTimetables()" [disabled]="!filter.classId">
+            <option value="">Select Section</option>
+            <option *ngFor="let s of sections" [value]="s.id">{{ s.label }}</option>
+          </select>
+          <svg class="tl-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+
+      <div class="tl-spacer"></div>
+
+      <button class="tl-add-btn" (click)="onAddTimetable()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Slot
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Loading Strip ── -->
+  <div class="tl-loading-bar" *ngIf="isLoading">
+    <div class="tl-spinner"></div>
+    <span>Loading timetable data…</span>
+  </div>
+
+  <!-- ── Timetable Matrix ── -->
+  <div class="tl-matrix-card" *ngIf="!isLoading">
+
+    <!-- Days header row (sticky top) -->
+    <div class="tl-days-header">
+      <div class="tl-time-origin-cell">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Time</span>
+      </div>
+      <div class="tl-day-col-header" *ngFor="let day of daysList">
+        <span class="tl-day-name">{{ day | slice:0:3 }}</span>
+        <span class="tl-day-full">{{ day }}</span>
+      </div>
+    </div>
+
+    <!-- Period rows -->
+    <div class="tl-period-rows-wrap">
+      <div class="tl-period-row" *ngFor="let periodNum of periodsList">
+
+        <!-- Time label cell -->
+        <div class="tl-time-cell">
+          <span class="tl-period-badge">P{{ periodNum }}</span>
+          <span class="tl-period-lbl">Period {{ periodNum }}</span>
+        </div>
+
+        <!-- Day cells for this period -->
+        <div class="tl-slot-cell" *ngFor="let day of daysList">
+
+          <ng-container *ngIf="getSlotData(day, periodNum) as slot; else emptyCell">
+            <div class="tl-slot-card" (click)="onEditTimetable(slot)">
+              <div class="tl-slot-subject">
+                <span class="tl-slot-subject-name">{{ slot.subjectName }}</span>
+              </div>
+              <div class="tl-slot-meta">
+                <span class="tl-slot-teacher">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  {{ slot.teacherName }}
+                </span>
+              </div>
+              <div class="tl-slot-footer">
+                <span class="tl-slot-time">{{ slot.startTime }} – {{ slot.endTime }}</span>
+                <span class="tl-slot-room" *ngIf="slot.roomNo">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  {{ slot.roomNo }}
+                </span>
+              </div>
+              <div class="tl-edit-overlay">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit Slot
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #emptyCell>
+            <div class="tl-empty-cell">
+              <span class="tl-empty-dash">—</span>
+            </div>
+          </ng-template>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="tl-legend">
+      <div class="tl-legend-item">
+        <span class="tl-legend-dot tl-dot-class"></span>
+        <span>Class Period</span>
+      </div>
+      <div class="tl-legend-item">
+        <span class="tl-legend-dot tl-dot-empty"></span>
+        <span>Free / Unassigned</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="tl-empty-state" *ngIf="!isLoading && timetables.length === 0 && filter.sectionId">
+    <div class="tl-empty-icon">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    </div>
+    <p class="tl-empty-title">No slots assigned yet</p>
+    <p class="tl-empty-sub">Add timetable slots for this class and section to see the schedule.</p>
+    <button class="tl-add-btn" (click)="onAddTimetable()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add First Slot
+    </button>
+  </div>
+
+</div>

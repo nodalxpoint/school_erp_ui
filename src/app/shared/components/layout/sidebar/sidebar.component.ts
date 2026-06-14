@@ -1,6 +1,6 @@
 // shared/components/layout/sidebar/sidebar.component.ts
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { UiStateService } from '../../../../core/services/ui-state.service';
@@ -24,6 +24,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Teachers',   href: '/teachers',   icon: 'users',            roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Subjects',   href: '/subjects',   icon: 'book-open',        roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Attendance', href: '/attendance', icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
+  { label: 'Timetable',  href: '/timetable',  icon: 'calendar-check',   roles: 'all' },
   { label: 'Fees',       href: '/fees',       icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT', 'PARENT'] },
   { label: 'Reports',    href: '/reports',    icon: 'bar-chart-3',      roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'School',     href: '/school',     icon: 'book-open',        roles: 'all' },
@@ -31,10 +32,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Settings',   href: '/settings',   icon: 'settings',         roles: 'all' },
 ];
 
-// Fix 1: /subjects/assign-teacher ko ab Teachers view array me move kar diya hai
 const TEACHERS_ROUTES = ['/teachers', '/teacher-mapping', '/subjects/assign-teacher'];
-
-// Fix 2: Is array se assign-teacher link hata di taaki cross-highlight conflict na ho
 const SUBJECTS_ROUTES = ['/subjects/manage', '/subjects']; 
 
 @Component({
@@ -43,6 +41,7 @@ const SUBJECTS_ROUTES = ['/subjects/manage', '/subjects'];
   imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   sidebarOpen = false;
@@ -58,12 +57,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
     public authState: AuthStateService,
     private authService: AuthService,
     private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.uiState.sidebarOpen$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(v => this.sidebarOpen = v);
+      .subscribe(v => {
+        this.sidebarOpen = v;
+        this.cdr.markForCheck();
+      });
 
     this.uiState.sidebarCollapsed$
       .pipe(takeUntil(this.destroy$))
@@ -73,12 +76,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
           this.teachersDropdownOpen = false;
           this.subjectsDropdownOpen = false;
         }
+        this.cdr.markForCheck();
       });
 
     this.authState.user$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
         this.currentRole = (user?.role as UserRole) ?? null;
+        this.cdr.markForCheck();
       });
 
     this.currentPath = this.router.url;
@@ -92,6 +97,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       .subscribe((e: any) => {
         this.currentPath = e.urlAfterRedirects;
         this._autoOpenDropdown(this.currentPath);
+        this.cdr.markForCheck();
       });
   }
 
@@ -101,7 +107,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   private _autoOpenDropdown(path: string): void {
-    // Ab jab aap assign subject teacher page par hoge, ye auto-detect karke Teachers dropdown ko open rakhega
     if (TEACHERS_ROUTES.some(r => path.startsWith(r))) {
       this.teachersDropdownOpen = true;
     }
@@ -130,18 +135,19 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   isSubjectsActive(): boolean {
-    // Fix: Ensure subject parent highlight stays clean and doesn't bleed into assignment URL
     return SUBJECTS_ROUTES.some(r => this.currentPath.startsWith(r)) && !this.currentPath.includes('assign-teacher');
   }
 
   toggleTeachersDropdown(): void {
     this.teachersDropdownOpen = !this.teachersDropdownOpen;
     if (this.teachersDropdownOpen) this.subjectsDropdownOpen = false;
+    this.cdr.markForCheck();
   }
 
   toggleSubjectsDropdown(): void {
     this.subjectsDropdownOpen = !this.subjectsDropdownOpen;
     if (this.subjectsDropdownOpen) this.teachersDropdownOpen = false;
+    this.cdr.markForCheck();
   }
 
   getInitials(name: string): string {

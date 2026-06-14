@@ -1,36 +1,36 @@
 <div class="list-page">
 
-  <!-- Breadcrumb -->
   <div class="breadcrumb">
     <span>Student Management</span>
     <span class="sep">/</span>
     <span class="active">Student List</span>
   </div>
 
-  <!-- Header -->
   <div class="page-header">
     <div>
       <h1>Students &amp; Records</h1>
-      <p>{{ totalElements }} students in this school</p>
+      <p>{{ totalElements }} total student records registered</p>
     </div>
-    <button class="btn-primary" (click)="onAddStudent()">+ Add Student</button>
+    <button class="btn-primary" (click)="onAddStudent()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Add Student
+    </button>
   </div>
 
-  <!-- Error -->
   <div class="alert-error" *ngIf="error">⚠ {{ error }}</div>
 
-  <!-- Table Card -->
   <div class="table-card">
 
-    <!-- Loading overlay -->
     <div class="loading-overlay" *ngIf="loading">
       <div class="spinner"></div>
-      <span>Loading students...</span>
+      <span>Loading students register records...</span>
     </div>
 
     <table class="data-table">
       <thead>
-        <!-- Main header row — blue like classes UI -->
         <tr class="header-row">
           <th class="col-no">No</th>
           <th class="col-name">Student Name</th>
@@ -42,41 +42,40 @@
           <th class="col-actions">Actions</th>
         </tr>
 
-        <!-- Filter row -->
         <tr class="filter-row">
-          <td></td>
-          <td>
+          <td class="col-no"></td>
+          <td class="col-name">
             <input class="col-filter" type="text" placeholder="Filter name..."
               [(ngModel)]="searchFirstName" (input)="onSearch()" />
           </td>
-          <td>
+          <td class="col-admission">
             <input class="col-filter" type="text" placeholder="Admission No..."
               [(ngModel)]="searchAdmissionNo" (input)="onSearch()" />
           </td>
-          <td>
-            <select class="col-filter" (change)="onSearch()">
+          <td class="col-gender">
+            <select class="col-filter select-arrow" (change)="onSearch()">
               <option value="">All</option>
               <option value="MALE">Male</option>
               <option value="FEMALE">Female</option>
               <option value="OTHER">Other</option>
             </select>
           </td>
-          <td>
-            <select class="col-filter" [(ngModel)]="selectedClassId"
+          <td class="col-class">
+            <select class="col-filter select-arrow" [(ngModel)]="selectedClassId"
               (change)="onClassFilterChange()" [disabled]="loadingClasses">
-              <option value="">{{ loadingClasses ? 'Loading...' : 'All Classes' }}</option>
+              <option value="">{{ loadingClasses ? '...' : 'All Classes' }}</option>
               <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
             </select>
           </td>
-          <td>
-            <select class="col-filter" [(ngModel)]="selectedSectionId"
+          <td class="col-section">
+            <select class="col-filter select-arrow" [(ngModel)]="selectedSectionId"
               (change)="onSearch()" [disabled]="!selectedClassId || loadingSections">
-              <option value="">{{ !selectedClassId ? 'Select class' : loadingSections ? 'Loading...' : 'All Sections' }}</option>
+              <option value="">{{ !selectedClassId ? 'Select' : loadingSections ? '...' : 'All' }}</option>
               <option *ngFor="let s of sections" [value]="s.id">{{ s.label }}</option>
             </select>
           </td>
-          <td></td>
-          <td class="filter-clear-cell">
+          <td class="col-dob"></td>
+          <td class="col-actions filter-clear-cell">
             <button class="btn-clear-filter" *ngIf="hasActiveFilters()" (click)="clearFilters()">
               ✕ Clear
             </button>
@@ -85,73 +84,88 @@
       </thead>
 
       <tbody>
-        <!-- Data rows -->
         <ng-container *ngIf="!loading && students.length > 0">
           <tr *ngFor="let student of students; let i = index" class="data-row">
             <td class="col-no text-muted">{{ startIndex + i }}</td>
             <td class="col-name">
               <div class="student-cell">
-                <div class="avatar">{{ student.firstName.charAt(0) }}{{ student.lastName.charAt(0) }}</div>
+                <div class="avatar">
+                  {{ student.firstName ? student.firstName.charAt(0).toUpperCase() : '' }}{{ student.lastName ? student.lastName.charAt(0).toUpperCase() : '' }}
+                </div>
                 <span class="student-name">{{ student.firstName }} {{ student.lastName }}</span>
               </div>
             </td>
-            <td><span class="badge-blue">{{ student.admissionNo }}</span></td>
-            <td>
+            <td class="col-admission">
+              <span class="badge-blue">{{ student.admissionNo }}</span>
+            </td>
+            <td class="col-gender">
               <span class="badge-gender" [class.male]="student.gender==='MALE'"
                 [class.female]="student.gender==='FEMALE'" [class.other]="student.gender==='OTHER'">
                 {{ student.gender === 'MALE' ? 'Male' : student.gender === 'FEMALE' ? 'Female' : student.gender || '—' }}
               </span>
             </td>
-            <td class="fw-500">{{ student.className || '—' }}</td>
-            <td>
+            <td class="col-class fw-500">{{ student.className || '—' }}</td>
+            <td class="col-section">
               <span class="section-chip" *ngIf="student.sectionName">{{ student.sectionName }}</span>
-              <span *ngIf="!student.sectionName">—</span>
+              <span class="muted" *ngIf="!student.sectionName">—</span>
             </td>
-            <td class="text-muted">{{ student.dob || '—' }}</td>
+            <td class="col-dob text-muted">{{ student.dob || '—' }}</td>
             <td class="col-actions">
               <div class="action-btns">
-                <button class="btn-view"   (click)="onViewStudent(student)">👁 View</button>
-                <button class="btn-edit"   (click)="onEditStudent(student)">✏ Edit</button>
+                <button class="btn-view" (click)="onViewStudent(student)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  View
+                </button>
+                <button class="btn-edit" (click)="onEditStudent(student)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  Edit
+                </button>
               </div>
             </td>
           </tr>
         </ng-container>
 
-        <!-- Empty state INSIDE table (filters active ya no data) -->
         <tr *ngIf="!loading && students.length === 0" class="empty-row">
           <td colspan="8">
             <div class="empty-state" *ngIf="hasActiveFilters()">
               <div class="empty-icon">🔍</div>
               <p class="empty-title">No students match your filters</p>
-              <p class="empty-sub">Try different search criteria</p>
-              <button class="btn-clear-filters-center" (click)="clearFilters()">✕ Clear Filters</button>
+              <p class="empty-sub">Try modifying or clearing your column parameters inputs above.</p>
+              <button class="btn-clear-filters-center" (click)="clearFilters()">✕ Clear All Filters</button>
             </div>
             <div class="empty-state" *ngIf="!hasActiveFilters()">
               <div class="empty-icon">🎓</div>
-              <p class="empty-title">No students found</p>
-              <p class="empty-sub">Add your first student to get started</p>
+              <p class="empty-title">No students registered yet</p>
+              <p class="empty-sub">Get started by adding your first student record enrollment.</p>
             </div>
           </td>
         </tr>
       </tbody>
 
-      <!-- Table footer -->
-      <tfoot *ngIf="totalElements > 0">
+      <tfoot *ngIf="totalElements > 0 && !loading">
         <tr class="footer-row">
-          <td colspan="8">{{ totalElements }} students total</td>
+          <td colspan="8">
+            <div class="table-footer-summary">
+              Showing <strong>{{ startIndex }}</strong> to <strong>{{ endIndex }}</strong> of <strong>{{ totalElements }}</strong> active students listed
+            </div>
+          </td>
         </tr>
       </tfoot>
     </table>
   </div>
 
-  <!-- Pagination -->
-  <div class="pagination" *ngIf="totalPages > 1">
-    <span class="page-info">Showing {{ startIndex }}–{{ endIndex }} of {{ totalElements }}</span>
+  <div class="pagination" *ngIf="totalPages > 1 && !loading">
+    <div class="dummy-space"></div>
     <div class="page-btns">
       <button class="page-btn" (click)="goToPage(0)" [disabled]="currentPage === 0">«</button>
       <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">‹</button>
-      <button *ngFor="let p of pages" class="page-btn" [class.active]="p === currentPage"
-        (click)="goToPage(p)">{{ p + 1 }}</button>
+      <button *ngFor="let p of pages" class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p + 1 }}</button>
       <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">›</button>
       <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1">»</button>
     </div>

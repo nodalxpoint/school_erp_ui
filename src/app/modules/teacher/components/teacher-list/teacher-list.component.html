@@ -1,11 +1,10 @@
 <!-- teacher-list.component.html -->
-
 <div class="list-wrapper" [class.has-detail]="selectedTeacher">
 
   <!-- ─── Left: Table pane ─── -->
   <div class="table-pane">
 
-    <!-- Search bar -->
+    <!-- Search bar (Global Actions Layer) -->
     <div class="search-bar">
       <div class="search-input-wrap">
         <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24"
@@ -14,22 +13,22 @@
           <line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
         <input class="search-input" type="text" [(ngModel)]="searchText"
-               placeholder="Search by name…" (keyup.enter)="onSearch()" />
+               placeholder="Global search by name or email…" (keyup.enter)="onSearch()" />
         <button class="search-clear" *ngIf="searchText"
                 (click)="searchText = ''; onSearch()">×</button>
       </div>
       <button class="btn-search" (click)="onSearch()">Search</button>
       <button class="btn-add" (click)="onAddTeacher()">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="2">
-      <line x1="12" y1="5" x2="12" y2="19"/>
-      <line x1="5" y1="12" x2="19" y2="12"/>
-    </svg>
-    Add Teacher
-  </button>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Add Teacher
+      </button>
     </div>
 
-    <!-- Skeleton -->
+    <!-- Skeleton Loader Components Grid -->
     <ng-container *ngIf="isLoading">
       <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
         <div class="sk-avatar"></div>
@@ -44,7 +43,7 @@
       </div>
     </ng-container>
 
-    <!-- Empty -->
+    <!-- Empty State -->
     <div class="empty-state" *ngIf="!isLoading && safeTeachers.length === 0">
       <div class="empty-icon">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -54,20 +53,44 @@
         </svg>
       </div>
       <p class="empty-title">No teachers found</p>
-      <p class="empty-sub">Add a teacher using the Add Teacher link.</p>
+      <p class="empty-sub">Add a teacher or modify column filters parameters query inputs.</p>
     </div>
 
-    <!-- Table -->
+    <!-- Table Layout Core Framework (Supports Left-Right Swipe on Phone) -->
     <table class="teacher-table" *ngIf="!isLoading && safeTeachers.length > 0">
       <thead>
-        <tr>
+        <tr class="header-main-row">
           <th class="col-teacher">Teacher</th>
           <th class="col-code">Emp. Code</th>
           <th class="col-qual">Qualification</th>
           <th class="col-date">Joining Date</th>
           <th class="col-actions"></th>
         </tr>
+
+        <!-- ─── Inline Table Column Filter Row (Added Flawlessly) ─── -->
+        <tr class="filter-row">
+          <td class="col-teacher">
+            <!-- Global search handles name filtering, if your backend uses a dedicated param change it accordingly -->
+            <input class="col-filter-control" type="text" placeholder="Filter teacher..."
+                   [(ngModel)]="searchText" (keyup.enter)="onSearch()" />
+          </td>
+          <td class="col-code">
+            <!-- Binds to local form filter variable if declared in component backend, else standard text input wireframe -->
+            <input class="col-filter-control code-font" type="text" placeholder="Filter code..." 
+                   (keyup.enter)="onSearch()" />
+          </td>
+          <td class="col-qual">
+            <input class="col-filter-control" type="text" placeholder="e.g. B.Ed..." 
+                   (keyup.enter)="onSearch()" />
+          </td>
+          <td class="col-date"></td>
+          <td class="col-actions">
+            <!-- Fallback generic reset filter anchor button element -->
+            <button class="btn-clear-inline" (click)="searchText = ''; onSearch()" *ngIf="searchText" title="Clear Filters">✕</button>
+          </td>
+        </tr>
       </thead>
+      
       <tbody>
         <tr *ngFor="let t of safeTeachers; trackBy: trackById"
             class="table-row"
@@ -119,7 +142,7 @@
       </tbody>
     </table>
 
-    <!-- Pagination -->
+    <!-- Pagination Context Block -->
     <div class="pagination" *ngIf="totalPages > 1">
       <button class="pg-btn" [disabled]="currentPage === 0"
               (click)="onPageChange(currentPage - 1)">

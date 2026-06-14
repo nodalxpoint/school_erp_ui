@@ -60,11 +60,11 @@ export const routes: Routes = [
       },
 
       // Classes & Sections
-      {
-        path: 'school',
-        loadChildren: () =>
-          import('./modules/school/school.routes').then(m => m.SCHOOL_ROUTES)
-      },
+    {
+  path: 'timetable',
+  loadChildren: () =>
+    import('./modules/timetable/timetable.routes').then(m => m.TIMETABLE_ROUTES)
+},
 
        {
         path: 'classes',
