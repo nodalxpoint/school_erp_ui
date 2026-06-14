@@ -216,3 +216,23 @@ select.form-control.select-pilled {
 
   &:hover { background: var(--primary-hover); }
 }
+
+// Append this block safely at the bottom of timetable-form.component.scss
+
+.form-group-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  
+  .form-control {
+    background-color: var(--bg-row-odd) !important;
+    border-color: var(--border) !important;
+    color: var(--text-muted) !important;
+    pointer-events: none; // Safety layer constraint bypass
+    
+    // Explicit removal of cross arrow vectors inside native select pickers
+    &.select-pilled {
+      background-image: none !important;
+      padding-right: 14px !important;
+    }
+  }
+}

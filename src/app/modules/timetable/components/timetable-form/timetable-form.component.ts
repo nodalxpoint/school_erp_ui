@@ -85,25 +85,27 @@ export class TimetableFormComponent implements OnInit {
     }
   }
 
-  populateFormFields(data: TimetableDto): void {
-    this.formModel = { ...data };
-    
-    // ✅ TIME FORMAT COMPOTABILITY FIX: 
-    // HTML `<input type="time">` strict format "HH:mm" demand karta hai. 
-    // Agar backend se "10:30:00" (with seconds) aa raha hai, toh split karke use "10:30" banayenge.
-    if (this.formModel.startTime && this.formModel.startTime.length > 5) {
-      this.formModel.startTime = this.formModel.startTime.substring(0, 5);
-    }
-    if (this.formModel.endTime && this.formModel.endTime.length > 5) {
-      this.formModel.endTime = this.formModel.endTime.substring(0, 5);
-    }
-
-    // ✅ AUTO-POPULATE SECTIONS: Selected Class ke section dropdown options immediately load karenge
-    if (this.formModel.classId) {
-      this.loadSectionsForClass(this.formModel.classId);
-    }
-    this.cdr.markForCheck();
+// Is code logic line structure ko ts component me verify kar lo, data automatically fill ho jayega
+populateFormFields(data: TimetableDto): void {
+  this.formModel = { ...data };
+  
+  // input compatible format tracking slice
+  if (this.formModel.startTime && this.formModel.startTime.length > 5) {
+    this.formModel.startTime = this.formModel.startTime.substring(0, 5);
   }
+  if (this.formModel.endTime && this.formModel.endTime.length > 5) {
+    this.formModel.endTime = this.formModel.endTime.substring(0, 5);
+  }
+
+  // 🔥 IMPORTANT: Section list dropdown mandatory populate call if class exists
+  if (this.formModel.classId) {
+    this.timetableService.getSectionOptions(this.formModel.classId).subscribe(res => {
+      this.sections = res;
+      this.cdr.markForCheck(); // Instantly renders current data matrix on screen
+    });
+  }
+  this.cdr.markForCheck();
+}
 
   onClassChange(): void {
     this.formModel.sectionId = '';
