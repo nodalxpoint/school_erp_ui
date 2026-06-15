@@ -54,19 +54,25 @@
           </div>
 
           <ul *ngIf="teachersDropdownOpen && !sidebarCollapsed" class="sidebar__dropdown-list">
-            <li>
+            <li *ngIf="currentRole !== 'TEACHER'">
               <a routerLink="/teachers" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/teachers')" (click)="closeSidebar()">
                 <span class="sidebar__dropdown-dot"></span>All Teachers
               </a>
             </li>
-            <li>
+            <li *ngIf="currentRole !== 'TEACHER'">
               <a routerLink="/subjects/assign-teacher" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/subjects/assign-teacher')" (click)="closeSidebar()">
                 <span class="sidebar__dropdown-dot"></span>Assign Subject Teacher
               </a>
             </li>
-            <li>
+            <li *ngIf="currentRole !== 'TEACHER'">
               <a routerLink="/teachers/class-teacher" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/teachers/class-teacher')" (click)="closeSidebar()">
-                <span class="sidebar__dropdown-dot"></span> Assign Class Teacher
+                <span class="sidebar__dropdown-dot"></span>Assign Class Teacher
+              </a>
+            </li>
+            
+            <li>
+              <a routerLink="/teacher-timetable" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/teacher-timetable')" (click)="closeSidebar()">
+                <span class="sidebar__dropdown-dot"></span>Teacher Timetable
               </a>
             </li>
           </ul>
@@ -156,10 +162,12 @@
     <ng-container *ngIf="authState.user$ | async as user">
       <div class="sidebar__user" [class.sidebar__user--collapsed]="sidebarCollapsed">
         <div class="sidebar__avatar">{{ getInitials(user.name) }}</div>
+        
         <div *ngIf="!sidebarCollapsed" class="sidebar__user-info">
           <p class="sidebar__user-name">{{ user.name }}</p>
           <p class="sidebar__user-role">{{ user.role }}</p>
         </div>
+        
         <button *ngIf="!sidebarCollapsed" class="sidebar__logout-btn" (click)="logout()" title="Logout">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>

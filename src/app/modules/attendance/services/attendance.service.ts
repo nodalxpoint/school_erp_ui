@@ -18,7 +18,7 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class AttendanceService {
-  private base = `${environment.apiUrl}/attendance`;
+  private base = `${environment.apiUrl}/teacher`;
   private studentBase = `${environment.apiUrl}/students`; 
 
   constructor(private http: HttpClient) {}

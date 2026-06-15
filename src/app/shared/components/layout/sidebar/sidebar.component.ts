@@ -19,20 +19,24 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard',  href: '/dashboard',  icon: 'layout-dashboard', roles: 'all' },
-  { label: 'Students',   href: '/students',   icon: 'graduation-cap',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
-  { label: 'Teachers',   href: '/teachers',   icon: 'users',            roles: ['SUPER_ADMIN', 'ADMIN'] },
-  { label: 'Subjects',   href: '/subjects',   icon: 'book-open',        roles: ['SUPER_ADMIN', 'ADMIN'] },
-  { label: 'Attendance', href: '/attendance', icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
-  { label: 'Timetable',  href: '/timetable',  icon: 'calendar-check',   roles: 'all' },
-  { label: 'Fees',       href: '/fees',       icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT', 'PARENT'] },
-  { label: 'Reports',    href: '/reports',    icon: 'bar-chart-3',      roles: ['SUPER_ADMIN', 'ADMIN'] },
-  { label: 'School',     href: '/school',     icon: 'book-open',        roles: 'all' },
-  { label: 'Classes',    href: '/classes',    icon: 'book-open',        roles: 'all' },
-  { label: 'Settings',   href: '/settings',   icon: 'settings',         roles: 'all' },
+  { label: 'Dashboard',         href: '/dashboard',         icon: 'layout-dashboard', roles: 'all' },
+  { label: 'Students',          href: '/students',          icon: 'graduation-cap',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
+  
+  // ✅ FIX 1: TEACHER role ko include kiya taaki dropdown menu Teachers login par hidden na ho
+  { label: 'Teachers',          href: '/teachers',          icon: 'users',            roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
+  
+  { label: 'Subjects',          href: '/subjects',          icon: 'book-open',        roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { label: 'Class Timetable',   href: '/timetable',         icon: 'calendar-check',   roles: 'all' },
+  { label: 'Teacher Timetable', href: '/teacher-timetable', icon: 'calendar-check',   roles: 'all' }, 
+  { label: 'Attendance',        href: '/attendance',        icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
+  { label: 'Fees',              href: '/fees',              icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT', 'PARENT'] },
+  { label: 'Reports',           href: '/reports',           icon: 'bar-chart-3',      roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { label: 'School',            href: '/school',            icon: 'book-open',        roles: 'all' },
+  { label: 'Classes',           href: '/classes',           icon: 'book-open',        roles: 'all' },
+  { label: 'Settings',          href: '/settings',          icon: 'settings',         roles: 'all' },
 ];
 
-const TEACHERS_ROUTES = ['/teachers', '/teacher-mapping', '/subjects/assign-teacher'];
+const TEACHERS_ROUTES = ['/teachers', '/teacher-mapping', '/subjects/assign-teacher', '/teacher-timetable'];
 const SUBJECTS_ROUTES = ['/subjects/manage', '/subjects']; 
 
 @Component({
@@ -118,7 +122,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   get filteredNavItems(): NavItem[] {
     const role = this.currentRole;
     return NAV_ITEMS.filter(item =>
-      item.roles === 'all' || (role && (item.roles as UserRole[]).includes(role))
+      item.href !== '/teacher-timetable' && (item.roles === 'all' || (role && (item.roles as UserRole[]).includes(role)))
     );
   }
 

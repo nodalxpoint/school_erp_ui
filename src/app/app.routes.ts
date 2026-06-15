@@ -78,12 +78,13 @@ export const routes: Routes = [
   path: 'attendance',
   loadChildren: () =>
     import('./modules/attendance/attendance.routes').then(m => m.ATTENDANCE_ROUTES)
-}
-      // {
-      //   path: 'fees',
-      //   loadChildren: () =>
-      //     import('./modules/fees/fees.routes').then(m => m.FEES_ROUTES)
-      // },
+},
+
+{
+  path: 'teacher-timetable',
+  loadChildren: () =>
+    import('./modules/teacher-timetable/teacher-timetable.routes').then(m => m.TEACHER_TIMETABLE_ROUTES)
+},
       // {
       //   path: 'reports',
       //   loadChildren: () =>

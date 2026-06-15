@@ -1,0 +1,18 @@
+@import '../../../timetable/components/timetable-form/timetable-form.component.scss';
+
+.form-group-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  
+  .form-control {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    color: #718096 !important;
+    pointer-events: none;
+    
+    &.select-pilled {
+      background-image: none !important;
+      padding-right: 14px !important;
+    }
+  }
+}

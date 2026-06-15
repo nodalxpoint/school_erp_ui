@@ -1,0 +1,104 @@
+<div class="form-page">
+
+  <div class="form-header">
+    <div class="breadcrumb">
+      <span class="breadcrumb-link" (click)="onCancel()">Teacher Timetable</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">{{ isEditMode ? 'Modify Slot Mapping' : 'New Period Allocation' }}</span>
+    </div>
+    <button class="btn-back" (click)="onCancel()">✕ Cancel and Return</button>
+  </div>
+
+  <div class="form-title-row">
+    <h1>{{ isEditMode ? 'Modify Timetable Assignment' : 'Create Timetable Period Slot' }}</h1>
+    <p>Set technical schedules, faculty references and classroom bounds securely.</p>
+  </div>
+
+  <div class="form-section">
+    <div class="section-header">
+      <div class="section-badge">01</div>
+      <div>
+        <h2>Period Configuration Mapping</h2>
+        <p>Dynamic locks applied in update operations seamlessly</p>
+      </div>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #timeForm="ngForm" class="form-grid">
+      
+      <div class="form-group" [class.form-group-disabled]="isEditMode">
+        <label class="form-label">Academic Session *</label>
+        <select class="form-control select-pilled" [(ngModel)]="formModel.academicSessionId" name="academicSession" [disabled]="isEditMode" required>
+          <option value="" disabled>Select Session</option>
+          <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
+        </select>
+      </div>
+
+      <div class="form-group" [class.form-group-disabled]="isEditMode">
+        <label class="form-label">Class Standard *</label>
+        <select class="form-control select-pilled" [(ngModel)]="formModel.classId" name="class" (change)="onClassChange()" [disabled]="isEditMode" required>
+          <option value="">Select Class</option>
+          <option *ngFor="let c of classes" [value]="c.id">{{c.label}}</option>
+        </select>
+      </div>
+
+      <div class="form-group" [class.form-group-disabled]="isEditMode">
+        <label class="form-label">Section *</label>
+        <select class="form-control select-pilled" [(ngModel)]="formModel.sectionId" name="section" [disabled]="isEditMode || !formModel.classId" required>
+          <option value="">Select Section</option>
+          <option *ngFor="let s of sections" [value]="s.id">{{s.label}}</option>
+        </select>
+      </div>
+
+      <div class="form-group" [class.form-group-disabled]="isEditMode">
+        <label class="form-label">Day Of Week *</label>
+        <select class="form-control select-pilled" [(ngModel)]="formModel.dayOfWeek" name="dayOfWeek" [disabled]="isEditMode" required>
+          <option *ngFor="let d of daysList" [value]="d">{{d}}</option>
+        </select>
+      </div>
+
+      <div class="form-group" [class.form-group-disabled]="isEditMode">
+        <label class="form-label">Period Sequence Number *</label>
+        <input type="number" min="1" max="12" class="form-control" [(ngModel)]="formModel.period" name="period" [disabled]="isEditMode" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Subject Allocation *</label>
+        <select class="form-control select-pilled" [(ngModel)]="formModel.subjectId" name="subject" required>
+          <option value="">Select Subject</option>
+          <option *ngFor="let sb of subjects" [value]="sb.id">{{sb.label}}</option>
+        </select>
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label">Assigned Teacher *</label>
+        <select class="form-control select-pilled" [(ngModel)]="formModel.teacherId" name="teacher" required>
+          <option value="">Select Teacher</option>
+          <option *ngFor="let t of teachers" [value]="t.id">{{t.label}}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Start Time *</label>
+        <input type="time" class="form-control" [(ngModel)]="formModel.startTime" name="startTime" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">End Time *</label>
+        <input type="time" class="form-control" [(ngModel)]="formModel.endTime" name="endTime" required />
+      </div>
+
+      <div class="form-group full-width" [class.form-group-disabled]="isEditMode">
+        <label class="form-label">Room Number / Lab No</label>
+        <input type="text" placeholder="e.g. Room 302" class="form-control" [(ngModel)]="formModel.roomNo" name="roomNo" [disabled]="isEditMode" />
+      </div>
+
+      <div class="form-actions full-width">
+        <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn-submit" [disabled]="!timeForm.form.valid || isSaving">
+          {{ isSaving ? 'Saving parameters...' : (isEditMode ? 'Update Slot Assignment' : 'Confirm Allocation') }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

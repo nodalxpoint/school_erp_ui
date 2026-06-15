@@ -1,0 +1,118 @@
+<div class="tl-page">
+
+  <div class="tl-header-card">
+    <div class="tl-header-top">
+      <div class="tl-title-block">
+        <div class="tl-eyebrow">School ERP · Timetable Register</div>
+        <h1 class="tl-title">{{ isTeacherRole ? 'My Class Schedule Matrix' : 'Teacher Schedule Matrix' }}</h1>
+      </div>
+
+      <div class="tl-live-clock-badge-wrap">
+        <div class="tl-clock-left">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <div class="tl-clock-text">
+            <span class="tl-clock-val">{{ currentDateTimeStr }}</span>
+            <span class="tl-day-val">Today: <strong>{{ currentDayName }}</strong></span>
+          </div>
+        </div>
+        <div class="tl-clock-pulse-dot"></div>
+      </div>
+
+      <div class="tl-view-toggle">
+        <button class="tl-toggle-btn" [class.active]="viewMode === 'weekly'" (click)="setWeeklyView()">Weekly View</button>
+        <button class="tl-toggle-btn" [class.active]="viewMode === 'daily'" (click)="setDailyView()">Daily View</button>
+      </div>
+    </div>
+
+    <div class="tl-filters-row">
+      <div class="tl-filter-group" *ngIf="!isTeacherRole">
+        <label class="tl-label">Select Teacher Slot</label>
+        <select class="tl-select" [(ngModel)]="filter.teacherId" (change)="loadTimetables()">
+          <option value="" disabled>Choose a faculty member</option>
+          <option *ngFor="let t of teachers" [value]="t.id">{{ t.label }}</option>
+        </select>
+      </div>
+
+      <div class="tl-filter-group" *ngIf="isTeacherRole">
+        <label class="tl-label">Allocated Class Identity</label>
+        <div class="tl-select" style="background: #f0fff4; color: #22543d; font-weight: 700; border-color: #9ae6b4; font-size: 13.5px;">
+          <span>🏫 Class: <strong>{{ allocatedClassName || 'Loading...' }}</strong></span>
+          <span style="color: #cbd5e0; margin: 0 6px;">|</span>
+          <span>Section: <strong>{{ allocatedSectionName || '...' }}</strong></span>
+        </div>
+      </div>
+
+      <div class="tl-filter-group" *ngIf="sessions.length > 0">
+        <label class="tl-label">Academic Session</label>
+        <select class="tl-select" [(ngModel)]="filter.academicSessionId" (change)="executeRoleBasedDataFetch()">
+          <option *ngFor="let s of sessions" [value]="s.id">{{ s.label }}</option>
+        </select>
+      </div>
+
+      <button class="tl-btn-add" (click)="onAddTimetable()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Add Timetable Slot
+      </button>
+    </div>
+  </div>
+
+  <div class="tl-loading-card" *ngIf="isLoading">
+    <div class="tl-spinner"></div>
+    <span>Loading schedule matrix parameters from server...</span>
+  </div>
+
+  <div class="tl-matrix-wrapper" *ngIf="!isLoading && timetables.length > 0">
+    <table class="tl-table">
+      <thead>
+        <tr class="tl-th-row">
+          <th class="tl-axis-header">Days \ Periods</th>
+          <th *ngFor="let p of periodsList" class="tl-period-header">Period {{ p }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let day of filteredDays" class="tl-data-row">
+          <td class="tl-day-column">{{ day }}</td>
+          <td *ngFor="let periodNum of periodsList" class="tl-matrix-cell">
+            
+            <ng-container *ngIf="getSlotData(day, periodNum) as slot; else emptyCell">
+              <div class="tl-slot-card" [ngClass]="getSubjectClass(slot.subjectName)" (click)="onEditTimetable(slot)">
+                <div class="tl-slot-subject">
+                  <span class="tl-sub-emoji-badge">{{ getSubjectIcon(slot.subjectName) }}</span>
+                  <span class="sub-name">{{ slot.subjectName }}</span>
+                </div>
+                <div class="tl-slot-class-badge">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="ico-meta">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  <span class="c-badge-lbl">Class: <strong>{{ slot.className }}-{{ slot.sectionName }}</strong></span>
+                </div>
+                <div class="tl-slot-footer">
+                  <span class="time-lbl">⏱ {{ slot.startTime }} - {{ slot.endTime }}</span>
+                  <span class="room-lbl" *ngIf="slot.roomNo">📍 Room {{ slot.roomNo }}</span>
+                </div>
+                <div class="tl-hover-overlay"><span>Click to Edit Slot</span></div>
+              </div>
+            </ng-container>
+
+            <ng-template #emptyCell>
+              <div class="tl-empty-cell"><span class="tl-empty-dash">—</span></div>
+            </ng-template>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tl-empty-state" *ngIf="!isLoading && timetables.length === 0">
+    <div class="tl-empty-icon">✕</div>
+    <h3 class="tl-empty-title">No schedule slots found</h3>
+    <p class="tl-empty-sub">There are no active timetable period configuration rows found for this search window.</p>
+    <button class="tl-btn-add" style="margin-top: 10px;" (click)="onAddTimetable()">+ Add First Slot</button>
+  </div>
+
+</div>
