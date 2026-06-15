@@ -64,9 +64,9 @@ export class TeacherTimetableService {
       size: 200,
       sortBy: 'period',
       sortDirection: 'asc',
-      classId: classId,
-      sectionId: sectionId,
-      academicSessionId: sessionId,
+      // classId: classId,
+      // sectionId: sectionId,
+      // academicSessionId: sessionId,
       teacherId: teacherId // 🔥 FIX: Passed teacherId inside payload explicitly!
     };
     return this.http.post<PagedResponse<TimetableDto>>(`${this.classTimetableBase}/list`, payload);
