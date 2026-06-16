@@ -188,14 +188,18 @@ export class TeacherTimetableListComponent implements OnInit, OnDestroy {
   }
 
   onAddTimetable(): void {
-    this.router.navigate(['/teacher-timetable/add']);
-  }
+  // Guard Layer Constraint Checks
+  if (this.isTeacherRole) return; 
+  this.router.navigate(['/teacher-timetable/add']);
+}
 
   onEditTimetable(item: TimetableDto): void {
-    this.router.navigate(['/teacher-timetable', item.id, 'edit'], {
-      state: { timetable: item }
-    });
-  }
+  // Guard Layer Constraint Checks
+  if (this.isTeacherRole) return; 
+  this.router.navigate(['/teacher-timetable', item.id, 'edit'], {
+    state: { timetable: item }
+  });
+}
 
   getSubjectClass(subjectName: string | undefined): string {
     if (!subjectName) return 'sub-default';

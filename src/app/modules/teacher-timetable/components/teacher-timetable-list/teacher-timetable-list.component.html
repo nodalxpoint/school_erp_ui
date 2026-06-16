@@ -51,7 +51,7 @@
         </select>
       </div>
 
-      <button class="tl-btn-add" (click)="onAddTimetable()">
+      <button class="tl-btn-add" *ngIf="!isTeacherRole" (click)="onAddTimetable()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
@@ -79,7 +79,11 @@
           <td *ngFor="let periodNum of periodsList" class="tl-matrix-cell">
             
             <ng-container *ngIf="getSlotData(day, periodNum) as slot; else emptyCell">
-              <div class="tl-slot-card" [ngClass]="getSubjectClass(slot.subjectName)" (click)="onEditTimetable(slot)">
+              <div class="tl-slot-card" 
+                   [ngClass]="getSubjectClass(slot.subjectName)" 
+                   [style.pointer-events]="isTeacherRole ? 'none' : 'auto'"
+                   [style.cursor]="isTeacherRole ? 'default' : 'pointer'"
+                   (click)="onEditTimetable(slot)">
                 <div class="tl-slot-subject">
                   <span class="tl-sub-emoji-badge">{{ getSubjectIcon(slot.subjectName) }}</span>
                   <span class="sub-name">{{ slot.subjectName }}</span>
@@ -94,7 +98,7 @@
                   <span class="time-lbl">⏱ {{ slot.startTime }} - {{ slot.endTime }}</span>
                   <span class="room-lbl" *ngIf="slot.roomNo">📍 Room {{ slot.roomNo }}</span>
                 </div>
-                <div class="tl-hover-overlay"><span>Click to Edit Slot</span></div>
+                <div class="tl-hover-overlay" *ngIf="!isTeacherRole"><span>Click to Edit Slot</span></div>
               </div>
             </ng-container>
 
@@ -112,7 +116,7 @@
     <div class="tl-empty-icon">✕</div>
     <h3 class="tl-empty-title">No schedule slots found</h3>
     <p class="tl-empty-sub">There are no active timetable period configuration rows found for this search window.</p>
-    <button class="tl-btn-add" style="margin-top: 10px;" (click)="onAddTimetable()">+ Add First Slot</button>
+    <button class="tl-btn-add" *ngIf="!isTeacherRole" style="margin-top: 10px;" (click)="onAddTimetable()">+ Add First Slot</button>
   </div>
 
 </div>
