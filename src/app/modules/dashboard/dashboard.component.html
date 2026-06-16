@@ -1,42 +1,34 @@
-<!-- dashboard.component.html -->
-<div class="dashboard animate-fade-in">
+<div class="db-master-container">
 
-  <!-- Header -->
-  <div class="dashboard__header">
-    <div>
-    <h2 class="dashboard__title">
-  {{ greeting }}, {{ firstName }} 👋
-</h2>
-      <p class="dashboard__date">
-        {{ today | date:'EEEE, d MMMM yyyy' }} &nbsp;·&nbsp;
-        <span class="dashboard__role-badge dashboard__role-badge--{{ user?.role }}">{{ user?.role | titlecase }}</span>
+  <div class="db-hero-header-card">
+    <div class="db-header-left">
+      <div class="db-eyebrow-badge">School ERP · Live Synchronization Active</div>
+      <h2 class="db-welcome-title">{{ greeting }}, {{ firstName }} 👋</h2>
+      <p class="db-subtitle-meta">
+        Secure token verified entry session logged into core parameters architecture.
       </p>
     </div>
-    <div class="dashboard__header-actions">
-      <button class="btn btn--outline btn--sm">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+
+    <div class="db-live-clock-badge-wrap">
+      <div class="db-clock-left">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="db-clock-ico">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
         </svg>
-        Export
-      </button>
-      <button *ngIf="isAdmin" class="btn btn--primary btn--sm" routerLink="/students/new">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Add Student
-      </button>
+        <div class="db-clock-text">
+          <span class="db-clock-val">{{ currentClockTimeStr }}</span>
+          <span class="db-day-val">Roster Day: <strong>{{ currentDayLabelStr }}</strong></span>
+        </div>
+      </div>
+      <div class="db-clock-pulse-dot"></div>
     </div>
   </div>
 
-  <!-- Stats grid -->
-  <div class="stat-grid">
-    <div *ngFor="let s of stats; let i = index" class="stat-card stat-card--{{ s.color }}"
-         [style.animation-delay]="(i * 0.06) + 's'">
-      <div class="stat-card__top">
-        <p class="stat-card__title">{{ s.title }}</p>
-        <div class="stat-card__icon-wrap stat-card__icon-wrap--{{ s.color }}">
-          <!-- Icon switcher -->
-          <svg class="stat-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <div class="db-stats-matrix-grid">
+    <div *ngFor="let s of stats; let i = index" class="db-stat-luxury-card card-accent-{{ s.color }}">
+      <div class="db-stat-card-top-row">
+        <p class="db-stat-label">{{ s.title }}</p>
+        <div class="db-stat-icon-wrapper theme-wrap-{{ s.color }}">
+          <svg class="db-vector-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <ng-container [ngSwitch]="s.icon">
               <ng-container *ngSwitchCase="'graduation-cap'">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
@@ -72,34 +64,24 @@
           </svg>
         </div>
       </div>
-      <p class="stat-card__value">{{ s.value }}</p>
-      <div class="stat-card__change">
-        <svg *ngIf="s.changeType === 'up'" class="stat-card__change-icon stat-card__change-icon--up" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-          <polyline points="18 15 12 9 6 15"/>
-        </svg>
-        <svg *ngIf="s.changeType === 'down'" class="stat-card__change-icon stat-card__change-icon--down" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-          <polyline points="6 9 12 15 18 9"/>
-        </svg>
-        <span class="stat-card__change-text"
-          [class.stat-card__change-text--up]="s.changeType === 'up'"
-          [class.stat-card__change-text--down]="s.changeType === 'down'">
-          {{ s.change }}
+      <h3 class="db-stat-value-digits">{{ s.value }}</h3>
+      <div class="db-stat-trend-footer">
+        <span class="trend-badge-indicator trend-{{ s.changeType }}">
+          {{ s.changeType === 'up' ? '▲' : s.changeType === 'down' ? '▼' : '●' }} {{ s.change }}
         </span>
       </div>
     </div>
   </div>
 
-  <!-- Quick Actions -->
-  <div class="section">
-    <h3 class="section__title">Quick Actions</h3>
-    <div class="quick-actions">
-      <a *ngFor="let qa of quickActions" [routerLink]="qa.route" class="quick-action quick-action--{{ qa.color }}">
-        <div class="quick-action__icon-wrap">
-          <svg class="quick-action__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <div class="db-module-section">
+    <h3 class="db-section-header-title">System Shortcut Operational Launchpad</h3>
+    <div class="db-quick-tiles-layout-grid">
+      <a *ngFor="let qa of quickActions" [routerLink]="qa.route" class="db-launch-tile tile-theme-{{ qa.color }}">
+        <div class="db-tile-graphic-circle">
+          <svg class="db-tile-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <ng-container [ngSwitch]="qa.icon">
               <ng-container *ngSwitchCase="'user-plus'">
-                <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-                <circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+                <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
               </ng-container>
               <ng-container *ngSwitchCase="'credit-card'">
                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
@@ -126,104 +108,103 @@
                 <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
               </ng-container>
               <ng-container *ngSwitchCase="'bell'">
-                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 01-3.46 0"/>
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
               </ng-container>
             </ng-container>
           </svg>
         </div>
-        <span class="quick-action__label">{{ qa.label }}</span>
+        <span class="db-tile-label-text">{{ qa.label }}</span>
       </a>
     </div>
   </div>
 
-  <!-- Bottom grid: charts + activity -->
-  <div class="bottom-grid">
+  <div class="db-infographics-twin-row">
 
-    <!-- Admin: Attendance chart -->
-    <div *ngIf="isAdmin" class="card">
-      <div class="card__header">
-        <h3 class="card__title">Weekly Attendance</h3>
-        <span class="badge badge--blue">This Week</span>
+    <div *ngIf="isAdmin" class="db-editorial-chart-card">
+      <div class="db-card-header-block">
+        <h4 class="db-card-inside-title">Weekly Institutional Attendance</h4>
+        <span class="db-card-top-pill-badge luxury-blue-pill">Realtime Census</span>
       </div>
-      <div class="attendance-chart">
-        <div *ngFor="let d of weekAttendance" class="attendance-chart__col">
-          <span class="attendance-chart__pct">{{ d.pct }}%</span>
-          <div class="attendance-chart__bar-wrap">
-            <div class="attendance-chart__bar"
+      
+      <div class="db-attendance-histogram-chart-area">
+        <div *ngFor="let d of weekAttendance" class="db-histogram-column-pillar">
+          <span class="db-pillar-pct-floating-lbl">{{ d.pct }}%</span>
+          <div class="db-pillar-bar-fluid-container">
+            <div class="db-pillar-active-fluid-bar"
                  [style.height.%]="d.pct"
-                 [class.attendance-chart__bar--low]="d.pct < 85">
+                 [class.db-pillar-fluid-bar-warning-alert]="d.pct < 85">
             </div>
           </div>
-          <span class="attendance-chart__day">{{ d.day }}</span>
+          <span class="db-pillar-bottom-day-lbl">{{ d.day }}</span>
         </div>
       </div>
     </div>
 
-    <!-- Admin: Fee breakdown -->
-    <div *ngIf="isAdmin" class="card">
-      <div class="card__header">
-        <h3 class="card__title">Fee Collection</h3>
-        <span class="badge badge--green">October 2025</span>
+    <div *ngIf="isAdmin" class="db-editorial-chart-card">
+      <div class="db-card-header-block">
+        <h4 class="db-card-inside-title">Financial Invoices Ledger Ratios</h4>
+        <span class="db-card-top-pill-badge luxury-green-pill">Active Fiscal Quarter</span>
       </div>
-      <div class="fee-breakdown">
-        <div class="fee-breakdown__total">
-          <p class="fee-breakdown__total-label">Total Expected</p>
-          <p class="fee-breakdown__total-value">₹9.12L</p>
+      
+      <div class="db-fee-breakdown-panel-rails">
+        <div class="db-fee-total-volume-banner-box">
+          <p class="db-fee-banner-lbl">Aggregated Revenue Target Expected</p>
+          <p class="db-fee-banner-digits">₹9.12 Lakhs</p>
         </div>
-        <div class="fee-breakdown__list">
-          <div *ngFor="let f of feeBreakdown" class="fee-breakdown__item">
-            <div class="fee-breakdown__item-info">
-              <span class="fee-dot fee-dot--{{ f.color }}"></span>
-              <span class="fee-breakdown__item-label">{{ f.label }}</span>
+        
+        <div class="db-fee-rail-items-stack-loop">
+          <div *ngFor="let f of feeBreakdown" class="db-fee-rail-row-item">
+            <div class="db-fee-rail-left-meta-labels">
+              <span class="db-fee-bullet-dot theme-dot-{{ f.color }}"></span>
+              <span class="db-fee-rail-lbl-text">{{ f.label }}</span>
             </div>
-            <div class="fee-breakdown__bar-wrap">
-              <div class="fee-breakdown__bar fee-breakdown__bar--{{ f.color }}" [style.width.%]="f.pct"></div>
+            <div class="db-fee-rail-percentage-track-bar-rail">
+              <div class="db-fee-rail-active-fill-bar-fluid fill-theme-{{ f.color }}" [style.width.%]="f.pct"></div>
             </div>
-            <span class="fee-breakdown__item-val">{{ formatCurrency(f.value) }}</span>
+            <span class="db-fee-rail-right-value-digits">{{ formatCurrency(f.value) }}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Teacher: today's schedule (dummy) -->
-    <div *ngIf="isTeacher" class="card">
-      <div class="card__header">
-        <h3 class="card__title">Today's Schedule</h3>
-        <span class="badge badge--purple">{{ today | date:'EEE, d MMM' }}</span>
+    <div *ngIf="isTeacher" class="db-editorial-chart-card">
+      <div class="db-card-header-block">
+        <h4 class="db-card-inside-title">Today's Class Schedule Flow</h4>
+        <span class="db-card-top-pill-badge luxury-purple-pill">Roster Sheets Active</span>
       </div>
-      <div class="schedule-list">
+      
+      <div class="db-schedule-tabular-rows-container">
         <div *ngFor="let cls of [
-          {time:'8:00', subject:'Mathematics', class:'10-A', status:'done'},
-          {time:'9:30', subject:'Mathematics', class:'9-B',  status:'done'},
-          {time:'11:00',subject:'Mathematics', class:'11-C', status:'active'},
-          {time:'1:00', subject:'Mathematics', class:'12-A', status:'upcoming'},
-          {time:'2:30', subject:'Mathematics', class:'10-B', status:'upcoming'}
-        ]" class="schedule-item schedule-item--{{ cls.status }}">
-          <span class="schedule-item__time">{{ cls.time }}</span>
-          <div class="schedule-item__info">
-            <p class="schedule-item__subject">{{ cls.subject }}</p>
-            <p class="schedule-item__class">Class {{ cls.class }}</p>
+          {time:'08:00 AM', subject:'Mathematics Core', class:'10-A Standard', status:'done'},
+          {time:'09:30 AM', subject:'Applied Calculus',  class:'9-B Advanced',  status:'done'},
+          {time:'11:00 AM', subject:'Geometry Theory',   class:'11-C General',  status:'active'},
+          {time:'01:00 PM', subject:'Linear Algebra',    class:'12-A Higher',   status:'upcoming'},
+          {time:'02:30 PM', subject:'Trigonometry Lab',  class:'10-B Standard', status:'upcoming'}
+        ]" class="db-schedule-table-row item-status-class-{{ cls.status }}">
+          <span class="db-schedule-cell-time-lbl">{{ cls.time }}</span>
+          <div class="db-schedule-cell-core-info">
+            <p class="db-schedule-cell-subject-title">{{ cls.subject }}</p>
+            <p class="db-schedule-cell-class-standard-lbl">Room Allocation: {{ cls.class }}</p>
           </div>
-          <span class="schedule-badge schedule-badge--{{ cls.status }}">
-            {{ cls.status === 'done' ? 'Done' : cls.status === 'active' ? 'Now' : 'Upcoming' }}
+          <span class="db-schedule-status-badge badge-state-{{ cls.status }}">
+            {{ cls.status === 'done' ? 'Completed' : cls.status === 'active' ? 'Active Now' : 'Upcoming' }}
           </span>
         </div>
       </div>
     </div>
 
-    <!-- Recent Activity -->
-    <div class="card" [class.card--full]="!isAdmin && !isTeacher">
-      <div class="card__header">
-        <h3 class="card__title">Recent Activity</h3>
-        <button class="card__link">View all</button>
+    <div class="db-editorial-chart-card" [class.db-full-width-card-override]="!isAdmin && !isTeacher">
+      <div class="db-card-header-block">
+        <h4 class="db-card-inside-title">Recent Institutional Operational Streams Log</h4>
+        <button class="db-card-header-view-all-link-btn">Audit Records</button>
       </div>
-      <div class="activity-list">
-        <div *ngFor="let item of recentActivity" class="activity-item">
-          <div class="activity-item__dot activity-item__dot--{{ item.type }}"></div>
-          <div class="activity-item__body">
-            <p class="activity-item__msg">{{ item.message }}</p>
-            <p class="activity-item__time">{{ item.time }}</p>
+      
+      <div class="db-activity-streams-vertical-timeline">
+        <div *ngFor="let item of recentActivity" class="db-stream-timeline-row-item">
+          <div class="db-stream-timeline-left-node-dot dot-type-color-{{ item.type }}"></div>
+          <div class="db-stream-timeline-right-content-card">
+            <p class="db-stream-timeline-message-text">{{ item.message }}</p>
+            <p class="db-stream-timeline-timestamp-lbl">🕒 System Clock Trace: {{ item.time }}</p>
           </div>
         </div>
       </div>

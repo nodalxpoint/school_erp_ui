@@ -35,14 +35,14 @@
         </select>
       </div>
 
-      <div class="tl-filter-group" *ngIf="isTeacherRole">
+      <!-- <div class="tl-filter-group" *ngIf="isTeacherRole">
         <label class="tl-label">Allocated Class Identity</label>
         <div class="tl-select" style="background: #f0fff4; color: #22543d; font-weight: 700; border-color: #9ae6b4; font-size: 13.5px;">
           <span>🏫 Class: <strong>{{ allocatedClassName || 'Loading...' }}</strong></span>
           <span style="color: #cbd5e0; margin: 0 6px;">|</span>
           <span>Section: <strong>{{ allocatedSectionName || '...' }}</strong></span>
         </div>
-      </div>
+      </div> -->
 
       <div class="tl-filter-group" *ngIf="sessions.length > 0">
         <label class="tl-label">Academic Session</label>

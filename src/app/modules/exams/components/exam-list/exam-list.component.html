@@ -1,0 +1,96 @@
+<div class="ex-page-wrapper">
+
+  <div class="ex-header-card">
+    <div class="ex-header-top">
+      <div class="ex-title-block">
+        <div class="ex-eyebrow">School ERP · Assessment Module</div>
+        <h1 class="ex-title">Examination Registry</h1>
+      </div>
+
+      <div class="ex-live-clock-badge-wrap">
+        <div class="ex-clock-left">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <div class="ex-clock-text">
+            <span class="ex-clock-val">{{ currentDateTimeStr }}</span>
+            <span class="ex-day-val">Today: <strong>{{ currentDayName }}</strong></span>
+          </div>
+        </div>
+        <div class="ex-clock-pulse-dot"></div>
+      </div>
+    </div>
+
+    <div class="ex-filters-row">
+      <div class="ex-filter-group">
+        <label class="ex-label">Search Exam Name</label>
+        <input type="text" class="ex-input" placeholder="e.g. Mid Term" [(ngModel)]="filter.examName" (input)="loadExams()" />
+      </div>
+
+      <div class="ex-filter-group" *ngIf="sessions.length > 0">
+        <label class="ex-label">Academic Session</label>
+        <select class="ex-select" [(ngModel)]="filter.academicSessionId" (change)="loadExams()">
+          <option *ngFor="let s of sessions" [value]="s.id">{{ s.label }}</option>
+        </select>
+      </div>
+
+      <button class="ex-btn-add" *ngIf="isAdmin" (click)="onAddExam()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Create New Exam
+      </button>
+    </div>
+  </div>
+
+  <div class="ex-loading-card" *ngIf="isLoading">
+    <div class="ex-spinner"></div>
+    <span>Syncing comprehensive examination sheets from active database...</span>
+  </div>
+
+  <div class="ex-grid-layout" *ngIf="!isLoading && exams.length > 0">
+    <div class="ex-item-card" 
+         *ngFor="let ex of exams" 
+         [style.pointer-events]="isAdmin ? 'auto' : 'none'"
+         [style.cursor]="isAdmin ? 'pointer' : 'default'"
+         (click)="onEditExam(ex)">
+      
+      <div class="ex-card-top">
+        <div class="ex-icon-wrap">📝</div>
+        
+        <ng-container [ngSwitch]="getExamStatus(ex.startDate, ex.endDate)">
+          <span *ngSwitchCase="'UPCOMING'" class="ex-status-badge status-upcoming">Upcoming</span>
+          <span *ngSwitchCase="'ACTIVE'" class="ex-status-badge status-active">In Progress</span>
+          <span *ngSwitchCase="'COMPLETED'" class="ex-status-badge status-completed">Completed</span>
+        </ng-container>
+      </div>
+
+      <div class="ex-card-body">
+        <h3 class="ex-item-title">{{ ex.examName }}</h3>
+        <p class="ex-item-session">Session Active Frame</p>
+      </div>
+
+      <div class="ex-card-footer">
+        <div class="ex-date-node">
+          <span class="ex-date-lbl">START CALENDAR</span>
+          <span class="ex-date-val">📅 {{ ex.startDate | date:'mediumDate' }}</span>
+        </div>
+        <div class="ex-date-sep">➔</div>
+        <div class="ex-date-node">
+          <span class="ex-date-lbl">END CALENDAR</span>
+          <span class="ex-date-val">📅 {{ ex.endDate | date:'mediumDate' }}</span>
+        </div>
+      </div>
+
+      <div class="ex-card-overlay" *ngIf="isAdmin"><span>Click to Edit Parameters</span></div>
+    </div>
+  </div>
+
+  <div class="ex-empty-state" *ngIf="!isLoading && exams.length === 0">
+    <div class="ex-empty-icon">📂</div>
+    <h3 class="ex-empty-title">No examinations configured</h3>
+    <p class="ex-empty-sub">There are no active exam records mapped inside this academic search criteria.</p>
+    <button class="ex-btn-add" *ngIf="isAdmin" style="margin-top: 10px;" (click)="onAddExam()">+ Register First Term</button>
+  </div>
+
+</div>

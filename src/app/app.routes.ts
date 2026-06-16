@@ -85,16 +85,13 @@ export const routes: Routes = [
   loadChildren: () =>
     import('./modules/teacher-timetable/teacher-timetable.routes').then(m => m.TEACHER_TIMETABLE_ROUTES)
 },
-      // {
-      //   path: 'reports',
-      //   loadChildren: () =>
-      //     import('./modules/reports/reports.routes').then(m => m.REPORTS_ROUTES)
-      // },
-      // {
-      //   path: 'settings',
-      //   loadComponent: () =>
-      //     import('./modules/settings/settings.component').then(m => m.SettingsComponent)
-      // },
+    // Is navigation routing configuration module block ko global paths system layout array me add kar lena
+
+{
+  path: 'exams',
+  loadChildren: () =>
+    import('./modules/exams/exams.routes').then(m => m.EXAMS_ROUTES)
+},
 
     ]
   },
