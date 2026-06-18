@@ -1,0 +1,262 @@
+:host {
+  --primary: #2b6cb0;
+  --primary-light: #ebf4ff;
+  --primary-hover: #2c5282;
+  --primary-border: #bee3f8;
+  --teal: #2c7a7b;
+  --teal-light: #e6fffa;
+  --teal-border: #81e6d9;
+  --border: #e2e8f0;
+  --border-dark: #cbd5e0;
+  --bg-white: #ffffff;
+  --bg-row-odd: #f8fafc;
+  --text-primary: #2d3748;
+  --text-muted: #718096;
+  --text-hint: #cbd5e0;
+}
+
+.form-page {
+  padding: 1.5rem 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 600px) {
+  .form-page {
+    padding: 1rem;
+  }
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.breadcrumb-link {
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 500;
+}
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-sep {
+  color: var(--border-dark);
+}
+
+.breadcrumb-current {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid var(--border-dark);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.btn-back:hover {
+  background: var(--bg-row-odd);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.form-title-row h1 {
+  margin: 0 0 0.2rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+.form-title-row p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.form-section {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.5rem;
+  background: var(--bg-row-odd);
+  border-bottom: 1px solid var(--border);
+}
+.section-header h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.section-header p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.section-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem 1.5rem;
+  padding: 1.5rem;
+}
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-group.full-width {
+  grid-column: 1/-1;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border-dark);
+  border-radius: 8px;
+  font-size: 13.5px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.form-control:focus {
+  border-color: var(--primary);
+}
+
+select.form-control.select-pilled {
+  cursor: pointer;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23718096' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  padding-right: 2.5rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid var(--border-dark);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+.btn-cancel:hover {
+  background: var(--bg-row-odd);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-submit {
+  padding: 10px 24px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.btn-submit:hover {
+  background: var(--primary-hover);
+}
+
+.form-group-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+.form-group-disabled .form-control {
+  background-color: var(--bg-row-odd) !important;
+  border-color: var(--border) !important;
+  color: var(--text-muted) !important;
+  pointer-events: none;
+}
+.form-group-disabled .form-control.select-pilled {
+  background-image: none !important;
+  padding-right: 14px !important;
+}
+
+.form-page {
+  max-width: 900px;
+  margin: 20px auto;
+}
+
+.form-group-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+.form-group-disabled .form-control {
+  pointer-events: none;
+  background-color: #f8fafc;
+}/*# sourceMappingURL=exam-schedule-form.component.css.map */

@@ -1,0 +1,123 @@
+<div class="ex-page-wrapper">
+
+  <div class="ex-header-card">
+    <div class="ex-header-top">
+      <div class="ex-title-block">
+        <div class="ex-eyebrow">School ERP · Assessment Matrix</div>
+        <h1 class="ex-title">Exam Timetable Matrix</h1>
+      </div>
+
+      <div class="ex-live-clock-badge-wrap">
+        <div class="ex-clock-left">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <div class="ex-clock-text">
+            <span class="ex-clock-val">{{ currentDateTimeStr }}</span>
+            <span class="ex-day-val">Today: <strong>{{ currentDayName }}</strong></span>
+          </div>
+        </div>
+        <div class="ex-clock-pulse-dot"></div>
+      </div>
+    </div>
+
+    <div class="ex-filters-row" style="align-items: flex-end; display: flex; gap: 14px; flex-wrap: wrap;">
+      
+      <div class="ex-filter-group" style="flex: 1; min-width: 180px;">
+        <label class="ex-label">Academic Session</label>
+        <select class="ex-select" [(ngModel)]="filterModel.academicSessionId" (change)="loadExamTermsDropdown(false)">
+          <option *ngFor="let s of sessions" [value]="s.id">{{ s.label }}</option>
+        </select>
+      </div>
+
+      <div class="ex-filter-group" style="flex: 1; min-width: 180px;">
+        <label class="ex-label">Select Exam Term</label>
+        <select class="ex-select" [(ngModel)]="filterModel.examId" [disabled]="examTerms.length === 0">
+          <option value="" disabled>-- No Exams Found --</option>
+          <option *ngFor="let e of examTerms" [value]="e.id">{{ e.label }}</option>
+        </select>
+      </div>
+
+      <div class="ex-filter-group" style="flex: 1; min-width: 180px;">
+        <label class="ex-label">Class Standard</label>
+        <select class="ex-select" [(ngModel)]="filterModel.classId">
+          <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
+        </select>
+      </div>
+
+      <button class="ex-btn-add" 
+              style="background: #2b6cb0; border-color: #2b6cb0; padding: 11px 22px; display: inline-flex; align-items: center; gap: 6px;" 
+              [disabled]="!filterModel.examId"
+              (click)="onFetchSchedule()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Fetch Schedule
+      </button>
+
+      <button class="ex-btn-add" *ngIf="isAdmin" (click)="onAddSchedule()" [disabled]="!activeFilter.examId || !activeFilter.classId" style="background: #2F855A;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Map Subject Paper
+      </button>
+    </div>
+  </div>
+
+  <div class="ex-loading-card" *ngIf="isLoading">
+    <div class="ex-spinner"></div>
+    <span>Syncing comprehensive examination routine sheets from server...</span>
+  </div>
+
+  <div class="ex-table-matrix-wrapper" *ngIf="!isLoading && scheduledSubjects.length > 0 && hasSearched">
+    <table class="ex-routine-table">
+      <thead>
+        <tr>
+          <th>Exam Date & Day</th>
+          <th>Subject Details</th>
+          <th>Class Assigned</th>
+          <th>Maximum Marks</th>
+          <th>Passing Marks</th>
+          <th *ngIf="isAdmin" style="width: 100px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of scheduledSubjects" class="ex-routine-row">
+          <td class="ex-cell-date-node">
+            <span class="date-txt">📅 {{ item.examDate | date:'mediumDate' }}</span>
+            <span class="day-badge">{{ item.examDay || 'Scheduled' }}</span>
+          </td>
+          <td class="ex-cell-subject-node">
+            <span class="sub-name-lbl">📘 {{ item.subjectName }}</span>
+            <span class="sub-code-lbl">Code: {{ item.subjectCode || '—' }}</span>
+          </td>
+          <td class="ex-cell-normal">
+            <span class="class-tag">🏫 {{ item.className || 'Configured Class' }}</span>
+          </td>
+          <td class="ex-cell-marks max-marks-color">{{ item.maxMarks }} Marks</td>
+          <td class="ex-cell-marks passing-marks-color">{{ item.passingMarks }} Marks</td>
+          
+          <td *ngIf="isAdmin" class="ex-cell-action">
+            <button class="ex-row-edit-btn" (click)="onEditSchedule(item)">
+              ⚙️ Modify
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ex-empty-state" *ngIf="!isLoading && scheduledSubjects.length === 0 && hasSearched">
+    <div class="ex-empty-icon">📝</div>
+    <h3 class="ex-empty-title">No subject papers mapped</h3>
+    <p class="ex-empty-sub">There are no exam date sheets found for this current search criteria range.</p>
+    <button class="ex-btn-add" *ngIf="isAdmin && activeFilter.examId" style="margin-top: 12px;" (click)="onAddSchedule()">+ Allocate First Paper</button>
+  </div>
+
+  <div class="ex-empty-state" *ngIf="!isLoading && !hasSearched" style="background: #fafafb; border-style: dashed;">
+    <div class="ex-empty-icon" style="font-size: 28px;">🔍</div>
+    <h3 class="ex-empty-title">Ready to query routine database</h3>
+    <p class="ex-empty-sub">Adjust your academic variables criteria dropdown stack above and click "Fetch Schedule".</p>
+  </div>
+
+</div>

@@ -18,21 +18,19 @@ interface NavItem {
   roles: UserRole[] | 'all';
 }
 
-// ✅ FIXED SEQUENCE: Beautifully organized sequence array with global role visibility rules
 const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard',         href: '/dashboard',         icon: 'layout-dashboard', roles: 'all' },
   
-  // -- Academic Management --
+  // -- Academic Core Management --
   { label: 'Students',          href: '/students',          icon: 'graduation-cap',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
   { label: 'Teachers',          href: '/teachers',          icon: 'users',            roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
   { label: 'Subjects',          href: '/subjects',          icon: 'book-open',        roles: ['SUPER_ADMIN', 'ADMIN'] },
   
-  // -- Schedules & Assessments --
+  // -- Schedules & Operations Menu --
   { label: 'Class Timetable',   href: '/timetable',         icon: 'calendar-check',   roles: 'all' },
-  { label: 'Teacher Timetable', href: '/teacher-timetable', icon: 'calendar-check',   roles: 'all' }, 
-  { label: 'Exam Register',     href: '/exams',             icon: 'exam-sheet',       roles: 'all' }, // ✅ Unlocked globally for all roles (Admin, Teacher, Student)
+  { label: 'Exams Module',      href: '/exams',             icon: 'exam-sheet',       roles: 'all' }, // ✅ Turned into dropdown root trigger element
   
-  // -- School Core Operations --
+  // -- Operations Management --
   { label: 'Attendance',        href: '/attendance',        icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
   { label: 'Fees',              href: '/fees',              icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT', 'PARENT'] },
   { label: 'Reports',           href: '/reports',           icon: 'bar-chart-3',      roles: ['SUPER_ADMIN', 'ADMIN'] },
@@ -40,7 +38,8 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 const TEACHERS_ROUTES = ['/teachers', '/teacher-mapping', '/subjects/assign-teacher', '/teacher-timetable'];
-const SUBJECTS_ROUTES = ['/subjects/manage', '/subjects']; 
+const SUBJECTS_ROUTES = ['/subjects/manage', '/subjects'];
+const EXAMS_ROUTES    = ['/exams', '/exams/schedule']; // ✅ Track routing conditions
 
 @Component({
   selector: 'app-sidebar',
@@ -55,8 +54,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
   sidebarCollapsed = false;
   currentPath = '';
   currentRole: UserRole | null = null;
+  
+  // Dropdowns structural open states flags
   teachersDropdownOpen = false;
   subjectsDropdownOpen = false;
+  examsDropdownOpen = false; // ✅ Added tracking flag for exams dropdown
+  
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -68,44 +71,30 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.uiState.sidebarOpen$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(v => {
-        this.sidebarOpen = v;
-        this.cdr.markForCheck();
-      });
+    this.uiState.sidebarOpen$.pipe(takeUntil(this.destroy$)).subscribe(v => { this.sidebarOpen = v; this.cdr.markForCheck(); });
+    this.uiState.sidebarCollapsed$.pipe(takeUntil(this.destroy$)).subscribe(v => {
+      this.sidebarCollapsed = v;
+      if (v) {
+        this.teachersDropdownOpen = false;
+        this.subjectsDropdownOpen = false;
+        this.examsDropdownOpen = false;
+      }
+      this.cdr.markForCheck();
+    });
 
-    this.uiState.sidebarCollapsed$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(v => {
-        this.sidebarCollapsed = v;
-        if (v) {
-          this.teachersDropdownOpen = false;
-          this.subjectsDropdownOpen = false;
-        }
-        this.cdr.markForCheck();
-      });
-
-    this.authState.user$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(user => {
-        this.currentRole = (user?.role as UserRole) ?? null;
-        this.cdr.markForCheck();
-      });
+    this.authState.user$.pipe(takeUntil(this.destroy$)).subscribe(user => {
+      this.currentRole = (user?.role as UserRole) ?? null;
+      this.cdr.markForCheck();
+    });
 
     this.currentPath = this.router.url;
     this._autoOpenDropdown(this.currentPath);
 
-    this.router.events
-      .pipe(
-        filter(e => e instanceof NavigationEnd),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((e: any) => {
-        this.currentPath = e.urlAfterRedirects;
-        this._autoOpenDropdown(this.currentPath);
-        this.cdr.markForCheck();
-      });
+    this.router.events.pipe(filter(e => e instanceof NavigationEnd), takeUntil(this.destroy$)).subscribe((e: any) => {
+      this.currentPath = e.urlAfterRedirects;
+      this._autoOpenDropdown(this.currentPath);
+      this.cdr.markForCheck();
+    });
   }
 
   ngOnDestroy(): void {
@@ -114,62 +103,45 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   private _autoOpenDropdown(path: string): void {
-    if (TEACHERS_ROUTES.some(r => path.startsWith(r))) {
-      this.teachersDropdownOpen = true;
-    }
-    if (SUBJECTS_ROUTES.some(r => path.startsWith(r)) && !path.includes('assign-teacher')) {
-      this.subjectsDropdownOpen = true;
-    }
+    if (TEACHERS_ROUTES.some(r => path.startsWith(r))) this.teachersDropdownOpen = true;
+    if (SUBJECTS_ROUTES.some(r => path.startsWith(r)) && !path.includes('assign-teacher')) this.subjectsDropdownOpen = true;
+    if (EXAMS_ROUTES.some(r => path.startsWith(r))) this.examsDropdownOpen = true; // ✅ Auto-opens when matching route is active
   }
 
   get filteredNavItems(): NavItem[] {
     const role = this.currentRole;
     return NAV_ITEMS.filter(item =>
-      item.href !== '/teacher-timetable' && (item.roles === 'all' || (role && (item.roles as UserRole[]).includes(role)))
+      (item.roles === 'all' || (role && (item.roles as UserRole[]).includes(role)))
     );
   }
 
-  isActive(href: string): boolean {
-    return this.currentPath === href || this.currentPath.startsWith(href + '/');
-  }
-
-  isExactActive(href: string): boolean {
-    return this.currentPath === href;
-  }
-
-  isTeachersActive(): boolean {
-    return TEACHERS_ROUTES.some(r => this.currentPath.startsWith(r));
-  }
-
-  isSubjectsActive(): boolean {
-    return SUBJECTS_ROUTES.some(r => this.currentPath.startsWith(r)) && !this.currentPath.includes('assign-teacher');
-  }
+  isActive(href: string): boolean { return this.currentPath === href || this.currentPath.startsWith(href + '/'); }
+  isExactActive(href: string): boolean { return this.currentPath === href; }
+  isTeachersActive(): boolean { return TEACHERS_ROUTES.some(r => this.currentPath.startsWith(r)); }
+  isSubjectsActive(): boolean { return SUBJECTS_ROUTES.some(r => this.currentPath.startsWith(r)) && !this.currentPath.includes('assign-teacher'); }
+  isExamsActive(): boolean { return EXAMS_ROUTES.some(r => this.currentPath.startsWith(r)); } // ✅ Active toggle check
 
   toggleTeachersDropdown(): void {
     this.teachersDropdownOpen = !this.teachersDropdownOpen;
-    if (this.teachersDropdownOpen) this.subjectsDropdownOpen = false;
+    if (this.teachersDropdownOpen) { this.subjectsDropdownOpen = false; this.examsDropdownOpen = false; }
     this.cdr.markForCheck();
   }
 
   toggleSubjectsDropdown(): void {
     this.subjectsDropdownOpen = !this.subjectsDropdownOpen;
-    if (this.subjectsDropdownOpen) this.teachersDropdownOpen = false;
+    if (this.subjectsDropdownOpen) { this.teachersDropdownOpen = false; this.examsDropdownOpen = false; }
     this.cdr.markForCheck();
   }
 
-  getInitials(name: string): string {
-    return getInitials(name);
+  // ✅ New toggle handler for Exams dropdown
+  toggleExamsDropdown(): void {
+    this.examsDropdownOpen = !this.examsDropdownOpen;
+    if (this.examsDropdownOpen) { this.teachersDropdownOpen = false; this.subjectsDropdownOpen = false; }
+    this.cdr.markForCheck();
   }
 
-  logout(): void {
-    this.authService.logout();
-  }
-
-  closeSidebar(): void {
-    this.uiState.setSidebarOpen(false);
-  }
-
-  toggleCollapsed(): void {
-    this.uiState.toggleCollapsed();
-  }
+  getInitials(name: string): string { return getInitials(name); }
+  logout(): void { this.authService.logout(); }
+  closeSidebar(): void { this.uiState.setSidebarOpen(false); }
+  toggleCollapsed(): void { this.uiState.toggleCollapsed(); }
 }
