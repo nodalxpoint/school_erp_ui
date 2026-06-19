@@ -14,10 +14,12 @@ export interface ExamSubjectDto {
 
 export interface BackendExamDto {
   examId: string;
+  id?: string;
   academicSessionId: string;
   examName: string;
   startDate: string;
   endDate: string;
   createdAt?: string;
-  subjects?: ExamSubjectDto[]; // ✅ FIXED: Changed from examSubjects to subjects to perfectly match your response JSON
+  examSubjects?: ExamSubjectDto[];
+  subjects?: ExamSubjectDto[]; // Support both examSubjects and subjects fields
 }

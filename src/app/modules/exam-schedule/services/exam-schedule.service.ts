@@ -29,7 +29,20 @@ export class ExamScheduleService {
 
   // ── 📅 Fetch Schedule Items Loop from Main Exam List Endpoints ──────────
   getExamsWithSubjects(payload: any): Observable<PagedResponse<BackendExamDto>> {
-    return this.http.post<PagedResponse<BackendExamDto>>(`${this.base}/list`, payload);
+    return this.http.post<PagedResponse<BackendExamDto>>(`${this.base}/list`, payload).pipe(
+      map(res => {
+        if (res.data) {
+          res.data = res.data.map(exam => ({
+            ...exam,
+            id: exam.id || exam.examId,
+            examId: exam.examId || exam.id || '',
+            subjects: exam.examSubjects || exam.subjects,
+            examSubjects: exam.examSubjects || exam.subjects
+          }));
+        }
+        return res;
+      })
+    );
   }
 
   // ── 🔄 Commit Subject mapping matrix setup ───────────────────────────────

@@ -17,7 +17,18 @@ export class ExamService {
 
   // ── Exam List API Call ───────────────────────────────────────────────────
   getExamsList(request: ExamFilterRequest): Observable<PagedResponse<ExamDto>> {
-    return this.http.post<PagedResponse<ExamDto>>(`${this.base}/list`, request);
+    return this.http.post<PagedResponse<ExamDto>>(`${this.base}/list`, request).pipe(
+      map(res => {
+        if (res.data) {
+          res.data = res.data.map(exam => ({
+            ...exam,
+            id: exam.id || exam.examId,
+            examId: exam.examId || exam.id
+          }));
+        }
+        return res;
+      })
+    );
   }
 
   // ── Exam Save / Update Dynamic Call ──────────────────────────────────────
