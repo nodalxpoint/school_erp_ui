@@ -143,6 +143,8 @@ export class ExamScheduleListComponent implements OnInit, OnDestroy {
     });
   }
 
+ // src/app/modules/exam-schedule/components/exam-schedule-list/exam-schedule-list.component.ts me ye method replace karein
+
   onFetchSchedule(): void {
     if (!this.filterModel.academicSessionId || !this.filterModel.examId) return;
 
@@ -162,16 +164,26 @@ export class ExamScheduleListComponent implements OnInit, OnDestroy {
 
     this.scheduleService.getExamsWithSubjects(payload).subscribe({
       next: (res) => {
-        const matchedExam = res.data?.find(e => e.examId === this.activeFilter.examId);
+        // Response data check log debugging fallback
+        const responseData = res.data ?? [];
         
-        // ✅ FIXED MAP: Reading from '.subjects' property instead of '.examSubjects'
-        if (matchedExam && matchedExam.subjects) {
-          this.scheduledSubjects = matchedExam.subjects.filter((sub: ExamSubjectDto) => 
-            !this.activeFilter.classId || sub.classId === this.activeFilter.classId
-          );
+        if (responseData.length > 0) {
+          // ✅ FIX 1: Pehle matched exam terminal sheet array ko read karo
+          const currentExam = responseData.find(e => e.examId === this.activeFilter.examId) || responseData[0];
+          
+          if (currentExam && currentExam.subjects) {
+            // ✅ FIX 2: Strict class boundary mapping checking filter layer apply karo
+            this.scheduledSubjects = currentExam.subjects.filter((sub: ExamSubjectDto) => {
+              if (!this.activeFilter.classId) return true;
+              return sub.classId === this.activeFilter.classId;
+            });
+          } else {
+            this.scheduledSubjects = [];
+          }
         } else {
           this.scheduledSubjects = [];
         }
+
         this.isLoading = false;
         this.cdr.markForCheck();
       },
