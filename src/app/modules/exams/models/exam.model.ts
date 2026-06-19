@@ -1,5 +1,6 @@
 export interface ExamDto {
   id?: string;
+  examId?: string;
   academicSessionId: string;
   examName: string;
   startDate: string; // YYYY-MM-DD template standard

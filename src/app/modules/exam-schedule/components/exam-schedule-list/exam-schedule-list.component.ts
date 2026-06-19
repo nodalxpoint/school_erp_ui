@@ -164,9 +164,9 @@ export class ExamScheduleListComponent implements OnInit, OnDestroy {
       next: (res) => {
         const matchedExam = res.data?.find(e => e.examId === this.activeFilter.examId);
         
-        // ✅ FIXED MAP: Reading from '.subjects' property instead of '.examSubjects'
-        if (matchedExam && matchedExam.subjects) {
-          this.scheduledSubjects = matchedExam.subjects.filter((sub: ExamSubjectDto) => 
+        const subjects = matchedExam ? (matchedExam.examSubjects || matchedExam.subjects) : undefined;
+        if (matchedExam && subjects) {
+          this.scheduledSubjects = subjects.filter((sub: ExamSubjectDto) => 
             !this.activeFilter.classId || sub.classId === this.activeFilter.classId
           );
         } else {
