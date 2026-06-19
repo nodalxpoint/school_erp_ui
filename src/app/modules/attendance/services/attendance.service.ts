@@ -19,12 +19,13 @@ export interface ApiResponse<T> {
 })
 export class AttendanceService {
   private base = `${environment.apiUrl}/teacher`;
+  private attendanceBase = `${environment.apiUrl}/attendance`;
   private studentBase = `${environment.apiUrl}/students`; 
 
   constructor(private http: HttpClient) {}
 
   submitBulkAttendance(dto: BulkAttendanceRequestDto): Observable<ApiResponse<string>> {
-    return this.http.post<ApiResponse<string>>(`${this.base}/bulkAttendance`, dto);
+    return this.http.post<ApiResponse<string>>(`${this.attendanceBase}/bulkAttendance`, dto);
   }
 
   getMyClassDetails(): Observable<ApiResponse<TeacherClassResponseDto>> {
@@ -32,7 +33,7 @@ export class AttendanceService {
   }
 
   filterAttendanceRecords(request: AttendanceFilterRequest): Observable<PagedResponse<any>> {
-    return this.http.post<PagedResponse<any>>(`${this.base}/list`, request);
+    return this.http.post<PagedResponse<any>>(`${this.attendanceBase}/list`, request);
   }
 
   // ── Added this method to load dynamic student check sheets ──
