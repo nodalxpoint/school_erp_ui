@@ -57,6 +57,11 @@
               </a>
             </li>
             <li *ngIf="currentRole !== 'TEACHER'">
+              <a routerLink="/teachers/class-teacher" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/teachers/class-teacher') || isExactActive('/teachers/assign')" (click)="closeSidebar()">
+                <span class="sidebar__dropdown-dot"></span>Class Teachers
+              </a>
+            </li>
+            <li *ngIf="currentRole !== 'TEACHER'">
               <a routerLink="/subjects/assign-teacher" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/subjects/assign-teacher')" (click)="closeSidebar()">
                 <span class="sidebar__dropdown-dot"></span>Assign Subject Teacher
               </a>
