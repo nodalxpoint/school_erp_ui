@@ -1,3 +1,5 @@
+// src/app/modules/exam-schedule/components/exam-schedule-list/exam-schedule-list.component.ts
+
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -25,21 +27,21 @@ export class ExamScheduleListComponent implements OnInit, OnDestroy {
 
   isLoading = false;
   isAdmin = false;
-  hasSearched = false; // ✅ Track if the user clicked the fetch button at least once
+  hasSearched = false; // Tracks if the user clicked the fetch button at least once
 
   currentDateTimeStr = '';
   currentDayName = '';
   private timerIntervalId: any = null;
   private destroy$ = new Subject<void>();
 
-  // ✅ Local model bound to dropdown values (Doesn't trigger API immediately)
+  // Local model bound to dropdown values
   filterModel = {
     academicSessionId: '',
     examId: '',
     classId: ''
   };
 
-  // ✅ Active configuration used inside the final API post request mapping
+  // Active configuration used inside the final API post request mapping
   activeFilter = {
     academicSessionId: '',
     examId: '',
@@ -114,8 +116,6 @@ export class ExamScheduleListComponent implements OnInit, OnDestroy {
     });
   }
 
-// Is donon methods ko apne exam-schedule-list.component.ts me update kar lo safely
-
   loadExamTermsDropdown(isInitialLoad = false): void {
     if (!this.filterModel.academicSessionId) return;
 
@@ -143,8 +143,7 @@ export class ExamScheduleListComponent implements OnInit, OnDestroy {
     });
   }
 
- // src/app/modules/exam-schedule/components/exam-schedule-list/exam-schedule-list.component.ts me ye method replace karein
-
+  // 🔥 CORE FIX: Completely removed frontend client-side filtering logic
   onFetchSchedule(): void {
     if (!this.filterModel.academicSessionId || !this.filterModel.examId) return;
 
@@ -164,19 +163,15 @@ export class ExamScheduleListComponent implements OnInit, OnDestroy {
 
     this.scheduleService.getExamsWithSubjects(payload).subscribe({
       next: (res) => {
-        // Response data check log debugging fallback
         const responseData = res.data ?? [];
         
         if (responseData.length > 0) {
-          // ✅ FIX 1: Pehle matched exam terminal sheet array ko read karo
+          // Find the active matched exam record object
           const currentExam = responseData.find(e => e.examId === this.activeFilter.examId) || responseData[0];
           
-          if (currentExam && currentExam.subjects) {
-            // ✅ FIX 2: Strict class boundary mapping checking filter layer apply karo
-            this.scheduledSubjects = currentExam.subjects.filter((sub: ExamSubjectDto) => {
-              if (!this.activeFilter.classId) return true;
-              return sub.classId === this.activeFilter.classId;
-            });
+          // ✅ FIX: Directly map whatever list backend sends in response (Supports 'examSubjects' or service fallback 'subjects')
+          if (currentExam) {
+            this.scheduledSubjects = currentExam.examSubjects || (currentExam as any).subjects || [];
           } else {
             this.scheduledSubjects = [];
           }
