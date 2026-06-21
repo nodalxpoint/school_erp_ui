@@ -1,0 +1,90 @@
+<div class="me-form-page">
+
+  <div class="me-form-header">
+    <div class="me-breadcrumb">
+      <span class="me-breadcrumb-link" (click)="onGoBack()">Subject Allocations</span>
+      <span class="me-breadcrumb-sep">/</span>
+      <span class="me-breadcrumb-current">Student Marks Evaluation</span>
+    </div>
+    <button class="me-btn-back" (click)="onGoBack()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+      Cancel and Return
+    </button>
+  </div>
+
+  <div class="me-title-banner">
+    <div class="me-title-left">
+      <h1 class="me-main-title">{{ subjectName }} <span *ngIf="examName">— {{ examName }}</span></h1>
+      <p class="me-sub-title">Enter marks obtained against the total test score parameters neatly.</p>
+    </div>
+  </div>
+
+  <div class="me-loading-card" *ngIf="isLoading">
+    <div class="me-spinner"></div>
+    <span>Compiling student list for roster class entry configuration grids...</span>
+  </div>
+
+  <div class="me-table-section" *ngIf="!isLoading && studentRecords.length > 0">
+    <div class="me-table-scroll-wrapper">
+      <table class="me-matrix-table">
+        <thead>
+          <tr>
+            <th class="me-th-roll">Roll Number</th>
+            <th class="me-th-name">Student Full Name</th>
+            <th class="me-th-class">Class</th>
+            <th class="me-th-section">Section</th>
+            <th class="me-th-marks">Marks Obtained *</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of studentRecords" class="me-table-data-row">
+
+            <td class="me-cell-roll">
+              <span class="me-roll-hash">#</span>{{ record.rollNo }}
+            </td>
+
+            <td class="me-cell-name">
+              <span class="me-avatar-ico">👤</span>{{ record.studentName }}
+            </td>
+
+            <td class="me-cell-class">
+              🏫 {{ record.className || '-' }}
+            </td>
+
+            <td class="me-cell-section">
+              ✨ {{ record.sectionName || '-' }}
+            </td>
+
+            <td class="me-cell-marks-input">
+              <input type="number"
+                     min="0"
+                     class="me-control-input text-center font-bold"
+                     [(ngModel)]="record.marksObtained"
+                     placeholder="0" />
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="me-form-actions-panel">
+      <button type="button" class="me-btn-action-cancel" (click)="onGoBack()">Cancel</button>
+      <button type="button"
+              class="me-btn-action-submit"
+              [disabled]="isSaving"
+              (click)="onSubmitMarks()">
+        <svg *ngIf="!isSaving" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+        {{ isSaving ? 'Uploading marks ledger...' : 'Submit Examination Marks' }}
+      </button>
+    </div>
+  </div>
+
+</div>

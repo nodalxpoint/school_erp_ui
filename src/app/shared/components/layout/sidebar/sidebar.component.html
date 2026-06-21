@@ -7,7 +7,6 @@
        [class.sidebar--collapsed]="sidebarCollapsed"
        [class.sidebar--open]="sidebarOpen">
 
-  <!-- Logo Section Header -->
   <div class="sidebar__logo" [class.sidebar__logo--collapsed]="sidebarCollapsed">
     <div class="sidebar__logo-icon">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -33,7 +32,6 @@
     <ul class="sidebar__nav-list">
       <li *ngFor="let item of filteredNavItems">
 
-        <!-- 1. Teachers Dropdown Node Check -->
         <ng-container *ngIf="item.href === '/teachers'; else subjectsCheck">
           <div class="sidebar__nav-item sidebar__nav-item--dropdown"
                [class.sidebar__nav-item--active]="isTeachersActive()"
@@ -74,7 +72,6 @@
           </ul>
         </ng-container>
 
-        <!-- 2. Subjects Dropdown Node Check -->
         <ng-template #subjectsCheck>
           <ng-container *ngIf="item.href === '/subjects'; else examsCheck">
             <div class="sidebar__nav-item sidebar__nav-item--dropdown"
@@ -102,7 +99,6 @@
           </ng-container>
         </ng-template>
 
-        <!-- 🏢 3. NEW NESTED EXAMS DROPDOWN LIST ENGINE INTERFACE -->
         <ng-template #examsCheck>
           <ng-container *ngIf="item.href === '/exams'; else regularItem">
             <div class="sidebar__nav-item sidebar__nav-item--dropdown"
@@ -121,15 +117,14 @@
               </svg>
             </div>
 
-            <!-- Nested Sublinks: Exam Table & Exam Schedule Options -->
             <ul *ngIf="examsDropdownOpen && !sidebarCollapsed" class="sidebar__dropdown-list">
               <li>
                 <a routerLink="/exams" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/exams')" (click)="closeSidebar()">
-                  <span class="sidebar__dropdown-dot"></span>Exam Table / Register[cite: 12]
+                  <span class="sidebar__dropdown-dot"></span>Exam Table / Register
                 </a>
               </li>
               <li>
-                <a routerLink="/exam-schedule" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/exams/schedule')" (click)="closeSidebar()">
+                <a routerLink="/exam-schedule" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/exam-schedule')" (click)="closeSidebar()">
                   <span class="sidebar__dropdown-dot"></span>Exam Schedule
                 </a>
               </li>
@@ -137,7 +132,6 @@
           </ng-container>
         </ng-template>
 
-        <!-- Base Standard Fallback Items Row List Links Loop -->
         <ng-template #regularItem>
           <a [routerLink]="item.href"
              class="sidebar__nav-item"
@@ -155,6 +149,9 @@
                 </ng-container>
                 <ng-container *ngSwitchCase="'calendar-check'">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                </ng-container>
+                <ng-container *ngSwitchCase="'check-square'">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><polyline points="9 11 12 14 22 4"/>
                 </ng-container>
                 <ng-container *ngSwitchCase="'credit-card'">
                   <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
@@ -176,7 +173,6 @@
     </ul>
   </nav>
 
-  <!-- User Card Footer Panel -->
   <div class="sidebar__footer" [class.sidebar__footer--collapsed]="sidebarCollapsed">
     <ng-container *ngIf="authState.user$ | async as user">
       <div class="sidebar__user" [class.sidebar__user--collapsed]="sidebarCollapsed">

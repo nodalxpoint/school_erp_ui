@@ -1,0 +1,358 @@
+// Premium Color Design Tokens
+$primary:         #2b6cb0;
+$primary-hover:   #2c5282;
+$primary-light:   #ebf4ff;
+$border-color:    #e2e8f0;
+$border-dark:     #cbd5e0;
+$bg-white:        #ffffff;
+$text-primary:    #1a202c;
+$text-muted:      #718096;
+
+$success-green:   #22543d;
+$success-bg:      #f0fff4;
+$success-border:  #9ae6b4;
+
+.ms-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+// ── HEADER FILTER CARD ────────────────────────────────
+.ms-header-card {
+  background: $bg-white;
+  border: 1px solid $border-color;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+.ms-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ms-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ms-title {
+  margin: 2px 0 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: $text-primary;
+  letter-spacing: -0.02em;
+}
+
+// ── LIVE TICKER SYSTEM CLOCK ──────────────────────────
+.ms-live-clock-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 14px;
+  background: #f7fafc;
+  border: 1px solid $border-color;
+  border-radius: 10px;
+}
+
+.ms-clock-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $primary;
+}
+
+.ms-clock-text {
+  display: flex;
+  flex-direction: column;
+
+  .ms-clock-val {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: $text-primary;
+    font-family: monospace;
+  }
+
+  .ms-day-val {
+    font-size: 11px;
+    color: $text-muted;
+  }
+}
+
+.ms-clock-pulse-dot {
+  width: 7px;
+  height: 7px;
+  background: #48bb78;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7);
+  animation: pulseDot 1.4s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(72, 187, 120, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
+}
+
+// ── FILTERS ROW ───────────────────────────────────────
+.ms-filters-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-top: 1px solid $border-color;
+  padding-top: 16px;
+}
+
+.ms-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 200px;
+  flex: 1;
+
+  &--assigned-class {
+    min-width: 240px;
+  }
+}
+
+.ms-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.ms-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid $border-dark;
+  border-radius: 8px;
+  font-size: 13.5px;
+  background-color: $bg-white;
+  color: $text-primary;
+  outline: none;
+  height: 40px;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: $primary;
+  }
+}
+
+// Assigned class green badge
+.ms-class-badge-strip {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  background: $success-bg;
+  color: $success-green;
+  font-weight: 700;
+  border: 1px solid $success-border;
+  border-radius: 8px;
+  font-size: 13.5px;
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.ms-badge-divider {
+  color: #cbd5e0;
+  margin: 0 8px;
+  user-select: none;
+}
+
+// ── LOADING LOADER CARD ────────────────────────────────
+.ms-loading-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  background: $bg-white;
+  border-radius: 12px;
+  border: 1px solid $border-color;
+  font-size: 13.5px;
+  color: $text-muted;
+}
+
+.ms-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid $border-color;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── SUBJECTS INTERACTIVE TILES GRID ───────────────────
+.ms-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.ms-item-card {
+  background: $bg-white;
+  border: 1px solid $border-color;
+  border-left: 4px solid $primary;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.04);
+  }
+}
+
+.ms-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ms-icon-wrap {
+  width: 36px;
+  height: 36px;
+  background: #f7fafc;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.ms-max-marks-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: $primary;
+  background: $primary-light;
+  border: 1px solid #bee3f8;
+}
+
+.ms-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ms-item-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: $text-primary;
+  letter-spacing: -0.01em;
+}
+
+.ms-item-code-meta {
+  margin: 0;
+  font-size: 12px;
+  color: $text-muted;
+  
+  strong {
+    color: #4a5568;
+  }
+}
+
+// Card Footer & Action Button
+.ms-card-footer {
+  border-top: 1px solid #edf2f7;
+  padding-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.ms-date-node {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ms-date-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  color: $text-muted;
+  letter-spacing: 0.03em;
+}
+
+.ms-date-val {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.ms-btn-fetch-students {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  background: $primary;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: $primary-hover;
+  }
+}
+
+// ── FALLBACK EMPTY STATE ──────────────────────────────
+.ms-empty-state {
+  background: #fff;
+  border: 1px solid $border-color;
+  border-radius: 16px;
+  padding: 50px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+
+  .ms-empty-icon {
+    font-size: 32px;
+    margin-bottom: 4px;
+  }
+
+  .ms-empty-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .ms-empty-sub {
+    font-size: 13px;
+    color: $text-muted;
+    margin: 0;
+  }
+}

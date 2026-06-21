@@ -99,6 +99,11 @@ export const routes: Routes = [
     import('./modules/exam-schedule/exam-schedule.routes').then(m => m.EXAM_SCHEDULE_ROUTES)
 },
 
+{
+  path: 'exam-marks',
+  loadChildren: () => import('./modules/exam-marks/exam-marks.routes').then(m => m.EXAM_MARKS_ROUTES)
+},
+
     ]
   },
 

@@ -28,7 +28,8 @@ const NAV_ITEMS: NavItem[] = [
   
   // -- Schedules & Operations Menu --
   { label: 'Class Timetable',   href: '/timetable',         icon: 'calendar-check',   roles: 'all' },
-  { label: 'Exams Module',      href: '/exams',             icon: 'exam-sheet',       roles: 'all' }, // ✅ Turned into dropdown root trigger element
+  { label: 'Exams Module',      href: '/exams',             icon: 'exam-sheet',       roles: 'all' }, // Trigger element for dropdown list
+  { label: 'Marks Entry',       href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
   
   // -- Operations Management --
   { label: 'Attendance',        href: '/attendance',        icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
@@ -39,7 +40,7 @@ const NAV_ITEMS: NavItem[] = [
 
 const TEACHERS_ROUTES = ['/teachers', '/teacher-mapping', '/subjects/assign-teacher', '/teacher-timetable'];
 const SUBJECTS_ROUTES = ['/subjects/manage', '/subjects'];
-const EXAMS_ROUTES    = ['/exams', '/exams/schedule']; // ✅ Track routing conditions
+const EXAMS_ROUTES    = ['/exams', '/exam-schedule']; // ✅ Track both exams registry and schedule standalone module routes
 
 @Component({
   selector: 'app-sidebar',
@@ -58,7 +59,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   // Dropdowns structural open states flags
   teachersDropdownOpen = false;
   subjectsDropdownOpen = false;
-  examsDropdownOpen = false; // ✅ Added tracking flag for exams dropdown
+  examsDropdownOpen = false;
   
   private destroy$ = new Subject<void>();
 
@@ -105,7 +106,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private _autoOpenDropdown(path: string): void {
     if (TEACHERS_ROUTES.some(r => path.startsWith(r))) this.teachersDropdownOpen = true;
     if (SUBJECTS_ROUTES.some(r => path.startsWith(r)) && !path.includes('assign-teacher')) this.subjectsDropdownOpen = true;
-    if (EXAMS_ROUTES.some(r => path.startsWith(r))) this.examsDropdownOpen = true; // ✅ Auto-opens when matching route is active
+    if (EXAMS_ROUTES.some(r => path.startsWith(r))) this.examsDropdownOpen = true;
   }
 
   get filteredNavItems(): NavItem[] {
@@ -119,7 +120,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   isExactActive(href: string): boolean { return this.currentPath === href; }
   isTeachersActive(): boolean { return TEACHERS_ROUTES.some(r => this.currentPath.startsWith(r)); }
   isSubjectsActive(): boolean { return SUBJECTS_ROUTES.some(r => this.currentPath.startsWith(r)) && !this.currentPath.includes('assign-teacher'); }
-  isExamsActive(): boolean { return EXAMS_ROUTES.some(r => this.currentPath.startsWith(r)); } // ✅ Active toggle check
+  isExamsActive(): boolean { return EXAMS_ROUTES.some(r => this.currentPath.startsWith(r)); }
 
   toggleTeachersDropdown(): void {
     this.teachersDropdownOpen = !this.teachersDropdownOpen;
@@ -133,7 +134,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  // ✅ New toggle handler for Exams dropdown
   toggleExamsDropdown(): void {
     this.examsDropdownOpen = !this.examsDropdownOpen;
     if (this.examsDropdownOpen) { this.teachersDropdownOpen = false; this.subjectsDropdownOpen = false; }

@@ -1,0 +1,306 @@
+.me-form-page {
+  max-width: 1100px;
+  margin: 24px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.me-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.me-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.me-breadcrumb .me-breadcrumb-link {
+  color: #718096;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.me-breadcrumb .me-breadcrumb-link:hover {
+  color: #2b6cb0;
+}
+.me-breadcrumb .me-breadcrumb-sep {
+  color: #cbd5e0;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+.me-breadcrumb .me-breadcrumb-current {
+  color: #1a202c;
+  font-weight: 700;
+}
+
+.me-btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #ffffff;
+  color: #1a202c;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.me-btn-back:hover {
+  background: #f7fafc;
+  border-color: #718096;
+}
+
+.me-title-banner {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+.me-title-banner .me-main-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.me-title-banner .me-sub-title {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: #718096;
+  font-weight: 500;
+}
+
+.me-max-marks-badge {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  background: #fff5f5;
+  color: #c53030;
+  border: 1px solid #feb2b2;
+  border-radius: 10px;
+  letter-spacing: 0.02em;
+}
+.me-max-marks-badge strong {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.me-loading-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  font-size: 13.5px;
+  color: #718096;
+  font-weight: 500;
+}
+
+.me-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid #edf2f7;
+  border-top-color: #2b6cb0;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.me-table-section {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.me-table-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.me-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 800px;
+}
+.me-matrix-table thead tr {
+  background: #2b6cb0;
+  color: #ffffff;
+}
+.me-matrix-table thead th {
+  padding: 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border: none;
+}
+.me-matrix-table .me-th-roll {
+  width: 130px;
+  text-align: center;
+}
+.me-matrix-table .me-th-name {
+  width: 300px;
+}
+.me-matrix-table .me-th-marks {
+  width: 160px;
+  text-align: center;
+}
+.me-matrix-table .me-table-data-row {
+  border-bottom: 1px solid #e2e8f0;
+  transition: background-color 0.15s ease;
+}
+.me-matrix-table .me-table-data-row:last-child {
+  border-bottom: none;
+}
+.me-matrix-table .me-table-data-row:hover {
+  background-color: #f8fafc;
+}
+.me-matrix-table td {
+  padding: 12px 14px;
+  vertical-align: middle;
+}
+.me-matrix-table .me-cell-roll {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #4a5568;
+  text-align: center;
+  font-family: monospace;
+}
+.me-matrix-table .me-cell-roll .me-roll-hash {
+  color: #cbd5e0;
+  margin-right: 1px;
+}
+.me-matrix-table .me-cell-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2d3748;
+}
+.me-matrix-table .me-cell-name .me-avatar-ico {
+  margin-right: 6px;
+  font-size: 15px;
+}
+.me-matrix-table .me-control-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1a202c;
+  background-color: #ffffff;
+  outline: none;
+  transition: all 0.15s ease;
+}
+.me-matrix-table .me-control-input:focus {
+  border-color: #2b6cb0;
+  box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+  background-color: #ffffff;
+}
+.me-matrix-table .me-control-input.text-center {
+  text-align: center;
+}
+.me-matrix-table .me-control-input.font-bold {
+  font-weight: 700;
+  font-size: 14px;
+  color: #2c5282;
+}
+
+.me-form-actions-panel {
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+
+.me-btn-action-cancel {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid #cbd5e0;
+  color: #4a5568;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.me-btn-action-cancel:hover {
+  background: #e2e8f0;
+}
+
+.me-btn-action-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: #2b6cb0;
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13.5px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(43, 108, 176, 0.2);
+  transition: background 0.15s ease;
+}
+.me-btn-action-submit:hover {
+  background: #2c5282;
+}
+.me-btn-action-submit:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.me-matrix-table .me-th-total {
+  width: 140px;
+  text-align: center;
+}
+.me-matrix-table .me-cell-total-weight {
+  text-align: center;
+}
+.me-matrix-table .me-cell-total-weight .me-weight-lbl {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #718096;
+  background: #f7fafc;
+  padding: 4px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+}
+.me-matrix-table .me-cell-marks-input {
+  width: 160px;
+  margin: 0 auto;
+  text-align: center;
+}/*# sourceMappingURL=exam-marks-entry-form.component.css.map */
