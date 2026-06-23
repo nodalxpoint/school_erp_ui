@@ -4,7 +4,7 @@
     <div class="ms-header-top">
       <div class="ms-title-block">
         <div class="ms-eyebrow">School ERP · Evaluation Dashboard Terminal</div>
-        <h1 class="ms-title">Exam Subject Allocations</h1>
+        <h1 class="ms-title">My Assigned Classes & Subjects</h1>
       </div>
 
       <div class="ms-live-clock-badge-wrap">
@@ -22,75 +22,48 @@
     </div>
 
     <div class="ms-filters-row">
-
-      <ng-container *ngIf="isAdmin">
-        <div class="ms-filter-group" style="min-width: 180px;">
-          <label class="ms-label">Select Faculty Teacher</label>
-          <select class="ms-select" [(ngModel)]="filterModel.teacherId" (change)="onTeacherDropdownChange()">
-            <option *ngFor="let t of teachers" [value]="t.id">👤 {{ t.label }}</option>
-          </select>
-        </div>
-      </ng-container>
-
-      <div class="ms-filter-group" style="min-width: 140px;">
-        <label class="ms-label">Class Standard</label>
-        <select class="ms-select" [(ngModel)]="filterModel.classId" (change)="onClassDropdownChange()">
-          <option *ngFor="let c of classes" [value]="c.id">🏫 {{ c.label }}</option>
+      <div class="ms-filter-group" style="max-width: 300px;">
+        <label class="ms-label">Current Academic Session</label>
+        <select class="ms-select" [(ngModel)]="filterModel.academicSessionId">
+          <option *ngFor="let s of sessions" [value]="s.id">📆 Session {{ s.label }}</option>
         </select>
       </div>
-
-      <div class="ms-filter-group" style="min-width: 120px;">
-        <label class="ms-label">Class Section</label>
-        <select class="ms-select" [(ngModel)]="filterModel.sectionId" (change)="onSectionDropdownChange()">
-          <option *ngFor="let sec of sections" [value]="sec.id">✨ Section {{ sec.label }}</option>
-        </select>
-      </div>
-
-      <div class="ms-filter-group" style="min-width: 150px;">
-        <label class="ms-label">Academic Session</label>
-        <select class="ms-select" [(ngModel)]="filterModel.academicSessionId" (change)="loadExamTermsDropdown()">
-          <option *ngFor="let s of sessions" [value]="s.id">📆 {{ s.label }}</option>
-        </select>
-      </div>
-
-      <div class="ms-filter-group" style="min-width: 160px;">
-        <label class="ms-label">Select Exam Term</label>
-        <select class="ms-select" [(ngModel)]="filterModel.examId" (change)="onFetchSubjects()" [disabled]="examTerms.length === 0">
-          <option *ngFor="let e of examTerms" [value]="e.id">📝 {{ e.label }}</option>
-        </select>
-      </div>
-
     </div>
   </div>
 
   <div class="ms-loading-card" *ngIf="isLoading">
     <div class="ms-spinner"></div>
-    <span>Fetching relevant examination subjects data rows from registry...</span>
+    <span>Syncing class map records directly from the registry...</span>
   </div>
 
-  <div class="ms-grid-layout" *ngIf="!isLoading && subjectsList.length > 0">
-    <div class="ms-item-card" *ngFor="let sub of subjectsList">
-
+  <div class="ms-grid-layout" *ngIf="!isLoading && classesMappedList.length > 0">
+    <div class="ms-item-card" *ngFor="let item of classesMappedList">
+      
       <div class="ms-card-top">
         <div class="ms-icon-wrap">📘</div>
-        <span class="ms-max-marks-badge">
-          Max: {{ sub.maxMarks }} M
+        <span class="ms-max-marks-badge" style="color: #2f855a; background: #f0fff4; border-color: #c6f6d5;">
+          Classroom Node
         </span>
       </div>
 
       <div class="ms-card-body">
-        <h3 class="ms-item-title">{{ sub.subjectName }}</h3>
-        <p class="ms-item-code-meta">Code parameters: <strong>{{ sub.subjectCode || 'GEN-00' }}</strong></p>
-        <p class="ms-item-code-meta" *ngIf="isAdmin && sub.className">Target Allocation: <strong style="color: #2b6cb0;">🏫 {{ sub.className }}</strong></p>
+        <h3 class="ms-item-title">{{ item.subjectName }}</h3>
+        
+        <p class="ms-item-code-meta" style="margin-top: 6px; font-size: 13.5px; color: #2d3748;">
+          Target Class: <strong style="color: #2b6cb0;">🏫 {{ item.className }}</strong>
+        </p>
+        <p class="ms-item-code-meta" style="font-size: 13px; color: #4a5568;">
+          Assigned Section: <strong>Section {{ item.sectionName }}</strong>
+        </p>
       </div>
 
       <div class="ms-card-footer">
         <div class="ms-date-node">
-          <span class="ms-date-lbl">SCHEDULED DATE</span>
-          <span class="ms-date-val">📅 {{ sub.examDate | date:'mediumDate' }} ({{ sub.examDay || 'Scheduled' }})</span>
+          <span class="ms-date-lbl">ROSTER MAPPING</span>
+          <span class="ms-date-val" style="color: #718096; font-size: 11px;">ID: {{ item.subjectId | slice:0:8 }}...</span>
         </div>
-
-        <button class="ms-btn-fetch-students" (click)="onFetchStudents(sub)">
+        
+        <button class="ms-btn-fetch-students" (click)="onFetchStudents(item)">
           Fetch Students ➔
         </button>
       </div>
@@ -98,10 +71,10 @@
     </div>
   </div>
 
-  <div class="ms-empty-state" *ngIf="!isLoading && subjectsList.length === 0">
+  <div class="ms-empty-state" *ngIf="!isLoading && classesMappedList.length === 0">
     <div class="ms-empty-icon">📂</div>
-    <h3 class="ms-empty-title">No scheduled papers found</h3>
-    <p class="ms-empty-sub">There are no matching subject schedules or routine rows configured for this selection.</p>
+    <h3 class="ms-empty-title">No class mappings found</h3>
+    <p class="ms-empty-sub">There are no standard class or subject allocations registered on your account profile.</p>
   </div>
 
 </div>

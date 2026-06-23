@@ -25,54 +25,48 @@
       <div class="section-badge">01</div>
       <div>
         <h2>Period Configuration Mapping</h2>
-        <p>Set standard schedule matrix fields flawlessly</p>
+        <p>Set standard schedule matrix fields flawlessly. Pre-filled configurations editable for Administrator role permissions.</p>
       </div>
     </div>
 
     <form (ngSubmit)="onSubmit()" #timeForm="ngForm" class="form-grid">
       
-      <!-- 🔒 Disabled in Edit Mode -->
-      <div class="form-group" [class.form-group-disabled]="isEditMode">
+      <div class="form-group">
         <label class="form-label">Academic Session *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.academicSessionId" name="academicSession" [disabled]="isEditMode" required>
+        <select class="form-control select-pilled" [(ngModel)]="formModel.academicSessionId" name="academicSession" required>
           <option value="" disabled>Select Session</option>
           <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
         </select>
       </div>
 
-      <!-- 🔒 Disabled in Edit Mode -->
-      <div class="form-group" [class.form-group-disabled]="isEditMode">
+      <div class="form-group">
         <label class="form-label">Class Standard *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.classId" name="class" (change)="onClassChange()" [disabled]="isEditMode" required>
+        <select class="form-control select-pilled" [(ngModel)]="formModel.classId" name="class" (change)="onClassChange()" required>
           <option value="">Select Class</option>
           <option *ngFor="let c of classes" [value]="c.id">{{c.label}}</option>
         </select>
       </div>
 
-      <!-- 🔒 Disabled in Edit Mode -->
-      <div class="form-group" [class.form-group-disabled]="isEditMode">
+      <div class="form-group">
         <label class="form-label">Section *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.sectionId" name="section" [disabled]="isEditMode || !formModel.classId" required>
-          <option value="">{{ !formModel.classId ? 'Select class standard first' : 'Select Section' }}</option>
+        <select class="form-control select-pilled" [(ngModel)]="formModel.sectionId" name="section" required>
+          <option value="">Select Section</option>
           <option *ngFor="let s of sections" [value]="s.id">{{s.label}}</option>
         </select>
       </div>
 
-      <!-- 🔒 Disabled in Edit Mode -->
-      <div class="form-group" [class.form-group-disabled]="isEditMode">
+      <div class="form-group">
         <label class="form-label">Day Of Week *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.dayOfWeek" name="dayOfWeek" [disabled]="isEditMode" required>
+        <select class="form-control select-pilled" [(ngModel)]="formModel.dayOfWeek" name="dayOfWeek" required>
           <option *ngFor="let d of daysList" [value]="d">{{d}}</option>
         </select>
       </div>
 
-      <!-- 🔒 Disabled in Edit Mode -->
-      <div class="form-group" [class.form-group-disabled]="isEditMode">
+      <div class="form-group">
         <label class="form-label">Period Sequence Number *</label>
-        <input type="number" min="1" max="12" class="form-control" [(ngModel)]="formModel.period" name="period" [disabled]="isEditMode" required />
+        <input type="number" min="1" max="12" class="form-control" [(ngModel)]="formModel.period" name="period" required />
       </div>
 
-      <!-- 🔓 ALWAYS EDITABLE -->
       <div class="form-group">
         <label class="form-label">Subject Allocation *</label>
         <select class="form-control select-pilled" [(ngModel)]="formModel.subjectId" name="subject" required>
@@ -81,7 +75,6 @@
         </select>
       </div>
 
-      <!-- 🔓 ALWAYS EDITABLE -->
       <div class="form-group full-width">
         <label class="form-label">Assigned Teacher *</label>
         <select class="form-control select-pilled" [(ngModel)]="formModel.teacherId" name="teacher" required>
@@ -90,22 +83,19 @@
         </select>
       </div>
 
-      <!-- 🔓 ALWAYS EDITABLE -->
       <div class="form-group">
         <label class="form-label">Start Time *</label>
         <input type="time" class="form-control" [(ngModel)]="formModel.startTime" name="startTime" required />
       </div>
 
-      <!-- 🔓 ALWAYS EDITABLE -->
       <div class="form-group">
         <label class="form-label">End Time *</label>
         <input type="time" class="form-control" [(ngModel)]="formModel.endTime" name="endTime" required />
       </div>
 
-      <!-- 🔒 Disabled in Edit Mode -->
-      <div class="form-group full-width" [class.form-group-disabled]="isEditMode">
+      <div class="form-group full-width">
         <label class="form-label">Room Number / Lab No</label>
-        <input type="text" placeholder="e.g. Room 302" class="form-control" [(ngModel)]="formModel.roomNo" name="roomNo" [disabled]="isEditMode" />
+        <input type="text" placeholder="e.g. Room 302" class="form-control" [(ngModel)]="formModel.roomNo" name="roomNo" />
       </div>
 
       <div class="form-actions full-width">

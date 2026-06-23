@@ -35,15 +35,23 @@ export class TimetableFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    // ✅ FIX 1: Capture router history state payload instantly inside the constructor before it gets cleared
+    const navigation = this.router.getCurrentNavigation();
+    const stateData = navigation?.extras.state?.['timetable'] || history.state?.['timetable'];
+    
+    if (stateData) {
+      this.isEditMode = true;
+      this.populateFormFields(stateData);
+    }
+  }
 
   ngOnInit(): void {
-    // 1. Pehle saare primary dropdown options load karenge
+    // Primary master dropdown listings configurations dispatch
     this.loadDropdownContexts();
   }
 
   loadDropdownContexts(): void {
-    // Parallel context lookups dispatch
     this.timetableService.getOptions('classes').subscribe(data => { this.classes = data; this.cdr.markForCheck(); });
     this.timetableService.getOptions('teachers').subscribe(data => { this.teachers = data; this.cdr.markForCheck(); });
     this.timetableService.getOptions('subjects').subscribe(data => { this.subjects = data; this.cdr.markForCheck(); });
@@ -53,7 +61,7 @@ export class TimetableFormComponent implements OnInit {
         this.formModel.academicSessionId = this.sessions[0].id;
       }
       
-      // Dropdowns sequence load hone ke baad hi Edit parameter check karenge
+      // Execute path parsing check fallback parameters safely
       this.checkEditModeAndPopulate();
       this.cdr.markForCheck(); 
     });
@@ -64,17 +72,10 @@ export class TimetableFormComponent implements OnInit {
     if (id) {
       this.isEditMode = true;
       
-      // Step A: Router state history payload check karenge
-      const navigation = this.router.getCurrentNavigation();
-      if (navigation?.extras.state?.['timetable']) {
-        const data = navigation.extras.state['timetable'];
-        this.populateFormFields(data);
-      } else {
-        // Step B: Fallback - Agar router state clear ho gayi (jaise page refresh karne par), 
-        // toh filter API use karke dynamic server side query se object nikalenge.
-        this.timetableService.filterTimetable({ page: 0, size: 1, classId: undefined }).subscribe({
+      // ✅ FIX 2: Fallback query mapping if constructor initialization was skipped due to deep reload links
+      if (!this.formModel.classId) {
+        this.timetableService.filterTimetable({ page: 0, size: 200 }).subscribe({
           next: (res) => {
-            // Hum backend se direct specific object track parse kar lenge
             const matchedSlot = res.data?.find(t => t.id === id);
             if (matchedSlot) {
               this.populateFormFields(matchedSlot);
@@ -85,27 +86,26 @@ export class TimetableFormComponent implements OnInit {
     }
   }
 
-// Is code logic line structure ko ts component me verify kar lo, data automatically fill ho jayega
-populateFormFields(data: TimetableDto): void {
-  this.formModel = { ...data };
-  
-  // input compatible format tracking slice
-  if (this.formModel.startTime && this.formModel.startTime.length > 5) {
-    this.formModel.startTime = this.formModel.startTime.substring(0, 5);
-  }
-  if (this.formModel.endTime && this.formModel.endTime.length > 5) {
-    this.formModel.endTime = this.formModel.endTime.substring(0, 5);
-  }
+  populateFormFields(data: TimetableDto): void {
+    this.formModel = { ...data };
+    
+    // Input tag tracking formats compatibility check slicers
+    if (this.formModel.startTime && this.formModel.startTime.length > 5) {
+      this.formModel.startTime = this.formModel.startTime.substring(0, 5);
+    }
+    if (this.formModel.endTime && this.formModel.endTime.length > 5) {
+      this.formModel.endTime = this.formModel.endTime.substring(0, 5);
+    }
 
-  // 🔥 IMPORTANT: Section list dropdown mandatory populate call if class exists
-  if (this.formModel.classId) {
-    this.timetableService.getSectionOptions(this.formModel.classId).subscribe(res => {
-      this.sections = res;
-      this.cdr.markForCheck(); // Instantly renders current data matrix on screen
-    });
+    // 🔥 IMPORTANT FIX 3: Dynamic child sections must populate instantly based on populated class parameters
+    if (this.formModel.classId) {
+      this.timetableService.getSectionOptions(this.formModel.classId).subscribe(res => {
+        this.sections = res;
+        this.cdr.markForCheck(); // Synchronizes dropdown interface flawlessly
+      });
+    }
+    this.cdr.markForCheck();
   }
-  this.cdr.markForCheck();
-}
 
   onClassChange(): void {
     this.formModel.sectionId = '';
