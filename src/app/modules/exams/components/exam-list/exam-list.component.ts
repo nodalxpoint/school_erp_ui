@@ -1,5 +1,3 @@
-// src/app/modules/exams/components/exam-list/exam-list.component.ts
-
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -23,15 +21,17 @@ export class ExamListComponent implements OnInit, OnDestroy {
   exams: ExamDto[] = [];
   sessions: ParamDropdownOption[] = [];
   isLoading = false;
-  isAdmin = false; // ✅ Checked state condition attribute
+  isAdmin = false;
+  
+  // ✅ Changes track karne ke liye variables
+  hasChanges = false;
+  originalExams: ExamDto[] = []; 
 
-  // Real-time Running clock parameters
   currentDateTimeStr = '';
   currentDayName = '';
   private timerIntervalId: any = null;
   private destroy$ = new Subject<void>();
 
-  // Backend Payload Filters Request State
   filter: ExamFilterRequest = {
     page: 0, size: 50, sortBy: 'startDate', sortDirection: 'desc',
     academicSessionId: '', examName: ''
@@ -39,7 +39,7 @@ export class ExamListComponent implements OnInit, OnDestroy {
 
   constructor(
     private examService: ExamService,
-    private authState: AuthStateService, // ✅ Injected safely
+    private authState: AuthStateService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
@@ -56,13 +56,11 @@ export class ExamListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ✅ Role-Based Security Identification Layer
   checkUserRoleAccess(): void {
     this.authState.user$
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
         if (user) {
-          // Unlocks edit features ONLY for Admin / Super Admin roles
           this.isAdmin = user.role === 'SUPER_ADMIN' || user.role === 'ADMIN';
           this.cdr.markForCheck();
         }
@@ -100,6 +98,7 @@ export class ExamListComponent implements OnInit, OnDestroy {
 
   loadExams(): void {
     this.isLoading = true;
+    this.hasChanges = false; // Reset changes on fresh load
     this.cdr.markForCheck();
 
     const payload = { ...this.filter };
@@ -108,6 +107,8 @@ export class ExamListComponent implements OnInit, OnDestroy {
     this.examService.getExamsList(payload).subscribe({
       next: (res) => {
         this.exams = res.data ?? [];
+        // Deep copy backups for reverting if needed
+        this.originalExams = JSON.parse(JSON.stringify(this.exams));
         this.isLoading = false;
         this.cdr.markForCheck();
       },
@@ -115,27 +116,73 @@ export class ExamListComponent implements OnInit, OnDestroy {
     });
   }
 
-  getExamStatus(start: string, end: string): 'UPCOMING' | 'ACTIVE' | 'COMPLETED' {
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    
-    if (today < startDate) return 'UPCOMING';
-    if (today >= startDate && today <= endDate) return 'ACTIVE';
-    return 'COMPLETED';
+  // ✅ LOCAL TOGGLE SELECTION (No API Call here)
+  onToggleActiveStatus(targetExam: ExamDto, event: Event): void {
+    event.stopPropagation();
+    if (!this.isAdmin) return;
+
+    const previousState = targetExam.isActive; 
+    const isChecking = previousState !== 'Y';
+
+    // UI par local state update karo (strictly single active constraint ke sath)
+    this.exams = this.exams.map(ex => {
+      if (ex.examId === targetExam.examId) {
+        return { ...ex, isActive: isChecking ? 'Y' : 'N' };
+      } else {
+        return isChecking ? { ...ex, isActive: 'N' as const } : ex;
+      }
+    });
+
+    this.hasChanges = true; // Isse UI par "Save Changes" button visible ho jayega
+    this.cdr.markForCheck();
   }
 
-  // 🔒 Router action method locked securely
+  // ✅ NEW METHOD: Click hone par actual API save call chalegi
+  onSaveChanges(): void {
+    if (!this.isAdmin || !this.hasChanges) return;
+
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
+    // Jo active ('Y') kiya hua ya badla hua target exam hai use find karo
+    const changedExam = this.exams.find((ex, index) => ex.isActive !== this.originalExams[index].isActive);
+
+    if (!changedExam) {
+      this.hasChanges = false;
+      this.isLoading = false;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    // Tumhari addOrUpdateExam / updateExamStatus API trigger hogi
+    this.examService.updateExamStatus(changedExam).subscribe({
+      next: (res) => {
+        this.hasChanges = false;
+        this.loadExams(); // Fresh data sync karo list me
+      },
+      error: () => {
+        alert('Failed to update status on server.');
+        this.onCancelChanges(); // Revert back instantly
+      }
+    });
+  }
+
+  // Optional: Changes ko cancel karne ke liye helper method
+  onCancelChanges(): void {
+    this.exams = JSON.parse(JSON.stringify(this.originalExams));
+    this.hasChanges = false;
+    this.cdr.markForCheck();
+  }
+
   onAddExam(): void {
     if (!this.isAdmin) return;
     this.router.navigate(['/exams/add']);
   }
 
-  // 🔒 Router action method locked securely
-  onEditExam(exam: ExamDto): void {
+  onEditExam(exam: ExamDto, event: Event): void {
+    event.stopPropagation();
     if (!this.isAdmin) return;
-    this.router.navigate(['/exams', exam.id, 'edit'], {
+    this.router.navigate(['/exams', exam.examId || (exam as any).id, 'edit'], {
       state: { exam: exam }
     });
   }

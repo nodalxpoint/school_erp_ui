@@ -36,6 +36,12 @@ export class ExamService {
     return this.http.post<{ success: boolean; message: string }>(`${this.base}/addOrUpdate`, dto);
   }
 
+  // ── ✅ NEW TOGGLE METHOD INTEGRATION ─────────────────────────────────────
+  // Mapped seamlessly with component toggle trigger to push dynamic active state changes
+  updateExamStatus(dto: ExamDto): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.base}/addOrUpdate`, dto);
+  }
+
   // ── Shared Academic Sessions Dropdown Loader ─────────────────────────────
   getAcademicSessions(): Observable<ParamDropdownOption[]> {
     const req = { page: 0, size: 50, type: 'academic_sessions' };

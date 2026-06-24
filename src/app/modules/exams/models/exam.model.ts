@@ -1,3 +1,5 @@
+// src/app/modules/exams/models/exam.model.ts
+
 export interface ExamDto {
   id?: string;
   examId?: string;
@@ -6,6 +8,8 @@ export interface ExamDto {
   startDate: string; // YYYY-MM-DD template standard
   endDate: string;   // YYYY-MM-DD template standard
   createdAt?: string;
+  isActive?: 'Y' | 'N'; // <-- Added '?' to make it optional, fixing TS2741 Form Error!
+  examSubjects?: any;
 }
 
 export interface ExamFilterRequest {

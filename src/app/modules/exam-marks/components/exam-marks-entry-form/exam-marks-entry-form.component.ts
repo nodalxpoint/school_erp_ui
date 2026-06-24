@@ -25,12 +25,9 @@ export class ExamMarksEntryFormComponent implements OnInit {
   subjectName = '';
   examName = '';
 
-  // ✅ Direct dynamic trackers forwarded from list page
+  // Direct dynamic trackers forwarded from list page
   classId = '';
   sectionId = '';
-
-  // ⚠️ Note: maxMarks intentionally NOT tracked here — students/list backend
-  // response has no maxMarks field, so we don't fake/hardcode it on the frontend.
 
   constructor(
     private marksService: ExamMarksService,
@@ -47,22 +44,23 @@ export class ExamMarksEntryFormComponent implements OnInit {
       this.subjectName = params['subjectName'] || 'Subject';
       this.examName = params['examName'] || '';
 
-      // ✅ Forwarded metadata from list page
+      // Forwarded metadata from list page
       this.classId = params['classId'] || '';
       this.sectionId = params['sectionId'] || '';
 
       if (this.examSubjectId && this.classId && this.sectionId) {
-        this.fetchStudentsFromBackend(this.classId, this.sectionId);
+        // ✅ Ab data fetch karte waqt list function me examId bhi pass hoga
+        this.fetchStudentsFromBackend(this.classId, this.sectionId, this.examId);
       }
     });
   }
 
-  // ✅ Hits POST `/students/list` directly with raw response data, no client-side max marks handling
-  fetchStudentsFromBackend(classId: string, sectionId: string): void {
+  // ✅ UPDATED: Function parameters accepts examId for dynamic payload injection
+  fetchStudentsFromBackend(classId: string, sectionId: string, examId: string): void {
     this.isLoading = true;
     this.cdr.markForCheck();
 
-    this.marksService.getStudentsByClassSection(classId, sectionId).subscribe({
+    this.marksService.getStudentsByClassSection(classId, sectionId, examId).subscribe({
       next: (res) => {
         const rawStudents = res.data ?? [];
 

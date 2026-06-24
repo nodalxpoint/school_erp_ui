@@ -18,7 +18,6 @@ export class ExamMarksSubjectListComponent implements OnInit, OnDestroy {
   sessions: ParamDropdownOption[] = [];
   isLoading = false;
 
-  // ✅ Only single filter model reference retained
   filterModel = {
     academicSessionId: ''
   };
@@ -45,11 +44,13 @@ export class ExamMarksSubjectListComponent implements OnInit, OnDestroy {
   startLiveSystemTimer(): void {
     const runClock = () => {
       const now = new Date();
-      const options: Intl.DateTimeFormatOptions = {
-        day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+      const options: Intl.DateTimeFormatOptions = { 
+        day: 'numeric', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
       };
+      const weekdays = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
       this.currentDateTimeStr = now.toLocaleString('en-US', options);
-      this.currentDayName = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][now.getDay()];
+      this.currentDayName = weekdays[now.getDay()];
       this.cdr.markForCheck();
     };
     runClock();
@@ -60,14 +61,12 @@ export class ExamMarksSubjectListComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.cdr.markForCheck();
 
-    // 1. Load Academic Session Dropdown Filter Option
     this.marksService.getParamOptions('academic_sessions').subscribe(sessionsData => {
       this.sessions = sessionsData;
       if (this.sessions.length > 0) {
         this.filterModel.academicSessionId = this.sessions[0].id;
       }
 
-      // 2. Direct single call hitting your brand new POST API endpoint 
       this.marksService.getTeacherClassesList().subscribe({
         next: (res) => {
           this.classesMappedList = res.data ?? [];
@@ -83,17 +82,40 @@ export class ExamMarksSubjectListComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ✅ Forwarding complete card response body metadata properties down to the form query map
+  // ✅ UPDATED INTERCEPT FLOW: Pehle active exam parameter details nikalega fir navigation karega
   onFetchStudents(item: TeacherClassMapDto): void {
-    this.router.navigate(['/exam-marks/entry'], {
-      queryParams: {
-        subjectId: item.subjectId,
-        sessionId: this.filterModel.academicSessionId,
-        subjectName: item.subjectName,
-        classId: item.classId,
-        sectionId: item.sectionId,
-        className: item.className,
-        sectionName: item.sectionName
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
+    this.marksService.getActiveExamFromParam().subscribe({
+      next: (examRes) => {
+        let activeExamId = '';
+        let activeExamName = 'Active Exam';
+
+        if (examRes.success && examRes.data && examRes.data.length > 0) {
+          activeExamId = examRes.data[0].id;     // "a826b700-20bc-4fd8-8e73-078497cd26d9"
+          activeExamName = examRes.data[0].label; // "Half-Early"
+        } else {
+          alert('Warning: No active examination configure parameter detected on server.');
+        }
+
+        // Active Exam context data append karke route inject karo!
+        this.router.navigate(['/exam-marks/entry'], {
+          queryParams: {
+            subjectId: item.subjectId,
+            subjectName: item.subjectName,
+            classId: item.classId,
+            sectionId: item.sectionId,
+            sessionId: this.filterModel.academicSessionId,
+            examId: activeExamId,      // Dynamic Active Exam ID injected here!
+            examName: activeExamName   // Dynamic Active Exam Name mapping!
+          }
+        });
+      },
+      error: () => {
+        this.isLoading = false;
+        alert('Failed to establish connection to retrieve active examination scope metadata.');
+        this.cdr.markForCheck();
       }
     });
   }
