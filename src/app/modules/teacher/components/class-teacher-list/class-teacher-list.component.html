@@ -1,45 +1,36 @@
 <div class="ct-wrap">
 
-  <div class="ct-header-card">
-    <div class="ct-header-top">
-      <div class="ct-title-block">
-        <div class="ct-eyebrow">School ERP · Administration</div>
-        <h1 class="ct-title">Class Teacher Assignments</h1>
+  <div class="list-section">
+    <div class="list-header">
+      <div>
+        <h3 class="list-title">Class Teachers</h3>
+        <p class="list-sub">{{ totalElements }} total assignment{{ totalElements !== 1 ? 's' : '' }}</p>
       </div>
       
-      <div class="ct-metrics-badge">
-        Total Rosters: <strong>{{ totalElements }} Active Assignment{{ totalElements !== 1 ? 's' : '' }}</strong>
+      <div class="header-actions">
+        <div class="list-filter">
+          <input class="filter-input" type="text" [(ngModel)]="filterTeacherName"
+                 placeholder="Search teacher name…"
+                 (keyup.enter)="applyFilter()" />
+          <button class="btn-filter" (click)="applyFilter()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+        </div>
+
+        <button class="btn-add-assign" (click)="onAssignTeacherRoute()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Assign Teacher
+        </button>
       </div>
     </div>
-
-    <div class="ct-filters-row">
-      <div class="ct-search-input-wrap">
-        <svg class="ct-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input class="ct-search-input" type="text" [(ngModel)]="filterTeacherName"
-               placeholder="Search assignment by teacher name…" (keyup.enter)="applyFilter()" />
-        <button class="ct-search-clear" *ngIf="filterTeacherName" (click)="filterTeacherName = ''; applyFilter()">×</button>
-      </div>
-
-      <button class="ct-btn-search" (click)="applyFilter()">Search Assignments</button>
-
-      <button class="ct-btn-add-assign" (click)="onAssignTeacherRoute()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/>
-          <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Assign Class Teacher
-      </button>
-    </div>
-  </div>
-
-  <div class="list-section">
 
     <ng-container *ngIf="isLoadingList">
       <div class="skeleton-row" *ngFor="let i of [1,2,3,4]">
-        <div class="sk sk-avatar-placeholder"></div>
         <div class="sk sk-40"></div>
         <div class="sk sk-28"></div>
         <div class="sk sk-28"></div>
@@ -47,96 +38,58 @@
       </div>
     </ng-container>
 
-    <div class="empty-state" *ngIf="!isLoadingList && (!assignments || assignments.length === 0)">
-      <div class="empty-icon-box">📂</div>
-      <p class="empty-title">No class teachers assigned yet</p>
-      <p class="empty-sub">Configure and allocate new roster leaders inside the organizational matrix layout above.</p>
+    <div class="empty-state" *ngIf="!isLoadingList && assignments.length === 0">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+      </svg>
+      <p>No class teachers assigned yet</p>
     </div>
 
-    <div class="ct-table-scroll-wrapper" *ngIf="!isLoadingList && assignments && assignments.length > 0">
-      <table class="ct-table">
-        <thead>
-          <tr>
-            <th style="width: 30%;">Teacher Faculty</th>
-            <th style="width: 15%; text-align: center;">Emp. Code</th>
-            <th style="width: 15%; text-align: center;">Qualification</th>
-            <th style="width: 20%;">Class / Section</th>
-            <th style="width: 20%;">Joining / Assigned Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let a of assignments" class="ct-table-data-row">
-            
-            <td>
-              <div class="teacher-cell">
-                <span class="avatar">
-                  {{ (a.teacherName || a.firstName || '?')[0].toUpperCase() }}
-                </span>
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                  <span class="teacher-name">
-                    {{ a.teacherName || (a.firstName + ' ' + (a.lastName || '')) }}
-                  </span>
-                  <span style="font-size: 11px; color: #718096;" *ngIf="a.email">
-                    ✉️ {{ a.email }}
-                  </span>
-                </div>
-              </div>
-            </td>
-            
-            <td style="text-align: center;">
-              <code class="code-chip" *ngIf="a.employeeCode">{{ a.employeeCode }}</code>
-              <span class="session-tag" *ngIf="!a.employeeCode && a.academicSessionName">📆 {{ a.academicSessionName }}</span>
-              <span class="ct-timestamp-lbl" *ngIf="!a.employeeCode && !a.academicSessionName">—</span>
-            </td>
-            
-            <td style="text-align: center;">
-              <span class="badge-section" style="background: #faf5ff; color: #6b46c1; border-color: #d6bcfa;" *ngIf="a.qualification">
-                🎓 {{ a.qualification }}
-              </span>
-              <span class="ct-timestamp-lbl" *ngIf="!a.qualification">—</span>
-            </td>
-            
-            <td>
-              <div style="display: flex; gap: 6px; justify-content: flex-start; align-items: center;" *ngIf="a.className || a.sectionName">
-                <span class="badge-class" *ngIf="a.className">{{ a.className }}</span>
-                <span class="badge-section" *ngIf="a.sectionName">Section {{ a.sectionName }}</span>
-              </div>
-              <span class="badge-class" style="background: #ebf8ff; color: #2b6cb0; border-color: #bee3f8;" *ngIf="!a.className && !a.sectionName">
-                ℹ️ Registered Faculty
-              </span>
-            </td>
-            
-            <td class="date-cell">
-              <span class="ct-timestamp-lbl">
-                📆 {{ (a.createdAt || a.joiningDate) ? ((a.createdAt || a.joiningDate) | date:'dd MMM yyyy') : '—' }}
-              </span>
-            </td>
-
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <table class="ct-table" *ngIf="!isLoadingList && assignments.length > 0">
+      <thead>
+        <tr>
+          <th>Teacher</th>
+          <th>Class</th>
+          <th>Section</th>
+          <th>Session</th>
+          <th>Assigned On</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of assignments">
+          <td>
+            <div class="teacher-cell">
+              <span class="avatar">{{ (a.teacherName || '?')[0].toUpperCase() }}</span>
+              <span class="teacher-name">{{ a.teacherName || '—' }}</span>
+            </div>
+          </td>
+          <td><span class="badge-class">{{ a.className || '—' }}</span></td>
+          <td><span class="badge-section">{{ a.sectionName || '—' }}</span></td>
+          <td><span class="session-tag">{{ a.academicSessionName || '—' }}</span></td>
+          <td class="date-cell">{{ a.createdAt ? (a.createdAt | date:'dd MMM yyyy') : '—' }}</td>
+        </tr>
+      </tbody>
+    </table>
 
     <div class="pagination" *ngIf="totalPages > 1">
-      <button class="pg-btn" [disabled]="currentPage === 0" (click)="changePage(currentPage - 1)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <button class="pg-btn" [disabled]="filter.page === 0" (click)="changePage(filter.page - 1)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="15 18 9 12 15 6"/>
         </svg>
       </button>
-      
-      <button *ngFor="let p of pages"
-              class="pg-btn"
-              [class.active]="p === currentPage"
-              (click)="changePage(p)">
-        {{ p + 1 }}
-      </button>
-      
-      <button class="pg-btn" [disabled]="currentPage === totalPages - 1" (click)="changePage(currentPage + 1)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <button
+        *ngFor="let p of pages"
+        class="pg-btn"
+        [class.active]="p === filter.page"
+        (click)="changePage(p)"
+      >{{ p + 1 }}</button>
+      <button class="pg-btn" [disabled]="filter.page === totalPages - 1" (click)="changePage(filter.page + 1)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </button>
     </div>
-
   </div>
+
 </div>
