@@ -28,7 +28,6 @@ export class AuthService {
 
         const { token, role } = res.data;
 
-        // JWT decode karo — backend se sub=email, userId, role aata hai
         let decoded: any = {};
         try {
           decoded = jwtDecode(token);
@@ -36,7 +35,6 @@ export class AuthService {
           console.error('[AuthService] JWT decode failed', e);
         }
 
-        // name JWT mein nahi hai — email se build karo (profile API baad mein)
         const email = decoded.sub ?? '';
         const nameFromEmail = email.split('@')[0] ?? 'User';
 
@@ -46,11 +44,11 @@ export class AuthService {
                    ? `${decoded.firstName} ${decoded.lastName ?? ''}`.trim()
                    : nameFromEmail,
           email,
-          role,   // backend response se aata hai — 'SUPER_ADMIN' etc.
+          role,   
           schoolId: decoded.schoolId ?? '',
         };
 
-        console.log('[AuthService] Storing user:', user); // debug — baad mein hata dena
+        console.log('[AuthService] Storing user:', user); 
         this.authState.setAuth(token, user);
         this.router.navigate(['/dashboard']);
       })
@@ -66,11 +64,8 @@ export class AuthService {
     );
   }
 
+  // ✅ FIXED: No backend call now, directly cleans state instantly from client side
   logout(): void {
-    this.http.publicPost(ENDPOINTS.auth.logout, {}).subscribe({
-      error: () => {},
-      complete: () => this.clearAndRedirect(),
-    });
     this.clearAndRedirect();
   }
 

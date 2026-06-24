@@ -20,18 +20,12 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard',         href: '/dashboard',         icon: 'layout-dashboard', roles: 'all' },
-  
-  // -- Academic Core Management --
   { label: 'Students',          href: '/students',          icon: 'graduation-cap',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
   { label: 'Teachers',          href: '/teachers',          icon: 'users',            roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
   { label: 'Subjects',          href: '/subjects',          icon: 'book-open',        roles: ['SUPER_ADMIN', 'ADMIN'] },
-  
-  // -- Schedules & Operations Menu --
   { label: 'Class Timetable',   href: '/timetable',         icon: 'calendar-check',    roles: ['SUPER_ADMIN', 'ADMIN'] },
-  { label: 'Exams Module',      href: '/exams',             icon: 'exam-sheet',        roles: ['SUPER_ADMIN', 'ADMIN'] }, // Trigger element for dropdown list
-  { label: 'Teacher-Mapping',       href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
-  
-  // -- Operations Management --
+  { label: 'Exams Module',      href: '/exams',             icon: 'exam-sheet',        roles: ['SUPER_ADMIN', 'ADMIN'] }, 
+  { label: 'Teacher-Mapping',   href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
   { label: 'Attendance',        href: '/attendance',        icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
   { label: 'Fees',              href: '/fees',              icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT', 'PARENT'] },
   { label: 'Reports',           href: '/reports',           icon: 'bar-chart-3',      roles: ['SUPER_ADMIN', 'ADMIN'] },
@@ -40,7 +34,7 @@ const NAV_ITEMS: NavItem[] = [
 
 const TEACHERS_ROUTES = ['/teachers', '/teacher-mapping', '/subjects/assign-teacher', '/teacher-timetable'];
 const SUBJECTS_ROUTES = ['/subjects/manage', '/subjects'];
-const EXAMS_ROUTES    = ['/exams', '/exam-schedule']; // ✅ Track both exams registry and schedule standalone module routes
+const EXAMS_ROUTES    = ['/exams', '/exam-schedule']; 
 
 @Component({
   selector: 'app-sidebar',
@@ -56,7 +50,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   currentPath = '';
   currentRole: UserRole | null = null;
   
-  // Dropdowns structural open states flags
   teachersDropdownOpen = false;
   subjectsDropdownOpen = false;
   examsDropdownOpen = false;
@@ -141,7 +134,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   getInitials(name: string): string { return getInitials(name); }
-  logout(): void { this.authService.logout(); }
+
+  // ✅ FIXED: Clears core states locally and forces CDR detection wrapper
+  logout(): void { 
+    this.teachersDropdownOpen = false;
+    this.subjectsDropdownOpen = false;
+    this.examsDropdownOpen = false;
+    this.authService.logout(); 
+    this.cdr.markForCheck();
+  }
+
   closeSidebar(): void { this.uiState.setSidebarOpen(false); }
   toggleCollapsed(): void { this.uiState.toggleCollapsed(); }
 }
