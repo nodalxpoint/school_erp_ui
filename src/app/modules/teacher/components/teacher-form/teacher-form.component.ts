@@ -1,3 +1,5 @@
+// src/app/modules/teachers/components/teacher-form/teacher-form.component.ts
+
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,32 +32,50 @@ export class TeacherFormComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Route se check karo ki id mil rahi hai ya nahi (Edit mode criteria)
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
       this.userId = id;
-      this.loadTeacherDetails(id);
+
+      // ✅ STEP 1: Pehle check karo router state me current teacher object exist karta hai kya
+      const navigation = this.router.getCurrentNavigation();
+      const stateTeacher = navigation?.extras?.state?.['teacher'];
+
+      if (stateTeacher) {
+        this.mapTeacherToForm(stateTeacher);
+      } else {
+        // Fallback: Agar directly URL parse ya reload kiya ho toh API call chalegi
+        this.loadTeacherDetails(id);
+      }
     }
+  }
+
+  // ✅ Helper mapper to eliminate code redundancy and bind data perfectly
+  mapTeacherToForm(teacher: any): void {
+    this.form = {
+      userId: teacher.teacherId ?? teacher.id ?? '',
+      firstName: teacher.firstName ?? '',
+      lastName: teacher.lastName ?? '',
+      email: teacher.email ?? '',
+      password: '',
+      employeeCode: teacher.employeeCode ?? '',
+      qualification: teacher.qualification ?? '',
+      joiningDate: teacher.joiningDate?.substring(0, 10) ?? ''
+    };
+    this.cdr.markForCheck();
   }
 
   loadTeacherDetails(id: string): void {
     this.isSubmitting = true;
-    // PagedResponse filter se single teacher details nikalenge fallback mechanism ke liye
-    this.teacherService.filterTeachers({ page: 0, size: 1, firstName: id }).subscribe({
+    this.cdr.markForCheck();
+
+    // Query fallback wrapper
+    this.teacherService.filterTeachers({ page: 0, size: 50, sortBy: 'createdAt', sortDirection: 'asc' }).subscribe({
       next: (res) => {
-        const teacher = res.data?.[0];
+        // pure collection me se target check karo mapping match ke liye
+        const teacher = res.data?.find((t: any) => t.teacherId === id || t.id === id);
         if (teacher) {
-          this.form = {
-            userId: teacher.userId ?? teacher.id ?? '',
-            firstName: teacher.firstName ?? '',
-            lastName: teacher.lastName ?? '',
-            email: teacher.email ?? '',
-            password: '',
-            employeeCode: teacher.employeeCode ?? '',
-            qualification: teacher.qualification ?? '',
-            joiningDate: teacher.joiningDate?.substring(0, 10) ?? ''
-          };
+          this.mapTeacherToForm(teacher);
         }
         this.isSubmitting = false;
         this.cdr.markForCheck();
@@ -99,11 +119,9 @@ export class TeacherFormComponent implements OnInit {
       dto.password = this.form.password;
     }
 
-    // Direct service hitting trigger
     this.teacherService.addOrUpdateTeacher(dto).subscribe({
       next: (res) => {
         this.isSubmitting = false;
-        // Action complete hone par teacher list page par navigate kar jao
         this.router.navigate(['/teachers']);
       },
       error: (err) => {

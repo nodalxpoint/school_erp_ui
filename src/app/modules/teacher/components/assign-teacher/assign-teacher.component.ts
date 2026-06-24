@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router'; // ← Router ko import kiya
+import { Router } from '@angular/router'; 
 import {
   AssignClassTeacherDto,
   AssignTeacherFormState,
@@ -23,13 +23,11 @@ export class AssignTeacherComponent implements OnInit {
   @Input() schoolId: string = '';
   @Output() assigned = new EventEmitter<void>();
 
-  // ── Dropdown data ─────────────────────────────────────────────────────────
   classes:          ParamDropdownOption[] = [];
   sections:         ParamDropdownOption[] = [];   
   teachers:         ParamDropdownOption[] = [];   
   academicSessions: ParamDropdownOption[] = [];   
 
-  // ── Loading states ────────────────────────────────────────────────────────
   loadingClasses  = false;
   loadingSections = false;
   loadingTeachers = false;
@@ -38,20 +36,18 @@ export class AssignTeacherComponent implements OnInit {
   form: AssignTeacherFormState = {
     classId: '', sectionId: '', teacherId: '', academicSessionId: ''
   };
-  errors: Partial<AssignTeacherFormState> = {};
+  errors: Record<string, string> = {};
   isSubmitting = false;
 
   constructor(
     private teacherService: TeacherService,
-    private router: Router, // ← Router reference inject kiya
+    private router: Router, 
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadClasses();
   }
-
-  // ── Loaders ───────────────────────────────────────────────────────────────
 
   loadClasses(): void {
     this.loadingClasses = true;
@@ -135,14 +131,12 @@ export class AssignTeacherComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  // ── Validation & Submit ───────────────────────────────────────────────────
-
   validate(): boolean {
     this.errors = {};
-    if (!this.form.classId)            this.errors.classId = 'Required';
-    if (!this.form.sectionId)          this.errors.sectionId = 'Required';
-    if (!this.form.teacherId)          this.errors.teacherId = 'Required';
-    if (!this.form.academicSessionId)  this.errors.academicSessionId = 'Required';
+    if (!this.form.classId)            this.errors['classId'] = 'Required';
+    if (!this.form.sectionId)          this.errors['sectionId'] = 'Required';
+    if (!this.form.teacherId)          this.errors['teacherId'] = 'Required';
+    if (!this.form.academicSessionId)  this.errors['academicSessionId'] = 'Required';
     return !Object.keys(this.errors).length;
   }
 
@@ -156,8 +150,6 @@ export class AssignTeacherComponent implements OnInit {
         this.isSubmitting = false;
         this.resetForm();
         this.assigned.emit();
-        
-        // ✅ SUCCESS REDIRECTION: Form submit hote hi automatic Class Teacher list par redirect ho jayega
         this.router.navigate(['/teachers/class-teacher']); 
         this.cdr.markForCheck();
       },
@@ -168,9 +160,8 @@ export class AssignTeacherComponent implements OnInit {
     });
   }
 
-  // ── Back Button Action Trigger ──
   onBack(): void {
-    this.router.navigate(['/teachers/class-teacher']); // List par wapas bhej dega
+    this.router.navigate(['/teachers/class-teacher']); 
   }
 
   resetForm(): void {
@@ -179,5 +170,6 @@ export class AssignTeacherComponent implements OnInit {
     this.sections         = [];
     this.teachers         = [];
     this.academicSessions = [];
+    this.cdr.markForCheck();
   }
 }

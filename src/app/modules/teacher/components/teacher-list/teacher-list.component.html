@@ -1,177 +1,110 @@
-<!-- teacher-list.component.html -->
-<div class="list-wrapper" [class.has-detail]="selectedTeacher">
+<div class="list-wrapper">
+  <div class="table-pane" style="width: 100%;">
 
-  <!-- ─── Left: Table pane ─── -->
-  <div class="table-pane">
-
-    <!-- Search bar (Global Actions Layer) -->
-    <div class="search-bar">
-      <div class="search-input-wrap">
-        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24"
-             fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input class="search-input" type="text" [(ngModel)]="searchText"
-               placeholder="Global search by name or email…" (keyup.enter)="onSearch()" />
-        <button class="search-clear" *ngIf="searchText"
-                (click)="searchText = ''; onSearch()">×</button>
+    <div class="te-header-card">
+      <div class="te-header-top">
+        <div class="te-title-block">
+          <div class="te-eyebrow">School ERP · Faculty Directory</div>
+          <h1 class="te-title">Teachers Management Terminal</h1>
+        </div>
       </div>
-      <button class="btn-search" (click)="onSearch()">Search</button>
-      <button class="btn-add" (click)="onAddTeacher()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2">
-          <line x1="12" y1="5" x2="12" y2="19"/>
-          <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Add Teacher
-      </button>
+
+      <div class="te-filters-row">
+        <div class="te-search-input-wrap">
+          <svg class="te-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input class="te-search-input" type="text" [(ngModel)]="searchText"
+                 placeholder="Global search by name or email…" (keyup.enter)="onSearch()" />
+          <button class="te-search-clear" *ngIf="searchText" (click)="searchText = ''; onSearch()">×</button>
+        </div>
+        
+        <button class="te-btn-search" (click)="onSearch()">Search Registry</button>
+        
+        <button class="te-btn-add" (click)="onAddTeacher()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add New Teacher
+        </button>
+      </div>
     </div>
 
-    <!-- Skeleton Loader Components Grid -->
     <ng-container *ngIf="isLoading">
       <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
         <div class="sk-avatar"></div>
         <div class="sk-lines">
-          <div class="sk sk-name"></div>
-          <div class="sk sk-meta"></div>
+          <div class="sk sk-name"></div><div class="sk sk-meta"></div>
         </div>
-        <div class="sk sk-code"></div>
-        <div class="sk sk-qual"></div>
-        <div class="sk sk-date"></div>
-        <div class="sk sk-btn"></div>
+        <div class="sk sk-code"></div><div class="sk sk-qual"></div><div class="sk sk-date"></div><div class="sk sk-btn"></div>
       </div>
     </ng-container>
 
-    <!-- Empty State -->
-    <div class="empty-state" *ngIf="!isLoading && safeTeachers.length === 0">
-      <div class="empty-icon">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.5">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-      </div>
-      <p class="empty-title">No teachers found</p>
-      <p class="empty-sub">Add a teacher or modify column filters parameters query inputs.</p>
+    <div class="te-empty-state" *ngIf="!isLoading && safeTeachers.length === 0">
+      <div class="te-empty-icon">👤</div>
+      <h3 class="te-empty-title">No teachers found</h3>
     </div>
 
-    <!-- Table Layout Core Framework (Supports Left-Right Swipe on Phone) -->
-    <table class="teacher-table" *ngIf="!isLoading && safeTeachers.length > 0">
-      <thead>
-        <tr class="header-main-row">
-          <th class="col-teacher">Teacher</th>
-          <th class="col-code">Emp. Code</th>
-          <th class="col-qual">Qualification</th>
-          <th class="col-date">Joining Date</th>
-          <th class="col-actions"></th>
-        </tr>
-
-        <!-- ─── Inline Table Column Filter Row (Added Flawlessly) ─── -->
-        <tr class="filter-row">
-          <td class="col-teacher">
-            <!-- Global search handles name filtering, if your backend uses a dedicated param change it accordingly -->
-            <input class="col-filter-control" type="text" placeholder="Filter teacher..."
-                   [(ngModel)]="searchText" (keyup.enter)="onSearch()" />
-          </td>
-          <td class="col-code">
-            <!-- Binds to local form filter variable if declared in component backend, else standard text input wireframe -->
-            <input class="col-filter-control code-font" type="text" placeholder="Filter code..." 
-                   (keyup.enter)="onSearch()" />
-          </td>
-          <td class="col-qual">
-            <input class="col-filter-control" type="text" placeholder="e.g. B.Ed..." 
-                   (keyup.enter)="onSearch()" />
-          </td>
-          <td class="col-date"></td>
-          <td class="col-actions">
-            <!-- Fallback generic reset filter anchor button element -->
-            <button class="btn-clear-inline" (click)="searchText = ''; onSearch()" *ngIf="searchText" title="Clear Filters">✕</button>
-          </td>
-        </tr>
-      </thead>
-      
-      <tbody>
-        <tr *ngFor="let t of safeTeachers; trackBy: trackById"
-            class="table-row"
-            [class.row--selected]="selectedTeacher?.teacherId === t.teacherId">
-          <td class="col-teacher">
-            <div class="teacher-cell">
-              <div class="avatar">{{ initials(t) }}</div>
-              <div class="teacher-info">
-                <span class="teacher-name">{{ teacherName(t) }}</span>
-                <span class="teacher-email">{{ t.email }}</span>
+    <div class="te-table-scroll-wrapper" *ngIf="!isLoading && safeTeachers.length > 0">
+      <table class="teacher-table">
+        <thead>
+          <tr class="header-main-row">
+            <th class="col-teacher">Teacher Faculty Identity</th>
+            <th class="col-code">Emp. Code</th>
+            <th class="col-qual">Highest Qualification</th>
+            <th class="col-date">Joining Date</th>
+            <th class="col-actions">Operational Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of safeTeachers; trackBy: trackById" class="table-row">
+            <td class="col-teacher">
+              <div class="teacher-cell">
+                <div class="avatar">{{ initials(t) }}</div>
+                <div class="teacher-info">
+                  <span class="teacher-name">{{ teacherName(t) }}</span>
+                  <span class="teacher-email">✉️ {{ t.email }}</span>
+                </div>
               </div>
-            </div>
-          </td>
-          <td class="col-code">
-            <code class="code-chip" *ngIf="t.employeeCode">{{ t.employeeCode }}</code>
-            <span class="muted" *ngIf="!t.employeeCode">—</span>
-          </td>
-          <td class="col-qual">
-            <span class="qual-tag" *ngIf="t.qualification">{{ t.qualification }}</span>
-            <span class="muted" *ngIf="!t.qualification">—</span>
-          </td>
-          <td class="col-date">
-            <span *ngIf="t.joiningDate">{{ t.joiningDate | date:'dd MMM yyyy' }}</span>
-            <span class="muted" *ngIf="!t.joiningDate">—</span>
-          </td>
-          <td class="col-actions">
-            <!-- View button -->
-            <button class="view-btn"
-                  [class.view-btn--active]="selectedTeacher?.teacherId === t.teacherId"
-                    (click)="onView(t)" title="View details">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-              View
-            </button>
-            <!-- Edit button -->
-            <button class="edit-btn" (click)="onEdit(t)" title="Edit">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              </svg>
-              Edit
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Pagination Context Block -->
-    <div class="pagination" *ngIf="totalPages > 1">
-      <button class="pg-btn" [disabled]="currentPage === 0"
-              (click)="onPageChange(currentPage - 1)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
-      </button>
-      <button *ngFor="let p of pages" class="pg-btn"
-              [class.active]="p === currentPage"
-              (click)="onPageChange(p)">{{ p + 1 }}</button>
-      <button class="pg-btn" [disabled]="currentPage === totalPages - 1"
-              (click)="onPageChange(currentPage + 1)">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>
-      </button>
+            </td>
+            <td class="col-code">
+              <code class="code-chip" *ngIf="t.employeeCode">{{ t.employeeCode }}</code>
+              <span class="muted" *ngIf="!t.employeeCode">—</span>
+            </td>
+            <td class="col-qual">
+              <span class="qual-tag" *ngIf="t.qualification">{{ t.qualification }}</span>
+              <span class="muted" *ngIf="!t.qualification">—</span>
+            </td>
+            <td class="col-date">
+              <span class="te-date-badge" *ngIf="t.joiningDate">📆 {{ t.joiningDate | date:'dd MMM yyyy' }}</span>
+              <span class="muted" *ngIf="!t.joiningDate">—</span>
+            </td>
+            <td class="col-actions">
+              <div class="te-action-buttons-wrap">
+                <button class="view-btn" (click)="onView(t)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  Profile Details
+                </button>
+                <button class="edit-btn" (click)="onEdit(t)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  Modify
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-  </div><!-- /table-pane -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="pg-btn" [disabled]="currentPage === 0" (click)="onPageChange(currentPage - 1)">➔</button>
+      <button *ngFor="let p of pages" class="pg-btn" [class.active]="p === currentPage" (click)="onPageChange(p)">{{ p + 1 }}</button>
+      <button class="pg-btn" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 1)">➔</button>
+    </div>
 
-  <!-- ─── Right: Detail panel ─── -->
-  <div class="detail-pane" *ngIf="selectedTeacher">
-    <app-teacher-detail
-      [teacher]="selectedTeacher"
-      (edit)="onDetailEdit($event)"
-      (close)="onDetailClose()"
-    ></app-teacher-detail>
   </div>
-
-</div><!-- /list-wrapper -->
+</div>

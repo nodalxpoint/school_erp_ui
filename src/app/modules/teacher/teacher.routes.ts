@@ -9,7 +9,6 @@ export const TEACHER_ROUTES: Routes = [
         m => m.TeacherManagementComponent
       ),
     children: [
-      // /teachers → All Teachers (list)
       {
         path: '',
         pathMatch: 'full',
@@ -18,7 +17,8 @@ export const TEACHER_ROUTES: Routes = [
             m => m.TeacherListComponent
           ),
       },
-      // /teachers/add → Add Teacher form  ← STATIC routes before :id
+
+      // ─── STATIC routes — sab ':id' wale route se UPAR hone chahiye ───────────
       {
         path: 'add',
         loadComponent: () =>
@@ -26,7 +26,6 @@ export const TEACHER_ROUTES: Routes = [
             m => m.TeacherFormComponent
           ),
       },
-      // /teachers/assign → Assign Teacher (form only)  ← STATIC routes before :id
       {
         path: 'assign',
         loadComponent: () =>
@@ -34,7 +33,7 @@ export const TEACHER_ROUTES: Routes = [
             m => m.AssignTeacherComponent
           ),
       },
-      // /teachers/class-teacher → Class Teacher (assigned list)  ← STATIC routes before :id
+      // /teachers/class-teacher → Class Teacher Assignments list
       {
         path: 'class-teacher',
         loadComponent: () =>
@@ -42,6 +41,8 @@ export const TEACHER_ROUTES: Routes = [
             m => m.ClassTeacherListComponent
           ),
       },
+
+      // ─── DYNAMIC routes — ye sabse last me hone chahiye ─────────────────────
       // /teachers/:id/edit → Edit Teacher form
       {
         path: ':id/edit',
@@ -50,13 +51,14 @@ export const TEACHER_ROUTES: Routes = [
             m => m.TeacherFormComponent
           ),
       },
-      // /teachers/:id → Teacher detail  ← DYNAMIC last
+      // /teachers/:id → Teacher detail  (catch-all, isse neeche kuch mat daalna)
       {
         path: ':id',
         loadComponent: () =>
           import('./components/teacher-detail/teacher-detail.component').then(
             m => m.TeacherDetailComponent
           ),
+        title: 'Teacher Profile',
       },
     ],
   },

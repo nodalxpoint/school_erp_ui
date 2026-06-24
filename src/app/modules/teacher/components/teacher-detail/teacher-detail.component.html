@@ -1,51 +1,66 @@
-<div class="detail-panel" *ngIf="teacher">
-  <div class="panel-header">
-    <h3 class="panel-title">Teacher Details</h3>
-    <button class="close-btn" (click)="close.emit()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
+<div class="ted-page-wrapper">
+
+  <div class="ted-top-navigation">
+    <div class="ted-breadcrumb">
+      <span class="ted-crumb-link" (click)="onGoBack()">Faculty Roster</span>
+      <span class="ted-crumb-sep">/</span>
+      <span class="ted-crumb-current">Teacher Profile Profile</span>
+    </div>
+    <button class="ted-btn-back-action" (click)="onGoBack()">
+      ✕ Back to Directory
     </button>
   </div>
 
-  <div class="panel-body">
-    <!-- Avatar + name -->
-    <div class="profile-row">
-      <div class="big-avatar">{{ initials }}</div>
-      <div>
-        <p class="profile-name">{{ fullName }}</p>
-        <p class="profile-email">{{ teacher.email }}</p>
-      </div>
-    </div>
-
-    <div class="info-grid">
-      <div class="info-item">
-        <span class="info-label">Employee Code</span>
-        <span class="info-value">
-          <code class="code-chip" *ngIf="teacher.employeeCode">{{ teacher.employeeCode }}</code>
-          <span class="na" *ngIf="!teacher.employeeCode">Not set</span>
-        </span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Qualification</span>
-        <span class="info-value">{{ teacher.qualification || 'Not set' }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Joining Date</span>
-        <span class="info-value">
-          {{ teacher.joiningDate ? (teacher.joiningDate | date:'dd MMMM yyyy') : 'Not set' }}
-        </span>
-      </div>
-    </div>
+  <div class="ted-loading-state" *ngIf="isLoading">
+    <div class="ted-spinner"></div>
+    <span>Compiling comprehensive teacher details ledger...</span>
   </div>
 
-  <div class="panel-footer">
-    <button class="btn-edit" (click)="edit.emit(teacher)">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-      </svg>
-      Edit Teacher
-    </button>
+  <div class="ted-profile-sheet-card" *ngIf="!isLoading && teacher">
+    
+    <div class="ted-banner-identity-block">
+      <div class="ted-avatar-circle-giant">{{ initials }}</div>
+      <div class="ted-identity-text-nodes">
+        <h1 class="ted-fullname-lbl">{{ fullName }}</h1>
+        <p class="ted-role-subtag">🎓 Registered Faculty Teacher Profile Node</p>
+      </div>
+    </div>
+
+    <div class="ted-specs-details-grid">
+      
+      <div class="ted-spec-item-box">
+        <span class="ted-spec-label">Official Email Address</span>
+        <span class="ted-spec-value font-highlight">✉️ {{ teacher.email || '—' }}</span>
+      </div>
+
+      <div class="ted-spec-item-box">
+        <span class="ted-spec-label">Employee Code</span>
+        <span class="ted-spec-value">
+          <code class="ted-code-badge" *ngIf="teacher.employeeCode">{{ teacher.employeeCode }}</code>
+          <span class="ted-muted-fallback" *ngIf="!teacher.employeeCode">Not set on profile</span>
+        </span>
+      </div>
+
+      <div class="ted-spec-item-box">
+        <span class="ted-spec-label">Highest Qualification Mapped</span>
+        <span class="ted-spec-value text-bold">📘 {{ teacher.qualification || 'Not provided' }}</span>
+      </div>
+
+      <div class="ted-spec-item-box">
+        <span class="ted-spec-label">Joining Date Record</span>
+        <span class="ted-spec-value font-date">📆 {{ teacher.joiningDate ? (teacher.joiningDate | date:'dd MMMM yyyy') : 'No record trace' }}</span>
+      </div>
+
+    </div>
+
+    <div class="ted-sheet-footer-panel">
+      <button class="ted-btn-modify-specs" (click)="onEditTeacher()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        Modify Specification Record
+      </button>
+    </div>
+
   </div>
 </div>

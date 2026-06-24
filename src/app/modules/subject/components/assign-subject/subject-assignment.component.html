@@ -1,154 +1,218 @@
-<div class="list-wrapper" [class.has-detail]="isFormOpen">
+<div class="ex-page-wrapper">
 
-  <div class="table-pane">
+  <div class="ex-full-form-canvas" *ngIf="isFormOpen">
     
-    <div class="filter-dashboard">
-      <div class="filter-grid">
-        <div class="select-item">
-          <label>Class</label>
-          <select [(ngModel)]="filter.classId" (change)="onFilterClassChange(filter.classId!)">
+    <div class="ex-form-navigation">
+      <div class="ex-breadcrumb">
+        <span class="ex-crumb-link" (click)="isFormOpen = false">Subject Mapping</span>
+        <span class="ex-crumb-sep">/</span>
+        <span class="ex-crumb-current">New Assignment Mapping</span>
+      </div>
+      
+      <button class="ex-btn-top-back" type="button" (click)="isFormOpen = false" [disabled]="isSaving">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to List
+      </button>
+    </div>
+
+    <div class="ex-form-workspace-card">
+      
+      <div class="ex-form-header-banner">
+        <div class="ex-header-icon-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <div class="ex-header-text-block">
+          <h3 class="ex-form-main-title">New Academic Assignment Mapping</h3>
+          <p class="ex-form-sub-title">Configure course books allocations and anchor specialized faculty experts straight inside the classroom matrix.</p>
+        </div>
+      </div>
+
+      <form (ngSubmit)="onSubmitAssignment()" #assignForm="ngForm" class="ex-form-body-container">
+        
+        <div class="ex-group-divider">
+          <span>Roster Session Parameters</span>
+        </div>
+
+        <div class="ex-form-element">
+          <label class="ex-form-label">Academic Session <span class="req">*</span></label>
+          <div class="ex-select-custom-wrapper">
+            <select class="ex-form-select" [(ngModel)]="formModel.academicSessionId" name="academicSession" required [disabled]="isSaving">
+              <option value="">Select current configuration session</option>
+              <option *ngFor="let s of sessions" [value]="s.id">📆 Session {{s.label}}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ex-group-divider">
+          <span>Target Destination & Faculty Allocation</span>
+        </div>
+
+        <div class="ex-form-grid-half">
+          <div class="ex-form-element">
+            <label class="ex-form-label">Target Class <span class="req">*</span></label>
+            <div class="ex-select-custom-wrapper">
+              <select class="ex-form-select" [(ngModel)]="formModel.classId" name="class" (change)="onFormClassChange(formModel.classId)" required [disabled]="isSaving">
+                <option value="">Select Class</option>
+                <option *ngFor="let c of classes" [value]="c.id">🏫 {{c.label}}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="ex-form-element">
+            <label class="ex-form-label">Section Node <span class="req">*</span></label>
+            <div class="ex-select-custom-wrapper">
+              <select class="ex-form-select" [(ngModel)]="formModel.sectionId" name="section" [disabled]="!formModel.classId || isSaving" required>
+                <option value="">Select Section</option>
+                <option *ngFor="let s of sections" [value]="s.id">✨ Section {{s.label}}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="ex-form-element">
+          <label class="ex-form-label">Subject Allocation <span class="req">*</span></label>
+          <div class="ex-select-custom-wrapper">
+            <select class="ex-form-select" [(ngModel)]="formModel.subjectId" name="subject" required [disabled]="isSaving">
+              <option value="">Select target course book subject</option>
+              <option *ngFor="let sb of subjects" [value]="sb.id">📘 {{sb.label}}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ex-form-element">
+          <label class="ex-form-label">Assigned Faculty Leader <span class="req">*</span></label>
+          <div class="ex-select-custom-wrapper">
+            <select class="ex-form-select" [(ngModel)]="formModel.teacherId" name="teacher" required [disabled]="isSaving">
+              <option value="">Select teacher specialist profile</option>
+              <option *ngFor="let t of teachers" [value]="t.id">👤 {{t.label}}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ex-modal-footer">
+          <button type="button" class="ex-modal-btn-secondary" (click)="isFormOpen = false" [disabled]="isSaving">Dismiss</button>
+          <button type="submit" class="ex-modal-btn-primary" [disabled]="!assignForm.form.valid || isSaving">
+            <span class="ex-micro-spinner" *ngIf="isSaving"></span>
+            {{ isSaving ? 'Compiling Parameters...' : 'Confirm Assignment Mapping' }}
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <div class="ex-master-list-canvas" *ngIf="!isFormOpen">
+    
+    <div class="ex-header-card">
+      <div class="ex-header-top">
+        <div class="ex-title-block">
+          <div class="ex-eyebrow">School ERP · Operational Rosters</div>
+          <h1 class="ex-title">Subject Teacher Mapping</h1>
+        </div>
+
+        <div class="ex-action-trigger">
+          <button class="ex-btn-add" (click)="onOpenForm()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Assign Subject Teacher
+          </button>
+        </div>
+      </div>
+
+      <div class="ex-filters-row">
+        <div class="ex-filter-group">
+          <label class="ex-label">Class</label>
+          <select class="ex-select" [(ngModel)]="filter.classId" (change)="onFilterClassChange(filter.classId!)">
             <option value="">All Classes</option>
             <option *ngFor="let c of classes" [value]="c.id">{{c.label}}</option>
           </select>
         </div>
 
-        <div class="select-item">
-          <label>Section</label>
-          <select [(ngModel)]="filter.sectionId" (change)="onApplyFilters()" [disabled]="!filter.classId">
+        <div class="ex-filter-group">
+          <label class="ex-label">Section</label>
+          <select class="ex-select" [(ngModel)]="filter.sectionId" (change)="onApplyFilters()" [disabled]="!filter.classId">
             <option value="">All Sections</option>
             <option *ngFor="let s of sections" [value]="s.id">{{s.label}}</option>
           </select>
         </div>
 
-        <div class="select-item">
-          <label>Subject</label>
-          <select [(ngModel)]="filter.subjectId" (change)="onApplyFilters()">
+        <div class="ex-filter-group">
+          <label class="ex-label">Subject</label>
+          <select class="ex-select" [(ngModel)]="filter.subjectId" (change)="onApplyFilters()">
             <option value="">All Subjects</option>
             <option *ngFor="let sb of subjects" [value]="sb.id">{{sb.label}}</option>
           </select>
         </div>
 
-        <div class="select-item">
-          <label>Teacher</label>
-          <select [(ngModel)]="filter.teacherId" (change)="onApplyFilters()">
+        <div class="ex-filter-group">
+          <label class="ex-label">Teacher Faculty</label>
+          <select class="ex-select" [(ngModel)]="filter.teacherId" (change)="onApplyFilters()">
             <option value="">All Teachers</option>
             <option *ngFor="let t of teachers" [value]="t.id">{{t.label}}</option>
           </select>
         </div>
       </div>
+    </div>
 
-      <div class="action-trigger">
-        <button class="btn-add" (click)="onOpenForm()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Assign Teacher
-        </button>
+    <div class="ex-loading-card" *ngIf="isLoading">
+      <div class="ex-spinner"></div>
+      <span>Syncing comprehensive roster mapping specs from active nodes...</span>
+    </div>
+
+    <div class="ex-empty-state" *ngIf="!isLoading && assignments.length === 0">
+      <div class="ex-empty-icon">📂</div>
+      <h3 class="ex-empty-title">No subject-teacher allocations configured</h3>
+      <p class="ex-empty-sub">Modify your matrix query parameters or map a new faculty member above.</p>
+    </div>
+
+    <div class="ex-table-section" *ngIf="!isLoading && assignments.length > 0">
+      <div class="ex-table-scroll-wrapper">
+        <table class="ex-registry-table">
+          <thead>
+            <tr>
+              <th style="width: 25%;">Target Classroom</th>
+              <th style="width: 30%;">Subject Mapping</th>
+              <th style="width: 25%;">Assigned Teacher</th>
+              <th style="width: 20%;">Academic Session</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let a of assignments" class="ex-table-data-row">
+              <td>
+                <span class="ex-cell-main">🏫 {{ a.className }}</span>
+                <span class="ex-cell-sub">Section {{ a.sectionName }}</span>
+              </td>
+              <td>
+                <code class="ex-code-chip">{{ a.subjectCode || 'SUB' }}</code>
+                <span class="ex-cell-sub d-block font-bold" style="color: #2d3748; margin-top: 4px;">{{ a.subjectName }}</span>
+              </td>
+              <td>
+                <div class="ex-teacher-profile-cell">
+                  <div class="ex-avatar-node">{{ a.teacherName ? a.teacherName[0].toUpperCase() : 'T' }}</div>
+                  <span class="ex-cell-main">{{ a.teacherName }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="ex-session-tag">... {{ a.academicSessionName }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="ex-pagination-bar" *ngIf="totalPages > 1">
+        <button class="ex-pg-arrow" [disabled]="currentPage === 0" (click)="onPageChange(currentPage - 1)">‹</button>
+        <button *ngFor="let p of pages" class="ex-pg-num" [class.ex-pg-num--active]="p === currentPage" (click)="onPageChange(p)">{{ p + 1 }}</button>
+        <button class="ex-pg-arrow" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 1)">›</button>
       </div>
     </div>
 
-    <div *ngIf="isLoading" class="skeleton-wrap">
-      <div class="sk-row" *ngFor="let i of [1,2,3]"></div>
-    </div>
-
-    <div class="empty-state" *ngIf="!isLoading && assignments.length === 0">
-      <p class="empty-title">No subject-teacher assignments found</p>
-      <p class="empty-sub">Select different filters or allocate a new teacher to a subject.</p>
-    </div>
-
-    <table class="teacher-table" *ngIf="!isLoading && assignments.length > 0">
-      <thead>
-        <tr>
-          <th>Class & Section</th>
-          <th>Subject Mapping</th>
-          <th>Assigned Teacher</th>
-          <th>Academic Session</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let a of assignments" class="table-row">
-          <td>
-            <span class="main-text">{{ a.className }}</span>
-            <span class="sub-text">Section: {{ a.sectionName }}</span>
-          </td>
-          <td>
-            <code class="code-chip">{{ a.subjectCode }}</code>
-            <span class="sub-text d-block">{{ a.subjectName }}</span>
-          </td>
-          <td>
-            <div class="teacher-cell">
-              <div class="avatar-sm">{{ a.teacherName ? a.teacherName[0].toUpperCase() : 'T' }}</div>
-              <span class="name-text">{{ a.teacherName }}</span>
-            </div>
-          </td>
-          <td><span class="session-tag">{{ a.academicSessionName }}</span></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="pagination" *ngIf="totalPages > 1">
-      <button class="pg-btn" [disabled]="currentPage === 0" (click)="onPageChange(currentPage - 1)">‹</button>
-      <button *ngFor="let p of pages" class="pg-btn" [class.active]="p === currentPage" (click)="onPageChange(p)">{{ p + 1 }}</button>
-      <button class="pg-btn" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 1)">›</button>
-    </div>
-  </div>
-
-  <div class="detail-pane" *ngIf="isFormOpen">
-    <div class="form-card">
-      <div class="card-header">
-        <h3>New Assignment Mapping</h3>
-        <button class="close-btn" (click)="isFormOpen = false">×</button>
-      </div>
-
-      <form (ngSubmit)="onSubmitAssignment()" #assignForm="ngForm" class="card-body">
-        <div class="form-group">
-          <label class="form-label">Academic Session *</label>
-          <select class="form-control" [(ngModel)]="formModel.academicSessionId" name="academicSession" required>
-            <option value="">Select Session</option>
-            <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Class *</label>
-          <select class="form-control" [(ngModel)]="formModel.classId" name="class" (change)="onFormClassChange(formModel.classId)" required>
-            <option value="">Select Class</option>
-            <option *ngFor="let c of classes" [value]="c.id">{{c.label}}</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Section *</label>
-          <select class="form-control" [(ngModel)]="formModel.sectionId" name="section" [disabled]="!formModel.classId" required>
-            <option value="">Select Section</option>
-            <option *ngFor="let s of sections" [value]="s.id">{{s.label}}</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Subject *</label>
-          <select class="form-control" [(ngModel)]="formModel.subjectId" name="subject" required>
-            <option value="">Select Subject</option>
-            <option *ngFor="let sb of subjects" [value]="sb.id">{{sb.label}}</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Teacher *</label>
-          <select class="form-control" [(ngModel)]="formModel.teacherId" name="teacher" required>
-            <option value="">Select Teacher</option>
-            <option *ngFor="let t of teachers" [value]="t.id">{{t.label}}</option>
-          </select>
-        </div>
-
-        <div class="action-footer">
-          <button type="button" class="btn-secondary" (click)="isFormOpen = false">Cancel</button>
-          <button type="submit" class="btn-primary" [disabled]="!assignForm.form.valid || isSaving">
-            {{ isSaving ? 'Mapping...' : 'Confirm Mapping' }}
-          </button>
-        </div>
-      </form>
-    </div>
   </div>
 
 </div>

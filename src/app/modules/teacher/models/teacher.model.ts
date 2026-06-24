@@ -11,6 +11,7 @@ export interface TeacherResponseDto {
   qualification?: string;
   joiningDate?: string;
 }
+
 export interface ClassTeacherAssignmentResponseDto {
   id: string;
   classId: string;
@@ -22,16 +23,24 @@ export interface ClassTeacherAssignmentResponseDto {
   academicSessionId: string;
   academicSessionName?: string;
   createdAt?: string;
+
+  // ✅ FIXED: Added optional fields returned directly by your backend JSON response payload
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  employeeCode?: string;
+  qualification?: string;
+  joiningDate?: string;
 }
 
 // ─── Request DTOs ────────────────────────────────────────────────────────────
 
 export interface CreateTeacherDto {
-  userId?: string;          // present = update, absent = create
+  userId?: string;          
   firstName: string;
   lastName?: string;
   email: string;
-  password?: string;        // only for create
+  password?: string;        
   employeeCode?: string;
   qualification?: string;
   joiningDate?: string;
@@ -44,7 +53,7 @@ export interface AssignClassTeacherDto {
   academicSessionId: string;
 }
 
-// ─── Filter requests (mirrors BaseFilterRequest + extra fields) ───────────────
+// ─── Filter requests ─────────────────────────────────────────────────────────
 
 export interface TeacherFilterRequest {
   page: number;
@@ -66,7 +75,6 @@ export interface ClassTeacherAssignmentFilterRequest {
   teacherName?: string;
   academicSessionId?: string;
 }
-
 
 export interface PagedResponse<T> {
   success: boolean;

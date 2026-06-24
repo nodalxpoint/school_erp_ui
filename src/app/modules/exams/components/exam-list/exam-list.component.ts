@@ -23,7 +23,8 @@ export class ExamListComponent implements OnInit, OnDestroy {
   isLoading = false;
   isAdmin = false;
   
-  // ✅ Changes track karne ke liye variables
+  // ✅ Track strictly which exam is dynamically marked as Active on Frontend
+  pendingActiveExamId: string | null = null;
   hasChanges = false;
   originalExams: ExamDto[] = []; 
 
@@ -98,7 +99,8 @@ export class ExamListComponent implements OnInit, OnDestroy {
 
   loadExams(): void {
     this.isLoading = true;
-    this.hasChanges = false; // Reset changes on fresh load
+    this.hasChanges = false; 
+    this.pendingActiveExamId = null; // Clean active dynamic state
     this.cdr.markForCheck();
 
     const payload = { ...this.filter };
@@ -107,7 +109,6 @@ export class ExamListComponent implements OnInit, OnDestroy {
     this.examService.getExamsList(payload).subscribe({
       next: (res) => {
         this.exams = res.data ?? [];
-        // Deep copy backups for reverting if needed
         this.originalExams = JSON.parse(JSON.stringify(this.exams));
         this.isLoading = false;
         this.cdr.markForCheck();
@@ -116,61 +117,80 @@ export class ExamListComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ✅ LOCAL TOGGLE SELECTION (No API Call here)
+  // ✅ FIXED LOCAL TOGGLE: Ensures exactly one row stays 'Y', others strictly stay 'N'
   onToggleActiveStatus(targetExam: ExamDto, event: Event): void {
     event.stopPropagation();
     if (!this.isAdmin) return;
 
-    const previousState = targetExam.isActive; 
-    const isChecking = previousState !== 'Y';
+    const currentTargetId = targetExam.examId || targetExam.id || '';
+    const isChecking = targetExam.isActive !== 'Y';
 
-    // UI par local state update karo (strictly single active constraint ke sath)
+    if (isChecking) {
+      this.pendingActiveExamId = currentTargetId;
+    } else {
+      this.pendingActiveExamId = null; // System requires at least one active, or allows none based on your requirement
+    }
+
+    // Reflect explicitly on UI row matrix arrays
     this.exams = this.exams.map(ex => {
-      if (ex.examId === targetExam.examId) {
+      const exId = ex.examId || ex.id;
+      if (exId === currentTargetId) {
         return { ...ex, isActive: isChecking ? 'Y' : 'N' };
       } else {
-        return isChecking ? { ...ex, isActive: 'N' as const } : ex;
+        return { ...ex, isActive: 'N' as const }; // Strictly keep all other records down to inactive
       }
     });
 
-    this.hasChanges = true; // Isse UI par "Save Changes" button visible ho jayega
+    this.hasChanges = true;
     this.cdr.markForCheck();
   }
 
-  // ✅ NEW METHOD: Click hone par actual API save call chalegi
+  // ✅ FIXED SAVE CONFIGURATION METHOD: Maps exact target structure with zero index comparison fallbacks
   onSaveChanges(): void {
     if (!this.isAdmin || !this.hasChanges) return;
 
-    this.isLoading = true;
-    this.cdr.markForCheck();
+    // Find target strictly using our active tracking pointer ID references
+    let targetPayloadExam = this.exams.find(ex => (ex.examId || ex.id) === this.pendingActiveExamId);
 
-    // Jo active ('Y') kiya hua ya badla hua target exam hai use find karo
-    const changedExam = this.exams.find((ex, index) => ex.isActive !== this.originalExams[index].isActive);
+    // Backup Fallback: If no exam was activated, find the one that changed to 'N'
+    if (!targetPayloadExam) {
+      targetPayloadExam = this.exams.find((ex, i) => ex.isActive !== this.originalExams[i].isActive);
+    }
 
-    if (!changedExam) {
+    if (!targetPayloadExam) {
       this.hasChanges = false;
-      this.isLoading = false;
       this.cdr.markForCheck();
       return;
     }
 
-    // Tumhari addOrUpdateExam / updateExamStatus API trigger hogi
-    this.examService.updateExamStatus(changedExam).subscribe({
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
+    // Deep cloned configuration wrapper instance sent cleanly to service pipeline
+    const cleanSendBody: ExamDto = {
+      ...targetPayloadExam,
+      id: targetPayloadExam.id || targetPayloadExam.examId,
+      examId: targetPayloadExam.examId || targetPayloadExam.id,
+      isActive: targetPayloadExam.isActive // Strictly sends 'Y' or 'N' exactly as on UI
+    };
+
+    this.examService.updateExamStatus(cleanSendBody).subscribe({
       next: (res) => {
         this.hasChanges = false;
-        this.loadExams(); // Fresh data sync karo list me
+        this.pendingActiveExamId = null;
+        this.loadExams(); // Fresh load from database response parameters
       },
       error: () => {
         alert('Failed to update status on server.');
-        this.onCancelChanges(); // Revert back instantly
+        this.onCancelChanges();
       }
     });
   }
 
-  // Optional: Changes ko cancel karne ke liye helper method
   onCancelChanges(): void {
     this.exams = JSON.parse(JSON.stringify(this.originalExams));
     this.hasChanges = false;
+    this.pendingActiveExamId = null;
     this.cdr.markForCheck();
   }
 

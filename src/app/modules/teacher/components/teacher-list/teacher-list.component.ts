@@ -1,28 +1,23 @@
-import {
-  Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef
-} from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TeacherService } from '../../services/teacher.service';
 import { TeacherResponseDto, TeacherFilterRequest } from '../../models/teacher.model';
-import { TeacherDetailComponent } from '../teacher-detail/teacher-detail.component';
 
 @Component({
   selector: 'app-teacher-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, TeacherDetailComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './teacher-list.component.html',
   styleUrls: ['./teacher-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TeacherListComponent implements OnInit {
-
   teachers: TeacherResponseDto[] = [];
   isLoading = false;
   totalElements = 0;
   totalPages = 0;
-  selectedTeacher: TeacherResponseDto | null = null;   // detail panel
 
   filter: TeacherFilterRequest = {
     page: 0, size: 10, sortBy: 'createdAt', sortDirection: 'asc'
@@ -35,7 +30,9 @@ export class TeacherListComponent implements OnInit {
     private cdr: ChangeDetectorRef
   ) { }
 
-  ngOnInit(): void { this.loadTeachers(); }
+  ngOnInit(): void { 
+    this.loadTeachers(); 
+  }
 
   loadTeachers(): void {
     this.isLoading = true;
@@ -57,31 +54,31 @@ export class TeacherListComponent implements OnInit {
     });
   }
 
-  onSearch(): void { this.filter.page = 0; this.loadTeachers(); }
-  onPageChange(p: number): void { this.filter.page = p; this.loadTeachers(); }
+  onSearch(): void { 
+    this.filter.page = 0; 
+    this.loadTeachers(); 
+  }
 
+  onPageChange(p: number): void { 
+    this.filter.page = p; 
+    this.loadTeachers(); 
+  }
+
+  // ✅ FIX: Navigates straight down to a new dedicated route page carrying data state matrix
   onView(t: TeacherResponseDto): void {
-    const currentId = this.selectedTeacher?.teacherId;
-    this.selectedTeacher = currentId === t.teacherId ? null : t;
-    this.cdr.markForCheck(); // ← yeh add karo
+    this.router.navigate([`/teachers/${t.teacherId}`], {
+      state: { teacher: t }
+    });
   }
 
   onAddTeacher(): void {
     this.router.navigate(['/teachers/add']);
   }
 
-  onDetailClose(): void {
-    this.selectedTeacher = null;
-    this.cdr.markForCheck(); // ← yeh bhi
-  }
-
   onEdit(t: TeacherResponseDto): void {
-    this.router.navigate(['/teachers', t.teacherId, 'edit']); // id hata, teacherId use karo
-  }
-
-  onDetailEdit(t: TeacherResponseDto): void {
-    this.selectedTeacher = null;
-    this.router.navigate(['/teachers', t.teacherId, 'edit']); // yahan bhi
+    this.router.navigate(['/teachers', t.teacherId, 'edit'], {
+      state: { teacher: t }
+    }); 
   }
 
   get safeTeachers(): TeacherResponseDto[] { return this.teachers ?? []; }

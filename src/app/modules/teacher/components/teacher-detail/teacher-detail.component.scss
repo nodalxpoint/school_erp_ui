@@ -1,107 +1,165 @@
-.detail-panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-}
+// teacher-detail.component.scss
 
-.panel-header {
+$primary:       #2b6cb0;
+$primary-hover: #2c5282;
+$bg-page:       #f7fafc;
+$border-color:  #e2e8f0;
+$text-primary:  #1a202c;
+$text-muted:    #718096;
+
+.ted-page-wrapper {
+  max-width: 1000px;
+  margin: 24px auto;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+// ── NAVIGATION CONTROLS ──────────────────────────────
+.ted-top-navigation {
+  display: flex;
   justify-content: space-between;
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-raised);
-}
-
-.panel-title {
-  font-size: 14px; font-weight: 600;
-  color: var(--text-primary); margin: 0;
-}
-
-.close-btn {
-  width: 28px; height: 28px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
-  &:hover { border-color: var(--danger); color: var(--danger); }
-}
-
-.panel-body { padding: 20px; }
-
-.profile-row {
-  display: flex; align-items: center; gap: 14px;
-  margin-bottom: 20px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--border);
-}
-
-.big-avatar {
-  width: 52px; height: 52px;
-  border-radius: 14px;
-  background: var(--accent-soft);
-  border: 1px solid var(--accent-border);
-  color: var(--accent);
-  font-size: 18px; font-weight: 800;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; text-transform: uppercase;
-}
-
-.profile-name  { font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0 0 3px; }
-.profile-email { font-size: 12.5px; color: var(--text-muted); margin: 0; }
-
-.info-grid {
-  display: flex; flex-direction: column; gap: 14px;
-}
-
-.info-item {
-  display: flex; justify-content: space-between; align-items: center;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
-.info-label {
-  font-size: 12px; font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 0.04em;
-  flex-shrink: 0;
+.ted-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+
+  .ted-crumb-link {
+    color: $text-muted;
+    cursor: pointer;
+    &:hover { color: $primary; }
+  }
+  .ted-crumb-sep { color: #cbd5e0; }
+  .ted-crumb-current { color: $text-primary; font-weight: 700; }
 }
 
-.info-value {
-  font-size: 13.5px; color: var(--text-primary);
-  font-weight: 500; text-align: right;
-  .na { color: var(--text-muted); font-style: italic; font-weight: 400; }
+.ted-btn-back-action {
+  display: inline-flex; align-items: center; padding: 8px 14px;
+  background: #fff; color: $text-primary; border: 1px solid #cbd5e0;
+  border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer;
+  &:hover { background: #f7fafc; border-color: $text-muted; }
 }
 
-.code-chip {
-  font-size: 12px;
-  font-family: 'DM Mono', 'Fira Code', monospace;
-  color: var(--text-secondary);
-  background: var(--surface-raised);
-  padding: 3px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
+// ── LOADING INDICATORS ────────────────────────────────
+.ted-loading-state {
+  display: flex; align-items: center; gap: 12px; padding: 20px;
+  background: #fff; border-radius: 12px; border: 1px solid $border-color;
+  font-size: 13.5px; color: $text-muted; font-weight: 500;
+}
+.ted-spinner {
+  width: 16px; height: 16px; border: 2px solid #edf2f7;
+  border-top-color: $primary; border-radius: 50%; animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── WORKSPACE CORE PROFILE SHEET ──────────────────────
+.ted-profile-sheet-card {
+  background: #fff;
+  border: 1px solid $border-color;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.panel-footer {
-  padding: 14px 20px;
-  border-top: 1px solid var(--border);
-  background: var(--surface-raised);
+.ted-banner-identity-block {
+  background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid $border-color;
+
+  @media (max-width: 600px) {
+    flex-direction: column; text-align: center; padding: 24px 16px;
+  }
 }
 
-.btn-edit {
-  display: inline-flex; align-items: center; gap: 7px;
-  width: 100%; justify-content: center;
-  padding: 9px 16px;
-  background: var(--accent-soft);
-  border: 1px solid var(--accent-border);
-  border-radius: 10px;
-  color: var(--accent);
-  font-size: 13.5px; font-weight: 600;
-  cursor: pointer; font-family: inherit;
-  transition: all 0.15s;
-  &:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.ted-avatar-circle-giant {
+  width: 76px; height: 76px; border-radius: 16px;
+  background: #ebf4ff; border: 1px solid #bee3f8;
+  color: $primary; font-size: 26px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  text-transform: uppercase; box-shadow: 0 4px 10px rgba(43,108,176,0.1);
+}
+
+.ted-fullname-lbl {
+  margin: 0; font-size: 1.65rem; font-weight: 800; color: #1a202c; letter-spacing: -0.02em;
+}
+.ted-role-subtag {
+  margin: 4px 0 0; font-size: 13px; color: $text-muted; font-weight: 600;
+}
+
+// ── SPECS FORM SHEET DETAILS MATRIX ───────────────────
+.ted-specs-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  padding: 24px;
+  gap: 20px;
+
+  @media (max-width: 500px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ted-spec-item-box {
+  background: #fff;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: #cbd5e0;
+  }
+
+  .ted-spec-label {
+    font-size: 11px; font-weight: 700; color: $text-muted; text-transform: uppercase; letter-spacing: 0.03em;
+  }
+
+  .ted-spec-value {
+    font-size: 14.5px; font-weight: 700; color: #2d3748;
+    
+    &.font-highlight { color: $primary; }
+    &.text-bold { color: #6b46c1; }
+    &.font-date { color: #2c7a7b; }
+  }
+}
+
+.ted-code-badge {
+  font-size: 12.5px; font-family: monospace; font-weight: 700;
+  color: #2c7a7b; background: #e6fffa; padding: 4px 10px; border-radius: 6px; border: 1px solid #81e6d9;
+}
+.ted-muted-fallback { color: $text-muted; font-style: italic; font-size: 13px; font-weight: 400; }
+
+// ── ACTIONS STRIP FOOTER PANEL ───────────────────────
+.ted-sheet-footer-panel {
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid $border-color;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ted-btn-modify-specs {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 24px; background: $primary; border: none; color: #fff;
+  font-weight: 700; font-size: 13.5px; border-radius: 10px; cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(43, 108, 176, 0.15);
+  transition: background 0.15s ease;
+
+  &:hover { background: $primary-hover; }
 }

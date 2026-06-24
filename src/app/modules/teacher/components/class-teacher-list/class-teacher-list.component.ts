@@ -4,10 +4,10 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router'; // ← Router import kiya
+import { Router } from '@angular/router'; 
 import {
-  ClassTeacherAssignmentFilterRequest,
-  ClassTeacherAssignmentResponseDto,
+  TeacherFilterRequest,
+  TeacherResponseDto,
   PagedResponse
 } from '../../models/teacher.model';
 import { TeacherService } from '../../services/teacher.service';
@@ -21,19 +21,23 @@ import { TeacherService } from '../../services/teacher.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ClassTeacherListComponent implements OnInit {
-  assignments: ClassTeacherAssignmentResponseDto[] = [];
+  assignments: any[] = []; 
   isLoadingList = false;
   totalPages    = 0;
   totalElements = 0;
+  currentPage   = 0; // 🌟 HTML me direct binding ke liye numeric track banaya
 
-  filter: ClassTeacherAssignmentFilterRequest = {
-    page: 0, size: 10, sortBy: 'createdAt', sortDirection: 'desc'
+  filter: TeacherFilterRequest = {
+    page: 0, 
+    size: 200, 
+    sortBy: 'joiningDate', 
+    sortDirection: 'desc'
   };
   filterTeacherName = '';
 
   constructor(
     private teacherService: TeacherService,
-    private router: Router, // ← Inject router reference
+    private router: Router, 
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -41,41 +45,44 @@ export class ClassTeacherListComponent implements OnInit {
     this.loadAssignments();
   }
 
-  // ── Loader ─────────────────────────────────────────────────────────────────
-
   loadAssignments(): void {
     this.isLoadingList = true;
-    this.teacherService.filterClassTeacherAssignments({
+    this.filter.page = this.currentPage; // Synchronize with explicit tracking
+    this.cdr.markForCheck();
+
+    this.teacherService.filterTeachers({
       ...this.filter,
-      teacherName: this.filterTeacherName || undefined
+      firstName: this.filterTeacherName.trim() || undefined
     }).subscribe({
-      next: (res: PagedResponse<ClassTeacherAssignmentResponseDto>) => {
-        this.assignments   = res.data;
-        this.totalPages    = res.totalPages;
-        this.totalElements = res.totalElements;
+      next: (res: PagedResponse<TeacherResponseDto>) => {
+        this.assignments   = res.data ?? [];
+        this.totalPages    = res.totalPages ?? 1;
+        this.totalElements = res.totalElements ?? 0;
         this.isLoadingList = false;
         this.cdr.markForCheck();
       },
-      error: () => { this.isLoadingList = false; this.cdr.markForCheck(); }
+      error: () => { 
+        this.assignments = [];
+        this.isLoadingList = false; 
+        this.cdr.markForCheck(); 
+      }
     });
   }
 
-  // ── Navigation Hook ──
   onAssignTeacherRoute(): void {
-    // teacher.routes.ts ke static route parameter ke mutabik jump trigger kiya
     this.router.navigate(['/teachers/assign']); 
   }
 
-  // ── Pagination & Filter ───────────────────────────────────────────────────
-
   applyFilter(): void {
-    this.filter.page = 0;
+    this.currentPage = 0;
     this.loadAssignments();
   }
 
   changePage(p: number): void {
-    this.filter.page = p;
-    this.loadAssignments();
+    if (p >= 0 && p < this.totalPages) {
+      this.currentPage = p;
+      this.loadAssignments();
+    }
   }
 
   get pages(): number[] {

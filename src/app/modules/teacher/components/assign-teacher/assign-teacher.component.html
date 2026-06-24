@@ -1,98 +1,118 @@
-<div class="assign-wrap">
+<div class="ast-page-wrapper">
 
-  <div class="assign-card">
-    <div class="card-header" style="justify-content: space-between; align-items: center; display: flex;">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <div class="card-header-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
-        </div>
-        <div>
-          <h3 class="card-title">Assign Class Teacher</h3>
-          <p class="card-sub">Assign or reassign a teacher to a class-section for an academic session.</p>
-        </div>
-      </div>
-
-      <button class="btn-reset" type="button" (click)="onBack()" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border-dark); font-size: 12.5px; font-weight: 600; background: #fff; cursor: pointer; color: var(--text-primary);">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="19" y1="12" x2="5" y2="12"/>
-          <polyline points="12 19 5 12 12 5"/>
-        </svg>
-        Back to List
-      </button>
+  <div class="ast-navigation-bar">
+    <div class="ast-breadcrumb">
+      <span class="ast-crumb-link" (click)="onBack()">Class Assignments</span>
+      <span class="ast-crumb-sep">/</span>
+      <span class="ast-crumb-current">Allocate Class Teacher Terminal</span>
     </div>
-
-    <div class="card-body">
-      <div class="field-grid">
-
-        <div class="field-group" [class.has-error]="errors['classId']">
-          <label class="field-label">Class <span class="req">*</span></label>
-          <select class="field-select"
-                  [(ngModel)]="form.classId"
-                  (ngModelChange)="onClassChange()"
-                  [disabled]="isSubmitting || loadingClasses">
-            <option value="">{{ loadingClasses ? 'Loading...' : 'Select class' }}</option>
-            <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
-          </select>
-          <span class="err" *ngIf="errors['classId']">{{ errors['classId'] }}</span>
-        </div>
-
-        <div class="field-group" [class.has-error]="errors['sectionId']">
-          <label class="field-label">Section <span class="req">*</span></label>
-          <select class="field-select"
-                  [(ngModel)]="form.sectionId"
-                  [disabled]="isSubmitting || loadingSections || !form.classId">
-            <option value="">
-              {{ !form.classId ? 'Select class first' : loadingSections ? 'Loading...' : 'Select section' }}
-            </option>
-            <option *ngFor="let s of sections" [value]="s.id">{{ s.label }}</option>
-          </select>
-          <span class="err" *ngIf="errors['sectionId']">{{ errors['sectionId'] }}</span>
-        </div>
-
-        <div class="field-group" [class.has-error]="errors['teacherId']">
-          <label class="field-label">Teacher <span class="req">*</span></label>
-          <select class="field-select"
-                  [(ngModel)]="form.teacherId"
-                  [disabled]="isSubmitting || loadingTeachers || !form.classId">
-            <option value="">
-              {{ !form.classId ? 'Select class first' : loadingTeachers ? 'Loading...' : 'Select teacher' }}
-            </option>
-            <option *ngFor="let t of teachers" [value]="t.id">{{ t.label }}</option>
-          </select>
-          <span class="err" *ngIf="errors['teacherId']">{{ errors['teacherId'] }}</span>
-        </div>
-
-        <div class="field-group" [class.has-error]="errors['academicSessionId']">
-          <label class="field-label">Academic Session <span class="req">*</span></label>
-          <select class="field-select"
-                  [(ngModel)]="form.academicSessionId"
-                  [disabled]="isSubmitting || loadingSessions || !form.classId">
-            <option value="">
-              {{ !form.classId ? 'Select class first' : loadingSessions ? 'Loading...' : 'Select session' }}
-            </option>
-            <option *ngFor="let a of academicSessions" [value]="a.id">{{ a.label }}</option>
-          </select>
-          <span class="err" *ngIf="errors['academicSessionId']">{{ errors['academicSessionId'] }}</span>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="card-footer">
-      <button class="btn-reset" type="button" (click)="resetForm()" [disabled]="isSubmitting">Reset</button>
-      <button class="btn-assign" type="button" (click)="onSubmit()" [disabled]="isSubmitting">
-        <span *ngIf="isSubmitting" class="spinner"></span>
-        <svg *ngIf="!isSubmitting" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-        {{ isSubmitting ? 'Assigning…' : 'Assign Teacher' }}
-      </button>
-    </div>
+    
+    <button class="ast-btn-top-back" type="button" (click)="onBack()" [disabled]="isSubmitting">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Back to Directory
+    </button>
   </div>
 
+  <div class="ast-form-card">
+    
+    <div class="ast-header-banner">
+      <div class="ast-icon-box">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div class="ast-header-text">
+        <h3 class="ast-card-title">Assign Class Teacher Profile</h3>
+        <p class="ast-card-sub">Establish clear institutional management nodes by anchoring faculty heads to classroom matrix layouts cleanly.</p>
+      </div>
+    </div>
+
+    <div class="ast-form-body-grid">
+      
+      <div class="ast-group-divider">
+        <span>Target Matrix Node</span>
+      </div>
+
+      <div class="ast-fields-row-2">
+        
+        <div class="ast-input-group-box" [class.ast-has-error-state]="errors['classId']">
+          <label class="ast-field-label">Target Class Standard <span class="ast-required-star">*</span></label>
+          <div class="ast-select-custom-wrapper">
+            <select class="ast-field-select" [(ngModel)]="form.classId" (change)="onClassChange()" [disabled]="isSubmitting || loadingClasses">
+              <option value="">{{ loadingClasses ? '⌛ Syncing classrooms registry...' : 'Select Class Standard' }}</option>
+              <option *ngFor="let c of classes" [value]="c.id">🏫 {{ c.label }}</option>
+            </select>
+          </div>
+          <span class="ast-error-msg-lbl" *ngIf="errors['classId']">⚠️ {{ errors['classId'] }}</span>
+        </div>
+
+        <div class="ast-input-group-box" [class.ast-has-error-state]="errors['sectionId']">
+          <label class="ast-field-label">Class Section Room <span class="ast-required-star">*</span></label>
+          <div class="ast-select-custom-wrapper">
+            <select class="ast-field-select" [(ngModel)]="form.sectionId" [disabled]="isSubmitting || loadingSections || !form.classId">
+              <option value="">
+                {{ !form.classId ? 'Select class standard above first' : loadingSections ? '⌛ Loading rooms...' : 'Select Target Section' }}
+              </option>
+              <option *ngFor="let s of sections" [value]="s.id">✨ Section {{ s.label }}</option>
+            </select>
+          </div>
+          <span class="ast-error-msg-lbl" *ngIf="errors['sectionId']">⚠️ {{ errors['sectionId'] }}</span>
+        </div>
+
+      </div>
+
+      <div class="ast-group-divider">
+        <span>Faculty & Session Anchor</span>
+      </div>
+
+      <div class="ast-fields-row-2">
+        
+        <div class="ast-input-group-box" [class.ast-has-error-state]="errors['teacherId']">
+          <label class="ast-field-label">Assigned Faculty Leader <span class="ast-required-star">*</span></label>
+          <div class="ast-select-custom-wrapper">
+            <select class="ast-field-select" [(ngModel)]="form.teacherId" [disabled]="isSubmitting || loadingTeachers || !form.sectionId">
+              <option value="">
+                {{ !form.sectionId ? 'Select section room first' : loadingTeachers ? '⌛ Mapping roster list...' : 'Select Faculty Teacher' }}
+              </option>
+              <option *ngFor="let t of teachers" [value]="t.id">👤 {{ t.label }}</option>
+            </select>
+          </div>
+          <span class="ast-error-msg-lbl" *ngIf="errors['teacherId']">⚠️ {{ errors['teacherId'] }}</span>
+        </div>
+
+        <div class="ast-input-group-box" [class.ast-has-error-state]="errors['academicSessionId']">
+          <label class="ast-field-label">Active Academic Session <span class="ast-required-star">*</span></label>
+          <div class="ast-select-custom-wrapper">
+            <select class="ast-field-select" [(ngModel)]="form.academicSessionId" [disabled]="isSubmitting || loadingSessions || !form.classId">
+              <option value="">
+                {{ !form.classId ? 'Select class standard above first' : loadingSessions ? '⌛ Reading sessions...' : 'Select Session Term' }}
+              </option>
+              <option *ngFor="let a of academicSessions" [value]="a.id">📆 Session {{ a.label }}</option>
+            </select>
+          </div>
+          <span class="ast-error-msg-lbl" *ngIf="errors['academicSessionId']">⚠️ {{ errors['academicSessionId'] }}</span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="ast-sheet-footer-panel">
+      <button class="ast-btn-action-cancel" type="button" (click)="resetForm()" [disabled]="isSubmitting">Reset Fields</button>
+      <button class="ast-btn-action-submit" type="button" (click)="onSubmit()" [disabled]="isSubmitting">
+        <span *ngIf="isSubmitting" class="ast-loading-spinner"></span>
+        <svg *ngIf="!isSubmitting" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        {{ isSubmitting ? 'Saving roster mapping...' : 'Confirm Allocation' }}
+      </button>
+    </div>
+
+  </div>
 </div>
