@@ -27,9 +27,9 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Subjects',          href: '/subjects',          icon: 'book-open',        roles: ['SUPER_ADMIN', 'ADMIN'] },
   
   // -- Schedules & Operations Menu --
-  { label: 'Class Timetable',   href: '/timetable',         icon: 'calendar-check',   roles: 'all' },
-  { label: 'Exams Module',      href: '/exams',             icon: 'exam-sheet',       roles: 'all' }, // Trigger element for dropdown list
-  { label: 'Marks Entry',       href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
+  { label: 'Class Timetable',   href: '/timetable',         icon: 'calendar-check',    roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { label: 'Exams Module',      href: '/exams',             icon: 'exam-sheet',        roles: ['SUPER_ADMIN', 'ADMIN'] }, // Trigger element for dropdown list
+  { label: 'Teacher-Mapping',       href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
   
   // -- Operations Management --
   { label: 'Attendance',        href: '/attendance',        icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
