@@ -442,4 +442,43 @@ select.form-control.select-pilled {
   border-radius: 50%;
   animation: spinLoader 0.6s linear infinite;
   flex-shrink: 0;
+}
+
+/* Is snippet ko copy karke student-form.component.scss file ke last me paste kar lijiye */
+.password-field-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.password-field-wrapper .form-control {
+  padding-right: 44px !important; /* Eye icon ke upar text overlap hone se rokta hai */
+}
+
+.toggle-password-visibility-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease-in-out;
+  z-index: 10;
+}
+.toggle-password-visibility-btn:hover {
+  color: var(--primary);
+}
+.toggle-password-visibility-btn:focus {
+  outline: none;
+}
+
+.text-mono {
+  font-family: Monaco, monospace;
+  letter-spacing: 0.03em;
 }/*# sourceMappingURL=student-form.component.css.map */

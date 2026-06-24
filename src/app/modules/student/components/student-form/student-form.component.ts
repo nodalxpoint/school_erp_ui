@@ -23,6 +23,9 @@ export class StudentFormComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+  // ✅ Toggle Password visibility variable
+  showPassword = false;
+
   classes: DropdownOption[] = [];
   sections: DropdownOption[] = [];
   academicSessions: DropdownOption[] = [];
@@ -82,7 +85,7 @@ export class StudentFormComponent implements OnInit {
       error: () => {
         this.loadingClasses = false;
         this.errorMessage = 'Could not load classes from server.';
-        if (this.isEditMode) this.patchEditData(); // still patch even if classes fail
+        if (this.isEditMode) this.patchEditData(); 
         this.cdr.markForCheck();
       },
     });
@@ -125,12 +128,16 @@ export class StudentFormComponent implements OnInit {
       return;
     }
 
+    // ✅ FIX: Formatted dates to YYYY-MM-DD format so native input type="date" pre-fills properly without blanking out
+    const formattedDob = student.dob ? student.dob.substring(0, 10) : '';
+    const formattedAdmissionDate = student.admissionDate ? student.admissionDate.substring(0, 10) : '';
+
     this.form.patchValue({
       firstName:         student.firstName,
       lastName:          student.lastName,
       gender:            student.gender ?? '',
-      dob:               student.dob ?? '',
-      admissionDate:     student.admissionDate ?? '',
+      dob:               formattedDob,
+      admissionDate:     formattedAdmissionDate,
       rollNo:            student.rollNo ?? '',
       classId:           student.classId ?? '',
       sectionId:         student.sectionId ?? '',
@@ -144,11 +151,9 @@ export class StudentFormComponent implements OnInit {
       parentPhone:       student.parentPhone ?? '',
     });
 
-    // Password optional in edit
     this.form.get('parentPassword')?.clearValidators();
     this.form.get('parentPassword')?.updateValueAndValidity();
 
-    // Load sections for pre-filled classId
     if (student.classId) {
       this.loadSections(student.classId);
       this.loadAcademicSessions(student.classId);

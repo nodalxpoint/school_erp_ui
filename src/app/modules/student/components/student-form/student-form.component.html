@@ -1,7 +1,5 @@
-<!-- student-form.component.html -->
 <div class="form-page">
 
-  <!-- ─── Header & Breadcrumb Trace Actions ─── -->
   <div class="form-header">
     <div class="breadcrumb">
       <span class="breadcrumb-link" (click)="onCancel()">Student Management</span>
@@ -19,13 +17,11 @@
     </button>
   </div>
 
-  <!-- Page Identifiers Strip -->
   <div class="form-title-row">
     <h1>{{ isEditMode ? 'Modify Student Record' : 'Register New Student' }}</h1>
     <p>{{ isEditMode ? 'Update the student structural profile info details below' : 'Fill in the baseline enrollment information parameters to register a student.' }}</p>
   </div>
 
-  <!-- System Alerts Feedback Blocks -->
   <div class="alert success" *ngIf="successMessage">
     <span class="alert-icon">✔</span>
     <span>{{ successMessage }}</span>
@@ -41,10 +37,8 @@
     </div>
   </div>
 
-  <!-- Primary Configuration Form Core Base -->
   <form [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
 
-    <!-- ── Section 01: Academic & Personal Data ── -->
     <div class="form-section">
       <div class="section-header">
         <div class="section-badge">01</div>
@@ -101,7 +95,6 @@
           <span class="field-error" *ngIf="isInvalid('rollNo')">{{ getError('rollNo') }}</span>
         </div>
 
-        <!-- Class Allocation Selection -->
         <div class="form-group">
           <label class="form-label">Class Allocation <span class="req">*</span></label>
           <div class="select-wrapper">
@@ -124,7 +117,6 @@
           <span class="field-error" *ngIf="isInvalid('classId')">{{ getError('classId') }}</span>
         </div>
 
-        <!-- Section Allocation Selection -->
         <div class="form-group">
           <label class="form-label">Assigned Section <span class="req">*</span></label>
           <div class="select-wrapper">
@@ -148,7 +140,6 @@
           <span class="field-error" *ngIf="isInvalid('sectionId')">{{ getError('sectionId') }}</span>
         </div>
 
-        <!-- Academic Session Allocation Selection -->
         <div class="form-group full-width">
           <label class="form-label">Target Academic Session <span class="req">*</span></label>
           <div class="select-wrapper">
@@ -174,7 +165,6 @@
       </div>
     </div>
 
-    <!-- ── Section 02: Family Parameters ── -->
     <div class="form-section">
       <div class="section-header">
         <div class="section-badge">02</div>
@@ -208,7 +198,6 @@
       </div>
     </div>
 
-    <!-- ── Section 03: Parent Authentication Portal ── -->
     <div class="form-section">
       <div class="section-header">
         <div class="section-badge">03</div>
@@ -247,20 +236,33 @@
           <span class="field-error" *ngIf="isInvalid('parentPhone')">{{ getError('parentPhone') }}</span>
         </div>
 
-        <div class="form-group full-width">
+        <div class="form-group full-width" [class.has-error]="isInvalid('parentPassword')">
           <label class="form-label">
             Portal Authentication Password
             <span class="req" *ngIf="!isEditMode">*</span>
             <span class="optional-tag" *ngIf="isEditMode">Keep blank if you don't wish to modify</span>
           </label>
-          <input type="password" class="form-control" [class.invalid]="isInvalid('parentPassword')"
-            formControlName="parentPassword" placeholder="Minimum 8 complex characters" />
+          <div class="password-field-wrapper">
+            <input [type]="showPassword ? 'text' : 'password'" class="form-control text-mono" 
+              [class.invalid]="isInvalid('parentPassword')" formControlName="parentPassword" 
+              placeholder="Minimum 8 complex characters" />
+            <button class="toggle-password-visibility-btn" type="button" (click)="showPassword = !showPassword">
+              <svg *ngIf="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg *ngIf="showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </button>
+          </div>
           <span class="field-error" *ngIf="isInvalid('parentPassword')">{{ getError('parentPassword') }}</span>
         </div>
       </div>
     </div>
 
-    <!-- Processing Actions Triggers Bar -->
     <div class="form-actions">
       <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
       <button type="submit" class="btn-submit" [disabled]="submitting">
