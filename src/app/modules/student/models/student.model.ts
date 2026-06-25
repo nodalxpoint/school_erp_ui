@@ -93,3 +93,38 @@ export interface DropdownOption {
   id: string;
   label: string;
 }
+// Isko student.model.ts file ke end me append kar lijiye
+
+// ─── Existing Parent Search Models ────────────────────────────────
+export interface ParentSearchRequest {
+  name: string;
+}
+
+export interface ParentSearchResultDto {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  fatherName: string;
+  motherName: string;
+  emergencyContact: string;
+  createdAt: string | null;
+}
+
+export interface ParentSearchApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    success: boolean;
+    message: string;
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+    last: boolean;
+    timestamp: string;
+    data: ParentSearchResultDto[];
+  };
+  timestamp: string;
+}

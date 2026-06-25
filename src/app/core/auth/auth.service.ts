@@ -48,9 +48,17 @@ export class AuthService {
           schoolId: decoded.schoolId ?? '',
         };
 
-        console.log('[AuthService] Storing user:', user); 
-        this.authState.setAuth(token, user);
-        this.router.navigate(['/dashboard']);
+      console.log('[AuthService] Storing user:', user); 
+this.authState.setAuth(token, user);
+
+// ⚡ FIX HERE: Agar parent hai toh use direct selection screen ya block modal dashboard pe bhejenge
+if (role === 'PARENT') {
+  // Aap direct /dashboard pe bhejenge but wahan modal load hoga
+  this.router.navigate(['/dashboard']);
+} else {
+  // Baki roles ke liye default behaviour
+  this.router.navigate(['/dashboard']);
+}
       })
     );
   }

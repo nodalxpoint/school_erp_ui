@@ -11,7 +11,6 @@
   --border-dark: #cbd5e0;
   --bg-white: #ffffff;
   --bg-row-odd: #f7fafc;
-  --bg-header: #2b6cb0;
   --text-primary: #2d3748;
   --text-secondary: #4a5568;
   --text-muted: #718096;
@@ -25,8 +24,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  box-sizing: border-box;
   width: 100%;
+  box-sizing: border-box;
 }
 @media (max-width: 768px) {
   .form-page {
@@ -40,7 +39,6 @@
   }
 }
 
-/* ── Breadcrumb Navigation ── */
 .form-header {
   display: flex;
   align-items: center;
@@ -97,7 +95,6 @@
   color: var(--primary);
 }
 
-/* ── Section Titles ── */
 .form-title-row h1 {
   margin: 0 0 0.2rem;
   font-size: 1.5rem;
@@ -117,7 +114,6 @@
   line-height: 1.4;
 }
 
-/* ── Feedback Message Alerts ── */
 .alert {
   display: flex;
   align-items: center;
@@ -127,8 +123,8 @@
   font-size: 13.5px;
   font-weight: 600;
   line-height: 1.4;
-  box-sizing: border-box;
   width: 100%;
+  box-sizing: border-box;
 }
 .alert.success {
   background: #f0fdf4;
@@ -170,7 +166,6 @@
   color: #fff;
 }
 
-/* ── Form Modular Section Cards ── */
 .form-section {
   background: var(--bg-white);
   border: 1px solid var(--border);
@@ -223,7 +218,6 @@
   color: var(--text-muted);
 }
 
-/* ── Adaptive Core Form Input Fields Grid ── */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -334,7 +328,6 @@ select.form-control.select-pilled {
   font-size: 11px;
 }
 
-/* ── Lazy Dropdown Loading Wrappers ── */
 .select-wrapper {
   position: relative;
   display: flex;
@@ -360,7 +353,6 @@ select.form-control.select-pilled {
     transform: rotate(360deg);
   }
 }
-/* ── Primary Action Submissions Panel ── */
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -444,7 +436,6 @@ select.form-control.select-pilled {
   flex-shrink: 0;
 }
 
-/* Is snippet ko copy karke student-form.component.scss file ke last me paste kar lijiye */
 .password-field-wrapper {
   position: relative;
   width: 100%;
@@ -452,7 +443,7 @@ select.form-control.select-pilled {
   align-items: center;
 }
 .password-field-wrapper .form-control {
-  padding-right: 44px !important; /* Eye icon ke upar text overlap hone se rokta hai */
+  padding-right: 44px !important;
 }
 
 .toggle-password-visibility-btn {
@@ -481,4 +472,207 @@ select.form-control.select-pilled {
 .text-mono {
   font-family: Monaco, monospace;
   letter-spacing: 0.03em;
+}
+
+.parent-strategy-wrapper {
+  background: #f8fafc;
+  border: 1px dashed var(--border-dark);
+  border-radius: 14px;
+  padding: 2rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+.parent-strategy-wrapper h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.parent-strategy-wrapper p {
+  margin: 0 0 1.5rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.strategy-buttons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+@media (max-width: 600px) {
+  .strategy-buttons-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.strategy-card-btn {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+.strategy-card-btn .icon {
+  font-size: 1.75rem;
+}
+.strategy-card-btn .title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+.strategy-card-btn .desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.strategy-card-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(43, 108, 176, 0.08);
+}
+
+.lookup-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.lookup-header-row .header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-change-mode {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.btn-change-mode:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+.mode-reset-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: -0.5rem;
+}
+
+.lookup-search-box {
+  padding: 1.5rem;
+}
+
+.search-input-group {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+.search-input-group .search-bar {
+  flex: 1;
+}
+
+.btn-search-trigger {
+  background: var(--text-primary);
+  color: #fff;
+  border: none;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s;
+}
+.btn-search-trigger:hover:not(:disabled) {
+  background: #1a202c;
+}
+.btn-search-trigger:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.btn-search-trigger .spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spinLoader 0.6s linear infinite;
+}
+
+.search-results-list {
+  margin-top: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+.result-row-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.result-row-item:last-child {
+  border-bottom: none;
+}
+.result-row-item:hover {
+  background: #edf2f7;
+}
+.result-row-item.selected {
+  background: var(--primary-light);
+  border-left: 4px solid var(--primary);
+  padding-left: 12px;
+}
+
+.parent-info-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.parent-info-meta .parent-name-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.parent-info-meta .parent-sub-meta {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.btn-select-indicator {
+  background: var(--bg-white);
+  border: 1px solid var(--border-dark);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  pointer-events: none;
+}
+.selected .btn-select-indicator {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
 }/*# sourceMappingURL=student-form.component.css.map */

@@ -165,111 +165,178 @@
       </div>
     </div>
 
-    <div class="form-section">
-      <div class="section-header">
-        <div class="section-badge">02</div>
-        <div>
-          <h2>Family &amp; Guardian Lineage</h2>
-          <p>Parentage credentials tracking and mandatory emergency hotline logging</p>
-        </div>
-      </div>
-
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Father's Full Name <span class="req">*</span></label>
-          <input class="form-control" [class.invalid]="isInvalid('fatherName')"
-            formControlName="fatherName" placeholder="e.g. Robert Sharma" />
-          <span class="field-error" *ngIf="isInvalid('fatherName')">{{ getError('fatherName') }}</span>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Mother's Full Name <span class="req">*</span></label>
-          <input class="form-control" [class.invalid]="isInvalid('motherName')"
-            formControlName="motherName" placeholder="e.g. Priya Sharma" />
-          <span class="field-error" *ngIf="isInvalid('motherName')">{{ getError('motherName') }}</span>
-        </div>
-
-        <div class="form-group full-width">
-          <label class="form-label">Emergency Contact Number <span class="req">*</span></label>
-          <input class="form-control" [class.invalid]="isInvalid('emergencyContact')"
-            formControlName="emergencyContact" placeholder="+91 98765 43210" />
-          <span class="field-error" *ngIf="isInvalid('emergencyContact')">{{ getError('emergencyContact') }}</span>
-        </div>
+    <div class="parent-strategy-wrapper" *ngIf="parentMode === 'NONE' && !isEditMode">
+      <h3>Parent Account Relationship Linkage</h3>
+      <p>Configure how this student profile will map access controls for the Parent Dashboard tracking.</p>
+      <div class="strategy-buttons-grid">
+        <button type="button" class="strategy-card-btn" (click)="setParentMode('NEW')">
+          <span class="icon">✨</span>
+          <span class="title">Create Brand New Parent</span>
+          <span class="desc">Setup fresh authorization emails and login secrets profiles.</span>
+        </button>
+        <button type="button" class="strategy-card-btn" (click)="setParentMode('EXISTING')">
+          <span class="icon">🔍</span>
+          <span class="title">Link Existing Registered Parent</span>
+          <span class="desc">Map this record to an active parent profile via shared indexes.</span>
+        </button>
       </div>
     </div>
 
-    <div class="form-section">
-      <div class="section-header">
-        <div class="section-badge">03</div>
-        <div>
-          <h2>Parent Portal Access Authentication</h2>
-          <p>Portal user accounts configuration for parent dashboard tracking</p>
+    <div class="form-section parent-lookup-container" *ngIf="parentMode === 'EXISTING' && !isEditMode">
+      <div class="section-header lookup-header-row">
+        <div class="header-left">
+          <div class="section-badge style-search">🔍</div>
+          <div>
+            <h2>Search Parent Profile</h2>
+            <p>Write complete name and press search button or hit enter</p>
+          </div>
         </div>
+        <button type="button" class="btn-change-mode" (click)="setParentMode('NONE')">← Change Strategy</button>
       </div>
 
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Parent First Name <span class="req">*</span></label>
-          <input class="form-control" [class.invalid]="isInvalid('parentFirstName')"
-            formControlName="parentFirstName" placeholder="e.g. Robert" />
-          <span class="field-error" *ngIf="isInvalid('parentFirstName')">{{ getError('parentFirstName') }}</span>
+      <div class="lookup-search-box">
+        <div class="search-input-group">
+          <input type="text" class="form-control search-bar" 
+                 [(ngModel)]="parentSearchQuery" 
+                 [ngModelOptions]="{standalone: true}"
+                 (keydown.enter)="onSearchParent($event)"
+                 placeholder="Enter full parent name here (e.g., Rajesh)" />
+          <button type="button" class="btn-search-trigger" [disabled]="searchingParents" (click)="onSearchParent()">
+            <span class="spinner" *ngIf="searchingParents"></span>
+            {{ searchingParents ? 'Searching...' : 'Search' }}
+          </button>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Parent Last Name <span class="req">*</span></label>
-          <input class="form-control" [class.invalid]="isInvalid('parentLastName')"
-            formControlName="parentLastName" placeholder="e.g. Sharma" />
-          <span class="field-error" *ngIf="isInvalid('parentLastName')">{{ getError('parentLastName') }}</span>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Parent Identity Email <span class="req">*</span></label>
-          <input type="email" class="form-control" [class.invalid]="isInvalid('parentEmail')"
-            formControlName="parentEmail" placeholder="parent@example.com" />
-          <span class="field-error" *ngIf="isInvalid('parentEmail')">{{ getError('parentEmail') }}</span>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Parent Communication Phone <span class="req">*</span></label>
-          <input class="form-control" [class.invalid]="isInvalid('parentPhone')"
-            formControlName="parentPhone" placeholder="+91 98765 43210" />
-          <span class="field-error" *ngIf="isInvalid('parentPhone')">{{ getError('parentPhone') }}</span>
-        </div>
-
-        <div class="form-group full-width" [class.has-error]="isInvalid('parentPassword')">
-          <label class="form-label">
-            Portal Authentication Password
-            <span class="req" *ngIf="!isEditMode">*</span>
-            <span class="optional-tag" *ngIf="isEditMode">Keep blank if you don't wish to modify</span>
-          </label>
-          <div class="password-field-wrapper">
-            <input [type]="showPassword ? 'text' : 'password'" class="form-control text-mono" 
-              [class.invalid]="isInvalid('parentPassword')" formControlName="parentPassword" 
-              placeholder="Minimum 8 complex characters" />
-            <button class="toggle-password-visibility-btn" type="button" (click)="showPassword = !showPassword">
-              <svg *ngIf="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-              <svg *ngIf="showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-              </svg>
+        <div class="search-results-list" *ngIf="parentSearchResults.length > 0">
+          <div class="result-row-item" *ngFor="let p of parentSearchResults" 
+               [class.selected]="selectedParentId === p.id" (click)="selectParent(p)">
+            <div class="parent-info-meta">
+              <span class="parent-name-title">{{ p.firstName }} {{ p.lastName }}</span>
+              <span class="parent-sub-meta">📧 {{ p.email }} | 📱 {{ p.phone }}</span>
+            </div>
+            <button type="button" class="btn-select-indicator">
+              {{ selectedParentId === p.id ? '✓ Selected' : 'Choose Parent' }}
             </button>
           </div>
-          <span class="field-error" *ngIf="isInvalid('parentPassword')">{{ getError('parentPassword') }}</span>
         </div>
       </div>
     </div>
 
-    <div class="form-actions">
-      <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
-      <button type="submit" class="btn-submit" [disabled]="submitting">
-        <span class="btn-spinner" *ngIf="submitting"></span>
-        {{ submitting ? 'Processing Records...' : (isEditMode ? 'Update Records' : 'Confirm Registration') }}
-      </button>
-    </div>
+    <ng-container *ngIf="parentMode !== 'NONE' && (parentMode === 'NEW' || selectedParentId || isEditMode)">
+      
+      <div class="mode-reset-row" *ngIf="!isEditMode">
+        <button type="button" class="btn-change-mode" (click)="setParentMode('NONE')">
+          ← Reset / Select Different Parent Route
+        </button>
+      </div>
+
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-badge">02</div>
+          <div>
+            <h2>Family &amp; Guardian Lineage</h2>
+            <p>Parentage credentials tracking and mandatory emergency hotline logging</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Father's Full Name <span class="req">*</span></label>
+            <input class="form-control" [class.invalid]="isInvalid('fatherName')"
+              formControlName="fatherName" placeholder="e.g. Robert Sharma" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+            <span class="field-error" *ngIf="isInvalid('fatherName')">{{ getError('fatherName') }}</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mother's Full Name <span class="req">*</span></label>
+            <input class="form-control" [class.invalid]="isInvalid('motherName')"
+              formControlName="motherName" placeholder="e.g. Priya Sharma" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+            <span class="field-error" *ngIf="isInvalid('motherName')">{{ getError('motherName') }}</span>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">Emergency Contact Number <span class="req">*</span></label>
+            <input class="form-control" [class.invalid]="isInvalid('emergencyContact')"
+              formControlName="emergencyContact" placeholder="+91 98765 43210" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+            <span class="field-error" *ngIf="isInvalid('emergencyContact')">{{ getError('emergencyContact') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-badge">03</div>
+          <div>
+            <h2>Parent Portal Access Authentication</h2>
+            <p>Portal user accounts configuration for parent dashboard tracking</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Parent First Name <span class="req">*</span></label>
+            <input class="form-control" [class.invalid]="isInvalid('parentFirstName')"
+              formControlName="parentFirstName" placeholder="e.g. Robert" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+            <span class="field-error" *ngIf="isInvalid('parentFirstName')">{{ getError('parentFirstName') }}</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Parent Last Name <span class="req">*</span></label>
+            <input class="form-control" [class.invalid]="isInvalid('parentLastName')"
+              formControlName="parentLastName" placeholder="e.g. Sharma" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+            <span class="field-error" *ngIf="isInvalid('parentLastName')">{{ getError('parentLastName') }}</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Parent Identity Email <span class="req">*</span></label>
+            <input type="email" class="form-control" [class.invalid]="isInvalid('parentEmail')"
+              formControlName="parentEmail" placeholder="parent@example.com" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+            <span class="field-error" *ngIf="isInvalid('parentEmail')">{{ getError('parentEmail') }}</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Parent Communication Phone <span class="req">*</span></label>
+            <input class="form-control" [class.invalid]="isInvalid('parentPhone')"
+              formControlName="parentPhone" placeholder="+91 98765 43210" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+            <span class="field-error" *ngIf="isInvalid('parentPhone')">{{ getError('parentPhone') }}</span>
+          </div>
+
+          <div class="form-group full-width" [class.has-error]="isInvalid('parentPassword')" *ngIf="parentMode === 'NEW' || isEditMode">
+            <label class="form-label">
+              Portal Authentication Password
+              <span class="req" *ngIf="!isEditMode">*</span>
+              <span class="optional-tag" *ngIf="isEditMode">Keep blank if you don't wish to modify</span>
+            </label>
+            <div class="password-field-wrapper">
+              <input [type]="showPassword ? 'text' : 'password'" class="form-control text-mono" 
+                [class.invalid]="isInvalid('parentPassword')" formControlName="parentPassword" 
+                placeholder="Minimum 8 complex characters" />
+              <button class="toggle-password-visibility-btn" type="button" (click)="showPassword = !showPassword">
+                <svg *ngIf="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg *ngIf="showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+            <span class="field-error" *ngIf="isInvalid('parentPassword')">{{ getError('parentPassword') }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn-submit" [disabled]="submitting">
+          <span class="btn-spinner" *ngIf="submitting"></span>
+          {{ submitting ? 'Processing Records...' : (isEditMode ? 'Update Records' : 'Confirm Registration') }}
+        </button>
+      </div>
+
+    </ng-container>
 
   </form>
 </div>

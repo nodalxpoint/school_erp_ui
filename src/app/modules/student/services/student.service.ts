@@ -10,6 +10,9 @@ import {
   ApiResponse,
   ParamListRequest,
   DropdownOption,
+  ParentSearchResultDto,
+  ParentSearchRequest,
+  ParentSearchApiResponse,
 } from '../models/student.model';
 
 // ─── State service: list → form/detail pe student pass karne ke liye ─
@@ -53,6 +56,15 @@ export class StudentService {
     return this.http.post<ApiResponse<string>>(
       `${this.BASE}/addOrUpdate`,
       req
+    );
+  }
+
+  searchExistingParents(req: ParentSearchRequest): Observable<ParentSearchResultDto[]> {
+    return this.http.post<ParentSearchApiResponse>(`/parent/list`, req).pipe(
+      map(res => {
+        console.log('[StudentService] parent search raw response:', res);
+        return res?.data?.data ?? [];
+      })
     );
   }
 

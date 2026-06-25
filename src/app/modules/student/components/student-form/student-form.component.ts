@@ -2,15 +2,15 @@ import {
   Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms'; // ← ✅ Added FormsModule here
 import { ActivatedRoute, Router } from '@angular/router';
 import { StudentService, StudentStateService } from '../../services/student.service';
-import { CreateStudentRequest, DropdownOption } from '../../models/student.model';
+import { CreateStudentRequest, DropdownOption, ParentSearchResultDto } from '../../models/student.model';
 
 @Component({
   selector: 'app-student-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule], // ← ✅ Registered FormsModule in imports array
   templateUrl: './student-form.component.html',
   styleUrls: ['./student-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,8 +23,14 @@ export class StudentFormComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
-  // ✅ Toggle Password visibility variable
   showPassword = false;
+
+  // ── Parent Configuration Flows ───────────────────────────────────
+  parentMode: 'NONE' | 'NEW' | 'EXISTING' = 'NONE';
+  parentSearchQuery = '';
+  parentSearchResults: ParentSearchResultDto[] = [];
+  searchingParents = false;
+  selectedParentId: string | null = null;
 
   classes: DropdownOption[] = [];
   sections: DropdownOption[] = [];
@@ -45,6 +51,11 @@ export class StudentFormComponent implements OnInit {
   ngOnInit(): void {
     this.studentId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.studentId;
+    
+    if (this.isEditMode) {
+      this.parentMode = 'NEW';
+    }
+
     this.buildForm();
     this.loadClasses();
   }
@@ -60,6 +71,7 @@ export class StudentFormComponent implements OnInit {
       classId:           ['', Validators.required],
       sectionId:         ['', Validators.required],
       academicSessionId: ['', Validators.required],
+      
       fatherName:        ['', Validators.required],
       motherName:        ['', Validators.required],
       emergencyContact:  ['', [Validators.required, Validators.pattern(/^\+?[0-9]{7,15}$/)]],
@@ -67,11 +79,97 @@ export class StudentFormComponent implements OnInit {
       parentLastName:    ['', Validators.required],
       parentEmail:       ['', [Validators.required, Validators.email]],
       parentPhone:       ['', [Validators.required, Validators.pattern(/^\+?[0-9]{7,15}$/)]],
-      parentPassword:    ['', this.isEditMode ? [] : [Validators.required, Validators.minLength(8)]],
+      parentPassword:    ['', [Validators.required, Validators.minLength(8)]],
+    });
+
+    this.evaluateParentValidators();
+  }
+
+  // ── ✅ FIXED: Accept 'NONE' as a valid option to clear compilation type mismatches ──
+  setParentMode(mode: 'NONE' | 'NEW' | 'EXISTING'): void {
+    this.parentMode = mode;
+    this.parentSearchResults = [];
+    this.parentSearchQuery = '';
+    this.selectedParentId = null;
+    
+    this.form.patchValue({
+      fatherName: '', motherName: '', emergencyContact: '',
+      parentFirstName: '', parentLastName: '', parentEmail: '', parentPhone: '', parentPassword: ''
+    });
+
+    this.evaluateParentValidators();
+    this.cdr.markForCheck();
+  }
+
+  private evaluateParentValidators(): void {
+    const parentFields = [
+      'fatherName', 'motherName', 'emergencyContact',
+      'parentFirstName', 'parentLastName', 'parentEmail', 'parentPhone'
+    ];
+
+    if (this.parentMode === 'NONE') {
+      parentFields.forEach(f => this.form.get(f)?.clearValidators());
+      this.form.get('parentPassword')?.clearValidators();
+    } else if (this.parentMode === 'EXISTING') {
+      parentFields.forEach(f => this.form.get(f)?.clearValidators());
+      this.form.get('parentPassword')?.clearValidators();
+    } else {
+      parentFields.forEach(f => this.form.get(f)?.setValidators(f === 'emergencyContact' || f === 'parentPhone' ? [Validators.required, Validators.pattern(/^\+?[0-9]{7,15}$/)] : f === 'parentEmail' ? [Validators.required, Validators.email] : Validators.required));
+      
+      if (this.isEditMode) {
+        this.form.get('parentPassword')?.clearValidators();
+      } else {
+        this.form.get('parentPassword')?.setValidators([Validators.required, Validators.minLength(8)]);
+      }
+    }
+
+    parentFields.forEach(f => this.form.get(f)?.updateValueAndValidity());
+    this.form.get('parentPassword')?.updateValueAndValidity();
+  }
+
+  onSearchParent(event?: Event): void {
+    if (event) event.preventDefault();
+    if (!this.parentSearchQuery.trim()) return;
+
+    this.searchingParents = true;
+    this.errorMessage = '';
+    this.cdr.markForCheck();
+
+    this.studentService.searchExistingParents({ name: this.parentSearchQuery.trim() }).subscribe({
+      next: (data) => {
+        this.parentSearchResults = data;
+        this.searchingParents = false;
+        if (data.length === 0) {
+          this.errorMessage = 'No parents found matching that name.';
+        }
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.searchingParents = false;
+        this.errorMessage = 'Failed to fetch tracking parents registry logs.';
+        this.cdr.markForCheck();
+      }
     });
   }
 
-  // ── Dropdowns ──────────────────────────────────────────────────
+  selectParent(parent: ParentSearchResultDto): void {
+    this.selectedParentId = parent.id;
+    
+    this.form.patchValue({
+      fatherName:        parent.fatherName || `${parent.firstName} ${parent.lastName}`,
+      motherName:        parent.motherName || '',
+      emergencyContact:  parent.emergencyContact || parent.phone,
+      parentFirstName:   parent.firstName,
+      parentLastName:    parent.lastName,
+      parentEmail:       parent.email,
+      parentPhone:       parent.phone,
+    });
+
+    this.form.get('parentPassword')?.clearValidators();
+    this.form.get('parentPassword')?.updateValueAndValidity();
+    
+    this.cdr.markForCheck();
+  }
 
   loadClasses(): void {
     this.loadingClasses = true;
@@ -118,8 +216,6 @@ export class StudentFormComponent implements OnInit {
     });
   }
 
-  // ── Patch edit data from state service ─────────────────────────
-
   private patchEditData(): void {
     const student = this.studentState.get();
     if (!student) {
@@ -128,7 +224,6 @@ export class StudentFormComponent implements OnInit {
       return;
     }
 
-    // ✅ FIX: Formatted dates to YYYY-MM-DD format so native input type="date" pre-fills properly without blanking out
     const formattedDob = student.dob ? student.dob.substring(0, 10) : '';
     const formattedAdmissionDate = student.admissionDate ? student.admissionDate.substring(0, 10) : '';
 
@@ -161,8 +256,6 @@ export class StudentFormComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  // ── Submit ─────────────────────────────────────────────────────
-
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -173,8 +266,13 @@ export class StudentFormComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const payload: CreateStudentRequest = { ...this.form.value };
+    const payload: any = { ...this.form.value };
     if (this.isEditMode && this.studentId) payload.studentId = this.studentId;
+    
+    if (this.parentMode === 'EXISTING' && this.selectedParentId) {
+      payload.parentId = this.selectedParentId;
+    }
+    
     if (!payload.parentPassword) delete payload.parentPassword;
 
     this.studentService.saveStudent(payload).subscribe({

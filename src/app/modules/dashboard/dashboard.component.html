@@ -1,9 +1,12 @@
-<div class="db-master-container">
+<div class="db-master-container" *ngIf="!showParentModal">
 
   <div class="db-hero-header-card">
     <div class="db-header-left">
       <div class="db-eyebrow-badge">School ERP · Live Synchronization Active</div>
-      <h2 class="db-welcome-title">{{ greeting }}, {{ firstName }} 👋</h2>
+      <h2 class="db-welcome-title">
+        {{ greeting }}, {{ firstName }} 
+        <span *ngIf="isParent && selectedChild">({{ selectedChild.firstName }})</span> 👋
+      </h2>
       <p class="db-subtitle-meta">
         Secure token verified entry session logged into core parameters architecture.
       </p>
@@ -73,6 +76,12 @@
     </div>
   </div>
 
+  <div *ngIf="isParent" style="margin-bottom: 20px; text-align: right;">
+    <button (click)="showParentModal = true; loadParentChildren()" style="padding: 10px 16px; background: #3b82f6; color: white; border-radius: 8px; border: none; cursor: pointer; font-weight: 600;">
+      🔄 Switch Child Profile
+    </button>
+  </div>
+
   <div class="db-module-section">
     <h3 class="db-section-header-title">System Shortcut Operational Launchpad</h3>
     <div class="db-quick-tiles-layout-grid">
@@ -119,21 +128,16 @@
   </div>
 
   <div class="db-infographics-twin-row">
-
     <div *ngIf="isAdmin" class="db-editorial-chart-card">
       <div class="db-card-header-block">
         <h4 class="db-card-inside-title">Weekly Institutional Attendance</h4>
         <span class="db-card-top-pill-badge luxury-blue-pill">Realtime Census</span>
       </div>
-      
       <div class="db-attendance-histogram-chart-area">
         <div *ngFor="let d of weekAttendance" class="db-histogram-column-pillar">
           <span class="db-pillar-pct-floating-lbl">{{ d.pct }}%</span>
           <div class="db-pillar-bar-fluid-container">
-            <div class="db-pillar-active-fluid-bar"
-                 [style.height.%]="d.pct"
-                 [class.db-pillar-fluid-bar-warning-alert]="d.pct < 85">
-            </div>
+            <div class="db-pillar-active-fluid-bar" [style.height.%]="d.pct" [class.db-pillar-fluid-bar-warning-alert]="d.pct < 85"></div>
           </div>
           <span class="db-pillar-bottom-day-lbl">{{ d.day }}</span>
         </div>
@@ -145,13 +149,11 @@
         <h4 class="db-card-inside-title">Financial Invoices Ledger Ratios</h4>
         <span class="db-card-top-pill-badge luxury-green-pill">Active Fiscal Quarter</span>
       </div>
-      
       <div class="db-fee-breakdown-panel-rails">
         <div class="db-fee-total-volume-banner-box">
           <p class="db-fee-banner-lbl">Aggregated Revenue Target Expected</p>
           <p class="db-fee-banner-digits">₹9.12 Lakhs</p>
         </div>
-        
         <div class="db-fee-rail-items-stack-loop">
           <div *ngFor="let f of feeBreakdown" class="db-fee-rail-row-item">
             <div class="db-fee-rail-left-meta-labels">
@@ -172,7 +174,6 @@
         <h4 class="db-card-inside-title">Today's Class Schedule Flow</h4>
         <span class="db-card-top-pill-badge luxury-purple-pill">Roster Sheets Active</span>
       </div>
-      
       <div class="db-schedule-tabular-rows-container">
         <div *ngFor="let cls of [
           {time:'08:00 AM', subject:'Mathematics Core', class:'10-A Standard', status:'done'},
@@ -198,7 +199,6 @@
         <h4 class="db-card-inside-title">Recent Institutional Operational Streams Log</h4>
         <button class="db-card-header-view-all-link-btn">Audit Records</button>
       </div>
-      
       <div class="db-activity-streams-vertical-timeline">
         <div *ngFor="let item of recentActivity" class="db-stream-timeline-row-item">
           <div class="db-stream-timeline-left-node-dot dot-type-color-{{ item.type }}"></div>
@@ -209,6 +209,34 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
 
+<div *ngIf="showParentModal" class="parent-lock-fullscreen-overlay">
+  <div class="selection-modal-card">
+    <div class="modal-header">
+      <h2>Welcome back, Parent! 👋</h2>
+      <p>Please select a student profile to unlock the dashboard parameters.</p>
+    </div>
+
+    <div *ngIf="isLoadingChildren" class="loading-state">
+      <div class="spinner"></div>
+      <p>Establishing secure channel to children registry...</p>
+    </div>
+
+    <div *ngIf="!isLoadingChildren" class="students-grid">
+      <div *ngFor="let child of childrenList" class="student-profile-card" (click)="selectChildProfile(child)">
+        <div class="profile-avatar" [class.female]="child.gender === 'FEMALE'">
+          {{ child.firstName[0] }}{{ child.lastName[0] }}
+        </div>
+        <div class="profile-details">
+          <h3>{{ child.firstName }} {{ child.lastName }}</h3>
+          <p class="meta-info">Class: <strong>{{ child.className }} - {{ child.sectionName }}</strong></p>
+          <p class="meta-info">Roll No: {{ child.rollNo }}</p>
+          <p class="adm-no">Admission ID: {{ child.admissionNo }}</p>
+        </div>
+        <div class="select-badge">Select Profile</div>
+      </div>
+    </div>
   </div>
 </div>

@@ -38,6 +38,13 @@ export const routes: Routes = [
           import('./modules/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
 
+      // Parent Module Integration inside the core Shell structure
+      {
+        path: 'parent',
+        loadChildren: () => 
+          import('./modules/parent/parent.routes').then(m => m.PARENT_ROUTES)
+      },
+
       // Teachers
       {
         path: 'teachers',
@@ -45,7 +52,7 @@ export const routes: Routes = [
           import('./modules/teacher/teacher.routes').then(m => m.TEACHER_ROUTES)
       },
 
-      // ── Subjects Module (Added here matching your SUBJECT_ROUTES) ──
+      // Subjects Module
       {
         path: 'subjects',
         loadChildren: () =>
@@ -59,51 +66,54 @@ export const routes: Routes = [
           import('./modules/student/student.routes').then(m => m.STUDENT_ROUTES)
       },
 
-      // Classes & Sections
-    {
-  path: 'timetable',
-  loadChildren: () =>
-    import('./modules/timetable/timetable.routes').then(m => m.TIMETABLE_ROUTES)
-},
+      // Timetable Module
+      {
+        path: 'timetable',
+        loadChildren: () =>
+          import('./modules/timetable/timetable.routes').then(m => m.TIMETABLE_ROUTES)
+      },
 
-       {
+      // Classes & Sections
+      {
         path: 'classes',
         loadChildren: () =>
           import('./modules/class/class.routes').then(m => m.CLASS_ROUTES)
       },
 
-      // ── Placeholder routes — uncomment as backend modules get built ──
-
+      // Attendance
       {
-  path: 'attendance',
-  loadChildren: () =>
-    import('./modules/attendance/attendance.routes').then(m => m.ATTENDANCE_ROUTES)
-},
+        path: 'attendance',
+        loadChildren: () =>
+          import('./modules/attendance/attendance.routes').then(m => m.ATTENDANCE_ROUTES)
+      },
 
-{
-  path: 'teacher-timetable',
-  loadChildren: () =>
-    import('./modules/teacher-timetable/teacher-timetable.routes').then(m => m.TEACHER_TIMETABLE_ROUTES)
-},
-    // Is navigation routing configuration module block ko global paths system layout array me add kar lena
+      // Teacher Timetable
+      {
+        path: 'teacher-timetable',
+        loadChildren: () =>
+          import('./modules/teacher-timetable/teacher-timetable.routes').then(m => m.TEACHER_TIMETABLE_ROUTES)
+      },
 
-{
-  path: 'exams',
-  loadChildren: () =>
-    import('./modules/exams/exams.routes').then(m => m.EXAMS_ROUTES)
-},
+      // Exams
+      {
+        path: 'exams',
+        loadChildren: () =>
+          import('./modules/exams/exams.routes').then(m => m.EXAMS_ROUTES)
+      },
 
-{
-  path: 'exam-schedule',
-  loadChildren: () =>
-    import('./modules/exam-schedule/exam-schedule.routes').then(m => m.EXAM_SCHEDULE_ROUTES)
-},
+      // Exam Schedule
+      {
+        path: 'exam-schedule',
+        loadChildren: () =>
+          import('./modules/exam-schedule/exam-schedule.routes').then(m => m.EXAM_SCHEDULE_ROUTES)
+      },
 
-{
-  path: 'exam-marks',
-  loadChildren: () => import('./modules/exam-marks/exam-marks.routes').then(m => m.EXAM_MARKS_ROUTES)
-},
-
+      // Exam Marks
+      {
+        path: 'exam-marks',
+        loadChildren: () => 
+          import('./modules/exam-marks/exam-marks.routes').then(m => m.EXAM_MARKS_ROUTES)
+      }
     ]
   },
 

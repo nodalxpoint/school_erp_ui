@@ -5,6 +5,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthStateService } from '../../core/auth/auth-state.service';
 import { User, UserRole } from '../../core/models/auth.model';
+import { ParentService } from '../parent/services/parent.service'; 
+import { ChildStudentDto } from '../parent/models/parent.model';    
 
 export interface StatCard {
   title: string;
@@ -118,7 +120,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   quickActions: QuickAction[] = [];
   recentActivity: ActivityItem[] = RECENT_ACTIVITY;
   
-  // Real-time local digital strings fallback
   currentClockTimeStr = '';
   currentDayLabelStr = '';
   private clockIntervalId: any = null;
@@ -135,8 +136,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     { label: 'Overdue Penalty',   value: 12000,  pct: 2,  color: 'red'    },
   ];
 
+  showParentModal = false;
+  isLoadingChildren = false;
+  childrenList: ChildStudentDto[] = [];
+  selectedChild: ChildStudentDto | null = null;
+
   constructor(
     public authState: AuthStateService,
+    private parentService: ParentService, 
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -147,6 +154,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const role: UserRole = this.user?.role ?? 'STUDENT';
     this.stats        = ROLE_STATS[role];
     this.quickActions = ROLE_QUICK_ACTIONS[role];
+
+    if (role === 'PARENT') {
+      this.selectedChild = this.parentService.getActiveChildValue();
+      if (!this.selectedChild) {
+        this.showParentModal = true;
+        this.loadParentChildren();
+      }
+    }
+
+    this.cdr.markForCheck();
+  }
+
+  loadParentChildren(): void {
+    this.isLoadingChildren = true;
+    this.parentService.getChildrenRegistry().subscribe({
+      next: (data) => {
+        this.childrenList = data;
+        this.isLoadingChildren = false;
+        this.cdr.markForCheck(); 
+      },
+      error: (err) => {
+        console.error('Error fetching children endpoints:', err);
+        this.isLoadingChildren = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  selectChildProfile(child: ChildStudentDto): void {
+    this.parentService.setActiveChild(child);
+    this.selectedChild = child;
+    this.showParentModal = false;
     this.cdr.markForCheck();
   }
 
@@ -183,6 +222,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   get isSuperAdmin(): boolean { return this.user?.role === 'SUPER_ADMIN'; }
   get isTeacher():    boolean { return this.user?.role === 'TEACHER'; }
+  get isParent():     boolean { return this.user?.role === 'PARENT'; } 
 
   get firstName(): string {
     return this.user?.name ? this.user.name.split(' ')[0] : 'User';
