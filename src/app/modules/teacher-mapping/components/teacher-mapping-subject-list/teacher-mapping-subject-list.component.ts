@@ -100,7 +100,7 @@ export class TeacherMappingSubjectListComponent implements OnInit, OnDestroy {
         }
 
         // Active Exam context data append karke route inject karo!
-        this.router.navigate(['/exam-marks/entry'], {
+        this.router.navigate(['/teacher-mapping/entry'], {
           queryParams: {
             subjectId: item.subjectId,
             subjectName: item.subjectName,

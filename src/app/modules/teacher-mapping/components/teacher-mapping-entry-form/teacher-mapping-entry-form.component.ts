@@ -109,6 +109,6 @@ export class TeacherMappingEntryFormComponent implements OnInit {
   }
 
   onGoBack(): void {
-    this.router.navigate(['/exam-marks']);
+    this.router.navigate(['/teacher-mapping']);
   }
 }
