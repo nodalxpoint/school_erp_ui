@@ -152,9 +152,10 @@ export class StudentFormComponent implements OnInit {
     });
   }
 
-  selectParent(parent: ParentSearchResultDto): void {
+ selectParent(parent: ParentSearchResultDto): void {
     this.selectedParentId = parent.id;
     
+    // Existing parent ke case me baki fields ko clean rkhein kyuki validators already clear ho chuke hain
     this.form.patchValue({
       fatherName:        parent.fatherName || `${parent.firstName} ${parent.lastName}`,
       motherName:        parent.motherName || '',
@@ -163,14 +164,15 @@ export class StudentFormComponent implements OnInit {
       parentLastName:    parent.lastName,
       parentEmail:       parent.email,
       parentPhone:       parent.phone,
+      parentPassword:    '' // Clear any required password inputs
     });
 
+    // Final check for safe submission
     this.form.get('parentPassword')?.clearValidators();
     this.form.get('parentPassword')?.updateValueAndValidity();
     
     this.cdr.markForCheck();
   }
-
   loadClasses(): void {
     this.loadingClasses = true;
     this.studentService.getClasses().subscribe({

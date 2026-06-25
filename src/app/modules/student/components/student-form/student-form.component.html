@@ -222,7 +222,7 @@
       </div>
     </div>
 
-    <ng-container *ngIf="parentMode !== 'NONE' && (parentMode === 'NEW' || selectedParentId || isEditMode)">
+  <ng-container *ngIf="parentMode !== 'NONE'">
       
       <div class="mode-reset-row" *ngIf="!isEditMode">
         <button type="button" class="btn-change-mode" (click)="setParentMode('NONE')">
@@ -230,7 +230,7 @@
         </button>
       </div>
 
-      <div class="form-section">
+      <div class="form-section" *ngIf="parentMode === 'NEW' || isEditMode">
         <div class="section-header">
           <div class="section-badge">02</div>
           <div>
@@ -243,27 +243,27 @@
           <div class="form-group">
             <label class="form-label">Father's Full Name <span class="req">*</span></label>
             <input class="form-control" [class.invalid]="isInvalid('fatherName')"
-              formControlName="fatherName" placeholder="e.g. Robert Sharma" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+              formControlName="fatherName" placeholder="e.g. Robert Sharma" />
             <span class="field-error" *ngIf="isInvalid('fatherName')">{{ getError('fatherName') }}</span>
           </div>
 
           <div class="form-group">
             <label class="form-label">Mother's Full Name <span class="req">*</span></label>
             <input class="form-control" [class.invalid]="isInvalid('motherName')"
-              formControlName="motherName" placeholder="e.g. Priya Sharma" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+              formControlName="motherName" placeholder="e.g. Priya Sharma" />
             <span class="field-error" *ngIf="isInvalid('motherName')">{{ getError('motherName') }}</span>
           </div>
 
           <div class="form-group full-width">
             <label class="form-label">Emergency Contact Number <span class="req">*</span></label>
             <input class="form-control" [class.invalid]="isInvalid('emergencyContact')"
-              formControlName="emergencyContact" placeholder="+91 98765 43210" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+              formControlName="emergencyContact" placeholder="+91 98765 43210" />
             <span class="field-error" *ngIf="isInvalid('emergencyContact')">{{ getError('emergencyContact') }}</span>
           </div>
         </div>
       </div>
 
-      <div class="form-section">
+      <div class="form-section" *ngIf="parentMode === 'NEW' || isEditMode">
         <div class="section-header">
           <div class="section-badge">03</div>
           <div>
@@ -276,28 +276,28 @@
           <div class="form-group">
             <label class="form-label">Parent First Name <span class="req">*</span></label>
             <input class="form-control" [class.invalid]="isInvalid('parentFirstName')"
-              formControlName="parentFirstName" placeholder="e.g. Robert" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+              formControlName="parentFirstName" placeholder="e.g. Robert" />
             <span class="field-error" *ngIf="isInvalid('parentFirstName')">{{ getError('parentFirstName') }}</span>
           </div>
 
           <div class="form-group">
             <label class="form-label">Parent Last Name <span class="req">*</span></label>
             <input class="form-control" [class.invalid]="isInvalid('parentLastName')"
-              formControlName="parentLastName" placeholder="e.g. Sharma" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+              formControlName="parentLastName" placeholder="e.g. Sharma" />
             <span class="field-error" *ngIf="isInvalid('parentLastName')">{{ getError('parentLastName') }}</span>
           </div>
 
           <div class="form-group">
             <label class="form-label">Parent Identity Email <span class="req">*</span></label>
             <input type="email" class="form-control" [class.invalid]="isInvalid('parentEmail')"
-              formControlName="parentEmail" placeholder="parent@example.com" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+              formControlName="parentEmail" placeholder="parent@example.com" />
             <span class="field-error" *ngIf="isInvalid('parentEmail')">{{ getError('parentEmail') }}</span>
           </div>
 
           <div class="form-group">
             <label class="form-label">Parent Communication Phone <span class="req">*</span></label>
             <input class="form-control" [class.invalid]="isInvalid('parentPhone')"
-              formControlName="parentPhone" placeholder="+91 98765 43210" [attr.disabled]="parentMode === 'EXISTING' ? true : null" />
+              formControlName="parentPhone" placeholder="+91 98765 43210" />
             <span class="field-error" *ngIf="isInvalid('parentPhone')">{{ getError('parentPhone') }}</span>
           </div>
 
@@ -328,7 +328,7 @@
         </div>
       </div>
 
-      <div class="form-actions">
+      <div class="form-actions" *ngIf="parentMode === 'NEW' || selectedParentId || isEditMode">
         <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
         <button type="submit" class="btn-submit" [disabled]="submitting">
           <span class="btn-spinner" *ngIf="submitting"></span>

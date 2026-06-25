@@ -1,0 +1,252 @@
+<div class="list-page">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <span>Academic Progress</span>
+    <span class="sep">/</span>
+    <span class="active">Exam Marks</span>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Exam Marks</h1>
+      <p>{{ totalElements }} records found</p>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div class="alert-error" *ngIf="error">⚠ {{ error }}</div>
+
+  <!-- Table Card -->
+  <div class="table-card">
+
+    <div class="loading-overlay" *ngIf="loading">
+      <div class="spinner"></div>
+      <span>Loading records...</span>
+    </div>
+
+    <table class="data-table">
+      <thead>
+
+        <!-- Column Headers -->
+        <tr class="header-row">
+          <th class="col-no">#</th>
+          <th class="col-name">Student</th>
+         
+          <th class="col-class">Class</th>
+          <th class="col-section">Section</th>
+           <th class="col-subject">Subject</th>
+          <th class="col-exam">Exam</th>
+          <th class="col-marks">Marks</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+
+        <!-- Filter Row -->
+        <tr class="filter-row">
+
+          <td class="col-no"></td>
+
+          <!-- Student Name + Autocomplete -->
+          <td class="col-name" style="position: relative;">
+            <div class="search-input-wrapper">
+              <input
+                class="col-filter"
+                type="text"
+                placeholder="Search student..."
+                [(ngModel)]="searchStudentName"
+                (input)="onStudentInputChange()"
+                (blur)="closeSuggestions()"
+                (keyup.enter)="onSearchTrigger()" />
+              <div class="inline-spinner" *ngIf="searchingStudents"></div>
+            </div>
+
+            <!-- Suggestion Dropdown -->
+            <ul class="suggestion-menu" *ngIf="showSuggestions && suggestedStudents.length > 0">
+              <li *ngFor="let s of suggestedStudents" (mousedown)="selectStudent(s)">
+                <div class="suggest-item">
+                  <span class="s-name">{{ s.firstName }} {{ s.lastName }}</span>
+                  <span class="s-adm">Adm: {{ s.admissionNo }}</span>
+                </div>
+              </li>
+            </ul>
+          </td>
+
+        
+
+          <!-- Class Dropdown — sections reload hoti hain, search nahi -->
+          <td class="col-class">
+            <select
+              class="col-filter select-arrow"
+              [(ngModel)]="selectedClassId"
+              (change)="onClassFilterChange()"
+              [disabled]="loadingClasses">
+              <option value="">{{ loadingClasses ? 'Loading...' : 'All Classes' }}</option>
+              <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
+            </select>
+          </td>
+
+          <!-- Section Dropdown — classId hone ke baad enable -->
+          <td class="col-section">
+            <select
+              class="col-filter select-arrow"
+              [(ngModel)]="selectedSectionId"
+              [disabled]="!selectedClassId || loadingSections">
+              <option value="">
+                {{ !selectedClassId ? 'Select class' : loadingSections ? 'Loading...' : 'All Sections' }}
+              </option>
+              <option *ngFor="let sec of sections" [value]="sec.id">{{ sec.label }}</option>
+            </select>
+          </td>
+
+            <!-- Subject Dropdown -->
+          <td class="col-subject">
+            <select class="col-filter select-arrow" [(ngModel)]="selectedSubjectId">
+              <option value="">All Subjects</option>
+              <option *ngFor="let sb of subjects" [value]="sb.id">{{ sb.label }}</option>
+            </select>
+          </td>
+
+            <!-- Exam Dropdown -->
+          <td class="col-exam">
+            <select class="col-filter select-arrow" [(ngModel)]="selectedExamId">
+              <option value="">All Exams</option>
+              <option *ngFor="let ex of exams" [value]="ex.id">{{ ex.label }}</option>
+            </select>
+          </td>
+
+        
+
+          <!-- Marks col empty in filter row -->
+          <td class="col-marks"></td>
+
+          <!-- Search + Reset -->
+          <td class="col-actions filter-clear-cell">
+            <div class="filter-action-btns">
+              <button class="btn-search-filter" (click)="onSearchTrigger()">
+                🔍 Search
+              </button>
+              <button
+                class="btn-clear-filter"
+                *ngIf="hasActiveFilters()"
+                (click)="clearAllFilters()">
+                ✕
+              </button>
+            </div>
+          </td>
+
+        </tr>
+      </thead>
+
+      <!-- Table Body -->
+      <tbody>
+
+        <ng-container *ngIf="!loading && marksRecords.length > 0">
+          <tr *ngFor="let m of marksRecords; let idx = index" class="data-row">
+
+            <td class="col-no text-muted">{{ startIndex + idx }}</td>
+
+            <!-- Student Cell -->
+            <td class="col-name">
+              <div class="student-cell">
+                <div class="avatar">
+                  {{ m.studentName ? m.studentName.charAt(0).toUpperCase() : 'S' }}
+                </div>
+                <div style="display:flex; flex-direction:column;">
+                  <span class="student-name">{{ m.studentName || '—' }}</span>
+                  <span style="font-size:11px; color:#718096; margin-top:2px;">
+                    Adm: <code>{{ m.admissionNo || '—' }}</code>
+                    <span *ngIf="m.rollNo">&nbsp;·&nbsp;Roll: {{ m.rollNo }}</span>
+                  </span>
+                </div>
+              </div>
+            </td>
+
+          
+            <td class="col-class fw-500">{{ m.className || '—' }}</td>
+
+            <td class="col-section">
+              <span class="section-chip">{{ m.sectionName || '—' }}</span>
+            </td>
+
+          
+            <td class="col-subject fw-600">{{ m.subjectName || '—' }}</td>
+
+                <td class="col-exam fw-600" style="color:#4a5568;">{{ m.examName || '—' }}</td>
+
+            <!-- Marks Badge — red if below 40% (jab tak maxMarks na ho, sirf marksObtained dikhao) -->
+            <td class="col-marks">
+              <span class="badge-blue" [class.badge-low]="m.maxMarks && m.marksObtained < m.maxMarks * 0.4">
+                {{ m.marksObtained }}<span *ngIf="m.maxMarks"> / {{ m.maxMarks }}</span>
+              </span>
+            </td>
+
+            <td class="col-actions">
+              <div class="action-btns">
+                <button class="btn-view" title="View details">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2.5">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  View
+                </button>
+              </div>
+            </td>
+
+          </tr>
+        </ng-container>
+
+        <!-- Empty State -->
+        <tr *ngIf="!loading && marksRecords.length === 0" class="empty-row">
+          <td colspan="8">
+            <div class="empty-state" *ngIf="hasActiveFilters()">
+              <div class="empty-icon">🔍</div>
+              <p class="empty-title">No records match your filters</p>
+              <p class="empty-sub">Filters modify karo ya clear karo.</p>
+              <button class="btn-clear-filters-center" (click)="clearAllFilters()">✕ Clear All Filters</button>
+            </div>
+            <div class="empty-state" *ngIf="!hasActiveFilters()">
+              <div class="empty-icon">📂</div>
+              <p class="empty-title">No exam marks found</p>
+              <p class="empty-sub">Abhi koi marks record nahi hai.</p>
+            </div>
+          </td>
+        </tr>
+
+      </tbody>
+
+      <!-- Footer -->
+      <tfoot *ngIf="totalElements > 0 && !loading">
+        <tr class="footer-row">
+          <td colspan="8">
+            <div class="table-footer-summary">
+              Showing <strong>{{ startIndex }}</strong> – <strong>{{ endIndex }}</strong>
+              of <strong>{{ totalElements }}</strong> records
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1 && !loading">
+    <div class="dummy-space"></div>
+    <div class="page-btns">
+      <button class="page-btn" (click)="goToPage(0)" [disabled]="currentPage === 0">«</button>
+      <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">‹</button>
+      <button
+        *ngFor="let p of pages"
+        class="page-btn"
+        [class.active]="p === currentPage"
+        (click)="goToPage(p)">
+        {{ p + 1 }}
+      </button>
+      <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">›</button>
+      <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1">»</button>
+    </div>
+  </div>
+
+</div>

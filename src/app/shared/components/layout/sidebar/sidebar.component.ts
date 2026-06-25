@@ -25,7 +25,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Subjects',          href: '/subjects',          icon: 'book-open',        roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Class Timetable',   href: '/timetable',         icon: 'calendar-check',    roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Exams Module',      href: '/exams',             icon: 'exam-sheet',        roles: ['SUPER_ADMIN', 'ADMIN'] }, 
-  { label: 'Teacher-Mapping',   href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
+  { label: 'Exam-Marks',   href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
   { label: 'Attendance',        href: '/attendance',        icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
   { label: 'Fees',              href: '/fees',              icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT', 'PARENT'] },
   { label: 'Reports',           href: '/reports',           icon: 'bar-chart-3',      roles: ['SUPER_ADMIN', 'ADMIN'] },

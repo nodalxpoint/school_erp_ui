@@ -2,18 +2,18 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ExamMarksService, TeacherClassMapDto } from '../../services/exam-marks.service';
+import { ExamMarksService, TeacherClassMapDto } from '../../services/teacher-mapping.service';
 import { ParamDropdownOption } from '../../../timetable/services/timetable.service';
 
 @Component({
   selector: 'app-exam-marks-subject-list',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './exam-marks-subject-list.component.html',
-  styleUrls: ['./exam-marks-subject-list.component.scss'],
+  templateUrl: './teacher-mapping-subject-list.component.html',
+  styleUrls: ['./teacher-mapping-subject-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ExamMarksSubjectListComponent implements OnInit, OnDestroy {
+export class TeacherMappingSubjectListComponent implements OnInit, OnDestroy {
   classesMappedList: TeacherClassMapDto[] = [];
   sessions: ParamDropdownOption[] = [];
   isLoading = false;

@@ -110,10 +110,14 @@ export const routes: Routes = [
 
       // Exam Marks
       {
-        path: 'exam-marks',
+        path: 'teacher-mapping',
         loadChildren: () => 
-          import('./modules/exam-marks/exam-marks.routes').then(m => m.EXAM_MARKS_ROUTES)
-      }
+          import('./modules/teacher-mapping/teacher-mapping.routes').then(m => m.TEACHER_MAPPING_ROUTES)
+      },
+      {
+  path: 'exam-marks',
+  loadChildren: () => import('./modules/exam-marks/exam-marks.routes').then(m => m.EXAM_MARKS_ROUTES)
+}
     ]
   },
 

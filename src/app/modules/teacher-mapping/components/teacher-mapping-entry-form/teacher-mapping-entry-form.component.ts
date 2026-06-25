@@ -2,18 +2,18 @@ import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ExamMarksService } from '../../services/exam-marks.service';
-import { StudentMarksRecordDto, ExamMarksSavePayload } from '../../models/exam-marks.model';
+import { ExamMarksService } from '../../services/teacher-mapping.service';
+import { StudentMarksRecordDto, ExamMarksSavePayload } from '../../models/teacher-mapping.model';
 
 @Component({
   selector: 'app-exam-marks-entry-form',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './exam-marks-entry-form.component.html',
-  styleUrls: ['./exam-marks-entry-form.component.scss'],
+  templateUrl: './teacher-mapping-entry-form.component.html',
+  styleUrls: ['./teacher-mapping-entry-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ExamMarksEntryFormComponent implements OnInit {
+export class TeacherMappingEntryFormComponent implements OnInit {
   studentRecords: StudentMarksRecordDto[] = [];
   isLoading = false;
   isSaving = false;
