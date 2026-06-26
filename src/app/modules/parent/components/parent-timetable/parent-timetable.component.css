@@ -1,0 +1,246 @@
+.premium-dark {
+  background: #121212;
+  color: #f5f5f7;
+  min-height: 100vh;
+  padding: 20px 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.premium-dark .app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.premium-dark .app-header .back-link {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 19px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.premium-dark .app-header .calendar-icon-trigger {
+  background: #1c1c1e;
+  border: 1px solid #2c2c2e;
+  color: #a1a1a6;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  cursor: pointer;
+}
+.premium-dark .app-header .calendar-icon-trigger:hover {
+  color: #ffffff;
+  background: #2c2c2e;
+}
+.premium-dark .filters-card-stack {
+  margin-bottom: 20px;
+}
+.premium-dark .filters-card-stack .premium-input {
+  background: #1c1c1e;
+  border: 1px solid #2c2c2e;
+  color: #f5f5f7;
+  border-radius: 10px;
+  padding: 14px;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1a6' stroke-width='2.5'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px;
+}
+.premium-dark .day-tabs-scrollbox {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  scrollbar-width: none;
+}
+.premium-dark .day-tabs-scrollbox::-webkit-scrollbar {
+  display: none;
+}
+.premium-dark .day-tabs-scrollbox .day-tab-btn {
+  flex: 1;
+  min-width: 54px;
+  background: #1c1c1e;
+  border: 1px solid #2c2c2e;
+  color: #f5f5f7;
+  padding: 10px 0;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.premium-dark .day-tabs-scrollbox .day-tab-btn.active {
+  background: #0071e3;
+  border-color: #0071e3;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+}
+.premium-dark .timetable-meta-summary {
+  font-size: 12px;
+  color: #86868b;
+  font-weight: 500;
+  margin-bottom: 16px;
+  padding-left: 2px;
+}
+.premium-dark .timetable-feed-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.premium-dark .timetable-feed-wrapper .period-premium-card {
+  background: #1c1c1e;
+  border: 1px solid #2c2c2e;
+  border-radius: 14px;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  padding: 16px;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 0.2s ease;
+}
+.premium-dark .timetable-feed-wrapper .period-premium-card .color-indicator-strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 4px 0 0 4px;
+}
+.premium-dark .timetable-feed-wrapper .period-premium-card .card-details-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 6px;
+}
+.premium-dark .timetable-feed-wrapper .period-premium-card .card-details-left .subject-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.premium-dark .timetable-feed-wrapper .period-premium-card .card-details-left .subject-title-row .subject-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.premium-dark .timetable-feed-wrapper .period-premium-card .card-details-left .subject-title-row .substitute-badge {
+  background: rgba(255, 159, 10, 0.12);
+  color: #ff9f0a;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.premium-dark .timetable-feed-wrapper .period-premium-card .card-details-left .instructor-sub {
+  font-size: 13px;
+  color: #86868b;
+  font-weight: 500;
+  margin: 0;
+}
+.premium-dark .timetable-feed-wrapper .period-premium-card .card-details-left .instructor-sub .room-pill {
+  color: #e2e8f0;
+}
+.premium-dark .timetable-feed-wrapper .period-premium-card .card-time-right {
+  text-align: right;
+}
+.premium-dark .timetable-feed-wrapper .period-premium-card .card-time-right .time-range-text {
+  font-size: 13px;
+  color: #86868b;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.premium-dark .timetable-feed-wrapper .break-divider-node {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 4px;
+  color: #636366;
+}
+.premium-dark .timetable-feed-wrapper .break-divider-node .time-stamp, .premium-dark .timetable-feed-wrapper .break-divider-node .label-text {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.premium-dark .timetable-feed-wrapper .break-divider-node .label-text {
+  color: #aeaeae;
+  background: #2c2c2e;
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+.premium-dark .timetable-feed-wrapper .break-divider-node .dashed-line {
+  flex: 1;
+  height: 1px;
+  border-bottom: 1px dashed #2c2c2e;
+}
+.premium-dark .timetable-feed-wrapper .no-schedule-fallback {
+  background: #1c1c1e;
+  border: 1px dashed #2c2c2e;
+  border-radius: 14px;
+  padding: 40px 16px;
+  text-align: center;
+  color: #86868b;
+}
+.premium-dark .timetable-feed-wrapper .no-schedule-fallback .fallback-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+.premium-dark .timetable-feed-wrapper .no-schedule-fallback p {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.spinner-center {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+.spinner-center .mini-loader {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #2c2c2e;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@media (min-width: 1024px) {
+  .premium-dark {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+  .premium-dark .day-tabs-scrollbox .day-tab-btn {
+    padding: 12px 0;
+    font-size: 14px;
+  }
+}/*# sourceMappingURL=parent-timetable.component.css.map */

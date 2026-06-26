@@ -1,0 +1,109 @@
+<div class="attendance-container premium-dark">
+  
+  <div class="app-header">
+    <button class="back-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      <span>Attendance</span>
+    </button>
+    <button class="download-trigger" title="Download Export Ledger">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="filters-card-stack">
+    <div class="select-group">
+      <select class="premium-input select-native" [(ngModel)]="selectedChildId" (change)="onChildChange()">
+        <option *ngFor="let child of childrenList" [value]="child.id">
+          {{ child.firstName }} {{ child.lastName }} — Class {{ child.className }}, Section {{ child.sectionName }}
+        </option>
+      </select>
+    </div>
+
+    <div class="dual-filters-row">
+      <select class="premium-input select-native" [(ngModel)]="selectedMonthStr" (change)="fetchAttendanceMetrics()">
+        <option *ngFor="let m of monthsList" [value]="m.value">{{ m.label }}</option>
+      </select>
+
+      <select class="premium-input select-native" [(ngModel)]="selectedStatus" (change)="processLogFeeds()">
+        <option value="">All status</option>
+        <option value="PRESENT">Present</option>
+        <option value="ABSENT">Absent</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="summary-chips-grid explicit-three-cols">
+    <div class="metric-chip">
+      <span class="value-node">{{ summary.present }}</span>
+      <span class="lbl-node">Present</span>
+    </div>
+    <div class="metric-chip">
+      <span class="value-node">{{ summary.absent }}</span>
+      <span class="lbl-node">Absent</span>
+    </div>
+    <div class="metric-chip percent-accent">
+      <span class="value-node">{{ summary.percentage }}%</span>
+      <span class="lbl-node">Overall</span>
+    </div>
+  </div>
+
+  <div class="calendar-wrapper-block">
+    <h3 class="section-title">Calendar Matrix Logs</h3>
+    
+    <div class="days-header-row">
+      <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+    </div>
+
+    <div class="days-nodes-grid">
+      <div *ngFor="let block of calendarDays" 
+           class="day-cell-wrapper" 
+           [ngClass]="block ? block.status.toLowerCase() : 'empty-cell'">
+        <span *ngIf="block">{{ block.day }}</span>
+      </div>
+    </div>
+
+    <div class="indicators-labels-row">
+      <span class="indicator present">Present</span>
+      <span class="indicator absent">Absent</span>
+      <span class="indicator holiday">Holiday / Off</span>
+    </div>
+  </div>
+
+  <div class="timeline-logs-track">
+    <h3 class="section-title">Recent Activity Logs</h3>
+
+    <div class="spinner-center" *ngIf="isLoading">
+      <div class="mini-loader"></div>
+    </div>
+
+    <div class="logs-feed-container" *ngIf="!isLoading">
+      <div class="timeline-item-row" *ngFor="let row of recentLogsFeed">
+        <div class="meta-left">
+          <span class="row-title">{{ row.displayDate }}</span>
+          <span class="row-sub text-success" *ngIf="row.status === 'PRESENT'">
+            ✓ Verification logged safely{{ row.remarks ? ' - ' + row.remarks : '' }}
+          </span>
+          <span class="row-sub text-danger" *ngIf="row.status === 'ABSENT'">
+            ✕ No evaluation registry session recorded
+          </span>
+        </div>
+        <div class="badge-status-wrap">
+          <span class="status-pill-badge" [ngClass]="row.status.toLowerCase()">
+            {{ row.status | titlecase }}
+          </span>
+        </div>
+      </div>
+      
+      <div class="no-logs-fallback" *ngIf="recentLogsFeed.length === 0">
+        No dynamic attendance tracking records returned from server matrix selection
+      </div>
+    </div>
+  </div>
+
+</div>

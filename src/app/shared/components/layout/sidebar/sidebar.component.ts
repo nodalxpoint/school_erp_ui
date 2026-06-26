@@ -25,8 +25,14 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Subjects',          href: '/subjects',          icon: 'book-open',        roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Class Timetable',   href: '/timetable',         icon: 'calendar-check',    roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Exams Module',      href: '/exams',             icon: 'exam-sheet',        roles: ['SUPER_ADMIN', 'ADMIN'] }, 
-  { label: 'Exam-Marks',   href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
+  { label: 'Exam-Marks',        href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
   { label: 'Attendance',        href: '/attendance',        icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
+
+  // ✅ PARENT LINKS ENCODED SAFELY MATCHING BACKEND ROLE SPEC
+  { label: 'Children Attendance', href: '/parent/attendance', icon: 'calendar-check', roles: ['PARENT'] },
+  { label: 'Exam Results',        href: '/parent/exams',      icon: 'exam-sheet',     roles: ['PARENT'] },
+  { label: 'Class Timetable',     href: '/parent/timetable',  icon: 'calendar-days',  roles: ['PARENT'] },
+  
   { label: 'Fees',              href: '/fees',              icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT', 'PARENT'] },
   { label: 'Reports',           href: '/reports',           icon: 'bar-chart-3',      roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Settings',          href: '/settings',          icon: 'settings',         roles: 'all' },
@@ -76,17 +82,28 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.cdr.markForCheck();
     });
 
-    this.authState.user$.pipe(takeUntil(this.destroy$)).subscribe(user => {
-      this.currentRole = (user?.role as UserRole) ?? null;
-      this.cdr.markForCheck();
-    });
+    this.gameStateTrackingInit();
 
     this.currentPath = this.router.url;
     this._autoOpenDropdown(this.currentPath);
 
-    this.router.events.pipe(filter(e => e instanceof NavigationEnd), takeUntil(this.destroy$)).subscribe((e: any) => {
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd), 
+      takeUntil(this.destroy$)
+    ).subscribe((e: any) => {
       this.currentPath = e.urlAfterRedirects;
       this._autoOpenDropdown(this.currentPath);
+      this.cdr.markForCheck();
+    });
+  }
+
+  gameStateTrackingInit(): void {
+    this.authState.user$.pipe(takeUntil(this.destroy$)).subscribe(user => {
+      if (user && user.role) {
+        this.currentRole = user.role as UserRole;
+      } else {
+        this.currentRole = null;
+      }
       this.cdr.markForCheck();
     });
   }
@@ -104,8 +121,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   get filteredNavItems(): NavItem[] {
     const role = this.currentRole;
+    if (!role) return NAV_ITEMS.filter(item => item.roles === 'all');
     return NAV_ITEMS.filter(item =>
-      (item.roles === 'all' || (role && (item.roles as UserRole[]).includes(role)))
+      item.roles === 'all' || (Array.isArray(item.roles) && item.roles.includes(role))
     );
   }
 
@@ -135,7 +153,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   getInitials(name: string): string { return getInitials(name); }
 
-  // ✅ FIXED: Clears core states locally and forces CDR detection wrapper
   logout(): void { 
     this.teachersDropdownOpen = false;
     this.subjectsDropdownOpen = false;

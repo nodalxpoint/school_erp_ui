@@ -1,0 +1,88 @@
+<div class="timetable-container premium-dark">
+  
+  <div class="app-header">
+    <button class="back-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      <span>Timetable</span>
+    </button>
+    <button class="calendar-icon-trigger">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+        <path d="M8 14h.01M12 14h.01M16 14h.01"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div class="filters-card-stack">
+    <div class="select-group">
+      <select class="premium-input select-native" [(ngModel)]="selectedChildId" (change)="onChildChange()">
+        <option *ngFor="let child of childrenList" [value]="child.id">
+          {{ child.firstName }} {{ child.lastName }} — Class {{ child.className }}, Section {{ child.sectionName }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="day-tabs-scrollbox">
+    <button *ngFor="let day of daysList" 
+            class="day-tab-btn" 
+            [class.active]="selectedDay === day.value"
+            (click)="selectDay(day.value)">
+      {{ day.label }}
+    </button>
+  </div>
+
+  <div class="timetable-meta-summary" *ngIf="!isLoading && filteredPeriods.length > 0">
+    <span>{{ selectedDay | titlecase }}day lectures loop · {{ filteredPeriods.length }} active segments</span>
+  </div>
+
+  <div class="timetable-feed-wrapper">
+    
+    <div class="spinner-center" *ngIf="isLoading">
+      <div class="mini-loader"></div>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+      <div *ngFor="let period of filteredPeriods" class="feed-item-row">
+        
+        <div *ngIf="period.isBreak" class="break-divider-node">
+          <span class="time-stamp">{{ period.startTime }} – {{ period.endTime }}</span>
+          <div class="dashed-line"></div>
+          <span class="label-text">Break</span>
+          <div class="dashed-line"></div>
+        </div>
+
+        <div *ngIf="!period.isBreak" class="period-premium-card">
+          <div class="color-indicator-strip" [style.background-color]="getSubjectColor(period.subjectName)"></div>
+          
+          <div class="card-details-left">
+            <div class="subject-title-row">
+              <h3 class="subject-title">{{ period.subjectName }}</h3>
+              <span *ngIf="period.isSubstitute" class="substitute-badge">Substitute</span>
+            </div>
+            <p class="instructor-sub">
+              {{ period.teacherName | titlecase }} · <span class="room-pill">Room {{ period.roomNo }}</span>
+            </p>
+          </div>
+
+          <div class="card-time-right">
+            <span class="time-range-text">{{ period.startTime }} – {{ period.endTime }}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="no-schedule-fallback" *ngIf="filteredPeriods.length === 0">
+        <div class="fallback-icon">☕</div>
+        <p>No active sessions or periods mapped for {{ selectedDay | titlecase }}day</p>
+      </div>
+    </ng-container>
+
+  </div>
+
+</div>
