@@ -1,19 +1,9 @@
-<div class="attendance-container premium-dark">
+<div class="school-erp-container">
   
   <div class="app-header">
-    <button class="back-link">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="15 18 9 12 15 6"></polyline>
-      </svg>
-      <span>Attendance</span>
-    </button>
-    <button class="download-trigger" title="Download Export Ledger">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
-        <polyline points="7 10 12 15 17 10"></polyline>
-        <line x1="12" y1="15" x2="12" y2="3"></line>
-      </svg>
-    </button>
+    <div class="page-title-node">
+      <span>Children Attendance</span>
+    </div>
   </div>
 
   <div class="filters-card-stack">
@@ -39,71 +29,74 @@
   </div>
 
   <div class="summary-chips-grid explicit-three-cols">
-    <div class="metric-chip">
+    <div class="metric-chip present-accent">
       <span class="value-node">{{ summary.present }}</span>
-      <span class="lbl-node">Present</span>
+      <span class="lbl-node">Present Days</span>
     </div>
-    <div class="metric-chip">
+    <div class="metric-chip absent-accent">
       <span class="value-node">{{ summary.absent }}</span>
-      <span class="lbl-node">Absent</span>
+      <span class="lbl-node">Absent Days</span>
     </div>
     <div class="metric-chip percent-accent">
       <span class="value-node">{{ summary.percentage }}%</span>
-      <span class="lbl-node">Overall</span>
+      <span class="lbl-node">Overall Attendance</span>
     </div>
   </div>
 
-  <div class="calendar-wrapper-block">
-    <h3 class="section-title">Calendar Matrix Logs</h3>
+  <div class="main-dashboard-layout">
     
-    <div class="days-header-row">
-      <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
-    </div>
-
-    <div class="days-nodes-grid">
-      <div *ngFor="let block of calendarDays" 
-           class="day-cell-wrapper" 
-           [ngClass]="block ? block.status.toLowerCase() : 'empty-cell'">
-        <span *ngIf="block">{{ block.day }}</span>
-      </div>
-    </div>
-
-    <div class="indicators-labels-row">
-      <span class="indicator present">Present</span>
-      <span class="indicator absent">Absent</span>
-      <span class="indicator holiday">Holiday / Off</span>
-    </div>
-  </div>
-
-  <div class="timeline-logs-track">
-    <h3 class="section-title">Recent Activity Logs</h3>
-
-    <div class="spinner-center" *ngIf="isLoading">
-      <div class="mini-loader"></div>
-    </div>
-
-    <div class="logs-feed-container" *ngIf="!isLoading">
-      <div class="timeline-item-row" *ngFor="let row of recentLogsFeed">
-        <div class="meta-left">
-          <span class="row-title">{{ row.displayDate }}</span>
-          <span class="row-sub text-success" *ngIf="row.status === 'PRESENT'">
-            ✓ Verification logged safely{{ row.remarks ? ' - ' + row.remarks : '' }}
-          </span>
-          <span class="row-sub text-danger" *ngIf="row.status === 'ABSENT'">
-            ✕ No evaluation registry session recorded
-          </span>
-        </div>
-        <div class="badge-status-wrap">
-          <span class="status-pill-badge" [ngClass]="row.status.toLowerCase()">
-            {{ row.status | titlecase }}
-          </span>
-        </div>
-      </div>
+    <div class="calendar-wrapper-block">
+      <h3 class="section-title">Calendar Matrix Logs</h3>
       
-      <div class="no-logs-fallback" *ngIf="recentLogsFeed.length === 0">
-        No dynamic attendance tracking records returned from server matrix selection
+      <div class="days-header-row">
+        <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+      </div>
+
+      <div class="days-nodes-grid">
+        <div *ngFor="let block of calendarDays" 
+             class="day-cell-wrapper" 
+             [ngClass]="block ? block.status.toLowerCase() : 'empty-cell'">
+          <span *ngIf="block">{{ block.day }}</span>
+        </div>
+      </div>
+
+      <div class="indicators-labels-row">
+        <span class="indicator present">Present</span>
+        <span class="indicator absent">Absent</span>
+        <span class="indicator holiday">Holiday / Off</span>
       </div>
     </div>
-  </div>
 
+    <div class="timeline-logs-track">
+      <h3 class="section-title">Recent Activity Logs</h3>
+
+      <div class="spinner-center" *ngIf="isLoading">
+        <div class="mini-loader"></div>
+      </div>
+
+      <div class="logs-feed-container" *ngIf="!isLoading">
+        <div class="timeline-item-row" *ngFor="let row of recentLogsFeed">
+          <div class="meta-left">
+            <span class="row-title">{{ row.displayDate }}</span>
+            <span class="row-sub status-text-present" *ngIf="row.status === 'PRESENT'">
+              ✓ Verification logged safely{{ row.remarks ? ' - ' + row.remarks : '' }}
+            </span>
+            <span class="row-sub status-text-absent" *ngIf="row.status === 'ABSENT'">
+              ✕ No evaluation registry session recorded
+            </span>
+          </div>
+          <div class="badge-status-wrap">
+            <span class="status-pill-badge" [ngClass]="row.status.toLowerCase()">
+              {{ row.status | titlecase }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="no-logs-fallback" *ngIf="recentLogsFeed.length === 0">
+          No dynamic attendance tracking records returned from server matrix selection
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>

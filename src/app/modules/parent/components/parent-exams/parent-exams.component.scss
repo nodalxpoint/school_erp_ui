@@ -1,138 +1,199 @@
-// parent-exams.component.scss
-// Premium Apple Dark Look Core Specifications Engine
+:host {
+  --primary:        #2b6cb0;
+  --primary-light:  #ebf4ff;
+  --primary-hover:  #2c5282;
+  --primary-border: #bee3f8;
+  --border:         #e2e8f0;
+  --border-dark:    #cbd5e0;
+  --bg-white:       #ffffff;
+  --bg-row-odd:     #f7fafc;
+  --bg-header:      #2b6cb0;
+  --text-primary:   #2d3748;
+  --text-muted:     #718096;
+  --text-hint:      #a0aec0;
+  --teal:           #2c7a7b;
+  --teal-light:     #e6fffa;
+  --teal-border:    #81e6d9;
+  --violet:         #6b46c1;
+  --violet-light:   #faf5ff;
+  --violet-border:  #d6bcfa;
+}
 
-.premium-dark {
-  background: #121212;
-  color: #f5f5f7;
+// Premium School ERP Redesign — Using Global Token Variables for Exams
+.school-erp-container {
+  background: var(--bg-row-odd);
+  color: var(--text-primary);
   min-height: 100vh;
-  padding: 20px 16px;
+  padding: 24px 16px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
+  // ── Header Section ────────────────────────────────────────────────────────
   .app-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
 
-    .back-link {
-      background: transparent;
-      border: none;
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 19px;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 0;
-    }
-
-    .download-trigger {
-      background: #1c1c1e;
-      border: 1px solid #2c2c2e;
-      color: #a1a1a6;
-      padding: 8px;
-      border-radius: 50%;
-      display: flex;
-      cursor: pointer;
-      &:hover { color: #ffffff; background: #2c2c2e; }
+    .page-title-node {
+      color: var(--text-primary);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      user-select: none;
     }
   }
 
+  // ── Filters Stack ─────────────────────────────────────────────────────────
   .filters-card-stack {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
     margin-bottom: 24px;
+    background: var(--bg-white);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 
-    .premium-input {
-      background: #1c1c1e;
-      border: 1px solid #2c2c2e;
-      color: #f5f5f7;
-      border-radius: 10px;
-      padding: 14px;
+    .select-group {
+      width: 100%;
+      color: #2d3748 !important;
+    }
+
+    // ── CRITICAL BROWSER FIX FOR OVERRIDE RESISTANCE ──
+    .premium-input.select-native {
+      color: #2d3748 !important; 
+      background-color: #ffffff !important;
+      border: 1px solid var(--border-dark);
+      border-radius: 8px;
+      padding: 12px 14px;
       width: 100%;
       font-size: 14px;
       font-weight: 500;
       outline: none;
-      appearance: none;
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      -moz-appearance: none !important;
       cursor: pointer;
-      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1a6' stroke-width='2.5'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      background-size: 14px;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2.5'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+      background-repeat: no-repeat !important;
+      background-position: right 14px center !important;
+      background-size: 14px !important;
+      transition: all 0.2s ease;
+      
+      // Preventing browser chrome automatic color flips
+      &:-webkit-autofill,
+      &:-webkit-autofill:hover, 
+      &:-webkit-autofill:focus {
+        -webkit-text-fill-color: #2d3748 !important;
+        box-shadow: 0 0 0px 1000px #ffffff inset !important;
+      }
+
+      &:focus, &:active {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px var(--primary-light) !important;
+        color: #2d3748 !important;
+        background-color: #ffffff !important;
+      }
+
+      // Inside dropdown panel fallback injection rules
+      option {
+        color: #2d3748 !important; 
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        font-weight: 500;
+        padding: 12px;
+
+        &:disabled, &[disabled], &.placeholder {
+          color: #a0aec0 !important;
+          background-color: #ffffff !important;
+        }
+      }
     }
   }
 
-  // ── Summary Chips Layout Grid ─────────────────────────────────────────────
-  .summary-chips-grid {
+  // ── Executive Summary Metrics Grid ────────────────────────────────────────
+  .summary-chips-grid.explicit-three-cols {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px;
     margin-bottom: 28px;
 
     .metric-chip {
-      background: #1c1c1e;
-      border: 1px solid #2c2c2e;
+      background: var(--bg-white);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 16px 8px;
+      padding: 20px 14px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.01);
 
       .value-node {
-        font-size: 20px;
-        font-weight: 700;
-        color: #ffffff;
+        font-size: 26px;
+        font-weight: 800;
         letter-spacing: -0.02em;
-
-        .muted-max {
-          font-size: 12px;
-          color: #636366;
-          font-weight: 500;
-        }
       }
 
       .lbl-node {
-        font-size: 11px;
-        font-weight: 500;
-        color: #86868b;
-        margin-top: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-top: 6px;
+        text-align: center;
       }
 
-      &.percent-highlight .value-node {
-        color: #0a84ff; // Neon Apple Identity Blue
+      &.present-accent {
+        border-left: 4px solid var(--teal);
+        .value-node { color: var(--teal); }
+      }
+      &.holiday-accent {
+        border-left: 4px solid var(--primary);
+        .value-node { color: var(--primary); }
+      }
+      &.percent-accent {
+        border-left: 4px solid var(--violet);
+        .value-node { color: var(--violet); }
       }
     }
   }
 
   .section-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: #86868b;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     margin-bottom: 16px;
   }
 
-  // ── Subject Wise Marks Card Core ──────────────────────────────────────────
+  // ── Marks Cards Feed ──────────────────────────────────────────────────────
+  .marks-feed-wrapper-block {
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+  }
+
   .marks-feed-container {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
   }
 
   .subject-score-card {
-    background: #1c1c1e;
-    border: 1px solid #2c2c2e;
-    border-radius: 14px;
-    display: flex;
-    position: relative;
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
     overflow: hidden;
-    padding: 16px;
+    position: relative;
+    display: flex;
     align-items: center;
-    gap: 14px;
+    padding: 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.01);
 
     .color-indicator-strip {
       position: absolute;
@@ -144,107 +205,269 @@
 
     .score-details-layout {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      padding-left: 8px;
+      padding-right: 16px;
 
       .meta-row {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: baseline;
+        margin-bottom: 8px;
 
         .subject-name {
           font-size: 15px;
-          font-weight: 600;
-          color: #ffffff;
+          font-weight: 700;
+          color: var(--text-primary);
         }
 
         .marks-text {
-          font-size: 13px;
-          color: #ffffff;
+          font-size: 14px;
+          color: var(--text-primary);
           
+          strong {
+            font-size: 16px;
+            font-weight: 700;
+          }
           .max-cap {
-            color: #636366;
+            color: var(--text-muted);
+            font-size: 12px;
           }
         }
       }
 
-      // Linear Horizontal Loading Bar Track
       .progress-bar-track {
+        background: var(--border);
         height: 6px;
-        background: #2c2c2e;
         border-radius: 3px;
-        width: 100%;
         overflow: hidden;
+        width: 100%;
 
         .progress-bar-fill {
           height: 100%;
           border-radius: 3px;
-          transition: width 0.4s ease-out;
+          transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
       }
     }
 
-    // Alpha Grade Badge System Custom Capsules
     .grade-badge-wrap {
-      min-width: 42px;
       display: flex;
       justify-content: flex-end;
+      align-items: center;
 
       .grade-pill {
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 700;
-        width: 34px;
-        height: 34px;
+        width: 36px;
+        height: 36px;
         border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
 
-        &.grade-a { background: rgba(48, 209, 88, 0.12); color: #30d158; }
-        &.grade-b { background: rgba(10, 132, 255, 0.12); color: #0a84ff; }
-        &.grade-c { background: rgba(255, 159, 10, 0.12); color: #ff9f0a; }
-        &.grade-f { background: rgba(255, 69, 58, 0.12); color: #ff453a; }
+        &.grade-a { background: var(--teal-light); color: var(--teal); border: 1px solid var(--teal-border); }
+        &.grade-b { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); }
+        &.grade-c { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
+        &.grade-f { background: #fff5f5; color: #e53e3e; border: 1px solid #fed7d7; }
       }
     }
+  }
 
-    .no-marks-fallback {
-      background: #1c1c1e;
-      border: 1px dashed #2c2c2e;
-      border-radius: 14px;
-      padding: 40px 16px;
-      text-align: center;
-      color: #86868b;
-      .fallback-icon { font-size: 24px; margin-bottom: 8px; }
-      p { font-size: 13px; font-weight: 500; margin: 0; }
-    }
+  .no-marks-fallback {
+    background: var(--bg-white);
+    border: 2px dashed var(--border-dark);
+    border-radius: 12px;
+    padding: 36px 16px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-muted);
   }
 }
 
+
+:host ::ng-deep {
+  .filters-card-stack select.premium-input,
+  select.premium-input.select-native {
+    color: #2d3748 !important;
+    color-scheme: light;  
+    background-color: #ffffff !important;
+  }
+
+  select.premium-input.select-native:focus,
+  select.premium-input.select-native:active {
+    color: #2d3748 !important;
+    background-color: #ffffff !important;
+  }
+
+  // Force placeholder option and selected state value inheritance
+  select.premium-input.select-native option {
+    color: #2d3748 !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+  }
+
+  // Specifically targets the disabled placeholder option text color to avoid turning white
+  select.premium-input.select-native option:disabled,
+  select.premium-input.select-native option[disabled] {
+    color: #718096 !important; /* Premium muted dark text instead of breaking into white */
+    background-color: #ffffff !important;
+  }
+}
+
+// ── Async Loading Micro Spinner ─────────────────────────────────────────────
 .spinner-center {
   display: flex;
   justify-content: center;
+  align-items: center;
   padding: 40px 0;
+  
   .mini-loader {
-    width: 22px;
-    height: 22px;
-    border: 2px solid #2c2c2e;
-    border-top: 2px solid #ffffff;
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--border-dark);
+    border-top: 3px solid var(--primary);
     border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+    animation: spin 0.8s linear infinite;
   }
 }
 
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
+// ── Responsive Desktop Monitor Layout ────────────────────────────────────────
 @media (min-width: 1024px) {
-  .premium-dark {
-    max-width: 800px;
+  .school-erp-container {
+    max-width: 1280px;
     margin: 0 auto;
     padding: 32px;
-    
+
     .filters-card-stack {
       flex-direction: row;
+      align-items: center;
+      
+      .select-group {
+        flex: 1;
+      }
     }
+
+    .summary-chips-grid.explicit-three-cols {
+      gap: 24px;
+      .metric-chip {
+        padding: 24px;
+        align-items: flex-start;
+        .value-node { font-size: 32px; }
+      }
+    }
+
+    .main-dashboard-layout.single-panel-focus {
+      display: block;
+      
+      .marks-feed-wrapper-block {
+        padding: 28px;
+      }
+    }
+  }
+}
+
+// ── Custom Exam Dropdown (Chromium native select white-text bug permanent fix) ──
+.custom-dropdown-wrapper {
+  position: relative;
+  width: 100%;
+
+  .custom-dropdown-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #ffffff;
+    border: 1px solid var(--border-dark);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2d3748;           // Hamesha dark — browser ka koi interference nahi
+    cursor: pointer;
+    outline: none;
+    text-align: left;
+    transition: all 0.2s ease;
+
+    &:focus, &:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .trigger-label {
+      flex: 1;
+      color: #2d3748;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chevron-icon {
+      width: 14px;
+      height: 14px;
+      stroke: #718096;
+      flex-shrink: 0;
+      margin-left: 8px;
+      transition: transform 0.2s ease;
+
+      &.rotated {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  // Dropdown panel
+  .custom-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid var(--border-dark);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+    z-index: 999;
+    max-height: 220px;
+    overflow-y: auto;
+
+    .custom-dropdown-option {
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #2d3748;         // Pure CSS controlled — zero browser interference
+      cursor: pointer;
+      transition: background 0.15s ease;
+
+      &:hover {
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+
+      &.selected {
+        background: var(--primary-light);
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      &:first-child { border-radius: 8px 8px 0 0; }
+      &:last-child  { border-radius: 0 0 8px 8px; }
+    }
+
+    .custom-dropdown-empty {
+      padding: 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  }
+
+  // Open state border highlight
+  &.open .custom-dropdown-trigger {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
   }
 }

@@ -1,22 +1,13 @@
-<div class="exams-container premium-dark">
+<div class="school-erp-container">
 
   <div class="app-header">
-    <button class="back-link">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="15 18 9 12 15 6"></polyline>
-      </svg>
-      <span>Result</span>
-    </button>
-    <button class="download-trigger" title="Download Report Card">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
-        <polyline points="7 10 12 15 17 10"></polyline>
-        <line x1="12" y1="15" x2="12" y2="3"></line>
-      </svg>
-    </button>
+    <div class="page-title-node">
+      <span>Results</span>
+    </div>
   </div>
 
   <div class="filters-card-stack">
+    <!-- Child Select - Native (children list static hai, yahan issue nahi) -->
     <div class="select-group">
       <select class="premium-input select-native" [(ngModel)]="selectedChildId" (change)="onChildChange()">
         <option *ngFor="let child of childrenList" [value]="child.id">
@@ -25,65 +16,88 @@
       </select>
     </div>
 
+    <!-- Exam Custom Dropdown - Native select ki jagah custom banaya (Chromium white text bug fix) -->
     <div class="select-group">
-      <select class="premium-input select-native" [(ngModel)]="selectedExamId" (change)="fetchMarksMatrix()">
-        <option *ngFor="let ex of exams" [value]="ex.id">{{ ex.label }}</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="summary-chips-grid" *ngIf="!isLoading && subjectWiseMarks.length > 0">
-    <div class="metric-chip">
-      <span class="value-node">{{ totalMarksObtained }}<span class="muted-max">/{{ totalMaxMarks }}</span></span>
-      <span class="lbl-node">Total marks</span>
-    </div>
-    <div class="metric-chip percent-highlight">
-      <span class="value-node">{{ overallPercentage }}%</span>
-      <span class="lbl-node">Percentage</span>
-    </div>
-    <div class="metric-chip">
-      <span class="value-node">—</span>
-      <span class="lbl-node">Class rank</span>
-    </div>
-  </div>
-
-  <div class="scorecard-wrapper">
-    <h3 class="section-title">Subject-wise marks</h3>
-
-    <div class="spinner-center" *ngIf="isLoading">
-      <div class="mini-loader"></div>
-    </div>
-
-    <div class="marks-feed-container" *ngIf="!isLoading">
-      <div class="subject-score-card" *ngFor="let record of subjectWiseMarks">
-        <div class="color-indicator-strip" [style.background-color]="getSubjectColor(record.subjectName)"></div>
+      <div class="custom-dropdown-wrapper" [class.open]="examDropdownOpen" (clickOutside)="examDropdownOpen = false">
         
-        <div class="score-details-layout">
-          <div class="meta-row">
-            <span class="subject-name">{{ record.subjectName }}</span>
-            <span class="marks-text">
-              <strong>{{ record.marksObtained }}</strong><span class="max-cap">/{{ record.maxMarks }}</span>
-            </span>
-          </div>
+        <button type="button" class="custom-dropdown-trigger" (click)="toggleExamDropdown()">
+          <span class="trigger-label">{{ getSelectedExamLabel() }}</span>
+          <svg class="chevron-icon" [class.rotated]="examDropdownOpen" 
+               xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" 
+               fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
 
-          <div class="progress-bar-track">
-            <div class="progress-bar-fill" 
-                 [style.width.%]="record.percentage"
-                 [style.background-color]="getSubjectColor(record.subjectName)">
-            </div>
+        <div class="custom-dropdown-panel" *ngIf="examDropdownOpen">
+          <div class="custom-dropdown-option"
+               *ngFor="let ex of exams"
+               [class.selected]="selectedExamId === ex.id"
+               (click)="selectExam(ex.id)">
+            {{ ex.examName }}
+          </div>
+          <div class="custom-dropdown-empty" *ngIf="exams.length === 0">
+            No exams available
           </div>
         </div>
 
-        <div class="grade-badge-wrap">
-          <span class="grade-pill" [ngClass]="'grade-' + record.grade.charAt(0).toLowerCase()">
-            {{ record.grade }}
-          </span>
-        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-chips-grid explicit-three-cols">
+    <div class="metric-chip present-accent">
+      <span class="value-node">{{ totalMarksObtained }}</span>
+      <span class="lbl-node">Marks Obtained</span>
+    </div>
+    <div class="metric-chip holiday-accent">
+      <span class="value-node">{{ totalMaxMarks }}</span>
+      <span class="lbl-node">Total Max Marks</span>
+    </div>
+    <div class="metric-chip percent-accent">
+      <span class="value-node">{{ overallPercentage }}%</span>
+      <span class="lbl-node">Aggregate Percentage</span>
+    </div>
+  </div>
+
+  <div class="main-dashboard-layout single-panel-focus">
+    <div class="marks-feed-wrapper-block">
+      <h3 class="section-title">Subject-wise marks</h3>
+
+      <div class="spinner-center" *ngIf="isLoading">
+        <div class="mini-loader"></div>
       </div>
 
-      <div class="no-marks-fallback" *ngIf="subjectWiseMarks.length === 0">
-        <div class="fallback-icon">📋</div>
-        <p>No assessment entries or marksheets logged for this examination period</p>
+      <div class="marks-feed-container" *ngIf="!isLoading">
+        <div class="subject-score-card" *ngFor="let record of subjectWiseMarks">
+          <div class="color-indicator-strip" [style.background-color]="getSubjectColor(record.subjectName)"></div>
+          
+          <div class="score-details-layout">
+            <div class="meta-row">
+              <span class="subject-name">{{ record.subjectName }}</span>
+              <span class="marks-text">
+                <strong>{{ record.marksObtained }}</strong><span class="max-cap">/{{ record.maxMarks }}</span>
+              </span>
+            </div>
+
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" 
+                   [style.width.%]="record.percentage"
+                   [style.background-color]="getSubjectColor(record.subjectName)">
+              </div>
+            </div>
+          </div>
+
+          <div class="grade-badge-wrap">
+            <span class="grade-pill" [ngClass]="'grade-' + record.grade.charAt(0).toLowerCase()">
+              {{ record.grade }}
+            </span>
+          </div>
+        </div>
+
+        <div class="no-marks-fallback" *ngIf="subjectWiseMarks.length === 0">
+          No active scholastic evaluations found for current filter criteria
+        </div>
       </div>
     </div>
   </div>

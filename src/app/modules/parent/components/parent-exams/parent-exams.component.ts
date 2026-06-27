@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ParentService } from '../../services/parent.service';
@@ -20,10 +20,12 @@ export class ParentExamsComponent implements OnInit {
   exams: any[] = [];
   selectedExamId = '';
 
+  // Custom dropdown state
+  examDropdownOpen = false;
+
   isLoading = false;
   subjectWiseMarks: any[] = [];
-  
-  // Overall Header Grid Metrics Cards Standard
+
   totalMarksObtained = 0;
   totalMaxMarks = 0;
   overallPercentage = 0;
@@ -34,11 +36,39 @@ export class ParentExamsComponent implements OnInit {
     this.loadChildrenAndSync();
   }
 
+  // Click outside close karne ke liye
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-dropdown-wrapper')) {
+      this.examDropdownOpen = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  toggleExamDropdown(): void {
+    this.examDropdownOpen = !this.examDropdownOpen;
+    this.cdr.markForCheck();
+  }
+
+  selectExam(examId: string): void {
+    this.selectedExamId = examId;
+    this.examDropdownOpen = false;
+    this.cdr.markForCheck();
+    this.fetchMarksMatrix();
+  }
+
+  getSelectedExamLabel(): string {
+    if (!this.selectedExamId) return 'Choose active term matrix...';
+    const found = this.exams.find(e => e.id === this.selectedExamId);
+    return found ? found.examName : 'Choose active term matrix...';
+  }
+
   loadChildrenAndSync(): void {
     this.parentService.getChildrenRegistry().subscribe(data => {
       this.childrenList = data;
       const cached = this.parentService.getActiveChildValue();
-      
+
       if (cached && this.childrenList.some(c => c.id === cached.id)) {
         this.selectedChildId = cached.id;
         this.selectedChildObj = cached;
@@ -47,7 +77,7 @@ export class ParentExamsComponent implements OnInit {
         this.selectedChildObj = this.childrenList[0];
         this.parentService.setActiveChild(this.childrenList[0]);
       }
-      
+
       this.loadExamsDropdown();
     });
   }
@@ -64,15 +94,16 @@ export class ParentExamsComponent implements OnInit {
     this.parentService.getParentExamsList().subscribe(data => {
       this.exams = Array.isArray(data) ? data : [];
       if (this.exams.length > 0) {
-        this.selectedExamId = this.exams[0].id; // ✅ Page open hote hi default select ho jayega
+        this.selectedExamId = this.exams[0].id;
       }
+      this.cdr.markForCheck();
       this.fetchMarksMatrix();
     });
   }
 
   fetchMarksMatrix(): void {
     if (!this.selectedExamId || !this.selectedChildId) return;
-    
+
     this.isLoading = true;
     this.subjectWiseMarks = [];
     this.totalMarksObtained = 0;
@@ -87,14 +118,12 @@ export class ParentExamsComponent implements OnInit {
         let runningMax = 0;
 
         this.subjectWiseMarks = rawArray.map(item => {
-          // Inner records list me se logged in student ka exact target object filter karein
-          const studentRecord = Array.isArray(item.records) 
+          const studentRecord = Array.isArray(item.records)
             ? item.records.find((r: any) => r.studentId === this.selectedChildId)
             : null;
 
-          // Response standard defaults set to 100 max mark system safely if null or 0 from server entries
           const obtained = studentRecord ? studentRecord.marksObtained : 0;
-          const maxMarks = 100; 
+          const maxMarks = 100;
 
           runningObtained += obtained;
           runningMax += maxMarks;
