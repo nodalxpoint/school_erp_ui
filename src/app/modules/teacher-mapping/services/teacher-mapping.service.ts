@@ -7,28 +7,31 @@ import { ExamMarksSavePayload } from '../models/teacher-mapping.model';
 import { PagedResponse, ParamDropdownOption } from '../../timetable/services/timetable.service';
 
 export interface TeacherClassMapDto {
+  id?: string;
   classId: string;
-  sectionId: string;
   className: string;
+  sectionId: string;
   sectionName: string;
+  teacherId?: string;
+  teacherName?: string;
   subjectId: string;
   subjectName: string;
+  academicSessionId?: string;
+  academicSessionName?: string;
+  createdAt?: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExamMarksService {
-  private base = environment.apiUrl; // http://72.61.229.22/sms/api
-
-  // New POST API Target Endpoints
-  private myClassesListUrl = 'http://72.61.229.22:8080/api/teacher/myClassesList';
-  private workingSaveEndpoint = 'http://72.61.229.22:8080/api/examMarks/addOrUpdate';
+  private base = environment.apiUrl;  
 
   constructor(private http: HttpClient) {}
 
-  getTeacherClassesList(): Observable<{ success: boolean; message: string; data: TeacherClassMapDto[] }> {
-    return this.http.post<{ success: boolean; message: string; data: TeacherClassMapDto[] }>(this.myClassesListUrl, {});
+  getTeacherClassesList(teacherId: string): Observable<{ success: boolean; message: string; data: TeacherClassMapDto[] }> {
+    // Environment base url ke sath clean endpoint mapping
+    return this.http.post<{ success: boolean; message: string; data: TeacherClassMapDto[] }>(`${this.base}/subject/assignedList`, { teacherId });
   }
 
   // ✅ FIXED: Payload me ab classId aur sectionId ke sath examId bhi strictly add ho gayi hai!
@@ -44,7 +47,7 @@ export class ExamMarksService {
   }
 
   saveStudentExamMarks(payload: ExamMarksSavePayload): Observable<{ success: boolean; message: string }> {
-    return this.http.post<{ success: boolean; message: string }>(this.workingSaveEndpoint, payload);
+    return this.http.post<{ success: boolean; message: string }>(`${this.base}/examMarks/addOrUpdate`, payload);
   }
 
   getParamOptions(type: string): Observable<ParamDropdownOption[]> {

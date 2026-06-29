@@ -31,6 +31,10 @@
     </div>
   </div>
 
+  <div *ngIf="!isExamActive" style="margin: 20px 0; padding: 14px 18px; background: #fff5f5; border-left: 5px solid #e53e3e; border-radius: 4px; color: #9b2c2c; font-size: 14px; font-weight: 500;">
+    ⚠️ Evaluation Locked: There is no active evaluation examination map configured on the system parameter registry terminal. All mark addition pathways are disabled.
+  </div>
+
   <div class="ms-loading-card" *ngIf="isLoading">
     <div class="ms-spinner"></div>
     <span>Syncing class map records directly from the registry...</span>
@@ -63,7 +67,11 @@
           <span class="ms-date-val" style="color: #718096; font-size: 11px;">ID: {{ item.subjectId | slice:0:8 }}...</span>
         </div>
         
-        <button class="ms-btn-fetch-students" (click)="onFetchStudents(item)">
+        <button class="ms-btn-fetch-students" 
+                [disabled]="!isExamActive"
+                [style.opacity]="!isExamActive ? '0.5' : '1'"
+                [style.cursor]="!isExamActive ? 'not-allowed' : 'pointer'"
+                (click)="onFetchStudents(item)">
           Add marks ➔
         </button>
       </div>

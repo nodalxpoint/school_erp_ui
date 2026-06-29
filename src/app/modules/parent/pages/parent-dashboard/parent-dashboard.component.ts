@@ -23,11 +23,10 @@ export class ParentDashboardComponent implements OnInit {
     // Check karo ki kya pehle se sessionStorage me koi child select hai?
     this.selectedChild = this.parentService.getActiveChildValue();
 
-    if (!this.selectedChild) {
-      // Agar nahi hai, toh popup show karo aur API call karo instantly!
-      this.showSelectionModal = true;
-      this.loadChildren();
-    }
+    // CHANGES HERE: Login par automatic popup open hone wali logic hata di hai.
+    // Ab component load hote hi direct background me list pre-fetch ho jayegi 
+    // taaki jab user "Switch Child" click kare to instant data dikhe.
+    this.loadChildren();
   }
 
   loadChildren(): void {

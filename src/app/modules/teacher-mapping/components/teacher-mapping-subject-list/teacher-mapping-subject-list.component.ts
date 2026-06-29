@@ -17,6 +17,7 @@ export class TeacherMappingSubjectListComponent implements OnInit, OnDestroy {
   classesMappedList: TeacherClassMapDto[] = [];
   sessions: ParamDropdownOption[] = [];
   isLoading = false;
+  isExamActive = true; // ✅ Tracks whether active exam sequence exists in registry
 
   filterModel = {
     academicSessionId: ''
@@ -25,6 +26,10 @@ export class TeacherMappingSubjectListComponent implements OnInit, OnDestroy {
   currentDateTimeStr = '';
   currentDayName = '';
   private timerIntervalId: any = null;
+  
+  // Track active exam runtime data safely
+  private activeExamId = '';
+  private activeExamName = 'Active Exam';
 
   constructor(
     private marksService: ExamMarksService,
@@ -61,61 +66,60 @@ export class TeacherMappingSubjectListComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.cdr.markForCheck();
 
-    this.marksService.getParamOptions('academic_sessions').subscribe(sessionsData => {
-      this.sessions = sessionsData;
-      if (this.sessions.length > 0) {
-        this.filterModel.academicSessionId = this.sessions[0].id;
-      }
-
-      this.marksService.getTeacherClassesList().subscribe({
-        next: (res) => {
-          this.classesMappedList = res.data ?? [];
-          this.isLoading = false;
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.classesMappedList = [];
-          this.isLoading = false;
-          this.cdr.markForCheck();
-        }
-      });
-    });
-  }
-
-  // ✅ UPDATED INTERCEPT FLOW: Pehle active exam parameter details nikalega fir navigation karega
-  onFetchStudents(item: TeacherClassMapDto): void {
-    this.isLoading = true;
-    this.cdr.markForCheck();
-
+    // 1. Pehle global parameter configurations call karke status verify karenge
     this.marksService.getActiveExamFromParam().subscribe({
       next: (examRes) => {
-        let activeExamId = '';
-        let activeExamName = 'Active Exam';
-
         if (examRes.success && examRes.data && examRes.data.length > 0) {
-          activeExamId = examRes.data[0].id;     // "a826b700-20bc-4fd8-8e73-078497cd26d9"
-          activeExamName = examRes.data[0].label; // "Half-Early"
+          this.activeExamId = examRes.data[0].id;
+          this.activeExamName = examRes.data[0].label;
+          this.isExamActive = true;
         } else {
-          alert('Warning: No active examination configure parameter detected on server.');
+          this.isExamActive = false; // ✅ Data null/empty hone par state lock
         }
 
-        // Active Exam context data append karke route inject karo!
-        this.router.navigate(['/teacher-mapping/entry'], {
-          queryParams: {
-            subjectId: item.subjectId,
-            subjectName: item.subjectName,
-            classId: item.classId,
-            sectionId: item.sectionId,
-            sessionId: this.filterModel.academicSessionId,
-            examId: activeExamId,      // Dynamic Active Exam ID injected here!
-            examName: activeExamName   // Dynamic Active Exam Name mapping!
+        // 2. Uske baad baki sessions aur class roster maps populate karenge
+        this.marksService.getParamOptions('academic_sessions').subscribe(sessionsData => {
+          this.sessions = sessionsData;
+          if (this.sessions.length > 0) {
+            this.filterModel.academicSessionId = this.sessions[0].id;
           }
+
+          const targetTeacherId = '6112735d-2ca2-445e-8568-0bb98c58ee9e';
+
+          this.marksService.getTeacherClassesList(targetTeacherId).subscribe({
+            next: (res) => {
+              this.classesMappedList = res.data ?? [];
+              this.isLoading = false;
+              this.cdr.markForCheck();
+            },
+            error: () => {
+              this.classesMappedList = [];
+              this.isLoading = false;
+              this.cdr.markForCheck();
+            }
+          });
         });
       },
       error: () => {
+        this.isExamActive = false;
         this.isLoading = false;
-        alert('Failed to establish connection to retrieve active examination scope metadata.');
         this.cdr.markForCheck();
+      }
+    });
+  }
+
+  onFetchStudents(item: TeacherClassMapDto): void {
+    if (!this.isExamActive) return; // Prevent navigation route breach if disabled
+
+    this.router.navigate(['/teacher-mapping/entry'], {
+      queryParams: {
+        subjectId: item.subjectId,
+        subjectName: item.subjectName,
+        classId: item.classId,
+        sectionId: item.sectionId,
+        sessionId: this.filterModel.academicSessionId,
+        examId: this.activeExamId,
+        examName: this.activeExamName
       }
     });
   }

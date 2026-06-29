@@ -157,10 +157,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     if (role === 'PARENT') {
       this.selectedChild = this.parentService.getActiveChildValue();
-      if (!this.selectedChild) {
-        this.showParentModal = true;
-        this.loadParentChildren();
-      }
+      
+      // CHANGES HERE: Auto popup open hone wali logic hatayi.
+      // Ab page refresh ya login par overlay nahi dikhega.
+      // Lekin background me registry load karke rakehga taaki click pr delay na ho.
+      this.loadParentChildren();
     }
 
     this.cdr.markForCheck();
