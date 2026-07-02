@@ -29,9 +29,10 @@ export class ExamMarksService {
 
   constructor(private http: HttpClient) {}
 
-  getTeacherClassesList(teacherId: string): Observable<{ success: boolean; message: string; data: TeacherClassMapDto[] }> {
+  getTeacherClassesList(teacherId?: string | null): Observable<{ success: boolean; message: string; data: TeacherClassMapDto[] }> {
     // Environment base url ke sath clean endpoint mapping
-    return this.http.post<{ success: boolean; message: string; data: TeacherClassMapDto[] }>(`${this.base}/subject/assignedList`, { teacherId });
+    const payload = teacherId ? { teacherId } : {};
+    return this.http.post<{ success: boolean; message: string; data: TeacherClassMapDto[] }>(`${this.base}/subject/assignedList`, payload);
   }
 
   // ✅ FIXED: Payload me ab classId aur sectionId ke sath examId bhi strictly add ho gayi hai!

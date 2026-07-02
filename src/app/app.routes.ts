@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   // ── Default redirect ────────────────────────────────────────────
@@ -111,6 +112,7 @@ export const routes: Routes = [
       // Exam Marks
       {
         path: 'teacher-mapping',
+        canActivate: [roleGuard(['TEACHER'])],
         loadChildren: () => 
           import('./modules/teacher-mapping/teacher-mapping.routes').then(m => m.TEACHER_MAPPING_ROUTES)
       },

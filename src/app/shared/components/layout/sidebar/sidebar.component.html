@@ -69,7 +69,7 @@
                 <span class="sidebar__dropdown-dot"></span>Teacher Timetable
               </a>
             </li>
-            <li>
+            <li *ngIf="currentRole === 'TEACHER'">
               <a routerLink="/teacher-mapping" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/teacher-mapping')" (click)="closeSidebar()">
                 <span class="sidebar__dropdown-dot"></span>Teacher Mapping
               </a>
