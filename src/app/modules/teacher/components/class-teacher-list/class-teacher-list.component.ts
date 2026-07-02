@@ -10,7 +10,7 @@ import {
   ClassTeacherAssignmentResponseDto,
   PagedResponse
 } from '../../models/teacher.model';
-import { TeacherService } from '../../services/teacher.service';
+import { TeacherService, ParamDropdownOption } from '../../services/teacher.service';
 
 @Component({
   selector: 'app-class-teacher-list',
@@ -31,6 +31,13 @@ export class ClassTeacherListComponent implements OnInit {
   };
   filterTeacherName = '';
 
+  // ── Class / Section filter (param/list se) ──────────────────────────────
+  classOptions: ParamDropdownOption[] = [];
+  sectionOptions: ParamDropdownOption[] = [];
+  filterClassId = '';
+  filterSectionId = '';
+  isLoadingSections = false;
+
   constructor(
     private teacherService: TeacherService,
     private router: Router, // ← Inject router reference
@@ -39,6 +46,40 @@ export class ClassTeacherListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAssignments();
+    this.loadClassOptions();
+  }
+
+  // ── Class / Section dropdown loaders ─────────────────────────────────────
+
+  loadClassOptions(): void {
+    this.teacherService.getClassOptions().subscribe({
+      next: (opts) => { this.classOptions = opts; this.cdr.markForCheck(); },
+      error: () => { this.cdr.markForCheck(); }
+    });
+  }
+
+  onClassChange(): void {
+    // Class badalte hi purana section selection aur options clear
+    this.filterSectionId = '';
+    this.sectionOptions = [];
+
+    if (this.filterClassId) {
+      this.isLoadingSections = true;
+      this.teacherService.getSectionOptions(this.filterClassId).subscribe({
+        next: (opts) => {
+          this.sectionOptions = opts;
+          this.isLoadingSections = false;
+          this.cdr.markForCheck();
+        },
+        error: () => { this.isLoadingSections = false; this.cdr.markForCheck(); }
+      });
+    }
+
+    this.applyFilter();
+  }
+
+  onSectionChange(): void {
+    this.applyFilter();
   }
 
   // ── Loader ─────────────────────────────────────────────────────────────────
@@ -70,6 +111,8 @@ export class ClassTeacherListComponent implements OnInit {
 
   applyFilter(): void {
     this.filter.page = 0;
+    this.filter.classId = this.filterClassId || undefined;
+    this.filter.sectionId = this.filterSectionId || undefined;
     this.loadAssignments();
   }
 

@@ -207,3 +207,53 @@
 .ex-pg-arrow { min-width: 32px; height: 32px; border: 1px solid var(--border); background: #fff; border-radius: 8px; cursor: pointer; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-muted); &:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); } &:disabled { opacity: 0.4; cursor: not-allowed; } }
 .ex-empty-state { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 50px 24px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; .ex-empty-icon { font-size: 32px; } .ex-empty-title { font-size: 15px; font-weight: 700; margin: 0; color: var(--text-primary); } .ex-empty-sub { font-size: 13px; color: var(--text-muted); margin: 0; } }
 .req { color: #e53e3e; margin-left: 2px; font-weight: 700; }
+
+// Is unique definitions block ko parent file me append kar lo, baaki styling same rahegi:
+
+.ex-refresh-action-container {
+  min-width: 130px !important;
+  flex: 0.5 !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.ex-btn-refresh-matrix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid #bee3f8;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  height: 38px; // Form elements matching specs
+  box-sizing: border-box;
+
+  &:hover:not(:disabled) {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Interactive SVG spinning configuration metrics when active loaders trigger
+.ex-spinning-svg {
+  animation: exLinearSpin 0.8s linear infinite;
+}
+
+@keyframes exLinearSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

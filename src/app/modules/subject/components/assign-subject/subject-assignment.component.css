@@ -596,4 +596,53 @@
   color: #e53e3e;
   margin-left: 2px;
   font-weight: 700;
+}
+
+.ex-refresh-action-container {
+  min-width: 130px !important;
+  flex: 0.5 !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.ex-btn-refresh-matrix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid #bee3f8;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  height: 38px;
+  box-sizing: border-box;
+}
+.ex-btn-refresh-matrix:hover:not(:disabled) {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+.ex-btn-refresh-matrix:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ex-spinning-svg {
+  animation: exLinearSpin 0.8s linear infinite;
+}
+
+@keyframes exLinearSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }/*# sourceMappingURL=subject-assignment.component.css.map */
