@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ExamMarksService, TeacherClassMapDto } from '../../services/teacher-mapping.service';
 import { ParamDropdownOption } from '../../../timetable/services/timetable.service';
+import { AuthStateService } from '../../../../core/auth/auth-state.service';
 
 @Component({
   selector: 'app-exam-marks-subject-list',
@@ -34,7 +35,8 @@ export class TeacherMappingSubjectListComponent implements OnInit, OnDestroy {
   constructor(
     private marksService: ExamMarksService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authState: AuthStateService
   ) {}
 
   ngOnInit(): void {
@@ -84,7 +86,8 @@ export class TeacherMappingSubjectListComponent implements OnInit, OnDestroy {
             this.filterModel.academicSessionId = this.sessions[0].id;
           }
 
-          const targetTeacherId = '6112735d-2ca2-445e-8568-0bb98c58ee9e';
+          const isTeacher = this.authState.currentUser?.role === 'TEACHER';
+          const targetTeacherId = isTeacher ? null : '6112735d-2ca2-445e-8568-0bb98c58ee9e';
 
           this.marksService.getTeacherClassesList(targetTeacherId).subscribe({
             next: (res) => {
