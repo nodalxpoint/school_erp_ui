@@ -1,0 +1,231 @@
+:host {
+  --primary: #2b6cb0;
+  --primary-light: #ebf4ff;
+  --primary-hover: #2c5282;
+  --primary-border: #bee3f8;
+  --border: #e2e8f0;
+  --border-dark: #cbd5e0;
+  --bg-white: #ffffff;
+  --bg-row-odd: #f7fafc;
+  --bg-header: #2b6cb0;
+  --text-primary: #2d3748;
+  --text-muted: #718096;
+  --text-hint: #a0aec0;
+  --teal: #2c7a7b;
+  --teal-light: #e6fffa;
+  --teal-border: #81e6d9;
+  --danger: #e53e3e;
+  --danger-light: #fff5f5;
+}
+
+.school-erp-container {
+  background: var(--bg-row-odd);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: 24px 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.school-erp-container .app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.school-erp-container .app-header .page-title-node {
+  color: var(--text-primary);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.school-erp-container .app-header .btn-action-secondary {
+  background: #ffffff;
+  border: 1px solid var(--border-dark);
+  color: var(--text-primary);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.school-erp-container .app-header .btn-action-secondary:hover {
+  background: var(--bg-row-odd);
+}
+.school-erp-container .form-wrapper-block {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+  max-width: 680px;
+  margin: 0 auto;
+}
+.school-erp-container .modal-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.school-erp-container .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+.school-erp-container .form-field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.school-erp-container .form-field-row-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.school-erp-container .student-search-container .search-input-wrapper {
+  display: flex;
+  gap: 10px;
+}
+.school-erp-container .student-search-container .search-input-wrapper .btn-input-search-action {
+  background: var(--primary-light);
+  border: 1px solid var(--primary-border);
+  color: var(--primary);
+  font-weight: 700;
+  padding: 0 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.school-erp-container .student-search-container .search-input-wrapper .btn-input-search-action:hover {
+  background: var(--primary);
+  color: #ffffff;
+}
+.school-erp-container .student-search-container .student-suggestions-box {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid var(--border-dark);
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 500;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+.school-erp-container .student-search-container .student-suggestions-box .suggestion-row-item {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+.school-erp-container .student-search-container .student-suggestions-box .suggestion-row-item:last-child {
+  border-bottom: none;
+}
+.school-erp-container .student-search-container .student-suggestions-box .suggestion-row-item:hover {
+  background: var(--primary-light);
+}
+.school-erp-container .student-search-container .student-suggestions-box .suggestion-row-item .st-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.school-erp-container .student-search-container .student-suggestions-box .suggestion-row-item .st-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.school-erp-container .student-search-container .selected-profile-confirmation-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--teal-light);
+  border: 1px solid var(--teal-border);
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+.school-erp-container .student-search-container .selected-profile-confirmation-badge .avatar-node {
+  width: 36px;
+  height: 36px;
+  background: var(--teal);
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.school-erp-container .student-search-container .selected-profile-confirmation-badge .profile-details {
+  display: flex;
+  flex-direction: column;
+}
+.school-erp-container .student-search-container .selected-profile-confirmation-badge .profile-details strong {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+.school-erp-container .student-search-container .selected-profile-confirmation-badge .profile-details span {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+.school-erp-container .modal-input {
+  background: #ffffff;
+  border: 1px solid var(--border-dark);
+  color: var(--text-primary) !important;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  width: 100%;
+}
+.school-erp-container .modal-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+.school-erp-container .modal-input.textarea-node {
+  resize: vertical;
+}
+.school-erp-container .form-actions-footer-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.school-erp-container .form-actions-footer-row .btn-secondary-link {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.school-erp-container .form-actions-footer-row .btn-secondary-link:hover {
+  color: var(--text-primary);
+}
+.school-erp-container .form-actions-footer-row .btn-action-primary {
+  background: var(--primary);
+  border: none;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(43, 108, 176, 0.2);
+}
+.school-erp-container .form-actions-footer-row .btn-action-primary:hover {
+  background: var(--primary-hover);
+}
+
+:host ::ng-deep select.modal-input option {
+  color: #2d3748 !important;
+  background-color: #ffffff !important;
+}/*# sourceMappingURL=fee-form.component.css.map */

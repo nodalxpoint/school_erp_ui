@@ -117,7 +117,13 @@ export const routes: Routes = [
       {
   path: 'exam-marks',
   loadChildren: () => import('./modules/exam-marks/exam-marks.routes').then(m => m.EXAM_MARKS_ROUTES)
-}
+},
+
+// app.routes.ts mein
+{
+  path: 'fees',
+  loadChildren: () => import('./modules/fee/fee.routes').then(m => m.FEE_ROUTES)
+},
     ]
   },
 

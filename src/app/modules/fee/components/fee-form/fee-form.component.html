@@ -1,0 +1,100 @@
+<div class="school-erp-container">
+  
+  <div class="app-header">
+    <div class="page-title-node">
+      <span>{{ isEditMode ? 'Modify Ledger Record' : 'Create New Fee Entry' }}</span>
+    </div>
+    <button class="btn-action-secondary" (click)="onCancel()">
+      <span>Back to Ledger</span>
+    </button>
+  </div>
+
+  <div class="main-dashboard-layout single-panel-focus">
+    <div class="form-wrapper-block">
+      <div class="modal-form-grid">
+        
+        <div class="form-field student-search-container">
+          <label>Select Student Registry Target</label>
+          <div class="search-input-wrapper">
+            <input type="text" 
+                   class="modal-input" 
+                   placeholder="Type student name or search active list token..."
+                   [(ngModel)]="studentSearchToken"
+                   (input)="onStudentSearchInput()">
+            <button class="btn-input-search-action" (click)="triggerSearchQuery()">Search</button>
+          </div>
+
+          <div class="student-suggestions-box" *ngIf="showSuggestions && dynamicStudentsList.length > 0">
+            <div class="suggestion-row-item" 
+                 *ngFor="let student of dynamicStudentsList"
+                 (click)="selectActiveStudent(student)">
+              <span class="st-name">{{ student.firstName }} {{ student.lastName }}</span>
+              <span class="st-meta">Class {{ student.className }} ({{ student.sectionName }}) · {{ student.admissionNo }}</span>
+            </div>
+          </div>
+          
+          <div class="selected-profile-confirmation-badge" *ngIf="selectedStudentObj">
+            <span class="avatar-node">{{ selectedStudentObj.firstName.charAt(0) }}</span>
+            <div class="profile-details">
+              <strong>{{ selectedStudentObj.firstName }} {{ selectedStudentObj.lastName }}</strong>
+              <span>Ref Token ID: {{ formData.studentId }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Academic Session Ref</label>
+          <select class="modal-input" [(ngModel)]="formData.academicSessionId">
+            <option value="">Select Reference Session</option>
+            <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
+          </select>
+        </div>
+
+        <div class="form-field-row-split">
+          <div class="form-field">
+            <label>Month (1-12)</label>
+            <input type="number" class="modal-input" [(ngModel)]="formData.feeMonth" min="1" max="12">
+          </div>
+          <div class="form-field">
+            <label>Year</label>
+            <input type="number" class="modal-input" [(ngModel)]="formData.feeYear">
+          </div>
+        </div>
+
+        <div class="form-field-row-split">
+          <div class="form-field">
+            <label>Amount (INR)</label>
+            <input type="number" class="modal-input" [(ngModel)]="formData.amount" placeholder="0.00">
+          </div>
+          <div class="form-field">
+            <label>Maturity Due Date</label>
+            <input type="date" class="modal-input" [(ngModel)]="formData.dueDate">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Settlement Status</label>
+          <select class="modal-input" [(ngModel)]="formData.paymentStatus">
+            <option value="PENDING">PENDING</option>
+            <option value="PAID">PAID</option>
+            <option value="PARTIAL">PARTIAL</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Remarks / System Ledger Notes</label>
+          <textarea class="modal-input textarea-node" [(ngModel)]="formData.remarks" rows="3" placeholder="Write entry context notes..."></textarea>
+        </div>
+
+        <div class="form-actions-footer-row">
+          <button class="btn-secondary-link" (click)="onCancel()">Cancel Process</button>
+          <button class="btn-action-primary" (click)="onSaveSubmit()">
+            <span>Save Ledger Document</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
