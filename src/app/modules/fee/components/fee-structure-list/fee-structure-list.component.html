@@ -18,15 +18,18 @@
   <div class="filters-card-stack">
     <div class="filter-grid">
       <div class="select-group">
+        <label class="filter-label">Class</label>
         <select class="premium-input" [(ngModel)]="filters.classId">
           <option value="">All Classes</option>
           <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
         </select>
       </div>
       <div class="select-group">
+        <label class="filter-label">Fee Name</label>
         <input class="premium-input" type="text" [(ngModel)]="filters.feeName" placeholder="Search fee name...">
       </div>
       <div class="select-group">
+        <label class="filter-label">Frequency</label>
         <select class="premium-input" [(ngModel)]="filters.frequency">
           <option value="">All Frequencies</option>
           <option value="MONTHLY">Monthly</option>
@@ -56,6 +59,14 @@
 
     <div class="table-responsive" *ngIf="!loading">
       <table class="premium-table">
+        <colgroup>
+          <col style="width: 24%;">
+          <col style="width: 13%;">
+          <col style="width: 15%;">
+          <col style="width: 14%;">
+          <col style="width: 14%;">
+          <col style="width: 20%;">
+        </colgroup>
         <thead>
           <tr>
             <th>Fee Name</th>

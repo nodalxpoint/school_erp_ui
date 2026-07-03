@@ -8,10 +8,7 @@ import { RouterModule } from '@angular/router';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="management-container">
-      <header class="management-header">
-        <h1>Fee Management</h1>
-        <p>Admin Dashboard: Manage and track student fee payments.</p>
-      </header>
+      
       
       <router-outlet></router-outlet>
     </div>

@@ -23,7 +23,10 @@ export class FeeStructureListComponent implements OnInit {
     page: 0,
     size: 20,
     sortBy: 'createdAt',
-    sortDirection: 'DESC'
+    sortDirection: 'DESC',
+    classId: '',
+    feeName: '',
+    frequency: ''
   };
 
   constructor(
@@ -64,7 +67,15 @@ export class FeeStructureListComponent implements OnInit {
   }
 
   clearFilters(): void {
-    this.filters = { page: 0, size: 20, sortBy: 'createdAt', sortDirection: 'DESC' };
+    this.filters = {
+      page: 0,
+      size: 20,
+      sortBy: 'createdAt',
+      sortDirection: 'DESC',
+      classId: '',
+      feeName: '',
+      frequency: ''
+    };
     this.onSearch();
   }
 

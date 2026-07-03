@@ -7,10 +7,8 @@
   --border-dark: #cbd5e0;
   --bg-white: #ffffff;
   --bg-row-odd: #f7fafc;
-  --bg-header: #2b6cb0;
   --text-primary: #2d3748;
   --text-muted: #718096;
-  --text-hint: #a0aec0;
   --teal: #2c7a7b;
   --teal-light: #e6fffa;
   --teal-border: #81e6d9;
@@ -37,9 +35,9 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  color: var(--text-primary);
   font-size: 26px;
   font-weight: 800;
+  color: var(--text-primary);
   letter-spacing: -0.02em;
 }
 .school-erp-container .app-header .page-title-node .page-subtitle {
@@ -81,11 +79,13 @@
 }
 .school-erp-container .filters-card-stack .filter-grid {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
 }
-.school-erp-container .filters-card-stack .select-group {
-  width: 100%;
+.school-erp-container .filters-card-stack .filter-grid .select-group {
+  flex: 1;
+  min-width: 170px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -112,32 +112,33 @@
      -moz-appearance: none;
           appearance: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2.5'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  background-size: 14px;
 }
-.school-erp-container .filters-card-stack .premium-input:hover:not(:disabled) {
+.school-erp-container .filters-card-stack .premium-input:hover {
   border-color: var(--primary-border);
 }
 .school-erp-container .filters-card-stack .premium-input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-light);
 }
-.school-erp-container .filters-card-stack .premium-input:disabled {
-  background-color: var(--bg-row-odd);
-  color: var(--text-hint) !important;
-  cursor: not-allowed;
-  opacity: 0.75;
+.school-erp-container .filters-card-stack .premium-input::-moz-placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
 }
-.school-erp-container .filters-card-stack input.premium-input {
-  background-image: none;
+.school-erp-container .filters-card-stack .premium-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.school-erp-container .filters-card-stack select.premium-input {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2.5'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px;
   cursor: pointer;
 }
 .school-erp-container .filters-card-stack .filter-actions-group {
   display: flex;
   gap: 10px;
-  width: 100%;
+  min-width: 180px;
 }
 .school-erp-container .filters-card-stack .filter-actions-group .btn-primary-trigger {
   flex: 2;
@@ -170,12 +171,11 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 .school-erp-container .filters-card-stack .filter-actions-group .btn-secondary-clear:hover {
   background: #edf2f7;
-  color: var(--text-primary);
-  border-color: var(--text-muted);
+  border-color: var(--border-dark);
 }
 .school-erp-container .table-wrapper-block {
   background: var(--bg-white);
@@ -190,17 +190,17 @@
 }
 .school-erp-container .premium-table {
   width: 100%;
-  min-width: 760px;
+  min-width: 720px;
   table-layout: fixed;
   border-collapse: collapse;
 }
 .school-erp-container .premium-table th {
   background: var(--primary);
   color: var(--bg-white);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   padding: 14px 20px;
   border-bottom: 2px solid var(--border);
   white-space: nowrap;
@@ -214,6 +214,7 @@
   vertical-align: middle;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .school-erp-container .premium-table tbody tr {
   transition: background 0.15s ease;
@@ -221,76 +222,53 @@
 .school-erp-container .premium-table tbody tr:hover {
   background: var(--bg-row-odd);
 }
-.school-erp-container .premium-table .student-profile-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  overflow: hidden;
-}
-.school-erp-container .premium-table .student-profile-cell .avatar-mimic {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--primary-light);
-  color: var(--primary);
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-}
-.school-erp-container .premium-table .student-profile-cell .student-name-txt {
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.school-erp-container .premium-table .term-pill-node {
-  font-weight: 600;
-  color: var(--text-muted);
-  background: var(--bg-row-odd);
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  font-size: 13px;
-  white-space: nowrap;
-}
-.school-erp-container .premium-table .currency-node {
-  font-size: 14px;
+.school-erp-container .premium-table .fee-name-txt {
   font-weight: 700;
   color: var(--text-primary);
 }
-.school-erp-container .premium-table .structure-name-txt {
+.school-erp-container .premium-table .currency-node {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.school-erp-container .premium-table .date-txt {
   font-size: 13px;
   color: var(--text-muted);
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: block;
 }
-.school-erp-container .premium-table .badge {
-  padding: 4px 12px;
+.school-erp-container .premium-table .class-badge {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid var(--primary-border);
+  padding: 3px 10px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 700;
-  display: inline-block;
 }
-.school-erp-container .premium-table .badge.status-paid {
-  background: var(--teal-light);
-  color: var(--teal);
-  border: 1px solid var(--teal-border);
+.school-erp-container .premium-table .freq-pill {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
 }
-.school-erp-container .premium-table .badge.status-pending {
-  background: var(--danger-light);
-  color: var(--danger);
-  border: 1px solid #fed7d7;
+.school-erp-container .premium-table .freq-pill.freq-monthly {
+  background: #e6fffa;
+  color: #2c7a7b;
+  border: 1px solid #81e6d9;
 }
-.school-erp-container .premium-table .badge.status-partial {
+.school-erp-container .premium-table .freq-pill.freq-quarterly {
   background: #fffbeb;
   color: #b45309;
   border: 1px solid #fde68a;
+}
+.school-erp-container .premium-table .freq-pill.freq-annually {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid var(--primary-border);
+}
+.school-erp-container .premium-table .freq-pill.freq-one_time {
+  background: #faf5ff;
+  color: #6b46c1;
+  border: 1px solid #d6bcfa;
 }
 .school-erp-container .premium-table .btn-row-edit {
   background: var(--bg-row-odd);
@@ -320,118 +298,6 @@
   color: var(--text-muted);
   font-size: 14px;
 }
-.school-erp-container .modal-backdrop-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(45, 55, 72, 0.4);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-}
-.school-erp-container .modal-surface-card {
-  background: #ffffff;
-  border-radius: 14px;
-  width: 100%;
-  max-width: 520px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  animation: modalScale 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.school-erp-container .modal-surface-card .modal-header {
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.school-erp-container .modal-surface-card .modal-header h3 {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin: 0;
-}
-.school-erp-container .modal-surface-card .modal-header .close-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: var(--text-hint);
-  cursor: pointer;
-}
-.school-erp-container .modal-surface-card .modal-header .close-btn:hover {
-  color: var(--danger);
-}
-.school-erp-container .modal-surface-card .modal-body {
-  padding: 24px;
-  max-height: 70vh;
-  overflow-y: auto;
-}
-.school-erp-container .modal-surface-card .modal-form-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.school-erp-container .modal-surface-card .form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.school-erp-container .modal-surface-card .form-field label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-.school-erp-container .modal-surface-card .form-field-row-split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.school-erp-container .modal-surface-card .modal-input {
-  background: #ffffff;
-  border: 1px solid var(--border-dark);
-  color: var(--text-primary);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 14px;
-  font-weight: 500;
-  outline: none;
-  width: 100%;
-}
-.school-erp-container .modal-surface-card .modal-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-light);
-}
-.school-erp-container .modal-surface-card .modal-input.textarea-node {
-  resize: vertical;
-}
-.school-erp-container .modal-surface-card .modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid var(--border);
-  background: var(--bg-row-odd);
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-.school-erp-container .modal-surface-card .modal-footer .btn-secondary-link {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 600;
-  padding: 10px 16px;
-  cursor: pointer;
-}
-
-:host ::ng-deep select.premium-input option, :host ::ng-deep select.modal-input option {
-  color: #2d3748 !important;
-  background-color: #ffffff !important;
-}
 
 .spinner-center {
   display: flex;
@@ -455,34 +321,15 @@
     transform: rotate(360deg);
   }
 }
-@keyframes modalScale {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+:host ::ng-deep select.premium-input option {
+  color: #2d3748 !important;
+  background-color: #ffffff !important;
 }
+
 @media (min-width: 1024px) {
   .school-erp-container {
     max-width: 1280px;
     margin: 0 auto;
     padding: 32px;
   }
-  .school-erp-container .filters-card-stack .filter-grid {
-    flex-direction: row;
-    align-items: flex-end;
-  }
-  .school-erp-container .filters-card-stack .filter-grid .select-group {
-    flex: 1;
-  }
-  .school-erp-container .filters-card-stack .filter-grid .filter-actions-group {
-    flex: 1.5;
-    align-items: stretch;
-  }
-  .school-erp-container .filters-card-stack .filter-grid .filter-actions-group .btn-primary-trigger, .school-erp-container .filters-card-stack .filter-grid .filter-actions-group .btn-secondary-clear {
-    padding: 11px 16px;
-  }
-}/*# sourceMappingURL=fee-list.component.css.map */
+}/*# sourceMappingURL=fee-structure-list.component.css.map */

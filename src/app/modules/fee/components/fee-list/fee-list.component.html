@@ -1,8 +1,9 @@
 <div class="school-erp-container">
-  
+
   <div class="app-header">
     <div class="page-title-node">
-      <span>Fee Management Matrix</span>
+      <span>Fee Records</span>
+      <span class="page-subtitle">Track and manage student fee payments</span>
     </div>
     <button class="btn-action-primary" (click)="openFeeForm()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -16,13 +17,15 @@
   <div class="filters-card-stack">
     <div class="filter-grid">
       <div class="select-group">
+        <label class="filter-label">Session</label>
         <select class="premium-input select-native" [(ngModel)]="filters.academicSessionId">
           <option value="">Select Session</option>
           <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
         </select>
       </div>
-      
+
       <div class="select-group">
+        <label class="filter-label">Class</label>
         <select class="premium-input select-native" [(ngModel)]="filters.classId" (change)="onClassChange()">
           <option value="">Select Class</option>
           <option *ngFor="let c of classes" [value]="c.id">{{c.label}}</option>
@@ -30,6 +33,7 @@
       </div>
 
       <div class="select-group">
+        <label class="filter-label">Section</label>
         <select class="premium-input select-native" [(ngModel)]="filters.sectionId" [disabled]="!filters.classId">
           <option value="">Select Section</option>
           <option *ngFor="let s of sections" [value]="s.id">{{s.label}}</option>
@@ -37,6 +41,7 @@
       </div>
 
       <div class="select-group">
+        <label class="filter-label">Status</label>
         <select class="premium-input select-native" [(ngModel)]="filters.paymentStatus">
           <option value="">Status</option>
           <option value="PAID">PAID</option>
@@ -45,6 +50,7 @@
       </div>
 
       <div class="select-group">
+        <label class="filter-label">Due Date From</label>
         <input type="date" class="premium-input" [(ngModel)]="filters.dueDateFrom">
       </div>
 
@@ -63,13 +69,21 @@
 
   <div class="main-dashboard-layout single-panel-focus">
     <div class="table-wrapper-block">
-      
+
       <div class="spinner-center" *ngIf="loading">
         <div class="mini-loader"></div>
       </div>
 
       <div class="table-responsive" *ngIf="!loading">
         <table class="premium-table">
+          <colgroup>
+            <col style="width: 24%;">
+            <col style="width: 20%;">
+            <col style="width: 14%;">
+            <col style="width: 14%;">
+            <col style="width: 12%;">
+            <col style="width: 16%;">
+          </colgroup>
           <thead>
             <tr>
               <th>Student</th>
@@ -117,4 +131,4 @@
     </div>
   </div>
 
-  </div>
+</div>
