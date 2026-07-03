@@ -105,7 +105,7 @@
         </ng-template>
 
         <ng-template #examsCheck>
-          <ng-container *ngIf="item.href === '/exams'; else regularItem">
+          <ng-container *ngIf="item.href === '/exams'; else feesCheck">
             <div class="sidebar__nav-item sidebar__nav-item--dropdown"
                  [class.sidebar__nav-item--active]="isExamsActive()"
                  [class.sidebar__nav-item--collapsed]="sidebarCollapsed"
@@ -131,6 +131,37 @@
               <li>
                 <a routerLink="/exam-schedule" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/exam-schedule')" (click)="closeSidebar()">
                   <span class="sidebar__dropdown-dot"></span>Exam Schedule
+                </a>
+              </li>
+            </ul>
+          </ng-container>
+        </ng-template>
+
+        <ng-template #feesCheck>
+          <ng-container *ngIf="item.href === '/fees'; else regularItem">
+            <div class="sidebar__nav-item sidebar__nav-item--dropdown"
+                 [class.sidebar__nav-item--active]="isFeesActive()"
+                 [class.sidebar__nav-item--collapsed]="sidebarCollapsed"
+                 [title]="sidebarCollapsed ? item.label : ''"
+                 (click)="toggleFeesDropdown()">
+              <svg class="sidebar__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+              </svg>
+              <span *ngIf="!sidebarCollapsed" class="sidebar__nav-label-text">{{ item.label }}</span>
+              <svg *ngIf="!sidebarCollapsed" class="sidebar__dropdown-chevron" [class.sidebar__dropdown-chevron--open]="feesDropdownOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+
+            <ul *ngIf="feesDropdownOpen && !sidebarCollapsed" class="sidebar__dropdown-list">
+              <li>
+                <a routerLink="/fees" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/fees') || currentPath.startsWith('/fees/')" (click)="closeSidebar()">
+                  <span class="sidebar__dropdown-dot"></span>Student Fees
+                </a>
+              </li>
+              <li>
+                <a routerLink="/fee-structure" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="currentPath.startsWith('/fee-structure')" (click)="closeSidebar()">
+                  <span class="sidebar__dropdown-dot"></span>Fee Structure
                 </a>
               </li>
             </ul>

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { HttpService } from '../../../core/services/http.service'; // Adjust path accordingly
-import { StudentFeeResponseDto, FeeFilterRequest, SaveFeeRequest } from '../models/fee.model';
+import { HttpService } from '../../../core/services/http.service';
+import { StudentFeeResponseDto, FeeFilterRequest, SaveFeeRequest, FeeStructureDto, FeeStructureFilterRequest, SaveFeeStructureRequest } from '../models/fee.model';
 import { PagedResponse, ApiResponse, DropdownOption, ParamListRequest } from '../../student/models/student.model';
 
 @Injectable({ providedIn: 'root' })
@@ -60,5 +60,15 @@ export class FeeService {
         );
       })
     );
+  }
+
+  /** Filter Fee Structures */
+  filterFeeStructures(req: FeeStructureFilterRequest): Observable<PagedResponse<FeeStructureDto>> {
+    return this.http.post<PagedResponse<FeeStructureDto>>('/feeStructures/list', req);
+  }
+
+  /** Add or Update Fee Structure */
+  saveFeeStructure(req: SaveFeeStructureRequest): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>('/feeStructures/addOrUpdate', req);
   }
 }

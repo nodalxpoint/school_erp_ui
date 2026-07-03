@@ -17,17 +17,19 @@ import { DropdownOption } from '../../../student/models/student.model';
 export class FeeFormComponent implements OnInit {
   sessions: DropdownOption[] = [];
   isEditMode = false;
+  isLoading = false;
 
-  // Auto-suggest student matrix management variables
+  // Auto-suggest student management
   studentSearchToken = '';
   dynamicStudentsList: any[] = [];
   showSuggestions = false;
   selectedStudentObj: any | null = null;
 
   formData: SaveFeeRequest = {
-    studentId: '', academicSessionId: '',
-    feeMonth: new Date().getMonth() + 1, feeYear: new Date().getFullYear(),
-    amount: 0, dueDate: '', paymentStatus: 'PENDING', remarks: ''
+    studentId: '',
+    academicSessionId: '',
+    feeMonth: new Date().getMonth() + 1,
+    feeYear: new Date().getFullYear()
   };
 
   constructor(
@@ -38,13 +40,11 @@ export class FeeFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Load sessions dropdown first
     this.feeService.getParams('academic_sessions').subscribe(data => {
       this.sessions = data;
       this.cdr.markForCheck();
     });
 
-    // Check if deep navigated into an active edit route
     const editId = this.route.snapshot.paramMap.get('id');
     const stateData = history.state?.data;
 
@@ -53,31 +53,29 @@ export class FeeFormComponent implements OnInit {
       if (stateData) {
         this.mapIncomingEditForm(stateData);
       } else if (editId) {
-        // Fallback safety lookup if any
-        this.formData.feeId = editId;
+        this.formData.id = editId;
       }
     }
   }
 
   mapIncomingEditForm(data: any): void {
     this.formData = {
-      feeId: data.id,
+      id: data.id,
       studentId: data.studentId,
       academicSessionId: data.academicSessionId,
       feeMonth: data.feeMonth,
-      feeYear: data.feeYear,
-      amount: data.amount,
-      dueDate: data.dueDate ? data.dueDate.split('T')[0] : '',
-      paymentStatus: data.paymentStatus,
-      remarks: data.remarks || ''
+      feeYear: data.feeYear
     };
-    
-    // Set static profile visual representation mockup for edit state preview node safely
-    this.selectedStudentObj = { firstName: data.studentName || 'Student', lastName: '', id: data.studentId };
+
+    this.selectedStudentObj = {
+      firstName: data.studentName || 'Student',
+      lastName: '',
+      id: data.studentId
+    };
     this.studentSearchToken = data.studentName || '';
   }
 
-  // ── Auto Suggest Student Interaction Logic Methods ──
+  // ── Student search ──
   onStudentSearchInput(): void {
     if (this.studentSearchToken.trim().length < 2) {
       this.dynamicStudentsList = [];
@@ -104,24 +102,42 @@ export class FeeFormComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
- // FeeFormComponent ke navigate code ko isse replace kar lo:
   onCancel(): void {
     this.router.navigate(['../list'], { relativeTo: this.route });
   }
 
   onSaveSubmit(): void {
-    if (!this.formData.studentId || !this.formData.academicSessionId || !this.formData.amount) {
-      alert('Parameters required (Student ID selection, Session, and Amount)!');
+    if (!this.formData.studentId || !this.formData.academicSessionId) {
+      alert('Please select a student and an academic session.');
+      return;
+    }
+    if (!this.formData.feeMonth || !this.formData.feeYear) {
+      alert('Fee month and year are required.');
       return;
     }
 
-    this.feeService.saveFee(this.formData).subscribe({
+    // Build clean payload — only send non-empty optional fields
+    const payload: SaveFeeRequest = {
+      studentId: this.formData.studentId,
+      academicSessionId: this.formData.academicSessionId,
+      feeMonth: this.formData.feeMonth,
+      feeYear: this.formData.feeYear
+    };
+
+    if (this.formData.id) payload.id = this.formData.id;
+
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
+    this.feeService.saveFee(payload).subscribe({
       next: () => {
-        // Safe dispatch back to ledger list matrix screen
         this.router.navigate(['../list'], { relativeTo: this.route });
       },
-      error: () => {
-        alert('Error posting transaction ledger parameters.');
+      error: (err) => {
+        this.isLoading = false;
+        this.cdr.markForCheck();
+        const msg = err?.error?.message || 'Failed to save fee record. Please try again.';
+        alert(msg);
       }
     });
   }

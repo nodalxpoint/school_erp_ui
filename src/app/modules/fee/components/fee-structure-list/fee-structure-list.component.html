@@ -1,0 +1,100 @@
+<div class="school-erp-container">
+
+  <div class="app-header">
+    <div class="page-title-node">
+      <span>Fee Structure</span>
+      <span class="page-subtitle">Manage class-wise fee structures</span>
+    </div>
+    <button class="btn-action-primary" (click)="openForm()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      <span>Add Fee Structure</span>
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-card-stack">
+    <div class="filter-grid">
+      <div class="select-group">
+        <select class="premium-input" [(ngModel)]="filters.classId">
+          <option value="">All Classes</option>
+          <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
+        </select>
+      </div>
+      <div class="select-group">
+        <input class="premium-input" type="text" [(ngModel)]="filters.feeName" placeholder="Search fee name...">
+      </div>
+      <div class="select-group">
+        <select class="premium-input" [(ngModel)]="filters.frequency">
+          <option value="">All Frequencies</option>
+          <option value="MONTHLY">Monthly</option>
+          <option value="QUARTERLY">Quarterly</option>
+          <option value="ANNUALLY">Annually</option>
+          <option value="ONE_TIME">One Time</option>
+        </select>
+      </div>
+      <div class="filter-actions-group">
+        <button class="btn-primary-trigger" (click)="onSearch()">Search</button>
+        <button class="btn-secondary-clear" (click)="clearFilters()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M23 4v6h-6M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>Clear</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper-block">
+    <div class="spinner-center" *ngIf="loading">
+      <div class="mini-loader"></div>
+    </div>
+
+    <div class="table-responsive" *ngIf="!loading">
+      <table class="premium-table">
+        <thead>
+          <tr>
+            <th>Fee Name</th>
+            <th>Class</th>
+            <th>Amount</th>
+            <th>Frequency</th>
+            <th>Created</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of structures">
+            <td><strong class="fee-name-txt">{{ s.feeName }}</strong></td>
+            <td>
+              <span class="class-badge">{{ s.className || '—' }}</span>
+            </td>
+            <td><strong class="currency-node">₹{{ s.amount | number:'1.2-2' }}</strong></td>
+            <td>
+              <span class="freq-pill" [class]="'freq-' + s.frequency?.toLowerCase()">
+                {{ frequencyLabel(s.frequency) }}
+              </span>
+            </td>
+            <td><span class="date-txt">{{ s.createdAt | date:'mediumDate' }}</span></td>
+            <td class="text-right">
+              <button class="btn-row-edit" (click)="openForm(s)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                <span>Edit</span>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="structures.length === 0">
+            <td colspan="6" class="no-data-fallback">No fee structures found. Add one to get started.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

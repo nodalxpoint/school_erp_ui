@@ -1,95 +1,117 @@
 <div class="school-erp-container">
-  
+
   <div class="app-header">
     <div class="page-title-node">
-      <span>{{ isEditMode ? 'Modify Ledger Record' : 'Create New Fee Entry' }}</span>
+      <span>{{ isEditMode ? 'Modify Fee Record' : 'Create Fee Entry' }}</span>
     </div>
     <button class="btn-action-secondary" (click)="onCancel()">
-      <span>Back to Ledger</span>
+      ← Back to Ledger
     </button>
   </div>
 
   <div class="main-dashboard-layout single-panel-focus">
     <div class="form-wrapper-block">
+      <div class="form-info-banner" *ngIf="!isEditMode">
+        <span class="info-icon">ℹ️</span>
+        <span>Fee amount and payment status are resolved automatically from the student's class fee structure.</span>
+      </div>
+
       <div class="modal-form-grid">
-        
-        <div class="form-field student-search-container">
-          <label>Select Student Registry Target</label>
+
+        <!-- Student Search -->
+        <div class="form-field student-search-container" *ngIf="!isEditMode">
+          <label>Student <span class="required-star">*</span></label>
           <div class="search-input-wrapper">
-            <input type="text" 
-                   class="modal-input" 
-                   placeholder="Type student name or search active list token..."
+            <input type="text"
+                   class="modal-input"
+                   placeholder="Type student name or admission number..."
                    [(ngModel)]="studentSearchToken"
                    (input)="onStudentSearchInput()">
             <button class="btn-input-search-action" (click)="triggerSearchQuery()">Search</button>
           </div>
 
           <div class="student-suggestions-box" *ngIf="showSuggestions && dynamicStudentsList.length > 0">
-            <div class="suggestion-row-item" 
+            <div class="suggestion-row-item"
                  *ngFor="let student of dynamicStudentsList"
                  (click)="selectActiveStudent(student)">
               <span class="st-name">{{ student.firstName }} {{ student.lastName }}</span>
               <span class="st-meta">Class {{ student.className }} ({{ student.sectionName }}) · {{ student.admissionNo }}</span>
             </div>
           </div>
-          
+
           <div class="selected-profile-confirmation-badge" *ngIf="selectedStudentObj">
             <span class="avatar-node">{{ selectedStudentObj.firstName.charAt(0) }}</span>
             <div class="profile-details">
               <strong>{{ selectedStudentObj.firstName }} {{ selectedStudentObj.lastName }}</strong>
-              <span>Ref Token ID: {{ formData.studentId }}</span>
+              <span>ID: {{ formData.studentId }}</span>
             </div>
           </div>
         </div>
 
+        <!-- Edit mode: student display (read-only) -->
+        <div class="form-field" *ngIf="isEditMode && selectedStudentObj">
+          <label>Student</label>
+          <div class="selected-profile-confirmation-badge">
+            <span class="avatar-node">{{ selectedStudentObj.firstName.charAt(0) }}</span>
+            <div class="profile-details">
+              <strong>{{ selectedStudentObj.firstName }} {{ selectedStudentObj.lastName }}</strong>
+              <span>ID: {{ formData.studentId }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Academic Session -->
         <div class="form-field">
-          <label>Academic Session Ref</label>
-          <select class="modal-input" [(ngModel)]="formData.academicSessionId">
-            <option value="">Select Reference Session</option>
-            <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
+          <label>Academic Session <span class="required-star">*</span></label>
+          <select class="modal-input" [(ngModel)]="formData.academicSessionId" [disabled]="isEditMode">
+            <option value="">Select Session</option>
+            <option *ngFor="let s of sessions" [value]="s.id">{{ s.label }}</option>
           </select>
         </div>
 
+        <!-- Month & Year -->
         <div class="form-field-row-split">
           <div class="form-field">
-            <label>Month (1-12)</label>
-            <input type="number" class="modal-input" [(ngModel)]="formData.feeMonth" min="1" max="12">
+            <label>Fee Month <span class="required-star">*</span></label>
+            <select class="modal-input" [(ngModel)]="formData.feeMonth" [disabled]="isEditMode">
+              <option [value]="1">January</option>
+              <option [value]="2">February</option>
+              <option [value]="3">March</option>
+              <option [value]="4">April</option>
+              <option [value]="5">May</option>
+              <option [value]="6">June</option>
+              <option [value]="7">July</option>
+              <option [value]="8">August</option>
+              <option [value]="9">September</option>
+              <option [value]="10">October</option>
+              <option [value]="11">November</option>
+              <option [value]="12">December</option>
+            </select>
           </div>
           <div class="form-field">
-            <label>Year</label>
-            <input type="number" class="modal-input" [(ngModel)]="formData.feeYear">
+            <label>Fee Year <span class="required-star">*</span></label>
+            <input type="number" class="modal-input" [(ngModel)]="formData.feeYear" [readonly]="isEditMode" min="2020" max="2099">
           </div>
         </div>
 
-        <div class="form-field-row-split">
-          <div class="form-field">
-            <label>Amount (INR)</label>
-            <input type="number" class="modal-input" [(ngModel)]="formData.amount" placeholder="0.00">
+        <!-- Auto-resolved info -->
+        <div class="auto-resolve-info">
+          <div class="info-row">
+            <span class="info-label">Fee Amount</span>
+            <span class="info-value auto-tag">Auto · from class fee structure</span>
           </div>
-          <div class="form-field">
-            <label>Maturity Due Date</label>
-            <input type="date" class="modal-input" [(ngModel)]="formData.dueDate">
+          <div class="info-row">
+            <span class="info-label">Payment Status</span>
+            <span class="info-value paid-tag">PAID</span>
           </div>
         </div>
 
-        <div class="form-field">
-          <label>Settlement Status</label>
-          <select class="modal-input" [(ngModel)]="formData.paymentStatus">
-            <option value="PENDING">PENDING</option>
-            <option value="PAID">PAID</option>
-            <option value="PARTIAL">PARTIAL</option>
-          </select>
-        </div>
-
-        <div class="form-field">
-          <label>Remarks / System Ledger Notes</label>
-          <textarea class="modal-input textarea-node" [(ngModel)]="formData.remarks" rows="3" placeholder="Write entry context notes..."></textarea>
-        </div>
-
+        <!-- Actions -->
         <div class="form-actions-footer-row">
-          <button class="btn-secondary-link" (click)="onCancel()">Cancel Process</button>
-          <button class="btn-action-primary" (click)="onSaveSubmit()">
-            <span>Save Ledger Document</span>
+          <button class="btn-secondary-link" (click)="onCancel()" [disabled]="isLoading">Cancel</button>
+          <button class="btn-action-primary" (click)="onSaveSubmit()" [disabled]="isLoading">
+            <span *ngIf="!isLoading">{{ isEditMode ? 'Update Record' : 'Create Fee Entry' }}</span>
+            <span *ngIf="isLoading">Saving...</span>
           </button>
         </div>
 

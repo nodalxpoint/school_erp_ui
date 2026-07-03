@@ -126,6 +126,10 @@ export const routes: Routes = [
   path: 'fees',
   loadChildren: () => import('./modules/fee/fee.routes').then(m => m.FEE_ROUTES)
 },
+{
+  path: 'fee-structure',
+  loadChildren: () => import('./modules/fee/fee-structure.routes').then(m => m.FEE_STRUCTURE_ROUTES)
+},
     ]
   },
 

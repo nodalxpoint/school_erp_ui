@@ -40,7 +40,8 @@ const NAV_ITEMS: NavItem[] = [
 
 const TEACHERS_ROUTES = ['/teachers', '/teacher-mapping', '/subjects/assign-teacher', '/teacher-timetable'];
 const SUBJECTS_ROUTES = ['/subjects/manage', '/subjects'];
-const EXAMS_ROUTES    = ['/exams', '/exam-schedule']; 
+const EXAMS_ROUTES    = ['/exams', '/exam-schedule'];
+const FEES_ROUTES     = ['/fees', '/fee-structure'];
 
 @Component({
   selector: 'app-sidebar',
@@ -59,6 +60,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   teachersDropdownOpen = false;
   subjectsDropdownOpen = false;
   examsDropdownOpen = false;
+  feesDropdownOpen = false;
   
   private destroy$ = new Subject<void>();
 
@@ -78,6 +80,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
         this.teachersDropdownOpen = false;
         this.subjectsDropdownOpen = false;
         this.examsDropdownOpen = false;
+        this.feesDropdownOpen = false;
       }
       this.cdr.markForCheck();
     });
@@ -117,6 +120,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     if (TEACHERS_ROUTES.some(r => path.startsWith(r))) this.teachersDropdownOpen = true;
     if (SUBJECTS_ROUTES.some(r => path.startsWith(r)) && !path.includes('assign-teacher')) this.subjectsDropdownOpen = true;
     if (EXAMS_ROUTES.some(r => path.startsWith(r))) this.examsDropdownOpen = true;
+    if (FEES_ROUTES.some(r => path.startsWith(r))) this.feesDropdownOpen = true;
   }
 
   get filteredNavItems(): NavItem[] {
@@ -132,6 +136,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   isTeachersActive(): boolean { return TEACHERS_ROUTES.some(r => this.currentPath.startsWith(r)); }
   isSubjectsActive(): boolean { return SUBJECTS_ROUTES.some(r => this.currentPath.startsWith(r)) && !this.currentPath.includes('assign-teacher'); }
   isExamsActive(): boolean { return EXAMS_ROUTES.some(r => this.currentPath.startsWith(r)); }
+  isFeesActive(): boolean { return FEES_ROUTES.some(r => this.currentPath.startsWith(r)); }
 
   toggleTeachersDropdown(): void {
     this.teachersDropdownOpen = !this.teachersDropdownOpen;
@@ -147,7 +152,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   toggleExamsDropdown(): void {
     this.examsDropdownOpen = !this.examsDropdownOpen;
-    if (this.examsDropdownOpen) { this.teachersDropdownOpen = false; this.subjectsDropdownOpen = false; }
+    if (this.examsDropdownOpen) { this.teachersDropdownOpen = false; this.subjectsDropdownOpen = false; this.feesDropdownOpen = false; }
+    this.cdr.markForCheck();
+  }
+
+  toggleFeesDropdown(): void {
+    this.feesDropdownOpen = !this.feesDropdownOpen;
+    if (this.feesDropdownOpen) { this.teachersDropdownOpen = false; this.subjectsDropdownOpen = false; this.examsDropdownOpen = false; }
     this.cdr.markForCheck();
   }
 
@@ -157,6 +168,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.teachersDropdownOpen = false;
     this.subjectsDropdownOpen = false;
     this.examsDropdownOpen = false;
+    this.feesDropdownOpen = false;
     this.authService.logout(); 
     this.cdr.markForCheck();
   }
