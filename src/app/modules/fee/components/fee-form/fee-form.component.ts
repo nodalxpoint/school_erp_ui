@@ -70,7 +70,9 @@ export class FeeFormComponent implements OnInit {
     this.selectedStudentObj = {
       firstName: data.studentName || 'Student',
       lastName: '',
-      id: data.studentId
+      id: data.studentId,
+      className: data.className || '',
+      sectionName: data.sectionName || ''
     };
     this.studentSearchToken = data.studentName || '';
   }

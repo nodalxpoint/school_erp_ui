@@ -60,34 +60,41 @@
     <div class="table-responsive" *ngIf="!loading">
       <table class="premium-table">
        <colgroup>
-  <col style="width: 22%">  <!-- Fee Name -->
-  <col style="width: 15%">  <!-- Class -->
-  <col style="width: 15%">  <!-- Amount -->
-  <col style="width: 15%">  <!-- Frequency -->
-  <col style="width: 15%">  <!-- Created -->
-  <col style="width: 18%">  <!-- Actions -->
+  <col style="width: 19%">  <!-- Fee Name -->
+  <col style="width: 12%">  <!-- Class -->
+  <col style="width: 12%">  <!-- Amount -->
+  <col style="width: 12%">  <!-- Frequency -->
+  <col style="width: 13%">  <!-- Due Date -->
+  <col style="width: 13%">  <!-- Created -->
+  <col style="width: 19%">  <!-- Actions -->
 </colgroup>
         <thead>
           <tr>
-            <th>Fee Name</th>
             <th>Class</th>
+            <th>Fee Name</th>
             <th>Amount</th>
             <th>Frequency</th>
+            <th>Due Date</th>
             <th>Created</th>
             <th class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let s of structures">
-            <td><strong class="fee-name-txt">{{ s.feeName }}</strong></td>
             <td>
               <span class="class-badge">{{ s.className || '—' }}</span>
             </td>
+            <td><strong class="fee-name-txt">{{ s.feeName }}</strong></td>
+            
             <td><strong class="currency-node">₹{{ s.amount | number:'1.2-2' }}</strong></td>
             <td>
               <span class="freq-pill" [class]="'freq-' + s.frequency?.toLowerCase()">
                 {{ frequencyLabel(s.frequency) }}
               </span>
+            </td>
+            <td>
+              <span class="date-txt" *ngIf="s.dueDate; else noDueDate">{{ s.dueDate | date:'mediumDate' }}</span>
+              <ng-template #noDueDate><span class="text-muted">—</span></ng-template>
             </td>
             <td><span class="date-txt">{{ s.createdAt | date:'mediumDate' }}</span></td>
             <td class="text-right">
@@ -101,7 +108,7 @@
             </td>
           </tr>
           <tr *ngIf="structures.length === 0">
-            <td colspan="6" class="no-data-fallback">No fee structures found. Add one to get started.</td>
+            <td colspan="7" class="no-data-fallback">No fee structures found. Add one to get started.</td>
           </tr>
         </tbody>
       </table>
