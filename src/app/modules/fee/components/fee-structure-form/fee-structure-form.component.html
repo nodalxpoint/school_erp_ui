@@ -71,4 +71,23 @@
     </div>
   </div>
 
+  <!-- Toast (validation/API errors ke liye) -->
+  <div class="app-toast" [class.toast-visible]="showToast" [class.toast-error]="toastType === 'error'">
+    <div class="toast-icon">
+      <svg *ngIf="toastType === 'success'" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="12" fill="#38A169"/>
+        <path d="M7 12.5L10.2 15.7L17 8.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <svg *ngIf="toastType === 'error'" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="12" fill="#E53E3E"/>
+        <path d="M12 7V13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="16.5" r="1.2" fill="white"/>
+      </svg>
+    </div>
+    <div class="toast-text">
+      <span class="toast-title">{{ toastType === 'success' ? 'Success' : 'Error' }}</span>
+      <span class="toast-msg">{{ toastMessage }}</span>
+    </div>
+  </div>
+
 </div>

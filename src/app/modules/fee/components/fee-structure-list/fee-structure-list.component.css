@@ -195,6 +195,7 @@
   border-collapse: collapse;
 }
 .school-erp-container .premium-table th {
+  text-align: left;
   background: var(--primary);
   color: var(--bg-white);
   font-size: 11px;

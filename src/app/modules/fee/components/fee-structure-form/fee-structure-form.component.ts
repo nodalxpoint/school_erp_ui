@@ -19,6 +19,11 @@ export class FeeStructureFormComponent implements OnInit {
   isLoading = false;
   classes: DropdownOption[] = [];
 
+  showToast = false;
+  toastMessage = '';
+  toastType: 'success' | 'error' = 'success';
+  private toastTimer: any;
+
   formData: SaveFeeStructureRequest = {
     classId: '',
     feeName: '',
@@ -58,21 +63,40 @@ export class FeeStructureFormComponent implements OnInit {
     }
   }
 
+  private fireToast(type: 'success' | 'error', message: string): void {
+    clearTimeout(this.toastTimer);
+    this.toastType = type;
+    this.toastMessage = message;
+    this.showToast = true;
+    this.cdr.markForCheck();
+  }
+
+  // 🔑 Ek hi jagah se navigation hoga, absolute path se — relative path ki dikkat khatam
+  private goToList(): void {
+    this.router.navigate(['list'], { relativeTo: this.route.parent })
+      .then(success => {
+        if (!success) {
+          console.error('Navigation to list failed — route config check karo (list route parent ke andar sibling hai ya nahi).');
+        }
+      })
+      .catch(err => console.error('Navigation error:', err));
+  }
+
   onCancel(): void {
-    this.router.navigate(['../list'], { relativeTo: this.route });
+    this.goToList();
   }
 
   onSaveSubmit(): void {
     if (!this.formData.classId) {
-      alert('Please select a class.');
+      this.fireToast('error', 'Please select a class.');
       return;
     }
     if (!this.formData.feeName?.trim()) {
-      alert('Fee name is required.');
+      this.fireToast('error', 'Fee name is required.');
       return;
     }
     if (!this.formData.amount || this.formData.amount <= 0) {
-      alert('Please enter a valid amount.');
+      this.fireToast('error', 'Please enter a valid amount.');
       return;
     }
 
@@ -80,14 +104,22 @@ export class FeeStructureFormComponent implements OnInit {
     this.cdr.markForCheck();
 
     this.feeService.saveFeeStructure(this.formData).subscribe({
-      next: () => {
-        this.router.navigate(['../list'], { relativeTo: this.route });
+      next: (response: any) => {
+        this.isLoading = false;
+        this.cdr.markForCheck();               // 👈 missing tha, isi wajah se button stuck tha
+
+        const msg = response?.message || 'Fee structure saved successfully';
+        this.fireToast('success', msg);
+
+        this.toastTimer = setTimeout(() => {
+          this.goToList();
+        }, 900);
       },
       error: (err) => {
         this.isLoading = false;
-        this.cdr.markForCheck();
+        this.cdr.markForCheck();               // 👈 ye already tha, sahi hai
         const msg = err?.error?.message || 'Failed to save. Please try again.';
-        alert(msg);
+        this.fireToast('error', msg);
       }
     });
   }
