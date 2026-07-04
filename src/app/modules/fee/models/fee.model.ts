@@ -72,4 +72,5 @@ export interface SaveFeeStructureRequest {
   feeName: string;
   amount: number;
   frequency: 'MONTHLY' | 'QUARTERLY' | 'ANNUALLY' | 'ONE_TIME';
+  dueDate?: string | null; 
 }

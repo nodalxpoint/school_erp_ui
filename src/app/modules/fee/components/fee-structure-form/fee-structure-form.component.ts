@@ -28,7 +28,8 @@ export class FeeStructureFormComponent implements OnInit {
     classId: '',
     feeName: '',
     amount: 0,
-    frequency: 'MONTHLY'
+    frequency: 'MONTHLY',
+    dueDate: '' 
   };
 
   constructor(
@@ -55,7 +56,8 @@ export class FeeStructureFormComponent implements OnInit {
           classId: stateData.classId || '',
           feeName: stateData.feeName || '',
           amount: stateData.amount || 0,
-          frequency: stateData.frequency || 'MONTHLY'
+          frequency: stateData.frequency || 'MONTHLY',
+           dueDate: stateData.dueDate ? stateData.dueDate.substring(0, 10) : '' 
         };
       } else if (editId) {
         this.formData.id = editId;
@@ -102,6 +104,11 @@ export class FeeStructureFormComponent implements OnInit {
 
     this.isLoading = true;
     this.cdr.markForCheck();
+
+    const payload: SaveFeeStructureRequest = {
+    ...this.formData,
+    dueDate: this.formData.dueDate || null   
+  };
 
     this.feeService.saveFeeStructure(this.formData).subscribe({
       next: (response: any) => {

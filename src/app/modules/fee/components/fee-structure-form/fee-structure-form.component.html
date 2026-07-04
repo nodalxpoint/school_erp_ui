@@ -47,6 +47,12 @@
           </div>
         </div>
 
+        <!-- Due Date ✅ added -->
+<div class="form-field">
+  <label>Due Date <span class="optional-tag">(optional)</span></label>
+  <input type="date" class="modal-input" [(ngModel)]="formData.dueDate">
+</div>
+
         <!-- Summary preview -->
         <div class="preview-box" *ngIf="formData.feeName && formData.amount > 0">
           <div class="preview-row">
@@ -55,6 +61,8 @@
           <div class="preview-content">
             <strong>{{ formData.feeName }}</strong> — ₹{{ formData.amount | number:'1.2-2' }}
             <span class="freq-chip">{{ formData.frequency }}</span>
+            <span class="due-chip" *ngIf="formData.dueDate">Due: {{ formData.dueDate | date:'mediumDate' }}</span>
+ 
           </div>
         </div>
 

@@ -2,15 +2,15 @@ import {
   Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms'; // ← ✅ Added FormsModule here
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StudentService, StudentStateService } from '../../services/student.service';
-import { CreateStudentRequest, DropdownOption, ParentSearchResultDto } from '../../models/student.model';
+import { CreateStudentRequest, DropdownOption, ParentSearchResultDto, StudentResponseDto } from '../../models/student.model';
 
 @Component({
   selector: 'app-student-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule], // ← ✅ Registered FormsModule in imports array
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './student-form.component.html',
   styleUrls: ['./student-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,12 +20,12 @@ export class StudentFormComponent implements OnInit {
   isEditMode = false;
   studentId: string | null = null;
   submitting = false;
+  loadingStudent = false;   // ✅ naya
   successMessage = '';
   errorMessage = '';
 
   showPassword = false;
 
-  // ── Parent Configuration Flows ───────────────────────────────────
   parentMode: 'NONE' | 'NEW' | 'EXISTING' = 'NONE';
   parentSearchQuery = '';
   parentSearchResults: ParentSearchResultDto[] = [];
@@ -39,6 +39,11 @@ export class StudentFormComponent implements OnInit {
   loadingSections = false;
   loadingAcademicSessions = false;
 
+  // ✅ naya — patch sequencing ke liye
+  private loadedStudent: StudentResponseDto | null = null;
+  private classesReady = false;
+  private studentReady = false;
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -51,13 +56,42 @@ export class StudentFormComponent implements OnInit {
   ngOnInit(): void {
     this.studentId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.studentId;
-    
+
     if (this.isEditMode) {
       this.parentMode = 'NEW';
     }
 
     this.buildForm();
     this.loadClasses();
+
+    if (this.isEditMode && this.studentId) {
+      this.loadStudentData(this.studentId);
+    }
+  }
+
+  // ✅ naya method — same /students/list API id ke sath
+  private loadStudentData(id: string): void {
+    this.loadingStudent = true;
+    this.studentService.getStudentById(id).subscribe({
+      next: (data) => {
+        if (!data) {
+          this.errorMessage = 'Student not found.';
+        } else {
+          this.loadedStudent = data;
+        }
+        this.studentReady = true;
+        this.loadingStudent = false;
+        this.tryPatchEdit();
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.errorMessage = 'Failed to load student data. Please try again.';
+        this.studentReady = true;
+        this.loadingStudent = false;
+        this.tryPatchEdit();
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   private buildForm(): void {
@@ -71,7 +105,7 @@ export class StudentFormComponent implements OnInit {
       classId:           ['', Validators.required],
       sectionId:         ['', Validators.required],
       academicSessionId: ['', Validators.required],
-      
+
       fatherName:        ['', Validators.required],
       motherName:        ['', Validators.required],
       emergencyContact:  ['', [Validators.required, Validators.pattern(/^\+?[0-9]{7,15}$/)]],
@@ -85,13 +119,12 @@ export class StudentFormComponent implements OnInit {
     this.evaluateParentValidators();
   }
 
-  // ── ✅ FIXED: Accept 'NONE' as a valid option to clear compilation type mismatches ──
   setParentMode(mode: 'NONE' | 'NEW' | 'EXISTING'): void {
     this.parentMode = mode;
     this.parentSearchResults = [];
     this.parentSearchQuery = '';
     this.selectedParentId = null;
-    
+
     this.form.patchValue({
       fatherName: '', motherName: '', emergencyContact: '',
       parentFirstName: '', parentLastName: '', parentEmail: '', parentPhone: '', parentPassword: ''
@@ -115,7 +148,7 @@ export class StudentFormComponent implements OnInit {
       this.form.get('parentPassword')?.clearValidators();
     } else {
       parentFields.forEach(f => this.form.get(f)?.setValidators(f === 'emergencyContact' || f === 'parentPhone' ? [Validators.required, Validators.pattern(/^\+?[0-9]{7,15}$/)] : f === 'parentEmail' ? [Validators.required, Validators.email] : Validators.required));
-      
+
       if (this.isEditMode) {
         this.form.get('parentPassword')?.clearValidators();
       } else {
@@ -152,10 +185,9 @@ export class StudentFormComponent implements OnInit {
     });
   }
 
- selectParent(parent: ParentSearchResultDto): void {
+  selectParent(parent: ParentSearchResultDto): void {
     this.selectedParentId = parent.id;
-    
-    // Existing parent ke case me baki fields ko clean rkhein kyuki validators already clear ho chuke hain
+
     this.form.patchValue({
       fatherName:        parent.fatherName || `${parent.firstName} ${parent.lastName}`,
       motherName:        parent.motherName || '',
@@ -164,28 +196,30 @@ export class StudentFormComponent implements OnInit {
       parentLastName:    parent.lastName,
       parentEmail:       parent.email,
       parentPhone:       parent.phone,
-      parentPassword:    '' // Clear any required password inputs
+      parentPassword:    ''
     });
 
-    // Final check for safe submission
     this.form.get('parentPassword')?.clearValidators();
     this.form.get('parentPassword')?.updateValueAndValidity();
-    
+
     this.cdr.markForCheck();
   }
+
   loadClasses(): void {
     this.loadingClasses = true;
     this.studentService.getClasses().subscribe({
       next: (data) => {
         this.classes = data;
         this.loadingClasses = false;
-        if (this.isEditMode) this.patchEditData();
+        this.classesReady = true;
+        this.tryPatchEdit();
         this.cdr.markForCheck();
       },
       error: () => {
         this.loadingClasses = false;
         this.errorMessage = 'Could not load classes from server.';
-        if (this.isEditMode) this.patchEditData(); 
+        this.classesReady = true;
+        this.tryPatchEdit();
         this.cdr.markForCheck();
       },
     });
@@ -218,45 +252,56 @@ export class StudentFormComponent implements OnInit {
     });
   }
 
-  private patchEditData(): void {
-    const student = this.studentState.get();
-    if (!student) {
-      this.errorMessage = 'Student data not found. Please go back to the list and click Edit again.';
-      this.cdr.markForCheck();
-      return;
+  // ✅ dono ready hone pe hi patch karo
+  private tryPatchEdit(): void {
+    if (this.isEditMode && this.classesReady && this.studentReady) {
+      this.patchEditData();
     }
-
-    const formattedDob = student.dob ? student.dob.substring(0, 10) : '';
-    const formattedAdmissionDate = student.admissionDate ? student.admissionDate.substring(0, 10) : '';
-
-    this.form.patchValue({
-      firstName:         student.firstName,
-      lastName:          student.lastName,
-      gender:            student.gender ?? '',
-      dob:               formattedDob,
-      admissionDate:     formattedAdmissionDate,
-      rollNo:            student.rollNo ?? '',
-      classId:           student.classId ?? '',
-      sectionId:         student.sectionId ?? '',
-      academicSessionId: student.academicSessionId ?? '',
-      fatherName:        student.fatherName ?? '',
-      motherName:        student.motherName ?? '',
-      emergencyContact:  student.emergencyContact ?? '',
-      parentFirstName:   student.parentFirstName ?? '',
-      parentLastName:    student.parentLastName ?? '',
-      parentEmail:       student.parentEmail ?? '',
-      parentPhone:       student.parentPhone ?? '',
-    });
-
-    this.form.get('parentPassword')?.clearValidators();
-    this.form.get('parentPassword')?.updateValueAndValidity();
-
-    if (student.classId) {
-      this.loadSections(student.classId);
-      this.loadAcademicSessions(student.classId);
-    }
-    this.cdr.markForCheck();
   }
+private patchEditData(): void {
+  const student = this.loadedStudent;
+  if (!student) {
+    this.errorMessage = this.errorMessage || 'Student data not found. Please go back to the list and try again.';
+    this.cdr.markForCheck();
+    return;
+  }
+
+  const formattedDob = student.dob ? student.dob.substring(0, 10) : '';
+  const formattedAdmissionDate = student.admissionDate ? student.admissionDate.substring(0, 10) : '';
+
+  // ✅ guardianName ko split karke parentFirstName/parentLastName me daalo
+  const guardianParts = (student.guardianName || '').trim().split(' ');
+  const guardianFirst = guardianParts[0] || '';
+  const guardianLast  = guardianParts.slice(1).join(' ') || '';
+
+  this.form.patchValue({
+    firstName:         student.firstName,
+    lastName:          student.lastName,
+    gender:            student.gender ?? '',
+    dob:               formattedDob,
+    admissionDate:     formattedAdmissionDate,
+    rollNo:            student.rollNo ?? '',
+    classId:           student.classId ?? '',
+    sectionId:         student.sectionId ?? '',
+    academicSessionId: student.academicSessionId ?? '',
+    fatherName:        student.fatherName ?? '',
+    motherName:        student.motherName ?? '',
+    emergencyContact:  student.emergencyContact ?? '',
+    parentFirstName:   student.parentFirstName ?? guardianFirst,   // ✅ fallback to guardianName split
+    parentLastName:    student.parentLastName ?? guardianLast,     // ✅ fallback
+    parentEmail:       student.parentEmail ?? '',
+    parentPhone:       student.parentPhone ?? student.emergencyContact ?? '',  // ✅ backend phone nahi bhej raha, emergencyContact hi use karo
+  });
+
+  this.form.get('parentPassword')?.clearValidators();
+  this.form.get('parentPassword')?.updateValueAndValidity();
+
+  if (student.classId) {
+    this.loadSections(student.classId);
+    this.loadAcademicSessions(student.classId);
+  }
+  this.cdr.markForCheck();
+}
 
   onSubmit(): void {
     if (this.form.invalid) {
@@ -270,11 +315,11 @@ export class StudentFormComponent implements OnInit {
 
     const payload: any = { ...this.form.value };
     if (this.isEditMode && this.studentId) payload.studentId = this.studentId;
-    
+
     if (this.parentMode === 'EXISTING' && this.selectedParentId) {
       payload.parentId = this.selectedParentId;
     }
-    
+
     if (!payload.parentPassword) delete payload.parentPassword;
 
     this.studentService.saveStudent(payload).subscribe({
@@ -282,7 +327,6 @@ export class StudentFormComponent implements OnInit {
         this.submitting = false;
         if (res.success) {
           this.successMessage = this.isEditMode ? 'Student updated successfully!' : 'Student added successfully!';
-          this.studentState.clear();
           this.cdr.markForCheck();
           setTimeout(() => this.router.navigate(['students', 'list']), 1200);
         } else {
@@ -299,7 +343,6 @@ export class StudentFormComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.studentState.clear();
     this.router.navigate(['students', 'list']);
   }
 

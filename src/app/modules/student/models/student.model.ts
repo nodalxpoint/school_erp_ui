@@ -12,6 +12,9 @@ export interface StudentResponseDto {
   sectionId?: string;
   sectionName?: string;    // ← backend se directly aata hai
   academicSessionId?: string;
+   guardianName?: string;   
+    guardianEmail?: string;       
+  attendance?: unknown; 
   rollNo?: string;
   fatherName?: string;
   motherName?: string;
@@ -50,6 +53,7 @@ export interface StudentFilterRequest {
   size: number;
   sortBy: string;
   sortDirection: 'ASC' | 'DESC';
+  id?: string; 
   firstName?: string;
   lastName?: string;
   admissionNo?: string;

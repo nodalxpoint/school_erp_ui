@@ -67,6 +67,23 @@ export class StudentService {
       })
     );
   }
+  // student.service.ts — StudentService class me add karo
+
+  
+/** Single student fetch by id — same /students/list endpoint reuse karke */
+getStudentById(id: string): Observable<StudentResponseDto | null> {
+  const req: StudentFilterRequest = {
+    page: 0,
+    size: 1,
+    sortBy: 'firstName',
+    sortDirection: 'ASC',
+    id,
+  };
+
+  return this.filterStudents(req).pipe(
+    map(res => (res.data && res.data.length > 0) ? res.data[0] : null)
+  );
+}
 
   /** classes dropdown */
   getClasses(search = ''): Observable<DropdownOption[]> {

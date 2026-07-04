@@ -1,5 +1,11 @@
-<div class="detail-page" *ngIf="student">
+<div class="loading-overlay" *ngIf="loading">
+  <div class="spinner"></div>
+  <span>Loading student details...</span>
+</div>
 
+<div class="alert-error" *ngIf="error && !loading">⚠ {{ error }}</div>
+
+<div class="detail-page" *ngIf="student && !loading">
   <div class="detail-header">
     <div class="breadcrumb">
       <span class="link" (click)="onBack()">Student Management</span>
@@ -144,14 +150,14 @@
       <div class="info-card-header">
         <div class="info-badge">03</div>
         <div>
-          <h3>Parent Portal Account Identity</h3>
+          <h3>Guardian Portal Account Identity</h3>
           <p>Secure authentication login metrics linked for parent access</p>
         </div>
       </div>
       <div class="info-body info-body-grid">
         <div class="info-row">
           <span class="info-label">Primary Guardian Name</span>
-          <span class="info-val fw">{{ student.parentFirstName }} {{ student.parentLastName }}</span>
+         <span class="info-val fw">{{ student.guardianName || '—' }}</span>
         </div>
         <div class="info-row">
           <span class="info-label">Registered Email</span>

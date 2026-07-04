@@ -142,15 +142,14 @@ export class StudentListComponent implements OnInit {
     this.router.navigate(['students', 'add']);
   }
 
-  onViewStudent(student: StudentResponseDto): void {
-    this.studentState.set(student);
-    this.router.navigate(['students', 'detail', student.id]);
-  }
+  // Edit Button Click
+onEditStudent(student: any) {
+  this.router.navigate(['/students/edit', student.id]); 
+}
 
-  onEditStudent(student: StudentResponseDto): void {
-    this.studentState.set(student);
-    this.router.navigate(['students', 'edit', student.id]);
-  }
+onViewStudent(student: any) {
+  this.router.navigate(['/students/detail', student.id]);
+}
 
   // ── Pagination helpers ─────────────────────────────────────────
 

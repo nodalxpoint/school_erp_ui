@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { StudentStateService } from '../../services/student.service';
+import { StudentService } from '../../services/student.service';
 import { StudentResponseDto } from '../../models/student.model';
 
 @Component({
@@ -15,29 +15,47 @@ import { StudentResponseDto } from '../../models/student.model';
 export class StudentDetailComponent implements OnInit {
   student: StudentResponseDto | null = null;
   studentId: string | null = null;
+  loading = false;
+  error = '';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private studentState: StudentStateService,
+    private studentService: StudentService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     this.studentId = this.route.snapshot.paramMap.get('id');
-    this.student = this.studentState.get();
 
-    if (!this.student) {
-      // State clear ho gayi (page refresh) — list pe wapas jaao
+    if (!this.studentId) {
       this.router.navigate(['students', 'list']);
       return;
     }
-    this.cdr.markForCheck();
+
+    this.loadStudent(this.studentId);
+  }
+
+  loadStudent(id: string): void {
+    this.loading = true;
+    this.error = '';
+    this.studentService.getStudentById(id).subscribe({
+      next: (data) => {
+        this.student = data;
+        this.loading = false;
+        if (!data) this.error = 'Student not found.';
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.loading = false;
+        this.error = 'Failed to load student details. Please try again.';
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   onEdit(): void {
     if (this.student) {
-      this.studentState.set(this.student);
       this.router.navigate(['students', 'edit', this.student.id]);
     }
   }
