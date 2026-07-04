@@ -19,8 +19,9 @@ export class FeeListComponent implements OnInit {
   loading = false;
 
   filters: FeeFilterRequest = {
-    page: 0, size: 10, sortBy: 'feeYear', sortDirection: 'DESC',
-    academicSessionId: '', classId: '', sectionId: '', paymentStatus: '', dueDateFrom: ''
+    page: 0, size: 10,
+    academicSessionId: '', classId: '', sectionId: '', paymentStatus: '',
+    feeMonth: undefined, feeYear: undefined
   };
 
   sessions: DropdownOption[] = [];
@@ -58,14 +59,19 @@ export class FeeListComponent implements OnInit {
   onSearch(): void {
     this.loading = true;
     const cleanPayload: any = {
-      page: this.filters.page, size: this.filters.size, sortBy: this.filters.sortBy, sortDirection: this.filters.sortDirection
+      page: this.filters.page, size: this.filters.size
     };
 
     if (this.filters.academicSessionId) cleanPayload.academicSessionId = this.filters.academicSessionId;
     if (this.filters.classId) cleanPayload.classId = this.filters.classId;
     if (this.filters.sectionId) cleanPayload.sectionId = this.filters.sectionId;
     if (this.filters.paymentStatus) cleanPayload.paymentStatus = this.filters.paymentStatus;
-    if (this.filters.dueDateFrom) cleanPayload.dueDateFrom = this.filters.dueDateFrom;
+    if (this.filters.feeMonth !== undefined && this.filters.feeMonth !== null && String(this.filters.feeMonth) !== '') {
+      cleanPayload.feeMonth = Number(this.filters.feeMonth);
+    }
+    if (this.filters.feeYear !== undefined && this.filters.feeYear !== null && String(this.filters.feeYear) !== '') {
+      cleanPayload.feeYear = Number(this.filters.feeYear);
+    }
 
     this.feeService.filterFees(cleanPayload).subscribe({
       next: (res: any) => {
@@ -79,8 +85,9 @@ export class FeeListComponent implements OnInit {
 
   clearAllFilters(): void {
     this.filters = {
-      page: 0, size: 10, sortBy: 'feeYear', sortDirection: 'DESC',
-      academicSessionId: '', classId: '', sectionId: '', paymentStatus: '', dueDateFrom: ''
+      page: 0, size: 10,
+      academicSessionId: '', classId: '', sectionId: '', paymentStatus: '',
+      feeMonth: undefined, feeYear: undefined
     };
     this.sections = []; 
     this.onSearch();

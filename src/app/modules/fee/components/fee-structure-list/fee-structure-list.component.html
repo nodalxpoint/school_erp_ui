@@ -88,7 +88,7 @@
             
             <td><strong class="currency-node">₹{{ s.amount | number:'1.2-2' }}</strong></td>
             <td>
-              <span class="freq-pill" [class]="'freq-' + s.frequency?.toLowerCase()">
+              <span class="freq-pill" [class]="'freq-' + s.frequency.toLowerCase()">
                 {{ frequencyLabel(s.frequency) }}
               </span>
             </td>

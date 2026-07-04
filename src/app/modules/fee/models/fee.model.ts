@@ -23,8 +23,8 @@ export interface StudentFeeResponseDto {
 export interface FeeFilterRequest {
   page: number;
   size: number;
-  sortBy: string;
-  sortDirection: 'ASC' | 'DESC';
+  sortBy?: string;
+  sortDirection?: 'ASC' | 'DESC';
   academicSessionId?: string;
   classId?: string;
   sectionId?: string;
