@@ -196,6 +196,51 @@ export class FeeListComponent implements OnInit {
     this.onSearch(true);
   }
 
+  exportToCsv(): void {
+    if (!this.fees || this.fees.length === 0) return;
+
+    const headers = [
+      'Student Name',
+      'Fee Structure',
+      'Month',
+      'Year',
+      'Total Amount',
+      'Paid Amount',
+      'Payment Status',
+      'Due Date',
+      'Paid At',
+      'Remarks'
+    ];
+
+    const rows = this.fees.map(f => [
+      f.studentName || '',
+      f.feeStructureName || '',
+      f.feeMonth != null ? f.feeMonth : '',
+      f.feeYear != null ? f.feeYear : '',
+      f.totalAmount != null ? f.totalAmount : '',
+      f.paidAmount != null ? f.paidAmount : '',
+      f.paymentStatus || '',
+      f.dueDate || '',
+      f.paidAt || '',
+      f.remarks || ''
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `fee_records_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   get pages(): number[] {
     const total = this.totalPages;
     const cur   = this.filters.page;

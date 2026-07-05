@@ -5,13 +5,23 @@
       <span>Fee Records</span>
       <span class="page-subtitle">Track and manage student fee payments</span>
     </div>
-    <button class="btn-action-primary" (click)="openFeeForm()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-      </svg>
-      <span>Create Fee Entry</span>
-    </button>
+    <div class="header-actions-group">
+      <button class="btn-action-secondary" (click)="exportToCsv()" [disabled]="fees.length === 0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Export CSV</span>
+      </button>
+      <button class="btn-action-primary" (click)="openFeeForm()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Create Fee Entry</span>
+      </button>
+    </div>
   </div>
 
   <div class="filters-card-stack">
