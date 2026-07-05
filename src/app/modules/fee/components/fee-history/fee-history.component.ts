@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { FeeService } from '../../services/fee.service';
-import { StudentFeeResponseDto } from '../../models/fee.model';
+import { MonthlyFeeStatusResponse, MonthFeeDetail } from '../../models/fee.model';
 
 interface DropdownOption {
   id: string;
@@ -21,18 +21,31 @@ interface DropdownOption {
 export class FeeHistoryComponent implements OnInit, OnDestroy {
   // Academic session dropdown
   academicSessions = signal<DropdownOption[]>([]);
-  selectedSessionId = ''; // ngModel two-way bind, plain is fine (UI-driven)
+  selectedSessionId = '';
 
   // Student search
   studentSearchControl = new FormControl('');
-  studentResults = signal<any[]>([]);
-  selectedStudent = signal<any>(null);
-  showStudentDropdown = signal(false);
+  studentResults       = signal<any[]>([]);
+  selectedStudent      = signal<any>(null);
+  showStudentDropdown  = signal(false);
 
-  // Fee history table
-  feeHistory = signal<StudentFeeResponseDto[]>([]);
-  loading = signal(false);
-  searched = signal(false);
+  // API response
+  monthlyStatus = signal<MonthlyFeeStatusResponse | null>(null);
+  loading       = signal(false);
+  searched      = signal(false);
+  errorMsg      = signal('');
+
+  // Computed summary helpers from months[]
+  months = computed<MonthFeeDetail[]>(() => this.monthlyStatus()?.months ?? []);
+
+  paidCount    = computed(() => this.months().filter(m => m.status === 'PAID').length);
+  pendingCount = computed(() => this.months().filter(m => m.status === 'PENDING').length);
+  totalPaid    = computed(() =>
+    this.months().filter(m => m.status === 'PAID').reduce((s, m) => s + (m.paidAmount ?? 0), 0)
+  );
+  totalPending = computed(() =>
+    this.months().filter(m => m.status === 'PENDING').reduce((s, m) => s + (m.totalAmount ?? 0), 0)
+  );
 
   private destroy$ = new Subject<void>();
 
@@ -69,6 +82,9 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
   loadAcademicSessions(): void {
     this.feeService.getParams('academic_sessions').subscribe(res => {
       this.academicSessions.set(res);
+      if (res.length > 0 && !this.selectedSessionId) {
+        this.selectedSessionId = res[0].id;
+      }
     });
   }
 
@@ -85,46 +101,36 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
     this.selectedStudent.set(null);
     this.studentSearchControl.setValue('', { emitEvent: false });
     this.studentResults.set([]);
+    this.monthlyStatus.set(null);
+    this.searched.set(false);
+    this.errorMsg.set('');
   }
 
-search(): void {
-  const student = this.selectedStudent();
-  if (!student) {
-    return;
+  search(): void {
+    const student = this.selectedStudent();
+    if (!student || !this.selectedSessionId) return;
+
+    this.loading.set(true);
+    this.searched.set(true);
+    this.errorMsg.set('');
+
+    // Service maps: outer { success, data: MonthlyFeeStatusResponse } → res = MonthlyFeeStatusResponse
+    this.feeService.getMonthlyFeeStatus(student.id, this.selectedSessionId)
+      .subscribe({
+        next: (res: any) => {
+          this.monthlyStatus.set(res as MonthlyFeeStatusResponse);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.monthlyStatus.set(null);
+          this.errorMsg.set('Failed to load fee records. Please try again.');
+          this.loading.set(false);
+        }
+      });
   }
-
-  this.loading.set(true);
-  this.searched.set(true);
-
-  this.feeService
-    .filterFees({
-      page: 0,
-      size: 100,
-      studentId: student.id,
-      academicSessionId: this.selectedSessionId || undefined
-    })
-    .subscribe({
-      next: (res: any) => {
-        const list = Array.isArray(res?.data?.data)
-          ? res.data.data
-          : Array.isArray(res?.data)
-            ? res.data
-            : Array.isArray(res)
-              ? res
-              : [];
-        this.feeHistory.set(list);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-      }
-    });
-}
 
   reset(): void {
-    this.selectedSessionId = '';
+    this.selectedSessionId = this.academicSessions()[0]?.id ?? '';
     this.clearStudent();
-    this.feeHistory.set([]);
-    this.searched.set(false);
   }
 }

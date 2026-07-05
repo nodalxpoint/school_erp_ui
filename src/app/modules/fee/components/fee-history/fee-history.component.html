@@ -1,18 +1,21 @@
 <div class="page-container">
   <div class="page-header">
     <h2 class="page-title">Student Fee History</h2>
+    <p class="page-subtitle">Search fee records by student and academic session</p>
   </div>
 
+  <!-- ── Filter Card ─────────────────────────────────── -->
   <div class="filter-card">
     <div class="filter-row">
+
+      <!-- Student Autocomplete -->
       <div class="form-group">
-        <label>Student</label>
+        <label>Student <span class="req">*</span></label>
         <div class="autocomplete-wrapper">
           <input
             type="text"
             [formControl]="studentSearchControl"
-            placeholder="Search student by name..."
-            (focus)="studentResults().length && showStudentDropdown.set(true)"
+            placeholder="Search by student name…"
           />
           <button
             *ngIf="selectedStudent()"
@@ -22,78 +25,139 @@
           >×</button>
 
           <ul *ngIf="showStudentDropdown()" class="autocomplete-list">
-            <li
-              *ngFor="let s of studentResults()"
-              (click)="selectStudent(s)"
-            >
-              {{ s.firstName }} {{ s.lastName }}
+            <li *ngFor="let s of studentResults()" (click)="selectStudent(s)">
+              <span class="student-name">{{ s.firstName }} {{ s.lastName }}</span>
+              <span class="student-meta" *ngIf="s.className">· {{ s.className }}</span>
             </li>
           </ul>
         </div>
       </div>
 
+      <!-- Academic Session -->
       <div class="form-group">
-        <label>Academic Session</label>
+        <label>Academic Session <span class="req">*</span></label>
         <select [(ngModel)]="selectedSessionId">
-          <option value="">All Sessions</option>
+          <option value="">Select Session</option>
           <option *ngFor="let session of academicSessions()" [value]="session.id">
             {{ session.label }}
           </option>
         </select>
       </div>
 
+      <!-- Actions -->
       <div class="form-actions">
         <button class="btn-outline" type="button" (click)="reset()">Reset</button>
         <button
           class="btn-primary"
           type="button"
-          [disabled]="!selectedStudent()"
+          [disabled]="!selectedStudent() || !selectedSessionId || loading()"
           (click)="search()"
         >
-          Search
+          <span *ngIf="loading()" class="spinner"></span>
+          {{ loading() ? 'Searching…' : 'Search' }}
         </button>
       </div>
+
     </div>
   </div>
 
-  <div class="table-wrapper" *ngIf="searched()">
-    <table class="premium-table">
-      <thead>
-        <tr>
-          <th>Fee Name</th>
-          <th>Month/Year</th>
-          <th>Amount</th>
-          <th>Paid Amount</th>
-          <th>Status</th>
-          <th>Due Date</th>
-          <th>Paid At</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let f of feeHistory(); let i = index" [class.odd-row]="i % 2 === 1">
-          <td>{{ f.feeStructureName }}</td>
-          <td>{{ f.feeMonth }}/{{ f.feeYear }}</td>
-          <td>₹{{ f.totalAmount }}</td>
-          <td>₹{{ f.paidAmount }}</td>
-          <td>
-            <span
-              class="badge"
-              [class.badge--paid]="f.paymentStatus === 'PAID'"
-              [class.badge--pending]="f.paymentStatus === 'PENDING'"
-              [class.badge--partial]="f.paymentStatus === 'PARTIAL'"
-              [class.badge--waived]="f.paymentStatus === 'WAIVED'"
-            >
-              {{ f.paymentStatus }}
-            </span>
-          </td>
-          <td>{{ f.dueDate ? (f.dueDate | date:'dd MMM yyyy') : '-' }}</td>
-          <td>{{ f.paidAt ? (f.paidAt | date:'dd MMM yyyy') : '-' }}</td>
-        </tr>
+  <!-- ── Error ───────────────────────────────────────── -->
+  <div class="alert-error" *ngIf="errorMsg()">
+    ⚠ {{ errorMsg() }}
+  </div>
 
-        <tr *ngIf="!loading() && feeHistory().length === 0">
-          <td colspan="7" class="empty-state">No fee records found</td>
-        </tr>
-      </tbody>
-    </table>
+  <ng-container *ngIf="searched() && !loading() && monthlyStatus()">
+
+    <!-- ── Student Info Banner ────────────────────────── -->
+    <div class="student-banner">
+      <div class="student-banner__item">
+        <span class="student-banner__label">Student</span>
+        <span class="student-banner__value">{{ monthlyStatus()!.studentName }}</span>
+      </div>
+      <div class="student-banner__divider"></div>
+      <div class="student-banner__item">
+        <span class="student-banner__label">Class</span>
+        <span class="student-banner__value">{{ monthlyStatus()!.className }}</span>
+      </div>
+      <div class="student-banner__divider"></div>
+      <div class="student-banner__item">
+        <span class="student-banner__label">Session</span>
+        <span class="student-banner__value">{{ monthlyStatus()!.sessionName }}</span>
+      </div>
+      <div class="student-banner__divider"></div>
+      <div class="student-banner__item">
+        <span class="student-banner__label">Monthly Fee</span>
+        <span class="student-banner__value amount">₹{{ monthlyStatus()!.monthlyFeeAmount | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <!-- ── Summary Cards ──────────────────────────────── -->
+    <div class="summary-row">
+      <div class="summary-card summary-card--blue">
+        <div class="summary-label">Total Months</div>
+        <div class="summary-value">{{ months().length }}</div>
+      </div>
+      <div class="summary-card summary-card--green">
+        <div class="summary-label">Paid</div>
+        <div class="summary-value">{{ paidCount() }}</div>
+        <div class="summary-sub">₹{{ totalPaid() | number }}</div>
+      </div>
+      <div class="summary-card summary-card--red">
+        <div class="summary-label">Pending</div>
+        <div class="summary-value">{{ pendingCount() }}</div>
+        <div class="summary-sub">₹{{ totalPending() | number }}</div>
+      </div>
+    </div>
+
+    <!-- ── Table ──────────────────────────────────────── -->
+    <div class="table-wrapper">
+      <table class="premium-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Month</th>
+            <th>Total Amount</th>
+            <th>Paid Amount</th>
+            <th>Balance</th>
+            <th>Status</th>
+            <th>Paid At</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of months(); let i = index" [class.odd-row]="i % 2 === 1">
+            <td class="row-num">{{ i + 1 }}</td>
+            <td class="month-name">{{ m.monthName }}</td>
+            <td class="amount">₹{{ m.totalAmount | number:'1.2-2' }}</td>
+            <td class="amount">₹{{ m.paidAmount | number:'1.2-2' }}</td>
+            <td class="amount" [class.balance-due]="(m.totalAmount - m.paidAmount) > 0">
+              ₹{{ (m.totalAmount - m.paidAmount) | number:'1.2-2' }}
+            </td>
+            <td>
+              <span
+                class="badge"
+                [class.badge--paid]="m.status === 'PAID'"
+                [class.badge--pending]="m.status === 'PENDING'"
+              >
+                {{ m.status }}
+              </span>
+            </td>
+            <td>{{ m.paidAt ? (m.paidAt | date:'dd MMM yyyy') : '—' }}</td>
+          </tr>
+
+          <tr *ngIf="months().length === 0">
+            <td colspan="7" class="empty-state">
+              <div class="empty-icon">📭</div>
+              No fee records found for this student and session.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </ng-container>
+
+  <!-- Loading skeletons -->
+  <div class="table-wrapper skeleton-wrapper" *ngIf="loading()">
+    <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
   </div>
 </div>

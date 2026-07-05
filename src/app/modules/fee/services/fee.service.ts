@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpService } from '../../../core/services/http.service';
-import { StudentFeeResponseDto, FeeFilterRequest, SaveFeeRequest, FeeStructureDto, FeeStructureFilterRequest, SaveFeeStructureRequest } from '../models/fee.model';
+import { StudentFeeResponseDto, FeeFilterRequest, SaveFeeRequest, FeeStructureDto, FeeStructureFilterRequest, SaveFeeStructureRequest, MonthlyStatusRequest, MonthlyFeeStatusResponse } from '../models/fee.model';
 import { PagedResponse, ApiResponse, DropdownOption, ParamListRequest } from '../../student/models/student.model';
 
 @Injectable({ providedIn: 'root' })
@@ -66,5 +66,12 @@ export class FeeService {
   /** Add or Update Fee Structure */
   saveFeeStructure(req: SaveFeeStructureRequest): Observable<ApiResponse<string>> {
     return this.http.post<ApiResponse<string>>('/feeStructures/addOrUpdate', req);
+  }
+
+  /** Get Monthly Fee Status for a student in an academic session */
+  getMonthlyFeeStatus(studentId: string, academicSessionId: string): Observable<MonthlyFeeStatusResponse> {
+    const req: MonthlyStatusRequest = { studentId, academicSessionId };
+    return this.http.post<any>(`${this.BASE}/monthlyStatus`, req)
+      .pipe(map(res => res?.data ?? res));
   }
 }

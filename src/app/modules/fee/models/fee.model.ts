@@ -75,3 +75,31 @@ export interface SaveFeeStructureRequest {
   frequency: 'MONTHLY' | 'QUARTERLY' | 'ANNUALLY' | 'ONE_TIME';
   dueDate?: string | null; 
 }
+
+// ── Monthly Fee Status Models ─────────────────────────────────
+export interface MonthlyStatusRequest {
+  studentId: string;
+  academicSessionId: string;
+}
+
+export interface MonthFeeDetail {
+  feeMonth: number;
+  feeYear: number;
+  monthName: string;
+  status: 'PAID' | 'PENDING';
+  totalAmount: number;
+  paidAmount: number;
+  paidAt: string | null;
+  feeRecordId: string | null;
+}
+
+export interface MonthlyFeeStatusResponse {
+  studentId: string;
+  studentName: string;
+  academicSessionId: string;
+  sessionName: string;
+  classId: string;
+  className: string;
+  monthlyFeeAmount: number;
+  months: MonthFeeDetail[];
+}
