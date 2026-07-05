@@ -33,6 +33,7 @@ export interface FeeFilterRequest {
   dueDateTo?: string;
   feeMonth?: number;
   feeYear?: number;
+  studentId?: string;
 }
 
 export interface SaveFeeRequest {

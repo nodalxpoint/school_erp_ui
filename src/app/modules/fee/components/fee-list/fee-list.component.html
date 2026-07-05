@@ -16,17 +16,46 @@
 
   <div class="filters-card-stack">
     <div class="filter-grid">
-      <div class="select-group">
-        <label class="filter-label">Session</label>
-        <select class="premium-input select-native" [(ngModel)]="filters.academicSessionId">
-          <option value="">Select Session</option>
-          <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
-        </select>
+      <div class="filter-column-wrapper">
+        <div class="select-group">
+          <label class="filter-label">Session</label>
+          <select class="premium-input select-native" [(ngModel)]="filters.academicSessionId">
+            <option value="">Select Session</option>
+            <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
+          </select>
+        </div>
+
+        <div class="select-group student-search-group" style="position: relative;">
+          <label class="filter-label">Student Search</label>
+          <div class="search-input-wrapper" style="position: relative; display: flex; align-items: center;">
+            <input type="text"
+                   class="premium-input text-input"
+                   placeholder="Search student..."
+                   [(ngModel)]="studentSearchQuery"
+                   (input)="onStudentSearchInput()"
+                   (blur)="onStudentBlur()"
+                   [disabled]="!!filters.classId">
+            <button class="clear-search-btn"
+                    *ngIf="selectedStudent || studentSearchQuery"
+                    (click)="clearSelectedStudent()">
+              ×
+            </button>
+          </div>
+          
+          <div class="student-suggestions-box" *ngIf="showSuggestions && dynamicStudentsList.length > 0">
+            <div class="suggestion-row-item"
+                 *ngFor="let student of dynamicStudentsList"
+                 (click)="selectStudent(student)">
+              <span class="st-name">{{ student.firstName }} {{ student.lastName }}</span>
+              <span class="st-meta">Class {{ student.className }} ({{ student.sectionName }}) · {{ student.admissionNo }}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="select-group">
         <label class="filter-label">Class</label>
-        <select class="premium-input select-native" [(ngModel)]="filters.classId" (change)="onClassChange()">
+        <select class="premium-input select-native" [(ngModel)]="filters.classId" (change)="onClassChange()" [disabled]="!!selectedStudent">
           <option value="">Select Class</option>
           <option *ngFor="let c of classes" [value]="c.id">{{c.label}}</option>
         </select>
@@ -34,7 +63,7 @@
 
       <div class="select-group">
         <label class="filter-label">Section</label>
-        <select class="premium-input select-native" [(ngModel)]="filters.sectionId" [disabled]="!filters.classId">
+        <select class="premium-input select-native" [(ngModel)]="filters.sectionId" [disabled]="!filters.classId || !!selectedStudent">
           <option value="">Select Section</option>
           <option *ngFor="let s of sections" [value]="s.id">{{s.label}}</option>
         </select>
@@ -42,7 +71,7 @@
 
       <div class="select-group">
         <label class="filter-label">Status</label>
-        <select class="premium-input select-native" [(ngModel)]="filters.paymentStatus">
+        <select class="premium-input select-native" [(ngModel)]="filters.paymentStatus" [disabled]="!!selectedStudent">
           <option value="">Status</option>
           <option value="PAID">PAID</option>
           <option value="PENDING">PENDING</option>
@@ -147,6 +176,17 @@
         </table>
       </div>
 
+    </div>
+  </div>
+
+  <div class="pagination" *ngIf="totalPages > 1 && !loading">
+    <div class="dummy-space"></div>
+    <div class="page-btns">
+      <button class="page-btn" (click)="goToPage(0)" [disabled]="filters.page === 0">«</button>
+      <button class="page-btn" (click)="goToPage(filters.page - 1)" [disabled]="filters.page === 0">‹</button>
+      <button *ngFor="let p of pages" class="page-btn" [class.active]="p === filters.page" (click)="goToPage(p)">{{ p + 1 }}</button>
+      <button class="page-btn" (click)="goToPage(filters.page + 1)" [disabled]="filters.page >= totalPages - 1">›</button>
+      <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="filters.page >= totalPages - 1">»</button>
     </div>
   </div>
 

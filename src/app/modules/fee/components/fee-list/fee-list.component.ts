@@ -28,6 +28,12 @@ export class FeeListComponent implements OnInit {
   classes: DropdownOption[] = [];
   sections: DropdownOption[] = [];
 
+  studentSearchQuery = '';
+  selectedStudent: any = null;
+  dynamicStudentsList: any[] = [];
+  showSuggestions = false;
+  totalPages = 0;
+
   constructor(
     private feeService: FeeService, 
     private router: Router, 
@@ -37,12 +43,62 @@ export class FeeListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDropdowns();
-    this.onSearch();
   }
 
   loadDropdowns(): void {
-    this.feeService.getParams('academic_sessions').subscribe(data => { this.sessions = data; this.cdr.markForCheck(); });
+    this.feeService.getParams('academic_sessions').subscribe(data => {
+      this.sessions = data;
+      if (this.sessions && this.sessions.length > 0) {
+        this.filters.academicSessionId = this.sessions[0].id;
+      }
+      this.onSearch(true);
+      this.cdr.markForCheck();
+    });
     this.feeService.getParams('classes').subscribe(data => { this.classes = data; this.cdr.markForCheck(); });
+  }
+
+  onStudentSearchInput(): void {
+    const term = this.studentSearchQuery ? this.studentSearchQuery.trim() : '';
+    if (term.length >= 2) {
+      this.feeService.getStudentsList(term).subscribe(res => {
+        this.dynamicStudentsList = res;
+        this.showSuggestions = true;
+        this.cdr.markForCheck();
+      });
+    } else {
+      this.dynamicStudentsList = [];
+      this.showSuggestions = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  selectStudent(student: any): void {
+    this.selectedStudent = student;
+    this.studentSearchQuery = `${student.firstName} ${student.lastName}`;
+    this.showSuggestions = false;
+
+    // Clear class, section and status since we are filtering by specific student
+    this.filters.classId = '';
+    this.filters.sectionId = '';
+    this.filters.paymentStatus = '';
+    this.sections = [];
+
+    this.cdr.markForCheck();
+  }
+
+  clearSelectedStudent(): void {
+    this.selectedStudent = null;
+    this.studentSearchQuery = '';
+    this.dynamicStudentsList = [];
+    this.showSuggestions = false;
+    this.cdr.markForCheck();
+  }
+
+  onStudentBlur(): void {
+    setTimeout(() => {
+      this.showSuggestions = false;
+      this.cdr.markForCheck();
+    }, 200);
   }
 
   onClassChange(): void {
@@ -56,16 +112,26 @@ export class FeeListComponent implements OnInit {
     }
   }
 
-  onSearch(): void {
+  onSearch(resetPage = false): void {
+    if (resetPage) {
+      this.filters.page = 0;
+    }
     this.loading = true;
     const cleanPayload: any = {
       page: this.filters.page, size: this.filters.size
     };
 
     if (this.filters.academicSessionId) cleanPayload.academicSessionId = this.filters.academicSessionId;
-    if (this.filters.classId) cleanPayload.classId = this.filters.classId;
-    if (this.filters.sectionId) cleanPayload.sectionId = this.filters.sectionId;
-    if (this.filters.paymentStatus) cleanPayload.paymentStatus = this.filters.paymentStatus;
+
+    if (this.selectedStudent) {
+      cleanPayload.studentId = this.selectedStudent.id;
+      cleanPayload.classId = this.selectedStudent.classId; // Pass classId under the hood for backend fee structure query
+    } else {
+      if (this.filters.classId) cleanPayload.classId = this.filters.classId;
+      if (this.filters.sectionId) cleanPayload.sectionId = this.filters.sectionId;
+      if (this.filters.paymentStatus) cleanPayload.paymentStatus = this.filters.paymentStatus;
+    }
+
     if (this.filters.feeMonth !== undefined && this.filters.feeMonth !== null && String(this.filters.feeMonth) !== '') {
       cleanPayload.feeMonth = Number(this.filters.feeMonth);
     }
@@ -76,21 +142,33 @@ export class FeeListComponent implements OnInit {
     this.feeService.filterFees(cleanPayload).subscribe({
       next: (res: any) => {
         this.fees = res.data?.data ?? []; 
+        this.totalPages = res.data?.totalPages ?? 0;
         this.loading = false;
         this.cdr.markForCheck();
       },
-      error: () => { this.loading = false; this.cdr.markForCheck(); }
+      error: () => { 
+        this.fees = [];
+        this.totalPages = 0;
+        this.loading = false; 
+        this.cdr.markForCheck(); 
+      }
     });
   }
 
   clearAllFilters(): void {
     this.filters = {
       page: 0, size: 10,
-      academicSessionId: '', classId: '', sectionId: '', paymentStatus: '',
+      academicSessionId: this.sessions && this.sessions.length > 0 ? this.sessions[0].id : '',
+      classId: '', sectionId: '', paymentStatus: '',
       feeMonth: undefined, feeYear: undefined
     };
+    this.selectedStudent = null;
+    this.studentSearchQuery = '';
+    this.dynamicStudentsList = [];
+    this.showSuggestions = false;
     this.sections = []; 
-    this.onSearch();
+    this.totalPages = 0;
+    this.onSearch(true);
   }
 
   // ── FIXED: Proper relative link matrix redirection ──
@@ -105,5 +183,23 @@ export class FeeListComponent implements OnInit {
       // Relative link calculation targeting: fee/add safely
       this.router.navigate(['../add'], { relativeTo: this.route });
     }
+  }
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= this.totalPages) return;
+    this.filters.page = page;
+    this.onSearch();
+  }
+
+  get pages(): number[] {
+    const total = this.totalPages;
+    const cur   = this.filters.page;
+    let start   = Math.max(0, cur - 2);
+    let end     = Math.min(total - 1, cur + 2);
+    if (end - start < 4) {
+      if (start === 0) end = Math.min(total - 1, 4);
+      else             start = Math.max(0, end - 4);
+    }
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 }

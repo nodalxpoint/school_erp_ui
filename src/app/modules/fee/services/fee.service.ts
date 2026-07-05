@@ -44,21 +44,17 @@ export class FeeService {
 
   /** Fetch Student Array Matrix dynamically matching search token criteria */
   getStudentsList(searchName: string = ''): Observable<any[]> {
-    const payload = {
+    const payload: any = {
       page: 0,
       size: 30,
       sortBy: 'firstName',
       sortDirection: 'ASC'
     };
+    if (searchName) {
+      payload.firstName = searchName;
+    }
     return this.http.post<any>('/students/list', payload).pipe(
-      map(res => {
-        const list = res?.data ?? [];
-        if (!searchName) return list;
-        return list.filter((s: any) => 
-          `${s.firstName} ${s.lastName}`.toLowerCase().includes(searchName.toLowerCase()) ||
-          (s.admissionNo && s.admissionNo.toLowerCase().includes(searchName.toLowerCase()))
-        );
-      })
+      map(res => res?.data ?? [])
     );
   }
 

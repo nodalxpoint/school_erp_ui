@@ -92,6 +92,80 @@
       cursor: pointer;
     }
 
+    input.premium-input.text-input {
+      cursor: text;
+    }
+
+    .filter-column-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .clear-search-btn {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      height: 100%;
+      padding: 0;
+      &:hover {
+        color: var(--danger);
+      }
+    }
+
+    .student-suggestions-box {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border: 1px solid var(--border-dark);
+      border-radius: 8px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      z-index: 500;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 4px;
+
+      .suggestion-row-item {
+        padding: 10px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        cursor: pointer;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        &:hover {
+          background: var(--primary-light);
+        }
+
+        .st-name {
+          font-size: 13px;
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+        .st-meta {
+          font-size: 11px;
+          color: var(--text-muted);
+          font-weight: 500;
+        }
+      }
+    }
+
     .filter-actions-group {
       display: flex;
       gap: 10px;
@@ -193,6 +267,48 @@
       .btn-secondary-link { background: transparent; border: none; color: var(--text-muted); font-size: 14px; font-weight: 600; padding: 10px 16px; cursor: pointer; }
     }
   }
+
+  // Pagination styling
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    margin-top: 16px;
+  }
+  .page-btns {
+    display: flex;
+    gap: 6px;
+  }
+  .page-btn {
+    min-width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    background: #ffffff;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    &:hover:not(:disabled):not(.active) {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+    &.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+  }
 }
 
 :host ::ng-deep {
@@ -208,6 +324,7 @@
     max-width: 1280px; margin: 0 auto; padding: 32px;
     .filters-card-stack .filter-grid {
       flex-direction: row; align-items: flex-end;
+      .filter-column-wrapper { flex: 1.2; }
       .select-group { flex: 1; }
       .filter-actions-group { flex: 1.5; align-items: stretch; .btn-primary-trigger, .btn-secondary-clear { padding: 11px 16px; } }
     }
