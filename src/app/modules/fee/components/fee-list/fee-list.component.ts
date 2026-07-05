@@ -191,6 +191,11 @@ export class FeeListComponent implements OnInit {
     this.onSearch();
   }
 
+  onPageSizeChange(): void {
+    this.filters.size = Number(this.filters.size);
+    this.onSearch(true);
+  }
+
   get pages(): number[] {
     const total = this.totalPages;
     const cur   = this.filters.page;

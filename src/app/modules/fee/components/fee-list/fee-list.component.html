@@ -179,9 +179,16 @@
     </div>
   </div>
 
-  <div class="pagination" *ngIf="totalPages > 1 && !loading">
-    <div class="dummy-space"></div>
-    <div class="page-btns">
+  <div class="pagination" *ngIf="!loading && fees.length > 0">
+    <div class="page-size-selector">
+      <span class="page-size-label">Rows per page:</span>
+      <select class="page-size-select" [(ngModel)]="filters.size" (change)="onPageSizeChange()">
+        <option [value]="10">10</option>
+        <option [value]="50">50</option>
+        <option [value]="100">100</option>
+      </select>
+    </div>
+    <div class="page-btns" *ngIf="totalPages > 1">
       <button class="page-btn" (click)="goToPage(0)" [disabled]="filters.page === 0">«</button>
       <button class="page-btn" (click)="goToPage(filters.page - 1)" [disabled]="filters.page === 0">‹</button>
       <button *ngFor="let p of pages" class="page-btn" [class.active]="p === filters.page" (click)="goToPage(p)">{{ p + 1 }}</button>
