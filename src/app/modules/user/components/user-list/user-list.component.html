@@ -1,0 +1,31 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2 class="page-title">Users</h2>
+    <button class="btn-primary" (click)="openForm()">+ Create User</button>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="premium-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of users(); let i = index" [class.odd-row]="i % 2 === 1">
+          <td>{{ u.firstName }} {{ u.lastName }}</td>
+          <td><span class="badge">{{ u.role }}</span></td>
+          <td>
+            <button class="btn-outline" (click)="edit(u)">Edit</button>
+          </td>
+        </tr>
+
+        <tr *ngIf="!loading() && users().length === 0">
+          <td colspan="3" class="empty-state">No users found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -34,6 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Class Timetable',     href: '/parent/timetable',  icon: 'calendar-days',  roles: ['PARENT'] },
   
   { label: 'Fees',              href: '/fees',              icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT', 'PARENT'] },
+  { label: 'Users',             href: '/users',             icon: 'users',            roles: ['SUPER_ADMIN'] },
   { label: 'Reports',           href: '/reports',           icon: 'bar-chart-3',      roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Settings',          href: '/settings',          icon: 'settings',         roles: 'all' },
 ];

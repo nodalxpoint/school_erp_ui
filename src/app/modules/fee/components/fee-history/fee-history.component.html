@@ -1,0 +1,99 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2 class="page-title">Student Fee History</h2>
+  </div>
+
+  <div class="filter-card">
+    <div class="filter-row">
+      <div class="form-group">
+        <label>Student</label>
+        <div class="autocomplete-wrapper">
+          <input
+            type="text"
+            [formControl]="studentSearchControl"
+            placeholder="Search student by name..."
+            (focus)="studentResults().length && showStudentDropdown.set(true)"
+          />
+          <button
+            *ngIf="selectedStudent()"
+            type="button"
+            class="clear-btn"
+            (click)="clearStudent()"
+          >×</button>
+
+          <ul *ngIf="showStudentDropdown()" class="autocomplete-list">
+            <li
+              *ngFor="let s of studentResults()"
+              (click)="selectStudent(s)"
+            >
+              {{ s.firstName }} {{ s.lastName }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Academic Session</label>
+        <select [(ngModel)]="selectedSessionId">
+          <option value="">All Sessions</option>
+          <option *ngFor="let session of academicSessions()" [value]="session.id">
+            {{ session.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-outline" type="button" (click)="reset()">Reset</button>
+        <button
+          class="btn-primary"
+          type="button"
+          [disabled]="!selectedStudent()"
+          (click)="search()"
+        >
+          Search
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-wrapper" *ngIf="searched()">
+    <table class="premium-table">
+      <thead>
+        <tr>
+          <th>Fee Name</th>
+          <th>Month/Year</th>
+          <th>Amount</th>
+          <th>Paid Amount</th>
+          <th>Status</th>
+          <th>Due Date</th>
+          <th>Paid At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let f of feeHistory(); let i = index" [class.odd-row]="i % 2 === 1">
+          <td>{{ f.feeStructureName }}</td>
+          <td>{{ f.feeMonth }}/{{ f.feeYear }}</td>
+          <td>₹{{ f.totalAmount }}</td>
+          <td>₹{{ f.paidAmount }}</td>
+          <td>
+            <span
+              class="badge"
+              [class.badge--paid]="f.paymentStatus === 'PAID'"
+              [class.badge--pending]="f.paymentStatus === 'PENDING'"
+              [class.badge--partial]="f.paymentStatus === 'PARTIAL'"
+              [class.badge--waived]="f.paymentStatus === 'WAIVED'"
+            >
+              {{ f.paymentStatus }}
+            </span>
+          </td>
+          <td>{{ f.dueDate ? (f.dueDate | date:'dd MMM yyyy') : '-' }}</td>
+          <td>{{ f.paidAt ? (f.paidAt | date:'dd MMM yyyy') : '-' }}</td>
+        </tr>
+
+        <tr *ngIf="!loading() && feeHistory().length === 0">
+          <td colspan="7" class="empty-state">No fee records found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

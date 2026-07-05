@@ -1,0 +1,133 @@
+:host {
+  --primary:        #2b6cb0;
+  --primary-light:  #ebf4ff;
+  --primary-hover:  #2c5282;
+  --primary-border: #bee3f8;
+  --border:         #e2e8f0;
+  --border-dark:    #cbd5e0;
+  --bg-white:       #ffffff;
+  --bg-row-odd:     #f7fafc;
+  --bg-header:      #2b6cb0;
+  --text-primary:   #2d3748;
+  --text-muted:     #718096;
+  --text-hint:      #a0aec0;
+  --teal:           #2c7a7b;
+  --teal-light:     #e6fffa;
+  --teal-border:    #81e6d9;
+  --danger:         #e53e3e;
+  --danger-light:   #fff5f5;
+}
+
+.page-container {
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: var(--primary-hover);
+  }
+}
+
+.btn-outline {
+  background: var(--bg-white);
+  color: var(--primary);
+  border: 1px solid var(--primary-border);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+  }
+}
+
+.table-wrapper {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.premium-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background: var(--bg-header);
+
+    th {
+      color: #fff;
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid var(--border);
+
+      &.odd-row {
+        background: var(--bg-row-odd);
+      }
+
+      &:hover {
+        background: var(--primary-light);
+      }
+    }
+
+    td {
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+  }
+}
+
+.badge {
+  display: inline-block;
+  background: var(--teal-light);
+  color: var(--teal);
+  border: 1px solid var(--teal-border);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-hint);
+  padding: 24px;
+}

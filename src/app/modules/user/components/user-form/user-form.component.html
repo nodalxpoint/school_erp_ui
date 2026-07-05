@@ -1,0 +1,50 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2 class="page-title">{{ isEditMode ? 'Edit User' : 'Create User' }}</h2>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="save()" class="form-card">
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name</label>
+        <input formControlName="adminFirstName" placeholder="First Name">
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input formControlName="adminLastName" placeholder="Last Name">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Email</label>
+        <input formControlName="adminEmail" placeholder="Email">
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input formControlName="adminPhone" placeholder="Phone">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Password {{ isEditMode ? '(leave blank to keep unchanged)' : '' }}</label>
+        <input type="password" formControlName="adminPassword" placeholder="Password">
+      </div>
+      <div class="form-group">
+        <label>Role</label>
+        <select formControlName="role">
+          <option value="ACCOUNTANT">ACCOUNTANT</option>
+          <option value="SCHOOL_ADMIN">SCHOOL_ADMIN</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-outline" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn-primary" [disabled]="saving">
+        {{ saving ? 'Saving...' : 'Save User' }}
+      </button>
+    </div>
+  </form>
+</div>
