@@ -98,7 +98,7 @@ export class StudentFormComponent implements OnInit {
     this.form = this.fb.group({
       firstName:         ['', [Validators.required, Validators.minLength(2)]],
       lastName:          ['', [Validators.required, Validators.minLength(2)]],
-      gender:            ['', Validators.required],
+      gender:            ['MALE', Validators.required],
       dob:               ['', Validators.required],
       admissionDate:     ['', Validators.required],
       rollNo:            ['', Validators.required],
@@ -277,7 +277,7 @@ private patchEditData(): void {
   this.form.patchValue({
     firstName:         student.firstName,
     lastName:          student.lastName,
-    gender:            student.gender ?? '',
+    gender:            student.gender ?? 'MALE',
     dob:               formattedDob,
     admissionDate:     formattedAdmissionDate,
     rollNo:            student.rollNo ?? '',

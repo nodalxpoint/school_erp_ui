@@ -35,7 +35,7 @@
           <th class="col-no">No</th>
           <th class="col-name">Student Name</th>
           <th class="col-admission">Admission No</th>
-          <th class="col-gender">Gender</th>
+          <!-- <th class="col-gender">Gender</th> -->
           <th class="col-class">Class</th>
           <th class="col-section">Section</th>
           <th class="col-dob">Date of Birth</th>
@@ -52,14 +52,14 @@
             <input class="col-filter" type="text" placeholder="Admission No..."
               [(ngModel)]="searchAdmissionNo" (input)="onSearch()" />
           </td>
-          <td class="col-gender">
+          <!-- <td class="col-gender">
             <select class="col-filter select-arrow" (change)="onSearch()">
               <option value="">All</option>
               <option value="MALE">Male</option>
               <option value="FEMALE">Female</option>
               <option value="OTHER">Other</option>
             </select>
-          </td>
+          </td> -->
           <td class="col-class">
             <select class="col-filter select-arrow" [(ngModel)]="selectedClassId"
               (change)="onClassFilterChange()" [disabled]="loadingClasses">
@@ -98,12 +98,12 @@
             <td class="col-admission">
               <span class="badge-blue">{{ student.admissionNo }}</span>
             </td>
-            <td class="col-gender">
+            <!-- <td class="col-gender">
               <span class="badge-gender" [class.male]="student.gender==='MALE'"
                 [class.female]="student.gender==='FEMALE'" [class.other]="student.gender==='OTHER'">
                 {{ student.gender === 'MALE' ? 'Male' : student.gender === 'FEMALE' ? 'Female' : student.gender || '—' }}
               </span>
-            </td>
+            </td> -->
             <td class="col-class fw-500">{{ student.className || '—' }}</td>
             <td class="col-section">
               <span class="section-chip" *ngIf="student.sectionName">{{ student.sectionName }}</span>
@@ -132,7 +132,7 @@
         </ng-container>
 
         <tr *ngIf="!loading && students.length === 0" class="empty-row">
-          <td colspan="8">
+          <td colspan="7">
             <div class="empty-state" *ngIf="hasActiveFilters()">
               <div class="empty-icon">🔍</div>
               <p class="empty-title">No students match your filters</p>
@@ -150,7 +150,7 @@
 
       <tfoot *ngIf="totalElements > 0 && !loading">
         <tr class="footer-row">
-          <td colspan="8">
+          <td colspan="7">
             <div class="table-footer-summary">
               Showing <strong>{{ startIndex }}</strong> to <strong>{{ endIndex }}</strong> of <strong>{{ totalElements }}</strong> active students listed
             </div>

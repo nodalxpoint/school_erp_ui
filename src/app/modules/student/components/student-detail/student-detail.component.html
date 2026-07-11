@@ -41,12 +41,12 @@
         <h2>{{ student.firstName }} {{ student.lastName }}</h2>
         <p class="admission-no">Admission No: <strong>{{ student.admissionNo }}</strong></p>
         <div class="profile-badges">
-          <span class="badge-gender-banner"
+          <!-- <span class="badge-gender-banner"
             [class.male]="student.gender==='MALE'"
             [class.female]="student.gender==='FEMALE'"
             [class.other]="student.gender==='OTHER'">
             {{ formatGender(student.gender) }}
-          </span>
+          </span> -->
           <span class="badge-class" *ngIf="student.className">
             {{ student.className }}
             <span *ngIf="student.sectionName"> – Sec {{ student.sectionName }}</span>
@@ -108,7 +108,7 @@
           <span class="info-label">Date of Birth (DOB)</span>
           <span class="info-val text-muted">{{ formatDate(student.dob) }}</span>
         </div>
-        <div class="info-row">
+        <!-- <div class="info-row">
           <span class="info-label">Biological Gender</span>
           <span class="info-val">
             <span class="badge-inline-gender" 
@@ -118,7 +118,7 @@
               {{ formatGender(student.gender) }}
             </span>
           </span>
-        </div>
+        </div> -->
       </div>
     </div>
 
