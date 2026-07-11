@@ -27,6 +27,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Exams Module',      href: '/exams',             icon: 'exam-sheet',        roles: ['SUPER_ADMIN', 'ADMIN'] }, 
   { label: 'Exam-Marks',        href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
   { label: 'Attendance',        href: '/attendance',        icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
+  { label: 'Student Progression', href: '/students/progression', icon: 'graduation-cap', roles: ['TEACHER'] },
+
 
   // ✅ PARENT LINKS ENCODED SAFELY MATCHING BACKEND ROLE SPEC
   { label: 'Children Attendance', href: '/parent/attendance', icon: 'calendar-check', roles: ['PARENT'] },

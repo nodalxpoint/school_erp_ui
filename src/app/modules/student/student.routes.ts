@@ -3,6 +3,7 @@ import { StudentManagementComponent } from './pages/student-management/student-m
 import { StudentListComponent } from './components/student-list/student-list.component';
 import { StudentFormComponent } from './components/student-form/student-form.component';
 import { StudentDetailComponent } from './components/student-detail/student-detail.component';
+import { StudentProgressionComponent } from './components/student-progression/student-progression.component';
 
 export const STUDENT_ROUTES: Routes = [
   {
@@ -14,6 +15,8 @@ export const STUDENT_ROUTES: Routes = [
       { path: 'add',        component: StudentFormComponent },
       { path: 'edit/:id',   component: StudentFormComponent },
       { path: 'detail/:id', component: StudentDetailComponent },
+      { path: 'progression', component: StudentProgressionComponent },
     ],
   },
 ];
+

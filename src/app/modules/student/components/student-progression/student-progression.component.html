@@ -1,0 +1,129 @@
+<div class="progression-container">
+
+  <!-- Live Date-Time Header Strip -->
+  <div class="live-clock-banner">
+    <div class="clock-left">
+      <div class="clock-icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="clock-text-block">
+        <span class="clock-label">Current Date &amp; Time</span>
+        <span class="clock-value">{{ currentDateTime }}</span>
+      </div>
+    </div>
+    <div class="clock-right">
+      <div class="clock-live-dot"></div>
+      <span class="clock-live-text">Live</span>
+    </div>
+  </div>
+
+  <!-- Toast message alerts -->
+  <div class="custom-toast" *ngIf="toast" [ngClass]="'custom-toast--' + toast.type">
+    <div class="toast-icon-wrap">
+      <svg *ngIf="toast.type === 'success'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <svg *ngIf="toast.type === 'error'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </div>
+    <span class="toast-message-text">{{ toast.message }}</span>
+  </div>
+
+  <!-- Main Config filter strip -->
+  <div class="filter-card">
+    <div class="filter-header-bar">
+      <h3>Manage Student Academic Progression</h3>
+      <p>Select target academic session to evaluate and promote students of your allocated class.</p>
+    </div>
+
+    <div class="filter-body-grid">
+      <div class="form-input-box">
+        <label>Target Academic Session *</label>
+        <select [(ngModel)]="selectedSessionId" (change)="loadStudentList()" class="ctrl-select">
+          <option value="">Select Session</option>
+          <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
+        </select>
+      </div>
+
+      <div class="class-info-box" *ngIf="isTeacherClassAllocated">
+        <span class="info-label">Your Allocated Class &amp; Section</span>
+        <span class="info-value">{{ myClassName }} — {{ mySectionName }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student Grid Sheet -->
+  <div class="sheet-card" *ngIf="studentRows.length > 0 || isLoading">
+    
+    <div class="sheet-action-header" *ngIf="studentRows.length > 0">
+      <div class="label-info">
+        <h4>Promotions &amp; Retentions Register</h4>
+        <span class="d-block text-muted-sub">Mark status PASS (Promoted) or FAIL (Detained), select their destination Class/Section, and write remarks.</span>
+      </div>
+    </div>
+
+    <div class="skeleton-layer" *ngIf="isLoading">
+      <div class="sk-row-item" *ngFor="let item of [1,2,3,4]"></div>
+    </div>
+
+    <table class="progression-table" *ngIf="!isLoading && studentRows.length > 0">
+      <thead>
+        <tr>
+          <th width="120px">Roll No.</th>
+          <th>Student Full Name</th>
+          <th width="180px" class="txt-center">Status</th>
+          <th width="200px">Target Class</th>
+          <th width="180px">Target Section</th>
+          <th>Evaluation Notes / Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of studentRows" class="data-row-item">
+          <td><code class="roll-code">{{ r.rollNo }}</code></td>
+          <td>
+            <span class="stu-fullName">{{ r.firstName }} {{ r.lastName }}</span>
+          </td>
+          <td class="txt-center">
+            <div class="status-toggle-group">
+              <button type="button" class="toggle-choice pass-btn" 
+                      [class.choice--active]="r.status === 'PASS'" 
+                      (click)="r.status = 'PASS'">PASS</button>
+              <button type="button" class="toggle-choice fail-btn" 
+                      [class.choice--active]="r.status === 'FAIL'" 
+                      (click)="r.status = 'FAIL'">FAIL</button>
+            </div>
+          </td>
+          <td>
+            <select [(ngModel)]="r.classId" (change)="onRowClassChange(r)" class="row-select">
+              <option value="">Select Class</option>
+              <option *ngFor="let c of classesList" [value]="c.id">{{ c.label }}</option>
+            </select>
+          </td>
+          <td>
+            <select [(ngModel)]="r.sectionId" [disabled]="!r.classId || r.isSectionLoading" class="row-select">
+              <option value="">{{ r.isSectionLoading ? 'Loading...' : 'Select Section' }}</option>
+              <option *ngFor="let s of r.sectionsList" [value]="s.id">{{ s.label }}</option>
+            </select>
+          </td>
+          <td>
+            <input type="text" [(ngModel)]="r.remarks" 
+                   placeholder="e.g. Promoted to Grade 6" 
+                   class="remarks-ctrl-input" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sheet-submit-footer" *ngIf="!isLoading && studentRows.length > 0">
+      <button class="btn-save-progression" 
+              (click)="onSaveProgression()" 
+              [disabled]="isSaving">
+        {{ isSaving ? 'Saving progression logs...' : 'Save & Submit Progression' }}
+      </button>
+    </div>
+  </div>
+
+</div>
