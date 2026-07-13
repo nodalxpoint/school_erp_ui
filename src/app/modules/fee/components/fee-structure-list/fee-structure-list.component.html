@@ -18,6 +18,13 @@
   <div class="filters-card-stack">
     <div class="filter-grid">
       <div class="select-group">
+        <label class="filter-label">Academic Session</label>
+        <select class="premium-input" [(ngModel)]="filters.academicSessionId">
+          <option value="">All Sessions</option>
+          <option *ngFor="let s of sessions" [value]="s.id">Session {{ s.label }}</option>
+        </select>
+      </div>
+      <div class="select-group">
         <label class="filter-label">Class</label>
         <select class="premium-input" [(ngModel)]="filters.classId">
           <option value="">All Classes</option>

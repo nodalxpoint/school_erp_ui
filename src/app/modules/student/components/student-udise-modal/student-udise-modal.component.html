@@ -1,0 +1,195 @@
+<!-- src/app/modules/student/components/student-udise-modal/student-udise-modal.component.html -->
+
+<div class="modal-backdrop" *ngIf="isOpen" (click)="closeModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="header-titles">
+        <h2>UDISE Compliance Form</h2>
+        <p *ngIf="student">
+          Student: <strong>{{ student.firstName }} {{ student.lastName }}</strong> 
+          <span *ngIf="student.admissionNo"> (Adm: {{ student.admissionNo }})</span>
+          <span *ngIf="student.className"> · Class: {{ student.className }}</span>
+        </p>
+        <p *ngIf="!student && existingRecord">
+          Student: <strong>{{ existingRecord.studentName }}</strong> · Session: {{ existingRecord.academicSessionName }}
+        </p>
+      </div>
+      <button class="btn-close-modal" (click)="closeModal()" aria-label="Close modal">✕</button>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="modal-loading-overlay" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading student UDISE record details...</p>
+    </div>
+
+    <ng-container *ngIf="!isLoading">
+      <!-- Tab Navigation -->
+      <div class="modal-tabs">
+        <button class="tab-btn" [class.active]="activeTab === 'general'" (click)="setTab('general')">
+          📂 Identity & Status
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'social'" (click)="setTab('social')">
+          👥 Social & Category
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'disability'" (click)="setTab('disability')">
+          ♿ Disability & CWSN
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'schooling'" (click)="setTab('schooling')">
+          🏫 Schooling & Other
+        </button>
+      </div>
+
+      <!-- Alert Banners -->
+      <div class="alert-banner error" *ngIf="error">⚠ {{ error }}</div>
+      <div class="alert-banner success" *ngIf="successMsg">✓ {{ successMsg }}</div>
+
+      <!-- Scrollable Form Content -->
+      <div class="modal-body">
+        
+        <!-- TAB 1: GENERAL IDENTITY -->
+        <div class="tab-panel" *ngIf="activeTab === 'general'">
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="pen">Personal Education Number (PEN)</label>
+              <input type="text" id="pen" class="form-input" placeholder="Enter PEN (e.g. PEN1234567)" [(ngModel)]="formData.pen" />
+            </div>
+
+            <div class="form-field">
+              <label for="apaarId">APAAR ID</label>
+              <input type="text" id="apaarId" class="form-input" placeholder="Enter APAAR ID" [(ngModel)]="formData.apaarId" />
+            </div>
+
+            <div class="form-field">
+              <label for="aadhaarLastFour">Aadhaar Last 4 Digits</label>
+              <input type="text" id="aadhaarLastFour" class="form-input" maxlength="4" placeholder="e.g. 1234" [(ngModel)]="formData.aadhaarLastFour" />
+            </div>
+
+            <div class="form-field">
+              <label for="nameAsPerAadhaar">Name as per Aadhaar</label>
+              <input type="text" id="nameAsPerAadhaar" class="form-input" placeholder="Enter name exactly as on Aadhaar card" [(ngModel)]="formData.nameAsPerAadhaar" />
+            </div>
+
+            <div class="form-field">
+              <label for="pincode">Area Pincode</label>
+              <input type="text" id="pincode" class="form-input" maxlength="6" placeholder="e.g. 110001" [(ngModel)]="formData.pincode" />
+            </div>
+
+            <div class="form-field">
+              <label for="udiseStatus">UDISE Compliance Status</label>
+              <select id="udiseStatus" class="form-input select-arrow" [(ngModel)]="formData.udiseStatus">
+                <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: SOCIAL & CATEGORY -->
+        <div class="tab-panel" *ngIf="activeTab === 'social'">
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="motherTongue">Mother Tongue</label>
+              <input type="text" id="motherTongue" class="form-input" placeholder="e.g. Hindi, English, Punjabi" [(ngModel)]="formData.motherTongue" />
+            </div>
+
+            <div class="form-field">
+              <label for="socialCategory">Social Category</label>
+              <select id="socialCategory" class="form-input select-arrow" [(ngModel)]="formData.socialCategory">
+                <option *ngFor="let cat of socialCategoryOptions" [value]="cat">{{ cat }}</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="minorityGroup">Minority Group</label>
+              <select id="minorityGroup" class="form-input select-arrow" [(ngModel)]="formData.minorityGroup">
+                <option *ngFor="let min of minorityOptions" [value]="min">{{ min }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="checkbox-row-block">
+            <label class="checkbox-container">
+              <input type="checkbox" [(ngModel)]="formData.indianNational" />
+              <span class="checkmark"></span>
+              <span class="label-txt">Is Indian National?</span>
+            </label>
+
+            <label class="checkbox-container">
+              <input type="checkbox" [(ngModel)]="formData.bplBeneficiary" />
+              <span class="checkmark"></span>
+              <span class="label-txt">Below Poverty Line (BPL) Beneficiary?</span>
+            </label>
+
+            <label class="checkbox-container">
+              <input type="checkbox" [(ngModel)]="formData.ewsDisadvantaged" />
+              <span class="checkmark"></span>
+              <span class="label-txt">Belongs to EWS / Disadvantaged Group?</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- TAB 3: DISABILITY & CWSN -->
+        <div class="tab-panel" *ngIf="activeTab === 'disability'">
+          <div class="checkbox-row-block" style="margin-bottom: 20px;">
+            <label class="checkbox-container highlight">
+              <input type="checkbox" [(ngModel)]="formData.cwsn" />
+              <span class="checkmark"></span>
+              <span class="label-txt">Child with Special Needs (CWSN)?</span>
+            </label>
+          </div>
+
+          <div class="form-field" *ngIf="formData.cwsn">
+            <label for="disabilityType">Type of Disability</label>
+            <select id="disabilityType" class="form-input select-arrow" [(ngModel)]="formData.disabilityType">
+              <option *ngFor="let dis of disabilityOptions" [value]="dis">{{ dis.replace('_', ' ') }}</option>
+            </select>
+            <p class="field-hint text-muted">Specify the medical disability category matching government certificate records.</p>
+          </div>
+
+          <div class="info-alert-card" *ngIf="!formData.cwsn">
+            <span>ℹ️ If the student has any certified physical or cognitive disabilities, check the CWSN box above to select the disability category.</span>
+          </div>
+        </div>
+
+        <!-- TAB 4: SCHOOLING & OTHERS -->
+        <div class="tab-panel" *ngIf="activeTab === 'schooling'">
+          <div class="checkbox-row-block">
+            <label class="checkbox-container">
+              <input type="checkbox" [(ngModel)]="formData.outOfSchoolCurrentYear" />
+              <span class="checkmark"></span>
+              <span class="label-txt">Out of School in Current Academic Year?</span>
+            </label>
+
+            <label class="checkbox-container">
+              <input type="checkbox" [(ngModel)]="formData.outOfSchoolPreviousYear" />
+              <span class="checkmark"></span>
+              <span class="label-txt">Out of School in Previous Academic Year?</span>
+            </label>
+          </div>
+
+          <div class="meta-info-card" *ngIf="existingRecord">
+            <h3>Record Metadata</h3>
+            <div class="metadata-grid">
+              <div class="meta-item"><span class="lbl">Created At:</span> <span class="val">{{ existingRecord.createdAt | date:'medium' }}</span></div>
+              <div class="meta-item"><span class="lbl">Last Updated At:</span> <span class="val">{{ existingRecord.updatedAt | date:'medium' }}</span></div>
+              <div class="meta-item" *ngIf="existingRecord.verifiedAt"><span class="lbl">Verified At:</span> <span class="val">{{ existingRecord.verifiedAt | date:'medium' }}</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModal()" [disabled]="isSaving">Cancel</button>
+        <button class="btn-save" (click)="onSaveSubmit()" [disabled]="isSaving">
+          <span *ngIf="!isSaving">Save UDISE Details</span>
+          <span *ngIf="isSaving">Saving Details...</span>
+        </button>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

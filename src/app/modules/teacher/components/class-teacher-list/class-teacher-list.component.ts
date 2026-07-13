@@ -34,8 +34,10 @@ export class ClassTeacherListComponent implements OnInit {
   // ── Class / Section filter (param/list se) ──────────────────────────────
   classOptions: ParamDropdownOption[] = [];
   sectionOptions: ParamDropdownOption[] = [];
+  sessionOptions: ParamDropdownOption[] = [];
   filterClassId = '';
   filterSectionId = '';
+  filterAcademicSessionId = '';
   isLoadingSections = false;
 
   constructor(
@@ -47,6 +49,7 @@ export class ClassTeacherListComponent implements OnInit {
   ngOnInit(): void {
     this.loadAssignments();
     this.loadClassOptions();
+    this.loadSessionOptions();
   }
 
   // ── Class / Section dropdown loaders ─────────────────────────────────────
@@ -54,6 +57,13 @@ export class ClassTeacherListComponent implements OnInit {
   loadClassOptions(): void {
     this.teacherService.getClassOptions().subscribe({
       next: (opts) => { this.classOptions = opts; this.cdr.markForCheck(); },
+      error: () => { this.cdr.markForCheck(); }
+    });
+  }
+
+  loadSessionOptions(): void {
+    this.teacherService.getAcademicSessionOptions().subscribe({
+      next: (opts) => { this.sessionOptions = opts; this.cdr.markForCheck(); },
       error: () => { this.cdr.markForCheck(); }
     });
   }
@@ -113,6 +123,7 @@ export class ClassTeacherListComponent implements OnInit {
     this.filter.page = 0;
     this.filter.classId = this.filterClassId || undefined;
     this.filter.sectionId = this.filterSectionId || undefined;
+    this.filter.academicSessionId = this.filterAcademicSessionId || undefined;
     this.loadAssignments();
   }
 

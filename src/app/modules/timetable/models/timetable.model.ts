@@ -28,4 +28,5 @@ export interface TimetableFilterRequest {
   sectionId?: string;
   teacherId?: string;
   dayOfWeek?: string;
+  academicSessionId?: string;
 }

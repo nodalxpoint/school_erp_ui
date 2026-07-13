@@ -18,6 +18,7 @@ export class FeeStructureListComponent implements OnInit {
   structures: FeeStructureDto[] = [];
   loading = false;
   classes: DropdownOption[] = [];
+  sessions: DropdownOption[] = [];
 
   filters: FeeStructureFilterRequest = {
     page: 0,
@@ -26,7 +27,8 @@ export class FeeStructureListComponent implements OnInit {
     sortDirection: 'DESC',
     classId: '',
     feeName: '',
-    frequency: ''
+    frequency: '',
+    academicSessionId: ''
   };
 
   constructor(
@@ -41,7 +43,14 @@ export class FeeStructureListComponent implements OnInit {
       this.classes = data;
       this.cdr.markForCheck();
     });
-    this.onSearch();
+    this.feeService.getParams('academic_sessions').subscribe(data => {
+      this.sessions = data;
+      if (this.sessions.length > 0) {
+        this.filters.academicSessionId = this.sessions[0].id;
+      }
+      this.onSearch();
+      this.cdr.markForCheck();
+    });
   }
 
   onSearch(): void {
@@ -55,6 +64,7 @@ export class FeeStructureListComponent implements OnInit {
     if (this.filters.classId) payload.classId = this.filters.classId;
     if (this.filters.feeName) payload.feeName = this.filters.feeName;
     if (this.filters.frequency) payload.frequency = this.filters.frequency;
+    if (this.filters.academicSessionId) payload.academicSessionId = this.filters.academicSessionId;
 
     this.feeService.filterFeeStructures(payload).subscribe({
       next: (res: any) => {
@@ -74,7 +84,8 @@ export class FeeStructureListComponent implements OnInit {
       sortDirection: 'DESC',
       classId: '',
       feeName: '',
-      frequency: ''
+      frequency: '',
+      academicSessionId: this.sessions.length > 0 ? this.sessions[0].id : ''
     };
     this.onSearch();
   }

@@ -12,7 +12,8 @@ export interface StudentResponseDto {
   sectionId?: string;
   sectionName?: string;    // ← backend se directly aata hai
   academicSessionId?: string;
-   guardianName?: string;   
+  academicSessionName?: string;
+  guardianName?: string;   
     guardianEmail?: string;       
   attendance?: unknown; 
   rollNo?: string;
@@ -59,6 +60,7 @@ export interface StudentFilterRequest {
   admissionNo?: string;
   classId?: string;
   sectionId?: string;
+  academicSessionId?: string;
 }
 
 // ─── Backend PagedResponse (exact structure) ──────────────────────

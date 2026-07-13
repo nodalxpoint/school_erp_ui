@@ -1,7 +1,6 @@
-// src/app/modules/student/components/student-list/student-list.component.scss
+// src/app/modules/udise/components/udise-list/udise-list.component.scss
 
 :host {
-  // Shared Color Palette Sync from Teachers/Attendance Module
   --primary:        #2b6cb0;
   --primary-light:  #ebf4ff;
   --primary-hover:  #2c5282;
@@ -24,6 +23,7 @@
   --text-primary:   #2d3748;
   --text-muted:     #718096;
   --text-hint:      #a0aec0;
+  --shadow:         0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .list-page {
@@ -65,19 +65,181 @@
   border-radius: 9px; color: var(--danger); font-size: 0.85rem; font-weight: 500;
 }
 
-// ─── Native Left-Right Scrolling Container ───
+// Student Autocomplete Selection Overlay
+.search-overlay-panel {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(2px);
+  padding: 1.5rem;
+}
+
+.panel-card {
+  background: var(--bg-white);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f7fafc;
+  
+  h3 { margin: 0; font-size: 0.95rem; font-weight: 750; color: var(--text-primary); }
+}
+
+.btn-close-panel {
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  &:hover { background: rgba(0,0,0,0.05); color: var(--text-primary); }
+}
+
+.panel-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.search-box-row {
+  display: flex;
+  gap: 8px;
+  
+  .search-input {
+    flex: 1;
+    padding: 9px 12px;
+    border: 1px solid var(--border-dark);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    outline: none;
+    &:focus { border-color: var(--primary); }
+  }
+}
+
+.btn-search-trigger {
+  padding: 9px 16px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  &:hover { background: var(--primary-hover); }
+}
+
+.search-spinner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  justify-content: center;
+  padding: 1rem;
+  
+  .mini-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+.searched-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  
+  &:hover {
+    border-color: var(--primary-border);
+    background: var(--primary-light);
+  }
+  
+  .avatar-cell {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .info-cell {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    
+    .full-name { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
+    .sub-details { font-size: 0.75rem; color: var(--text-muted); }
+  }
+}
+
+.btn-select-student {
+  padding: 5px 10px;
+  background: #fff;
+  border: 1px solid var(--border-dark);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.empty-search-results {
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+// Scrolling Data Table Layout
 .table-card {
   background: var(--bg-white); border: 1px solid var(--border); border-radius: 16px;
   position: relative; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-  
-  // Always allow clean finger swipe horizontal tracking rather than dropping rows into blocks
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 .data-table {
   width: 100%; border-collapse: collapse;
-  min-width: 1150px; // ✅ Restricts structure to scroll cleanly as a pristine wide layout matrix
+  min-width: 1100px;
   
   .header-row { background: var(--bg-header); }
   th {
@@ -86,7 +248,6 @@
   }
 }
 
-// ─── Precise Inline Columns Controls ───
 .filter-row {
   background: var(--bg-row-odd);
   border-bottom: 2px solid var(--border);
@@ -114,7 +275,6 @@ select.col-filter {
   &:hover { background: var(--danger-light); }
 }
 
-// Data Row Configurations
 .data-table .data-row {
   border-bottom: 1px solid var(--border);
   &:last-child { border-bottom: none; }
@@ -124,61 +284,52 @@ select.col-filter {
   td { padding: 13px 16px; font-size: 13.5px; color: var(--text-primary); vertical-align: middle; }
 }
 
-// Absolute Width Allocation Metrics
-.col-no        { width: 60px; }
-.col-name      { min-width: 220px; }
-.col-admission { width: 140px; }
-.col-session   { width: 150px; }
-.col-gender    { width: 120px; }
-.col-class     { width: 130px; }
-.col-section   { width: 100px; }
-.col-dob       { width: 130px; }
-.col-actions   { width: 160px; text-align: right !important; }
+// Columns Width Allocations
+.col-no       { width: 60px; }
+.col-name     { min-width: 200px; }
+.col-pen      { width: 180px; }
+.col-apaar    { width: 180px; }
+.col-aadhaar  { width: 140px; }
+.col-session  { width: 150px; }
+.col-status   { width: 130px; }
+.col-actions  { width: 160px; text-align: right !important; }
 
-.student-cell { display: flex; align-items: center; gap: 11px; }
-.avatar {
-  width: 36px; height: 36px; border-radius: 10px; background: var(--primary-light);
-  border: 1px solid var(--primary-border); color: var(--primary); font-size: 12px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-
-.student-name { font-weight: 600; color: var(--text-primary); }
-
-.badge-blue {
-  font-family: monospace; font-size: 11.5px; color: var(--primary); background: var(--primary-light);
+.pen-badge {
+  font-family: monospace; font-size: 12px; color: var(--primary); background: var(--primary-light);
   border: 1px solid var(--primary-border); padding: 3px 8px; border-radius: 6px; font-weight: 600;
 }
 
-.badge-gender {
-  font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; display: inline-block;
-  &.male { background: var(--primary-light); border: 1px solid var(--primary-border); color: var(--primary); }
-  &.female { background: #fff5f5; border: 1px solid #fed7d7; color: #9b2c2c; }
-  &.other { background: var(--violet-light); border: 1px solid var(--violet-border); color: var(--violet); }
-}
-
-.section-chip {
-  display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 24px;
-  border-radius: 6px; background: var(--teal-light); border: 1px solid var(--teal-border);
-  color: var(--teal); font-size: 12px; font-weight: 700;
+.status-chip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  display: inline-block;
+  
+  &.pending { background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; }
+  &.in-progress { background: #fef3c7; border: 1px solid #fcd34d; color: #d97706; }
+  &.completed { background: #d1fae5; border: 1px solid #6ee7b7; color: #047857; }
+  &.verified { background: var(--primary-light); border: 1px solid var(--primary-border); color: var(--primary); }
 }
 
 .action-btns { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
-%action-btn {
+
+.btn-edit {
   display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 8px;
   font-size: 12.5px; font-weight: 600; cursor: pointer; background: #fff; border: 1px solid var(--border-dark);
   transition: all 0.15s;
+  color: var(--text-muted);
+  
+  &:hover { border-color: var(--primary-border); color: var(--primary); background: var(--primary-light); }
 }
-
-.btn-view { @extend %action-btn; color: var(--text-muted); &:hover { border-color: var(--teal-border); color: var(--teal); background: var(--teal-light); } }
-.btn-edit { @extend %action-btn; color: var(--text-muted); &:hover { border-color: var(--primary-border); color: var(--primary); background: var(--primary-light); } }
-.btn-udise { @extend %action-btn; color: var(--text-muted); &:hover { border-color: var(--violet-border); color: var(--violet); background: var(--violet-light); } }
 
 .footer-row td {
   padding: 12px 16px; background: var(--bg-row-odd); border-top: 1px solid var(--border);
 }
 .table-footer-summary { font-size: 13px; color: var(--text-muted); }
 
-// Pagination
+// Pagination Controls
 .pagination {
   display: flex; align-items: center; justify-content: space-between; padding-top: 4px;
 }
@@ -192,7 +343,7 @@ select.col-filter {
   &:disabled { opacity: 0.35; cursor: not-allowed; }
 }
 
-// Skeletons / Utilities
+// Skeletons / Overlays
 .loading-overlay {
   position: absolute; inset: 0; background: rgba(255,255,255,0.8); z-index: 10;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; font-size: 14px; color: var(--text-muted);

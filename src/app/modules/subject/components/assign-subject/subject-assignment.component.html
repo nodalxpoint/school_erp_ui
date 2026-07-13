@@ -127,6 +127,14 @@
 
       <div class="ex-filters-row">
         <div class="ex-filter-group">
+          <label class="ex-label">Academic Session</label>
+          <select class="ex-select" [(ngModel)]="filter.academicSessionId" (change)="onApplyFilters()">
+            <option value="">All Sessions</option>
+            <option *ngFor="let s of sessions" [value]="s.id">Session {{s.label}}</option>
+          </select>
+        </div>
+
+        <div class="ex-filter-group">
           <label class="ex-label">Class</label>
           <select class="ex-select" [(ngModel)]="filter.classId" (change)="onFilterClassChange(filter.classId!)">
             <option value="">All Classes</option>

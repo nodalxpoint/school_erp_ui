@@ -39,7 +39,7 @@ export class TimetableListComponent implements OnInit, OnDestroy {
   // Default Filter Request State Parameters
   filter: TimetableFilterRequest = {
     page: 0, size: 200, sortBy: 'period', sortDirection: 'asc',
-    classId: '', sectionId: '', teacherId: '', dayOfWeek: ''
+    classId: '', sectionId: '', teacherId: '', dayOfWeek: '', academicSessionId: ''
   };
 
   constructor(
@@ -112,6 +112,9 @@ getSubjectIcon(subjectName: string | undefined): string {
 
     this.timetableService.getOptions('academic_sessions').subscribe(data => {
       this.sessions = data;
+      if (this.sessions.length > 0 && !this.filter.academicSessionId) {
+        this.filter.academicSessionId = this.sessions[0].id;
+      }
       this.cdr.markForCheck();
     });
 

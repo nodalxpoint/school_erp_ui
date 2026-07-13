@@ -35,7 +35,7 @@
           <th class="col-no">No</th>
           <th class="col-name">Student Name</th>
           <th class="col-admission">Admission No</th>
-          <!-- <th class="col-gender">Gender</th> -->
+          <th class="col-session">Academic Session</th>
           <th class="col-class">Class</th>
           <th class="col-section">Section</th>
           <th class="col-dob">Date of Birth</th>
@@ -52,14 +52,13 @@
             <input class="col-filter" type="text" placeholder="Admission No..."
               [(ngModel)]="searchAdmissionNo" (input)="onSearch()" />
           </td>
-          <!-- <td class="col-gender">
-            <select class="col-filter select-arrow" (change)="onSearch()">
-              <option value="">All</option>
-              <option value="MALE">Male</option>
-              <option value="FEMALE">Female</option>
-              <option value="OTHER">Other</option>
+          <td class="col-session">
+            <select class="col-filter select-arrow" [(ngModel)]="selectedAcademicSessionId"
+              (change)="onSearch()" [disabled]="loadingSessions">
+              <option value="">{{ loadingSessions ? '...' : 'All Sessions' }}</option>
+              <option *ngFor="let a of academicSessions" [value]="a.id">{{ a.label }}</option>
             </select>
-          </td> -->
+          </td>
           <td class="col-class">
             <select class="col-filter select-arrow" [(ngModel)]="selectedClassId"
               (change)="onClassFilterChange()" [disabled]="loadingClasses">
@@ -98,12 +97,7 @@
             <td class="col-admission">
               <span class="badge-blue">{{ student.admissionNo }}</span>
             </td>
-            <!-- <td class="col-gender">
-              <span class="badge-gender" [class.male]="student.gender==='MALE'"
-                [class.female]="student.gender==='FEMALE'" [class.other]="student.gender==='OTHER'">
-                {{ student.gender === 'MALE' ? 'Male' : student.gender === 'FEMALE' ? 'Female' : student.gender || '—' }}
-              </span>
-            </td> -->
+            <td class="col-session text-muted">{{ student.academicSessionName || '—' }}</td>
             <td class="col-class fw-500">{{ student.className || '—' }}</td>
             <td class="col-section">
               <span class="section-chip" *ngIf="student.sectionName">{{ student.sectionName }}</span>
@@ -126,13 +120,19 @@
                   </svg>
                   Edit
                 </button>
+                <button class="btn-udise" (click)="onOpenUdise(student)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                  UDISE
+                </button>
               </div>
             </td>
           </tr>
         </ng-container>
 
         <tr *ngIf="!loading && students.length === 0" class="empty-row">
-          <td colspan="7">
+          <td colspan="8">
             <div class="empty-state" *ngIf="hasActiveFilters()">
               <div class="empty-icon">🔍</div>
               <p class="empty-title">No students match your filters</p>
@@ -150,7 +150,7 @@
 
       <tfoot *ngIf="totalElements > 0 && !loading">
         <tr class="footer-row">
-          <td colspan="7">
+          <td colspan="8">
             <div class="table-footer-summary">
               Showing <strong>{{ startIndex }}</strong> to <strong>{{ endIndex }}</strong> of <strong>{{ totalElements }}</strong> active students listed
             </div>
@@ -172,3 +172,9 @@
   </div>
 
 </div>
+
+<app-student-udise-modal
+  [isOpen]="showUdiseModal"
+  [student]="selectedStudentForUdise"
+  (closed)="onCloseUdise()">
+</app-student-udise-modal>

@@ -135,6 +135,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./modules/user/user.routes').then(m => m.USER_ROUTES)
       },
+      {
+        path: 'udise',
+        loadChildren: () =>
+          import('./modules/udise/udise.routes').then(m => m.UDISE_ROUTES)
+      },
     ]
   },
 

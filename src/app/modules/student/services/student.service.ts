@@ -108,14 +108,14 @@ getStudentById(id: string): Observable<StudentResponseDto | null> {
   }
 
   /** academic sessions dropdown */
-  getAcademicSessions(classId: string, search = ''): Observable<DropdownOption[]> {
+  getAcademicSessions(classId = '', search = ''): Observable<DropdownOption[]> {
     const req: ParamListRequest = {
       page: 0,
       size: 100,
       sortBy: 'sessionName',
       sortDirection: 'ASC',
       type: 'academic_sessions',
-      classId,
+      classId: classId || undefined,
       search: search || undefined,
     };
 

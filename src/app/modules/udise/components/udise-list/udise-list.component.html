@@ -1,0 +1,209 @@
+<!-- src/app/modules/udise/components/udise-list/udise-list.component.html -->
+
+<div class="list-page">
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumb">
+    <span>UDISE Module</span>
+    <span class="sep">/</span>
+    <span class="active">Compliance List</span>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>UDISE Compliance Management</h1>
+      <p>{{ totalElements }} compliance records logged in the system</p>
+    </div>
+    <button class="btn-primary" (click)="onOpenAddUdiseFlow()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Add UDISE Record
+    </button>
+  </div>
+
+  <!-- Error Alerts -->
+  <div class="alert-error" *ngIf="error">⚠ {{ error }}</div>
+
+  <!-- Search Student Dropdown (Add UDISE Record Mode) -->
+  <div class="search-overlay-panel" *ngIf="showStudentSearch">
+    <div class="panel-card">
+      <div class="panel-header">
+        <h3>Select Student to Log UDISE Record</h3>
+        <button class="btn-close-panel" (click)="onCloseStudentSearch()">✕</button>
+      </div>
+      <div class="panel-body">
+        <div class="search-box-row">
+          <input type="text" 
+                 class="search-input" 
+                 placeholder="Type student first name to search..." 
+                 [(ngModel)]="studentSearchQuery" 
+                 (input)="searchStudents()" />
+          <button class="btn-search-trigger" (click)="searchStudents()">Search</button>
+        </div>
+
+        <div class="search-spinner" *ngIf="loadingStudentsSearch">
+          <div class="mini-spinner"></div>
+          <span>Searching students registry...</span>
+        </div>
+
+        <div class="searched-results-list" *ngIf="!loadingStudentsSearch && searchedStudents.length > 0">
+          <div class="search-result-item" *ngFor="let s of searchedStudents" (click)="onSelectStudentForUdise(s)">
+            <div class="avatar-cell">
+              {{ s.firstName ? s.firstName.charAt(0).toUpperCase() : '' }}{{ s.lastName ? s.lastName.charAt(0).toUpperCase() : '' }}
+            </div>
+            <div class="info-cell">
+              <span class="full-name">{{ s.firstName }} {{ s.lastName }}</span>
+              <span class="sub-details">Adm: {{ s.admissionNo }} · Class: {{ s.className || '—' }} ({{ s.sectionName || '—' }})</span>
+            </div>
+            <button class="btn-select-student">Select</button>
+          </div>
+        </div>
+
+        <div class="empty-search-results" *ngIf="!loadingStudentsSearch && searchedStudents.length === 0 && studentSearchQuery">
+          <span>🔍 No students found matching "{{ studentSearchQuery }}".</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="table-card">
+    
+    <div class="loading-overlay" *ngIf="loading">
+      <div class="spinner"></div>
+      <span>Loading compliance ledger...</span>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr class="header-row">
+          <th class="col-no">No</th>
+          <th class="col-name">Student Name</th>
+          <th class="col-pen">PEN</th>
+          <th class="col-apaar">APAAR ID</th>
+          <th class="col-aadhaar">Aadhaar (4 Digits)</th>
+          <th class="col-session">Session</th>
+          <th class="col-status">Status</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+
+        <!-- Filter Row -->
+        <tr class="filter-row">
+          <td class="col-no"></td>
+          <td class="col-name"></td>
+          <td class="col-pen">
+            <input class="col-filter" type="text" placeholder="Filter PEN..." 
+                   [(ngModel)]="searchPen" (input)="onSearch()" />
+          </td>
+          <td class="col-apaar"></td>
+          <td class="col-aadhaar"></td>
+          <td class="col-session">
+            <select class="col-filter select-arrow" [(ngModel)]="selectedAcademicSessionId" 
+                    (change)="onSearch()" [disabled]="loadingSessions">
+              <option value="">{{ loadingSessions ? '...' : 'All Sessions' }}</option>
+              <option *ngFor="let a of academicSessions" [value]="a.id">{{ a.label }}</option>
+            </select>
+          </td>
+          <td class="col-status">
+            <select class="col-filter select-arrow" [(ngModel)]="selectedStatus" (change)="onSearch()">
+              <option value="">All Statuses</option>
+              <option value="PENDING">PENDING</option>
+              <option value="IN_PROGRESS">IN PROGRESS</option>
+              <option value="COMPLETED">COMPLETED</option>
+              <option value="VERIFIED">VERIFIED</option>
+            </select>
+          </td>
+          <td class="col-actions filter-clear-cell">
+            <button class="btn-clear-filter" *ngIf="hasActiveFilters()" (click)="clearFilters()">
+              ✕ Clear
+            </button>
+          </td>
+        </tr>
+      </thead>
+
+      <tbody>
+        <ng-container *ngIf="!loading && records.length > 0">
+          <tr *ngFor="let rec of records; let i = index" class="data-row">
+            <td class="col-no text-muted">{{ startIndex + i }}</td>
+            <td class="col-name fw-600">{{ rec.studentName }}</td>
+            <td class="col-pen">
+              <span class="pen-badge" *ngIf="rec.pen">{{ rec.pen }}</span>
+              <span class="text-muted" *ngIf="!rec.pen">—</span>
+            </td>
+            <td class="col-apaar text-muted">{{ rec.apaarId || '—' }}</td>
+            <td class="col-aadhaar text-muted">{{ rec.aadhaarLastFour ? '•••• ' + rec.aadhaarLastFour : '—' }}</td>
+            <td class="col-session text-muted">{{ rec.academicSessionName }}</td>
+            <td class="col-status">
+              <span class="status-chip" [class]="(rec.udiseStatus || '').toLowerCase().replace('_', '-')">
+                {{ rec.udiseStatus }}
+              </span>
+            </td>
+            <td class="col-actions">
+              <div class="action-btns">
+                <button class="btn-edit" (click)="onEditRecord(rec)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  Edit compliance
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+
+        <tr *ngIf="!loading && records.length === 0" class="empty-row">
+          <td colspan="8">
+            <div class="empty-state" *ngIf="hasActiveFilters()">
+              <div class="empty-icon">🔍</div>
+              <p class="empty-title">No records matching search filters</p>
+              <p class="empty-sub">Modify filters to see results.</p>
+              <button class="btn-clear-filters-center" (click)="clearFilters()">✕ Clear All Filters</button>
+            </div>
+            <div class="empty-state" *ngIf="!hasActiveFilters()">
+              <div class="empty-icon">📂</div>
+              <p class="empty-title">No UDISE compliance details logged</p>
+              <p class="empty-sub">Click "Add UDISE Record" or open from the Student Register to log details.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+
+      <tfoot *ngIf="totalElements > 0 && !loading">
+        <tr class="footer-row">
+          <td colspan="8">
+            <div class="table-footer-summary">
+              Showing <strong>{{ startIndex }}</strong> to <strong>{{ endIndex }}</strong> of <strong>{{ totalElements }}</strong> compliance records
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1 && !loading">
+    <div class="dummy-space"></div>
+    <div class="page-btns">
+      <button class="page-btn" (click)="goToPage(0)" [disabled]="currentPage === 0">«</button>
+      <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">‹</button>
+      <button *ngFor="let p of pages" class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p + 1 }}</button>
+      <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">›</button>
+      <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1">»</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Reusable UDISE Detail Edit Modal Dialog -->
+<app-student-udise-modal
+  [isOpen]="showModal"
+  [student]="selectedStudent"
+  [udiseId]="selectedUdiseId"
+  (closed)="onCloseModal()"
+  (saved)="onRecordSaved()">
+</app-student-udise-modal>

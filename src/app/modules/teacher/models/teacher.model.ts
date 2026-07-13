@@ -62,6 +62,7 @@ export interface TeacherFilterRequest {
   sortDirection?: 'asc' | 'desc';
   firstName?: string;
   schoolId?: string;
+  academicSessionId?: string;
 }
 
 export interface ClassTeacherAssignmentFilterRequest {

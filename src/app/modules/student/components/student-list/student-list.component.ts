@@ -6,11 +6,12 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StudentService, StudentStateService } from '../../services/student.service';
 import { StudentResponseDto, StudentFilterRequest, DropdownOption } from '../../models/student.model';
+import { StudentUdiseModalComponent } from '../student-udise-modal/student-udise-modal.component';
 
 @Component({
   selector: 'app-student-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, StudentUdiseModalComponent],
   templateUrl: './student-list.component.html',
   styleUrls: ['./student-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,18 +27,25 @@ export class StudentListComponent implements OnInit {
   searchAdmissionNo = '';
   selectedClassId = '';
   selectedSectionId = '';
+  selectedAcademicSessionId = '';
 
   // Dropdowns
   classes: DropdownOption[] = [];
   sections: DropdownOption[] = [];
+  academicSessions: DropdownOption[] = [];
   loadingClasses = false;
   loadingSections = false;
+  loadingSessions = false;
 
   // Pagination
   currentPage = 0;
   pageSize = 10;
   totalElements = 0;
   totalPages = 0;
+
+  // UDISE compliance modal
+  selectedStudentForUdise: StudentResponseDto | null = null;
+  showUdiseModal = false;
 
   constructor(
     private studentService: StudentService,
@@ -47,11 +55,27 @@ export class StudentListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadAcademicSessions();
     this.loadClasses();
     this.loadStudents();
   }
 
   // ── Dropdowns ──────────────────────────────────────────────────
+
+  loadAcademicSessions(): void {
+    this.loadingSessions = true;
+    this.studentService.getAcademicSessions().subscribe({
+      next: (data) => {
+        this.academicSessions = data;
+        this.loadingSessions = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.loadingSessions = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   loadClasses(): void {
     this.loadingClasses = true;
@@ -90,6 +114,7 @@ export class StudentListComponent implements OnInit {
       admissionNo: this.searchAdmissionNo.trim()  || undefined,
       classId:     this.selectedClassId           || undefined,
       sectionId:   this.selectedSectionId         || undefined,
+      academicSessionId: this.selectedAcademicSessionId || undefined,
     };
 
     this.studentService.filterStudents(req).subscribe({
@@ -119,6 +144,7 @@ export class StudentListComponent implements OnInit {
     this.searchAdmissionNo = '';
     this.selectedClassId  = '';
     this.selectedSectionId = '';
+    this.selectedAcademicSessionId = '';
     this.sections          = [];
     this.currentPage       = 0;
     this.loadStudents();
@@ -126,7 +152,7 @@ export class StudentListComponent implements OnInit {
 
   hasActiveFilters(): boolean {
     return !!(this.searchFirstName || this.searchLastName ||
-              this.searchAdmissionNo || this.selectedClassId || this.selectedSectionId);
+              this.searchAdmissionNo || this.selectedClassId || this.selectedSectionId || this.selectedAcademicSessionId);
   }
 
   goToPage(page: number): void {
@@ -150,6 +176,18 @@ onEditStudent(student: any) {
 onViewStudent(student: any) {
   this.router.navigate(['/students/detail', student.id]);
 }
+
+  onOpenUdise(student: StudentResponseDto): void {
+    this.selectedStudentForUdise = student;
+    this.showUdiseModal = true;
+    this.cdr.markForCheck();
+  }
+
+  onCloseUdise(): void {
+    this.selectedStudentForUdise = null;
+    this.showUdiseModal = false;
+    this.cdr.markForCheck();
+  }
 
   // ── Pagination helpers ─────────────────────────────────────────
 

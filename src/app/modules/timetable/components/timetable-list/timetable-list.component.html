@@ -38,6 +38,13 @@
 
     <div class="tl-filters-row">
       <div class="tl-filter-group">
+        <label class="tl-label">Academic Session</label>
+        <select class="tl-select" [(ngModel)]="filter.academicSessionId" (change)="loadTimetables()">
+          <option *ngFor="let s of sessions" [value]="s.id">Session {{ s.label }}</option>
+        </select>
+      </div>
+
+      <div class="tl-filter-group">
         <label class="tl-label">Class Standard</label>
         <select class="tl-select" [(ngModel)]="filter.classId" (change)="onClassChangeChange()">
           <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>

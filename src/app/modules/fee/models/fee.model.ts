@@ -65,6 +65,7 @@ export interface FeeStructureFilterRequest {
   classId?: string;
   feeName?: string;
   frequency?: string;
+  academicSessionId?: string;
 }
 
 export interface SaveFeeStructureRequest {

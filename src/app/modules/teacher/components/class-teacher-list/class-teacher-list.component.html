@@ -6,9 +6,17 @@
         <h3 class="list-title">Class Teachers</h3>
         <p class="list-sub">{{ totalElements }} total assignment{{ totalElements !== 1 ? 's' : '' }}</p>
       </div>
-      
+
       <div class="header-actions-wrapper">
         <div class="filters-row-matrix">
+          <div class="matrix-select-group">
+            <select class="filter-dropdown-select" [(ngModel)]="filterAcademicSessionId"
+              (ngModelChange)="applyFilter()">
+              <option value="">All Sessions</option>
+              <option *ngFor="let a of sessionOptions" [value]="a.id">Session {{ a.label }}</option>
+            </select>
+          </div>
+
           <div class="matrix-select-group">
             <select class="filter-dropdown-select" [(ngModel)]="filterClassId" (ngModelChange)="onClassChange()">
               <option value="">All Classes</option>
@@ -18,20 +26,19 @@
 
           <div class="matrix-select-group">
             <select class="filter-dropdown-select" [(ngModel)]="filterSectionId"
-                    [disabled]="!filterClassId || isLoadingSections"
-                    (ngModelChange)="onSectionChange()">
+              [disabled]="!filterClassId || isLoadingSections" (ngModelChange)="onSectionChange()">
               <option value="">{{ isLoadingSections ? 'Loading…' : 'All Sections' }}</option>
               <option *ngFor="let s of sectionOptions" [value]="s.id">{{ s.label }}</option>
             </select>
           </div>
 
           <div class="list-filter">
-            <input class="filter-input" type="text" [(ngModel)]="filterTeacherName"
-                   placeholder="Search teacher name…"
-                   (keyup.enter)="applyFilter()" />
+            <input class="filter-input" type="text" [(ngModel)]="filterTeacherName" placeholder="Search teacher name…"
+              (keyup.enter)="applyFilter()" />
             <button class="btn-filter" (click)="applyFilter()">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
             </button>
           </div>
@@ -39,8 +46,8 @@
 
         <button class="btn-add-assign" (click)="onAssignTeacherRoute()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           Assign Teacher
         </button>
@@ -58,8 +65,8 @@
 
     <div class="empty-state" *ngIf="!isLoadingList && assignments.length === 0">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
       </svg>
       <p>No class teachers assigned yet</p>
     </div>
@@ -93,18 +100,14 @@
     <div class="pagination" *ngIf="totalPages > 1">
       <button class="pg-btn" [disabled]="filter.page === 0" (click)="changePage(filter.page - 1)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="15 18 9 12 15 6"/>
+          <polyline points="15 18 9 12 15 6" />
         </svg>
       </button>
-      <button
-        *ngFor="let p of pages"
-        class="pg-btn"
-        [class.active]="p === filter.page"
-        (click)="changePage(p)"
-      >{{ p + 1 }}</button>
+      <button *ngFor="let p of pages" class="pg-btn" [class.active]="p === filter.page" (click)="changePage(p)">{{ p + 1
+        }}</button>
       <button class="pg-btn" [disabled]="filter.page === totalPages - 1" (click)="changePage(filter.page + 1)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="9 18 15 12 9 6"/>
+          <polyline points="9 18 15 12 9 6" />
         </svg>
       </button>
     </div>
