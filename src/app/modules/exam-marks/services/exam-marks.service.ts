@@ -71,4 +71,9 @@ export class ExamMarksService {
   filterExamMarks(req: ExamMarksFilterRequest): Observable<PagedResponse<ExamMarksApiDto>> {
     return this.http.post<PagedResponse<ExamMarksApiDto>>(`${this.BASE}/list`, req);
   }
+
+  /** POST /examMarks/addOrUpdate */
+  saveExamMarks(payload: any): Observable<any> {
+    return this.http.post<any>(`${this.BASE}/addOrUpdate`, payload);
+  }
 }

@@ -22,6 +22,17 @@ export class ExamMarksListComponent implements OnInit {
   loading       = false;
   error         = '';
 
+  // ── Modal State ───────────────────────────────────────────────
+  showViewModal = false;
+  showEditModal = false;
+  selectedRecord: ExamMarksResponseDto | null = null;
+
+  // Edit form state
+  editMarksObtained: number | null = null;
+  editRemarks = '';
+  isSaving = false;
+  saveError = '';
+
   // ── Filter State ──────────────────────────────────────────────
   searchStudentName  = '';   // input mein dikhne wala naam
   selectedStudentId  = '';   // suggestion se pick hua student ID
@@ -218,8 +229,10 @@ export class ExamMarksListComponent implements OnInit {
             sectionName:   rec.sectionName,
             marksObtained: rec.marksObtained,
             remarks:       rec.remarks,
-            // admissionNo, rollNo, maxMarks — abhi backend nahi de raha,
-            // jab dega to yaha se table me show ho jayenge
+            admissionNo:   rec.admissionNo,
+            rollNo:        rec.rollNo,
+            maxMarks:      rec.maxMarks,
+            academicSessionId: entry.academicSessionId,
           } as ExamMarksResponseDto))
         );
         this.totalElements = res.totalElements ?? 0;
@@ -288,4 +301,75 @@ export class ExamMarksListComponent implements OnInit {
 
   get startIndex(): number { return this.currentPage * this.pageSize + 1; }
   get endIndex():   number { return Math.min((this.currentPage + 1) * this.pageSize, this.totalElements); }
+
+  onViewRecord(record: ExamMarksResponseDto): void {
+    this.selectedRecord = record;
+    this.showViewModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeViewModal(): void {
+    this.showViewModal = false;
+    this.selectedRecord = null;
+    this.cdr.markForCheck();
+  }
+
+  onEditRecord(record: ExamMarksResponseDto): void {
+    this.selectedRecord = record;
+    this.editMarksObtained = record.marksObtained;
+    this.editRemarks = record.remarks || '';
+    this.saveError = '';
+    this.showEditModal = true;
+    this.cdr.markForCheck();
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.selectedRecord = null;
+    this.cdr.markForCheck();
+  }
+
+  onSaveEdit(): void {
+    if (!this.selectedRecord) return;
+    if (this.editMarksObtained === null || this.editMarksObtained < 0) {
+      this.saveError = 'Marks obtained must be a positive number';
+      return;
+    }
+    if (this.selectedRecord.maxMarks && this.editMarksObtained > this.selectedRecord.maxMarks) {
+      this.saveError = `Marks obtained cannot exceed max marks (${this.selectedRecord.maxMarks})`;
+      return;
+    }
+
+    this.isSaving = true;
+    this.saveError = '';
+    this.cdr.markForCheck();
+
+    const payload = {
+      id: this.selectedRecord.id,
+      examId: this.selectedRecord.examId,
+      examSubjectId: this.selectedRecord.examSubjectId,
+      academicSessionId: this.selectedRecord.academicSessionId,
+      records: [
+        {
+          studentId: this.selectedRecord.studentId,
+          marksObtained: this.editMarksObtained,
+          remarks: this.editRemarks
+        }
+      ]
+    };
+
+    this.marksService.saveExamMarks(payload).subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.showEditModal = false;
+        this.selectedRecord = null;
+        this.loadExamMarks();
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this.saveError = err?.error?.message || 'Marks save karne me koi error aayi hai. Please input correct values.';
+        this.cdr.markForCheck();
+      }
+    });
+  }
 }

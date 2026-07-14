@@ -9,6 +9,9 @@ export interface ExamMarksRecord {
   sectionName?: string;
   marksObtained: number;
   remarks?: string;
+  admissionNo?: string;
+  rollNo?: string;
+  maxMarks?: number;
 }
 
 export interface ExamMarksApiDto {
@@ -40,6 +43,7 @@ export interface ExamMarksResponseDto {
   marksObtained: number;
   maxMarks?: number;
   remarks?: string;
+  academicSessionId?: string;
 }
 
 export interface ExamMarksFilterRequest {

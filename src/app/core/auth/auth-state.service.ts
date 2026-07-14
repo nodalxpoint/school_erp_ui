@@ -24,13 +24,20 @@ export class AuthStateService {
     const token = this.tokenService.getToken();
     if (!token) return;
 
-    // Pehle localStorage se try karo
-    let user = this.tokenService.getUser();
+    try {
+      const decoded: any = jwtDecode(token);
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (decoded.exp && decoded.exp < currentTime) {
+        // Token has expired, clean up session
+        this.tokenService.clearAll();
+        return;
+      }
 
-    // Agar user nahi mila — token decode karo
-    if (!user) {
-      try {
-        const decoded: any = jwtDecode(token);
+      // Pehle localStorage se try karo
+      let user = this.tokenService.getUser();
+
+      // Agar user nahi mila — token decode karo
+      if (!user) {
         const builtUser: User = {
           id:       decoded.userId ?? decoded.sub ?? '',
           name:     decoded.name ?? decoded.email ?? decoded.sub ?? '',
@@ -40,14 +47,14 @@ export class AuthStateService {
         };
         this.tokenService.setUser(builtUser); // ← FIX 2: null nahi, typed User
         user = builtUser;
-      } catch {
-        this.tokenService.clearAll();
-        return;
       }
-    }
 
-    this._user$.next(user);
-    this._isAuthenticated$.next(true);
+      this._user$.next(user);
+      this._isAuthenticated$.next(true);
+    } catch {
+      this.tokenService.clearAll();
+      return;
+    }
   }
 
   setAuth(token: string, user: User): void {

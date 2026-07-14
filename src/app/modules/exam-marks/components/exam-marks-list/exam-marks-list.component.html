@@ -178,13 +178,21 @@
 
             <td class="col-actions">
               <div class="action-btns">
-                <button class="btn-view" title="View details">
+                <button class="btn-view" (click)="onViewRecord(m)" title="View details">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
                        stroke="currentColor" stroke-width="2.5">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
                   </svg>
                   View
+                </button>
+                <button class="btn-edit" (click)="onEditRecord(m)" title="Edit marks">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2.5">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  Edit
                 </button>
               </div>
             </td>
@@ -241,6 +249,98 @@
       </button>
       <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">›</button>
       <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1">»</button>
+    </div>
+  </div>
+
+  <!-- View Modal -->
+  <div class="modal-backdrop" *ngIf="showViewModal" (click)="closeViewModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-titles">
+          <h2>Exam Marks Details</h2>
+          <p>Student: <strong>{{ selectedRecord?.studentName }}</strong></p>
+        </div>
+        <button class="btn-close-modal" (click)="closeViewModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Admission No</span>
+            <span class="detail-val">{{ selectedRecord?.admissionNo || '—' }}</span>
+          </div>
+          <div class="detail-item" *ngIf="selectedRecord?.rollNo">
+            <span class="detail-label">Roll No</span>
+            <span class="detail-val">{{ selectedRecord?.rollNo }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Class & Section</span>
+            <span class="detail-val">{{ selectedRecord?.className }} - {{ selectedRecord?.sectionName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Subject</span>
+            <span class="detail-val">{{ selectedRecord?.subjectName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Exam</span>
+            <span class="detail-val">{{ selectedRecord?.examName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Marks Obtained</span>
+            <span class="detail-val highlight-val">
+              {{ selectedRecord?.marksObtained }}<span *ngIf="selectedRecord?.maxMarks"> / {{ selectedRecord?.maxMarks }}</span>
+            </span>
+          </div>
+          <div class="detail-item full-width">
+            <span class="detail-label">Remarks</span>
+            <span class="detail-val remarks-val">{{ selectedRecord?.remarks || '—' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeViewModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-backdrop" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-titles">
+          <h2>Edit Exam Marks</h2>
+          <p>Student: <strong>{{ selectedRecord?.studentName }}</strong></p>
+        </div>
+        <button class="btn-close-modal" (click)="closeEditModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="alert-banner error" *ngIf="saveError">⚠ {{ saveError }}</div>
+        
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Subject</label>
+            <input type="text" class="form-input" [value]="selectedRecord?.subjectName" disabled />
+          </div>
+          <div class="form-field">
+            <label>Exam</label>
+            <input type="text" class="form-input" [value]="selectedRecord?.examName" disabled />
+          </div>
+          <div class="form-field">
+            <label>Marks Obtained (Max: {{ selectedRecord?.maxMarks || '—' }})</label>
+            <input type="number" class="form-input" [(ngModel)]="editMarksObtained" min="0" [max]="selectedRecord?.maxMarks || 999" />
+          </div>
+          <div class="form-field full-width">
+            <label>Remarks</label>
+            <textarea class="form-input textarea-remarks" [(ngModel)]="editRemarks" rows="3" placeholder="Enter teacher remarks..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeEditModal()" [disabled]="isSaving">Cancel</button>
+        <button class="btn-primary" (click)="onSaveEdit()" [disabled]="isSaving">
+          <span *ngIf="isSaving">Saving...</span>
+          <span *ngIf="!isSaving">Save Changes</span>
+        </button>
+      </div>
     </div>
   </div>
 
