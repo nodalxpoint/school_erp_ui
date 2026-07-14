@@ -1,3 +1,5 @@
+import { StudentUdiseResponseDto } from '../../udise/models/udise.model';
+
 // ─── Full student response (backend se aata hai) ──────────────────
 export interface StudentResponseDto {
   id: string;
@@ -14,7 +16,7 @@ export interface StudentResponseDto {
   academicSessionId?: string;
   academicSessionName?: string;
   guardianName?: string;   
-    guardianEmail?: string;       
+  guardianEmail?: string;       
   attendance?: unknown; 
   rollNo?: string;
   fatherName?: string;
@@ -24,6 +26,7 @@ export interface StudentResponseDto {
   parentLastName?: string;
   parentEmail?: string;
   parentPhone?: string;
+  udise?: StudentUdiseResponseDto;
 }
 
 // ─── addOrUpdate payload ──────────────────────────────────────────

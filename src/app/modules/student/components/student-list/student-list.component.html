@@ -45,30 +45,30 @@
         <tr class="filter-row">
           <td class="col-no"></td>
           <td class="col-name">
-            <input class="col-filter" type="text" placeholder="Filter name..."
-              [(ngModel)]="searchFirstName" (input)="onSearch()" />
+            <input class="col-filter" type="text" placeholder="Filter name..." [(ngModel)]="searchFirstName"
+              (input)="onSearch()" />
           </td>
           <td class="col-admission">
-            <input class="col-filter" type="text" placeholder="Admission No..."
-              [(ngModel)]="searchAdmissionNo" (input)="onSearch()" />
+            <input class="col-filter" type="text" placeholder="Admission No..." [(ngModel)]="searchAdmissionNo"
+              (input)="onSearch()" />
           </td>
           <td class="col-session">
-            <select class="col-filter select-arrow" [(ngModel)]="selectedAcademicSessionId"
-              (change)="onSearch()" [disabled]="loadingSessions">
+            <select class="col-filter select-arrow" [(ngModel)]="selectedAcademicSessionId" (change)="onSearch()"
+              [disabled]="loadingSessions">
               <option value="">{{ loadingSessions ? '...' : 'All Sessions' }}</option>
               <option *ngFor="let a of academicSessions" [value]="a.id">{{ a.label }}</option>
             </select>
           </td>
           <td class="col-class">
-            <select class="col-filter select-arrow" [(ngModel)]="selectedClassId"
-              (change)="onClassFilterChange()" [disabled]="loadingClasses">
+            <select class="col-filter select-arrow" [(ngModel)]="selectedClassId" (change)="onClassFilterChange()"
+              [disabled]="loadingClasses">
               <option value="">{{ loadingClasses ? '...' : 'All Classes' }}</option>
               <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
             </select>
           </td>
           <td class="col-section">
-            <select class="col-filter select-arrow" [(ngModel)]="selectedSectionId"
-              (change)="onSearch()" [disabled]="!selectedClassId || loadingSections">
+            <select class="col-filter select-arrow" [(ngModel)]="selectedSectionId" (change)="onSearch()"
+              [disabled]="!selectedClassId || loadingSections">
               <option value="">{{ !selectedClassId ? 'Select' : loadingSections ? '...' : 'All' }}</option>
               <option *ngFor="let s of sections" [value]="s.id">{{ s.label }}</option>
             </select>
@@ -89,7 +89,8 @@
             <td class="col-name">
               <div class="student-cell">
                 <div class="avatar">
-                  {{ student.firstName ? student.firstName.charAt(0).toUpperCase() : '' }}{{ student.lastName ? student.lastName.charAt(0).toUpperCase() : '' }}
+                  {{ student.firstName ? student.firstName.charAt(0).toUpperCase() : '' }}{{ student.lastName ?
+                  student.lastName.charAt(0).toUpperCase() : '' }}
                 </div>
                 <span class="student-name">{{ student.firstName }} {{ student.lastName }}</span>
               </div>
@@ -120,12 +121,12 @@
                   </svg>
                   Edit
                 </button>
-                <button class="btn-udise" (click)="onOpenUdise(student)">
+                <!-- <button class="btn-udise" (click)="onOpenUdise(student)">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                   </svg>
                   UDISE
-                </button>
+                </button> -->
               </div>
             </td>
           </tr>
@@ -152,7 +153,8 @@
         <tr class="footer-row">
           <td colspan="8">
             <div class="table-footer-summary">
-              Showing <strong>{{ startIndex }}</strong> to <strong>{{ endIndex }}</strong> of <strong>{{ totalElements }}</strong> active students listed
+              Showing <strong>{{ startIndex }}</strong> to <strong>{{ endIndex }}</strong> of <strong>{{ totalElements
+                }}</strong> active students listed
             </div>
           </td>
         </tr>
@@ -165,7 +167,8 @@
     <div class="page-btns">
       <button class="page-btn" (click)="goToPage(0)" [disabled]="currentPage === 0">«</button>
       <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">‹</button>
-      <button *ngFor="let p of pages" class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p + 1 }}</button>
+      <button *ngFor="let p of pages" class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p + 1
+        }}</button>
       <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">›</button>
       <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="currentPage >= totalPages - 1">»</button>
     </div>
@@ -173,8 +176,5 @@
 
 </div>
 
-<app-student-udise-modal
-  [isOpen]="showUdiseModal"
-  [student]="selectedStudentForUdise"
-  (closed)="onCloseUdise()">
+<app-student-udise-modal [isOpen]="showUdiseModal" [student]="selectedStudentForUdise" (closed)="onCloseUdise()">
 </app-student-udise-modal>

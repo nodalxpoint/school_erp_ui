@@ -1,0 +1,161 @@
+<div class="reports-container">
+  <!-- Header Title -->
+  <div class="page-header">
+    <div class="page-header__info">
+      <h1 class="page-header__title">Reports Center</h1>
+      <p class="page-header__subtitle">Generate, filter, and export student and administrative reports</p>
+    </div>
+  </div>
+
+  <!-- Report Category Selector -->
+  <div class="tab-container">
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'students'" 
+      (click)="switchTab('students')">
+      Student Directory Report
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'fees'" 
+      (click)="switchTab('fees')"
+      disabled>
+      Fee Defaulters (Locked)
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'attendance'" 
+      (click)="switchTab('attendance')"
+      disabled>
+      Attendance Summary (Locked)
+    </button>
+  </div>
+
+  <!-- Filter Card -->
+  <div class="filter-card">
+    <div class="filter-grid">
+      <!-- Session -->
+      <div class="filter-group">
+        <label for="session">Academic Session</label>
+        <select id="session" [(ngModel)]="filters.academicSessionId">
+          <option value="">All Sessions</option>
+          <option *ngFor="let opt of academicSessions" [value]="opt.id">
+            {{ opt.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Class -->
+      <div class="filter-group">
+        <label for="class">Class</label>
+        <select id="class" [(ngModel)]="filters.classId" (change)="onClassChange()">
+          <option value="">All Classes</option>
+          <option *ngFor="let opt of classes" [value]="opt.id">
+            {{ opt.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Section -->
+      <div class="filter-group">
+        <label for="section">Section</label>
+        <select id="section" [(ngModel)]="filters.sectionId" [disabled]="!filters.classId">
+          <option value="">All Sections</option>
+          <option *ngFor="let opt of sections" [value]="opt.id">
+            {{ opt.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Gender -->
+      <div class="filter-group">
+        <label for="gender">Gender</label>
+        <select id="gender" [(ngModel)]="filters.gender">
+          <option value="All">All Genders</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="filter-actions">
+      <button class="btn btn--secondary" (click)="clearFilters()">
+        Reset Filters
+      </button>
+      <button class="btn btn--primary" (click)="generateReport(0)">
+        Generate Report
+      </button>
+      <button class="btn btn--success" (click)="exportReport()" [disabled]="!reportData || reportData.rows.length === 0">
+        Export CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- Report Data Table Grid -->
+  <div class="table-card">
+    <div class="loader-overlay" *ngIf="loading">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && (!reportData || reportData.rows.length === 0)">
+      <div class="empty-state__icon">📋</div>
+      <h3 class="empty-state__title">No Report Data</h3>
+      <p class="empty-state__description">
+        Choose your parameters above and click "Generate Report" to view results.
+      </p>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-responsive" *ngIf="!loading && reportData && reportData.rows.length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th *ngFor="let header of reportData.headers">{{ header }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of reportData.rows">
+            <td *ngFor="let header of reportData.headers">
+              <span [class.badge]="header === 'Status'" [class.badge--active]="header === 'Status' && row[header] === 'ACTIVE'">
+                {{ row[header] !== undefined ? row[header] : '-' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination Footer -->
+      <div class="pagination">
+        <div class="pagination__info">
+          Showing {{ startIndex }} - {{ endIndex }} of {{ reportData.totalElements }} records
+        </div>
+        <div class="pagination__controls">
+          <button 
+            class="pagination__btn" 
+            [disabled]="currentPage === 0" 
+            (click)="goToPage(currentPage - 1)">
+            Previous
+          </button>
+          
+          <button 
+            *ngFor="let page of pages" 
+            class="pagination__btn" 
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)">
+            {{ page + 1 }}
+          </button>
+
+          <button 
+            class="pagination__btn" 
+            [disabled]="currentPage >= reportData.totalPages - 1" 
+            (click)="goToPage(currentPage + 1)">
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

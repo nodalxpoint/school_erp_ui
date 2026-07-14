@@ -140,6 +140,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./modules/udise/udise.routes').then(m => m.UDISE_ROUTES)
       },
+      {
+        path: 'reports',
+        loadChildren: () =>
+          import('./modules/reports/reports.routes').then(m => m.REPORTS_ROUTES)
+      },
     ]
   },
 

@@ -170,5 +170,85 @@
       </div>
     </div>
 
+    <div class="info-card full-width" *ngIf="student.udise">
+      <div class="info-card-header">
+        <div class="info-badge">04</div>
+        <div>
+          <h3>UDISE Compliance Information</h3>
+          <p>Government statutory registration and demographic parameters</p>
+        </div>
+      </div>
+      <div class="info-body info-body-grid">
+        <div class="info-row">
+          <span class="info-label">Permanent Education Number (PEN)</span>
+          <span class="info-val fw">{{ student.udise.pen || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">APAAR ID</span>
+          <span class="info-val fw">{{ student.udise.apaarId || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Name as per Aadhaar</span>
+          <span class="info-val fw">{{ student.udise.nameAsPerAadhaar || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Aadhaar (Last 4 Digits)</span>
+          <span class="info-val fw">{{ student.udise.aadhaarLastFour || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Pincode</span>
+          <span class="info-val fw">{{ student.udise.pincode || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Mother Tongue</span>
+          <span class="info-val fw">{{ student.udise.motherTongue || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Social Category</span>
+          <span class="info-val fw">{{ student.udise.socialCategory || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Minority Group</span>
+          <span class="info-val fw">{{ student.udise.minorityGroup || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">BPL Beneficiary</span>
+          <span class="info-val fw">{{ student.udise.bplBeneficiary ? 'Yes' : 'No' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">EWS Disadvantaged</span>
+          <span class="info-val fw">{{ student.udise.ewsDisadvantaged ? 'Yes' : 'No' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Indian National</span>
+          <span class="info-val fw">{{ student.udise.indianNational ? 'Yes' : 'No' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">CWSN</span>
+          <span class="info-val fw">{{ student.udise.cwsn ? 'Yes' : 'No' }}</span>
+        </div>
+        <div class="info-row" *ngIf="student.udise.cwsn">
+          <span class="info-label">Disability Type</span>
+          <span class="info-val fw">{{ student.udise.disabilityType || '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Out of School (Current Year)</span>
+          <span class="info-val fw">{{ student.udise.outOfSchoolCurrentYear ? 'Yes' : 'No' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Out of School (Previous Year)</span>
+          <span class="info-val fw">{{ student.udise.outOfSchoolPreviousYear ? 'Yes' : 'No' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">UDISE Status</span>
+          <span class="info-val">
+            <span class="status-chip" [class.verified]="student.udise.udiseStatus === 'VERIFIED'" [class.draft]="student.udise.udiseStatus === 'DRAFT' || student.udise.udiseStatus === 'PENDING'">
+              {{ student.udise.udiseStatus || '—' }}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

@@ -194,3 +194,23 @@
 
   .info-val { text-align: left; }
 }
+
+.status-chip {
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+
+  &.verified {
+    background: var(--teal-light);
+    border: 1px solid var(--teal-border);
+    color: var(--teal);
+  }
+  &.draft, &.pending {
+    background: #fffaf0;
+    border: 1px solid #feebc8;
+    color: #dd6b20;
+  }
+}
