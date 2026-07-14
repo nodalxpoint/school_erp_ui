@@ -117,6 +117,10 @@ export class ClassTeacherListComponent implements OnInit {
     this.router.navigate(['/teachers/assign']); 
   }
 
+  onEdit(assignment: ClassTeacherAssignmentResponseDto): void {
+    this.router.navigate(['/teachers/assign'], { state: { assignment } });
+  }
+
   // ── Pagination & Filter ───────────────────────────────────────────────────
 
   applyFilter(): void {

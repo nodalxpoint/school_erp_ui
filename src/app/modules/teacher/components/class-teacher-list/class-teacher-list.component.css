@@ -700,4 +700,37 @@
 .filter-dropdown-select option {
   color: var(--text-primary);
   background-color: var(--surface);
-}/*# sourceMappingURL=class-teacher-list.component.css.map */
+}
+
+.action-buttons-wrap {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.edit-btn svg {
+  flex-shrink: 0;
+}
+
+.edit-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/*# sourceMappingURL=class-teacher-list.component.css.map */

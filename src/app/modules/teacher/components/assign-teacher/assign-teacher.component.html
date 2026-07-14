@@ -4,7 +4,7 @@
     <div class="ast-breadcrumb">
       <span class="ast-crumb-link" (click)="onBack()">Class Assignments</span>
       <span class="ast-crumb-sep">/</span>
-      <span class="ast-crumb-current">Allocate Class Teacher Terminal</span>
+      <span class="ast-crumb-current">{{ isEditMode ? 'Edit Class Teacher Assignment' : 'Allocate Class Teacher Terminal' }}</span>
     </div>
     
     <button class="ast-btn-top-back" type="button" (click)="onBack()" [disabled]="isSubmitting">
@@ -28,8 +28,10 @@
         </svg>
       </div>
       <div class="ast-header-text">
-        <h3 class="ast-card-title">Assign Class Teacher Profile</h3>
-        <p class="ast-card-sub">Establish clear institutional management nodes by anchoring faculty heads to classroom matrix layouts cleanly.</p>
+        <h3 class="ast-card-title">{{ isEditMode ? 'Edit Class Teacher Assignment' : 'Assign Class Teacher Profile' }}</h3>
+        <p class="ast-card-sub">
+          {{ isEditMode ? 'Modify target matrix nodes by updating faculty heads or class configurations.' : 'Establish clear institutional management nodes by anchoring faculty heads to classroom matrix layouts cleanly.' }}
+        </p>
       </div>
     </div>
 
@@ -110,7 +112,7 @@
         <svg *ngIf="!isSubmitting" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
-        {{ isSubmitting ? 'Saving roster mapping...' : 'Confirm Allocation' }}
+        {{ isSubmitting ? 'Saving roster mapping...' : isEditMode ? 'Update Allocation' : 'Confirm Allocation' }}
       </button>
     </div>
 

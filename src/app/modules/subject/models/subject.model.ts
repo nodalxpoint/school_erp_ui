@@ -5,6 +5,7 @@ export interface SubjectResponseDto {
   name: string;
   code: string;
   createdAt?: string;
+  isDeleted?: boolean;
 }
 
 export interface SubjectTeacherAssignmentResponseDto {
@@ -47,6 +48,7 @@ export interface SubjectFilterRequest {
   sortBy?: string;
   sortDirection?: 'ASC' | 'DESC';
   name?: string;
+  includeDeleted?: boolean;
 }
 
 export interface SubjectTeacherAssignmentFilterRequest {

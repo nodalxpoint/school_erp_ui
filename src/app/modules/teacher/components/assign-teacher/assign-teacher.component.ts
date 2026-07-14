@@ -38,6 +38,7 @@ export class AssignTeacherComponent implements OnInit {
   };
   errors: Record<string, string> = {};
   isSubmitting = false;
+  isEditMode = false;
 
   constructor(
     private teacherService: TeacherService,
@@ -47,6 +48,24 @@ export class AssignTeacherComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadClasses();
+
+    const state = window.history.state;
+    if (state && state.assignment) {
+      this.isEditMode = true;
+      const assignment = state.assignment;
+      this.form = {
+        classId: assignment.classId || '',
+        sectionId: assignment.sectionId || '',
+        teacherId: assignment.teacherId || '',
+        academicSessionId: assignment.academicSessionId || ''
+      };
+
+      if (this.form.classId) {
+        this.loadSections(this.form.classId);
+      }
+      this.loadTeachers();
+      this.loadAcademicSessions();
+    }
   }
 
   loadClasses(): void {

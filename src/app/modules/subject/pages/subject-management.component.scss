@@ -236,7 +236,13 @@
 .col-subject { min-width: 240px; }
 .col-code    { width: 160px; }
 .col-date    { width: 220px; }
-.col-actions { width: 140px; text-align: right; }
+.col-actions { width: 220px; text-align: right; }
+
+.action-buttons-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
 
 .subject-cell { display: flex; align-items: center; gap: 12px; }
 .avatar-box { width: 36px; height: 36px; border-radius: 10px; background: var(--primary-light); border: 1px solid var(--primary-border); color: var(--primary); font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; }
@@ -248,6 +254,31 @@
 .edit-btn {
   display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; background: #ffffff; border: 1px solid var(--border-dark); color: var(--text-muted); border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all 0.15s ease;
   &:hover { border-color: var(--primary-border); color: var(--primary); background: var(--primary-light); }
+}
+
+.delete-btn {
+  display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; background: #ffffff; border: 1px solid var(--border-dark); color: var(--text-muted); border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all 0.15s ease;
+  &:hover { border-color: #feb2b2; color: var(--danger-red); background: var(--danger-bg); }
+}
+
+.restore-btn {
+  display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; background: #ffffff; border: 1px solid var(--border-dark); color: var(--text-muted); border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all 0.15s ease;
+  &:hover { border-color: var(--teal-border); color: var(--teal); background: var(--teal-light); }
+}
+
+.badge-deleted {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--danger-red); background: var(--danger-bg); border: 1px solid #feb2b2; padding: 2px 6px; border-radius: 4px; margin-left: 8px; display: inline-block; vertical-align: middle;
+}
+
+.sm-checkbox-wrap {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--text-primary); cursor: pointer; user-select: none; margin-left: 8px; margin-right: 8px;
+  input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; border-radius: 4px; border: 1px solid var(--border-dark); accent-color: var(--primary); }
+}
+
+.is-deleted-row {
+  opacity: 0.65;
+  .avatar-box { background: #edf2f7; border-color: #cbd5e0; color: #a0aec0; }
+  .subject-name { text-decoration: line-through; color: var(--text-muted); }
 }
 
 .pagination { display: flex; align-items: center; gap: 6px; padding: 14px 20px; border-top: 1px solid var(--border); background: var(--bg-row-odd); }

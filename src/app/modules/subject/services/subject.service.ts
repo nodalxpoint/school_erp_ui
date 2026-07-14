@@ -36,7 +36,7 @@ export class SubjectService {
   private base = `${environment.apiUrl}/subject`;
   private param = `${environment.apiUrl}/param`; // Mapped to your shared param structure
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // ── Param-based Dropdowns (Lazy Loaded Helpers for Filters/Forms) ──────────
 
@@ -73,6 +73,14 @@ export class SubjectService {
 
   addOrUpdateSubject(dto: CreateSubjectDto): Observable<any> {
     return this.http.post<any>(`${this.base}/addOrUpdate`, dto);
+  }
+
+  deleteSubject(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.base}/delete/${id}`);
+  }
+
+  restoreSubject(id: string): Observable<any> {
+    return this.http.post<any>(`${this.base}/restore/${id}`, {});
   }
 
   // ── Subject Teacher Assignment Endpoints ───────────────────────────────────

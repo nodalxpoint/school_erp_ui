@@ -33,6 +33,7 @@ export class SubjectManagementComponent implements OnInit {
     // sortDirection: 'desc'
   };
   searchText = '';
+  includeDeleted = false;
 
   constructor(
     private subjectService: SubjectService,
@@ -49,7 +50,8 @@ export class SubjectManagementComponent implements OnInit {
 
     this.subjectService.filterSubjects({
       ...this.filter,
-      name: this.searchText.trim() || undefined
+      name: this.searchText.trim() || undefined,
+      includeDeleted: this.includeDeleted
     }).subscribe({
       next: (res: any) => {
         // Mapping as per PagedResponse implementation
@@ -102,6 +104,47 @@ export class SubjectManagementComponent implements OnInit {
   onCloseSidebar(): void {
     this.isSidebarOpen = false;
     this.cdr.markForCheck();
+  }
+
+  onDeleteSubject(sub: SubjectResponseDto): void {
+    if (!sub.id) return;
+    if (confirm(`Are you sure you want to delete the subject "${sub.name}"?`)) {
+      this.isLoading = true;
+      this.cdr.markForCheck();
+      this.subjectService.deleteSubject(sub.id).subscribe({
+        next: () => {
+          this.loadSubjects();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          alert(err?.error?.message || 'Failed to delete subject.');
+          this.cdr.markForCheck();
+        }
+      });
+    }
+  }
+
+  onRestoreSubject(sub: SubjectResponseDto): void {
+    if (!sub.id) return;
+    if (confirm(`Are you sure you want to restore the subject "${sub.name}"?`)) {
+      this.isLoading = true;
+      this.cdr.markForCheck();
+      this.subjectService.restoreSubject(sub.id).subscribe({
+        next: () => {
+          this.loadSubjects();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          alert(err?.error?.message || 'Failed to restore subject.');
+          this.cdr.markForCheck();
+        }
+      });
+    }
+  }
+
+  onToggleIncludeDeleted(): void {
+    this.filter.page = 0;
+    this.loadSubjects();
   }
 
   onSubmit(): void {
