@@ -6,6 +6,7 @@ import { ExamMarksResponseDto, ExamMarksFilterRequest, StudentSuggestion } from 
 import { DropdownOption } from '../../../student/models/student.model';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { AuthStateService } from '../../../../core/auth/auth-state.service';
 
 @Component({
   selector: 'app-exam-marks-list',
@@ -62,13 +63,18 @@ export class ExamMarksListComponent implements OnInit {
   totalElements = 0;
   totalPages    = 0;
 
+  isAdmin = false;
+
   constructor(
     private marksService: ExamMarksService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authState: AuthStateService
   ) {}
 
   // ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
+    const role = this.authState.currentUser?.role;
+    this.isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN';
     this.loadDropdowns();
     this.setupStudentAutocomplete();
     // Page open hote hi koi data nahi dikhana — sirf Search click pe loadExamMarks() chalega

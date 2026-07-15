@@ -2,7 +2,7 @@
 
   <div class="db-hero-header-card">
     <div class="db-header-left">
-      <div class="db-eyebrow-badge">School ERP · Live Synchronization Active</div>
+      <div class="db-eyebrow-badge">{{ isAdmin ? 'Admin Dashboard' : 'School ERP' }} · Live Synchronization Active</div>
       <h2 class="db-welcome-title">
         {{ greeting }}, {{ firstName }} 
         <span *ngIf="isParent && selectedChild">({{ selectedChild.firstName }})</span> 👋
@@ -27,7 +27,10 @@
   </div>
 
   <div class="db-stats-matrix-grid">
-    <div *ngFor="let s of stats; let i = index" class="db-stat-luxury-card card-accent-{{ s.color }}">
+    <div *ngFor="let s of stats; let i = index" 
+         class="db-stat-luxury-card card-accent-{{ s.color }}"
+         [routerLink]="s.route ? s.route : null"
+         [style.cursor]="s.route ? 'pointer' : 'default'">
       <div class="db-stat-card-top-row">
         <p class="db-stat-label">{{ s.title }}</p>
         <div class="db-stat-icon-wrapper theme-wrap-{{ s.color }}">

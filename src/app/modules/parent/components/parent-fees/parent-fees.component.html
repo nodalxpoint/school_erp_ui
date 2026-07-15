@@ -1,0 +1,125 @@
+<div class="school-erp-container">
+
+  <div class="app-header">
+    <div class="page-title-node">
+      <span>Children Fees</span>
+    </div>
+    
+    <!-- Controls (Child & Session selects) -->
+    <div class="header-controls-group">
+      <div class="control-select-box">
+        <label class="control-lbl">Select Child</label>
+        <select class="premium-input select-native" [(ngModel)]="selectedChildId" (change)="onChildChange()">
+          <option *ngFor="let child of childrenList" [value]="child.id">
+            {{ child.firstName }} {{ child.lastName }}
+          </option>
+        </select>
+      </div>
+
+      <div class="control-select-box">
+        <label class="control-lbl">Academic Session</label>
+        <select class="premium-input select-native" [(ngModel)]="selectedSessionId" (change)="onSessionChange()">
+          <option *ngFor="let s of sessionsList" [value]="s.id">
+            {{ s.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-dashboard-layout single-panel-focus">
+    
+    <!-- Loading Overlay -->
+    <div class="loading-state-block" *ngIf="isLoading && months.length === 0">
+      <div class="spinner-loader"></div>
+      <p>Loading fee ledger status...</p>
+    </div>
+
+    <!-- Empty State Fallback -->
+    <div class="empty-state-card" *ngIf="!isLoading && months.length === 0">
+      <div class="empty-graphic-circle">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="4" width="20" height="16" rx="2" ry="2"/>
+          <line x1="12" y1="10" x2="12" y2="10"/>
+        </svg>
+      </div>
+      <h3>No Fee Structure Configured</h3>
+      <p>There are no fee structures mapped to this class for the selected academic session.</p>
+    </div>
+
+    <ng-container *ngIf="months.length > 0">
+      <!-- Summary metrics at the top -->
+      <div class="fees-summary-grid">
+        <div class="summary-metric-card border-blue">
+          <div class="metric-top-row">
+            <span class="metric-lbl">Total Paid</span>
+            <div class="metric-icon bg-blue">₹</div>
+          </div>
+          <h3 class="metric-val">₹{{ totalPaid | number:'1.2-2' }}</h3>
+          <div class="metric-progress-wrapper">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill bg-blue" [style.width.%]="paidPercentage"></div>
+            </div>
+            <span class="progress-percent-lbl">{{ paidPercentage }}% Collected</span>
+          </div>
+        </div>
+
+        <div class="summary-metric-card border-orange">
+          <div class="metric-top-row">
+            <span class="metric-lbl">Total Pending</span>
+            <div class="metric-icon bg-orange">⚠️</div>
+          </div>
+          <h3 class="metric-val text-orange">₹{{ totalPending | number:'1.2-2' }}</h3>
+          <span class="metric-caption">Pending due amount</span>
+        </div>
+
+        <div class="summary-metric-card border-green">
+          <div class="metric-top-row">
+            <span class="metric-lbl">Overall Annual Amount</span>
+            <div class="metric-icon bg-green">✓</div>
+          </div>
+          <h3 class="metric-val">₹{{ overallTotal | number:'1.2-2' }}</h3>
+          <span class="metric-caption">Total structured tuition fees</span>
+        </div>
+      </div>
+
+      <!-- Detail list of months -->
+      <div class="ledger-feed-wrapper">
+        <h4 class="section-subtitle">Monthly Breakdown Summary</h4>
+        
+        <div class="monthly-breakdown-list">
+          <div class="month-row-card" *ngFor="let item of months" [class.month-paid]="item.status === 'PAID'">
+            
+            <div class="month-info-col">
+              <span class="month-title">{{ item.monthName }}</span>
+              <span class="month-subtext">Tuition Fee Schedule</span>
+            </div>
+
+            <div class="month-amounts-col">
+              <div class="amount-split">
+                <span class="amt-lbl">Total structured:</span>
+                <span class="amt-val">₹{{ item.totalAmount | number:'1.2-2' }}</span>
+              </div>
+              <div class="amount-split">
+                <span class="amt-lbl">Paid amount:</span>
+                <span class="amt-val text-green" *ngIf="item.paidAmount > 0">₹{{ item.paidAmount | number:'1.2-2' }}</span>
+                <span class="amt-val text-gray" *ngIf="item.paidAmount === 0">₹0.00</span>
+              </div>
+            </div>
+
+            <div class="month-status-col">
+              <span class="status-badge" [class.badge-paid]="item.status === 'PAID'" [class.badge-pending]="item.status === 'PENDING'">
+                {{ item.status }}
+              </span>
+              <span class="paid-date-lbl" *ngIf="item.status === 'PAID' && item.paidAt">
+                Paid: {{ item.paidAt | date:'mediumDate' }}
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

@@ -19,14 +19,15 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard',         href: '/dashboard',         icon: 'layout-dashboard', roles: 'all' },
-  { label: 'Students',          href: '/students',          icon: 'graduation-cap',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
-  { label: 'UDISE Compliance',  href: '/udise',             icon: 'shield-check',     roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
+  { label: 'Admin Dashboard',   href: '/dashboard',         icon: 'layout-dashboard', roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { label: 'Dashboard',         href: '/dashboard',         icon: 'layout-dashboard', roles: ['TEACHER', 'STUDENT', 'PARENT'] },
+  { label: 'Students',          href: '/students',          icon: 'graduation-cap',   roles: ['SUPER_ADMIN', 'ADMIN'] },
+  { label: 'UDISE Compliance',  href: '/udise',             icon: 'shield-check',     roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Teachers',          href: '/teachers',          icon: 'users',            roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
   { label: 'Subjects',          href: '/subjects',          icon: 'book-open',        roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Class Timetable',   href: '/timetable',         icon: 'calendar-check',    roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Exams Module',      href: '/exams',             icon: 'exam-sheet',        roles: ['SUPER_ADMIN', 'ADMIN'] }, 
-  { label: 'Exam-Marks',        href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
+  { label: 'Exam-Marks',        href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Attendance',        href: '/attendance',        icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT'] },
   { label: 'Student Progression', href: '/students/progression', icon: 'graduation-cap', roles: ['TEACHER'] },
 
@@ -35,8 +36,9 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Children Attendance', href: '/parent/attendance', icon: 'calendar-check', roles: ['PARENT'] },
   { label: 'Exam Results',        href: '/parent/exams',      icon: 'exam-sheet',     roles: ['PARENT'] },
   { label: 'Class Timetable',     href: '/parent/timetable',  icon: 'calendar-days',  roles: ['PARENT'] },
+  { label: 'Children Fees',       href: '/parent/fees',       icon: 'credit-card',    roles: ['PARENT'] },
   
-  { label: 'Fees',              href: '/fees',              icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT', 'PARENT'] },
+  { label: 'Fees',              href: '/fees',              icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT'] },
   { label: 'Users',             href: '/users',             icon: 'users',            roles: ['SUPER_ADMIN'] },
   { label: 'Reports',           href: '/reports',           icon: 'bar-chart-3',      roles: ['SUPER_ADMIN', 'ADMIN'] },
   { label: 'Settings',          href: '/settings',          icon: 'settings',         roles: 'all' },

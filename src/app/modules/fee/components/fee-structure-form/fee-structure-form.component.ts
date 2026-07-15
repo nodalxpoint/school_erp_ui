@@ -18,6 +18,7 @@ export class FeeStructureFormComponent implements OnInit {
   isEditMode = false;
   isLoading = false;
   classes: DropdownOption[] = [];
+  academicSessions: DropdownOption[] = [];
 
   showToast = false;
   toastMessage = '';
@@ -26,10 +27,11 @@ export class FeeStructureFormComponent implements OnInit {
 
   formData: SaveFeeStructureRequest = {
     classId: '',
-    feeName: '',
+    feeName: 'TUTION FEE',
     amount: 0,
     frequency: 'MONTHLY',
-    dueDate: '' 
+    dueDate: '',
+    academicSessionId: ''
   };
 
   constructor(
@@ -45,6 +47,14 @@ export class FeeStructureFormComponent implements OnInit {
       this.cdr.markForCheck();
     });
 
+    this.feeService.getParams('academic_sessions').subscribe(data => {
+      this.academicSessions = data;
+      if (!this.isEditMode && data.length > 0) {
+        this.formData.academicSessionId = data[0].id;
+      }
+      this.cdr.markForCheck();
+    });
+
     const editId = this.route.snapshot.paramMap.get('id');
     const stateData = history.state?.data;
 
@@ -57,7 +67,8 @@ export class FeeStructureFormComponent implements OnInit {
           feeName: stateData.feeName || '',
           amount: stateData.amount || 0,
           frequency: stateData.frequency || 'MONTHLY',
-           dueDate: stateData.dueDate ? stateData.dueDate.substring(0, 10) : '' 
+          dueDate: stateData.dueDate ? stateData.dueDate.substring(0, 10) : '',
+          academicSessionId: stateData.academicSessionId || ''
         };
       } else if (editId) {
         this.formData.id = editId;
@@ -93,6 +104,10 @@ export class FeeStructureFormComponent implements OnInit {
       this.fireToast('error', 'Please select a class.');
       return;
     }
+    if (!this.formData.academicSessionId) {
+      this.fireToast('error', 'Please select an academic session.');
+      return;
+    }
     if (!this.formData.feeName?.trim()) {
       this.fireToast('error', 'Fee name is required.');
       return;
@@ -106,11 +121,11 @@ export class FeeStructureFormComponent implements OnInit {
     this.cdr.markForCheck();
 
     const payload: SaveFeeStructureRequest = {
-    ...this.formData,
-    dueDate: this.formData.dueDate || null   
-  };
+      ...this.formData,
+      dueDate: this.formData.dueDate || null   
+    };
 
-    this.feeService.saveFeeStructure(this.formData).subscribe({
+    this.feeService.saveFeeStructure(payload).subscribe({
       next: (response: any) => {
         this.isLoading = false;
         this.cdr.markForCheck();               // 👈 missing tha, isi wajah se button stuck tha

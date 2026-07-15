@@ -16,6 +16,10 @@ export const PARENT_ROUTES: Routes = [
         loadComponent: () => import('./components/parent-exams/parent-exams.component').then(m => m.ParentExamsComponent)
       },
       {
+        path: 'fees',
+        loadComponent: () => import('./components/parent-fees/parent-fees.component').then(m => m.ParentFeesComponent)
+      },
+      {
         path: 'timetable',
         loadComponent: () => import('./components/parent-timetable/parent-timetable.component').then(m => m.ParentTimetableComponent)
       },

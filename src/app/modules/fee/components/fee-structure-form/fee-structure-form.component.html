@@ -22,6 +22,15 @@
           </select>
         </div>
 
+        <!-- Academic Session -->
+        <div class="form-field">
+          <label>Academic Session <span class="required-star">*</span></label>
+          <select class="modal-input" [(ngModel)]="formData.academicSessionId">
+            <option value="">Select Academic Session</option>
+            <option *ngFor="let s of academicSessions" [value]="s.id">{{ s.label }}</option>
+          </select>
+        </div>
+
         <!-- Fee Name -->
         <div class="form-field">
           <label>Fee Name <span class="required-star">*</span></label>
