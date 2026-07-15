@@ -1,156 +1,139 @@
+// app.routes.ts — full updated
+
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
-  // ── Default redirect ────────────────────────────────────────────
-  {
-    path: '',
-    redirectTo: 'auth/login',
-    pathMatch: 'full'
-  },
+  { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
 
-  // ── Auth routes (no shell, no sidebar) ──────────────────────────
   {
     path: 'auth/login',
-    loadComponent: () =>
-      import('./modules/auth/login/login.component').then(m => m.LoginComponent),
+    loadComponent: () => import('./modules/auth/login/login.component').then(m => m.LoginComponent),
     canActivate: [guestGuard]
   },
   {
     path: 'auth/register',
-    loadComponent: () =>
-      import('./modules/auth/register/register.component').then(m => m.RegisterComponent),
+    loadComponent: () => import('./modules/auth/register/register.component').then(m => m.RegisterComponent),
     canActivate: [guestGuard]
   },
 
-  // ── Shell (sidebar + topbar wrapper) — all protected routes here ─
   {
     path: '',
-    loadComponent: () =>
-      import('./shared/components/layout/shell/shell.component').then(m => m.ShellComponent),
+    loadComponent: () => import('./shared/components/layout/shell/shell.component').then(m => m.ShellComponent),
     canActivate: [authGuard],
     children: [
 
-      // Dashboard
-      {
-        path: 'dashboard',
-        loadComponent: () =>
-          import('./modules/dashboard/dashboard.component').then(m => m.DashboardComponent)
-      },
+      { path: 'dashboard', loadComponent: () => import('./modules/dashboard/dashboard.component').then(m => m.DashboardComponent) },
 
-      // Parent Module Integration inside the core Shell structure
       {
         path: 'parent',
-        loadChildren: () => 
-          import('./modules/parent/parent.routes').then(m => m.PARENT_ROUTES)
+        canActivate: [roleGuard(['PARENT'])],
+        loadChildren: () => import('./modules/parent/parent.routes').then(m => m.PARENT_ROUTES)
       },
 
-      // Teachers
+      // Teachers root list/add/assign/class-teacher/:id → sirf admin-tier.
+      // Note: TEACHER role kabhi is route pe navigate nahi hota (sidebar me sirf dropdown
+      // toggle hoti hai jiske andar Teacher Timetable / Teacher Mapping alag routes hain).
       {
         path: 'teachers',
-        loadChildren: () =>
-          import('./modules/teacher/teacher.routes').then(m => m.TEACHER_ROUTES)
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        loadChildren: () => import('./modules/teacher/teacher.routes').then(m => m.TEACHER_ROUTES)
       },
 
-      // Subjects Module
       {
         path: 'subjects',
-        loadChildren: () =>
-          import('./modules/subject/subject.routes').then(m => m.SUBJECT_ROUTES)
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        loadChildren: () => import('./modules/subject/subject.routes').then(m => m.SUBJECT_ROUTES)
       },
 
-      // Students
+      // Students: parent guard admin+teacher (kyunki 'progression' child Teacher ke liye
+      // hai), lekin andar STUDENT_ROUTES ke child routes khud restrict karte hain.
       {
         path: 'students',
-        loadChildren: () =>
-          import('./modules/student/student.routes').then(m => m.STUDENT_ROUTES)
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER'])],
+        loadChildren: () => import('./modules/student/student.routes').then(m => m.STUDENT_ROUTES)
       },
 
-      // Timetable Module
       {
         path: 'timetable',
-        loadChildren: () =>
-          import('./modules/timetable/timetable.routes').then(m => m.TIMETABLE_ROUTES)
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        loadChildren: () => import('./modules/timetable/timetable.routes').then(m => m.TIMETABLE_ROUTES)
       },
 
-      // Classes & Sections
+      // ⚠️ orphan route — koi sidebar link nahi, koi guard nahi tha. Neeche note dekho.
       {
         path: 'classes',
-        loadChildren: () =>
-          import('./modules/class/class.routes').then(m => m.CLASS_ROUTES)
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        loadChildren: () => import('./modules/class/class.routes').then(m => m.CLASS_ROUTES)
       },
 
-      // Attendance
       {
         path: 'attendance',
-        loadChildren: () =>
-          import('./modules/attendance/attendance.routes').then(m => m.ATTENDANCE_ROUTES)
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER', 'STUDENT'])],
+        loadChildren: () => import('./modules/attendance/attendance.routes').then(m => m.ATTENDANCE_ROUTES)
       },
 
-      // Teacher Timetable
       {
         path: 'teacher-timetable',
-        loadChildren: () =>
-          import('./modules/teacher-timetable/teacher-timetable.routes').then(m => m.TEACHER_TIMETABLE_ROUTES)
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER'])],
+        loadChildren: () => import('./modules/teacher-timetable/teacher-timetable.routes').then(m => m.TEACHER_TIMETABLE_ROUTES)
       },
 
-      // Exams
       {
         path: 'exams',
-        loadChildren: () =>
-          import('./modules/exams/exams.routes').then(m => m.EXAMS_ROUTES)
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        loadChildren: () => import('./modules/exams/exams.routes').then(m => m.EXAMS_ROUTES)
       },
 
-      // Exam Schedule
       {
         path: 'exam-schedule',
-        loadChildren: () =>
-          import('./modules/exam-schedule/exam-schedule.routes').then(m => m.EXAM_SCHEDULE_ROUTES)
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        loadChildren: () => import('./modules/exam-schedule/exam-schedule.routes').then(m => m.EXAM_SCHEDULE_ROUTES)
       },
 
-      // Exam Marks
       {
         path: 'teacher-mapping',
         canActivate: [roleGuard(['TEACHER'])],
-        loadChildren: () => 
-          import('./modules/teacher-mapping/teacher-mapping.routes').then(m => m.TEACHER_MAPPING_ROUTES)
+        loadChildren: () => import('./modules/teacher-mapping/teacher-mapping.routes').then(m => m.TEACHER_MAPPING_ROUTES)
+      },
+
+      {
+        path: 'exam-marks',
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        loadChildren: () => import('./modules/exam-marks/exam-marks.routes').then(m => m.EXAM_MARKS_ROUTES)
+      },
+
+      // Fees: parent-level me sabko allow karo jo koi bhi /fees sub-page use karte hain,
+      // andar FEE_ROUTES ke children apna specific restriction lagate hain (neeche dekho).
+      {
+        path: 'fees',
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'STUDENT', 'ACCOUNTANT'])],
+        loadChildren: () => import('./modules/fee/fee.routes').then(m => m.FEE_ROUTES)
       },
       {
-  path: 'exam-marks',
-  loadChildren: () => import('./modules/exam-marks/exam-marks.routes').then(m => m.EXAM_MARKS_ROUTES)
-},
+        path: 'fee-structure',
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'ACCOUNTANT'])],
+        loadChildren: () => import('./modules/fee/fee-structure.routes').then(m => m.FEE_STRUCTURE_ROUTES)
+      },
 
-// app.routes.ts mein
-{
-  path: 'fees',
-  loadChildren: () => import('./modules/fee/fee.routes').then(m => m.FEE_ROUTES)
-},
-{
-  path: 'fee-structure',
-  loadChildren: () => import('./modules/fee/fee-structure.routes').then(m => m.FEE_STRUCTURE_ROUTES)
-},
-  {
+      {
         path: 'users',
-        loadChildren: () =>
-          import('./modules/user/user.routes').then(m => m.USER_ROUTES)
+        canActivate: [roleGuard(['SUPER_ADMIN'])],
+        loadChildren: () => import('./modules/user/user.routes').then(m => m.USER_ROUTES)
       },
       {
         path: 'udise',
-        loadChildren: () =>
-          import('./modules/udise/udise.routes').then(m => m.UDISE_ROUTES)
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        loadChildren: () => import('./modules/udise/udise.routes').then(m => m.UDISE_ROUTES)
       },
       {
         path: 'reports',
-        loadChildren: () =>
-          import('./modules/reports/reports.routes').then(m => m.REPORTS_ROUTES)
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        loadChildren: () => import('./modules/reports/reports.routes').then(m => m.REPORTS_ROUTES)
       },
     ]
   },
 
-  // ── Wildcard ─────────────────────────────────────────────────────
-  {
-    path: '**',
-    redirectTo: 'auth/login'
-  }
+  { path: '**', redirectTo: 'auth/login' }
 ];

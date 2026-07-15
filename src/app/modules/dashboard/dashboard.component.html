@@ -4,7 +4,7 @@
     <div class="db-header-left">
       <div class="db-eyebrow-badge">{{ isAdmin ? 'Admin Dashboard' : 'School ERP' }} · Live Synchronization Active</div>
       <h2 class="db-welcome-title">
-        {{ greeting }}, {{ firstName }} 
+        {{ greeting }}, {{ firstName }}
         <span *ngIf="isParent && selectedChild">({{ selectedChild.firstName }})</span> 👋
       </h2>
       <p class="db-subtitle-meta">
@@ -27,7 +27,7 @@
   </div>
 
   <div class="db-stats-matrix-grid">
-    <div *ngFor="let s of stats; let i = index" 
+    <div *ngFor="let s of stats; let i = index"
          class="db-stat-luxury-card card-accent-{{ s.color }}"
          [routerLink]="s.route ? s.route : null"
          [style.cursor]="s.route ? 'pointer' : 'default'">
@@ -131,12 +131,20 @@
   </div>
 
   <div class="db-infographics-twin-row">
-    <div *ngIf="isAdmin" class="db-editorial-chart-card">
+
+    <!-- Weekly Attendance — Super Admin / Admin / School Admin only -->
+    <div *ngIf="showAttendanceChart" class="db-editorial-chart-card">
       <div class="db-card-header-block">
         <h4 class="db-card-inside-title">Weekly Institutional Attendance</h4>
         <span class="db-card-top-pill-badge luxury-blue-pill">Realtime Census</span>
       </div>
-      <div class="db-attendance-histogram-chart-area">
+
+      <div *ngIf="isLoadingWeekAttendance" class="loading-state">
+        <div class="spinner"></div>
+        <p>Compiling weekly census records...</p>
+      </div>
+
+      <div *ngIf="!isLoadingWeekAttendance" class="db-attendance-histogram-chart-area">
         <div *ngFor="let d of weekAttendance" class="db-histogram-column-pillar">
           <span class="db-pillar-pct-floating-lbl">{{ d.pct }}%</span>
           <div class="db-pillar-bar-fluid-container">
@@ -144,18 +152,26 @@
           </div>
           <span class="db-pillar-bottom-day-lbl">{{ d.day }}</span>
         </div>
+        <p *ngIf="weekAttendance.length === 0" style="text-align:center;color:#a0aec0;width:100%;">No attendance records found.</p>
       </div>
     </div>
 
-    <div *ngIf="isAdmin" class="db-editorial-chart-card">
+    <!-- Fee Ledger — Accountant only -->
+    <div *ngIf="showFinancialChart" class="db-editorial-chart-card">
       <div class="db-card-header-block">
         <h4 class="db-card-inside-title">Financial Invoices Ledger Ratios</h4>
         <span class="db-card-top-pill-badge luxury-green-pill">Active Fiscal Quarter</span>
       </div>
-      <div class="db-fee-breakdown-panel-rails">
+
+      <div *ngIf="isLoadingFeeBreakdown" class="loading-state">
+        <div class="spinner"></div>
+        <p>Reconciling fee ledger entries...</p>
+      </div>
+
+      <div *ngIf="!isLoadingFeeBreakdown" class="db-fee-breakdown-panel-rails">
         <div class="db-fee-total-volume-banner-box">
-          <p class="db-fee-banner-lbl">Aggregated Revenue Target Expected</p>
-          <p class="db-fee-banner-digits">₹9.12 Lakhs</p>
+          <p class="db-fee-banner-lbl">Total Collected So Far</p>
+          <p class="db-fee-banner-digits">{{ formatCurrency(totalFeeCollected) }}</p>
         </div>
         <div class="db-fee-rail-items-stack-loop">
           <div *ngFor="let f of feeBreakdown" class="db-fee-rail-row-item">
@@ -172,19 +188,20 @@
       </div>
     </div>
 
+    <!-- Teacher's schedule — real timetable data -->
     <div *ngIf="isTeacher" class="db-editorial-chart-card">
       <div class="db-card-header-block">
         <h4 class="db-card-inside-title">Today's Class Schedule Flow</h4>
         <span class="db-card-top-pill-badge luxury-purple-pill">Roster Sheets Active</span>
       </div>
-      <div class="db-schedule-tabular-rows-container">
-        <div *ngFor="let cls of [
-          {time:'08:00 AM', subject:'Mathematics Core', class:'10-A Standard', status:'done'},
-          {time:'09:30 AM', subject:'Applied Calculus',  class:'9-B Advanced',  status:'done'},
-          {time:'11:00 AM', subject:'Geometry Theory',   class:'11-C General',  status:'active'},
-          {time:'01:00 PM', subject:'Linear Algebra',    class:'12-A Higher',   status:'upcoming'},
-          {time:'02:30 PM', subject:'Trigonometry Lab',  class:'10-B Standard', status:'upcoming'}
-        ]" class="db-schedule-table-row item-status-class-{{ cls.status }}">
+
+      <div *ngIf="isLoadingSchedule" class="loading-state">
+        <div class="spinner"></div>
+        <p>Pulling today's timetable slots...</p>
+      </div>
+
+      <div *ngIf="!isLoadingSchedule" class="db-schedule-tabular-rows-container">
+        <div *ngFor="let cls of todaySchedule" class="db-schedule-table-row item-status-class-{{ cls.status }}">
           <span class="db-schedule-cell-time-lbl">{{ cls.time }}</span>
           <div class="db-schedule-cell-core-info">
             <p class="db-schedule-cell-subject-title">{{ cls.subject }}</p>
@@ -194,10 +211,12 @@
             {{ cls.status === 'done' ? 'Completed' : cls.status === 'active' ? 'Active Now' : 'Upcoming' }}
           </span>
         </div>
+        <p *ngIf="todaySchedule.length === 0" style="text-align:center;color:#a0aec0;padding:20px 0;">No classes scheduled today.</p>
       </div>
     </div>
 
-    <div class="db-editorial-chart-card" [class.db-full-width-card-override]="!isAdmin && !isTeacher">
+    <!-- Recent Activity — admin-tier roles only -->
+    <div *ngIf="showRecentActivity" class="db-editorial-chart-card" [class.db-full-width-card-override]="!isAdmin && !isTeacher">
       <div class="db-card-header-block">
         <h4 class="db-card-inside-title">Recent Institutional Operational Streams Log</h4>
         <button class="db-card-header-view-all-link-btn">Audit Records</button>
@@ -212,6 +231,7 @@
         </div>
       </div>
     </div>
+
   </div>
 </div>
 

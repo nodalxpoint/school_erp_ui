@@ -8,7 +8,7 @@
 }
 
 .db-hero-header-card {
-  background: #ffffff;
+  background: linear-gradient(135deg, #ffffff 0%, #fbfdff 100%);
   border: 1px solid #e2e8f0;
   border-left: 5px solid #2563eb;
   border-radius: 16px;
@@ -111,6 +111,7 @@
 }
 
 .db-stat-luxury-card {
+  position: relative;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
@@ -118,11 +119,42 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.db-stat-luxury-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
 }
 .db-stat-luxury-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.06);
+  border-color: #dbe4f0;
+}
+.db-stat-luxury-card:hover::before {
+  opacity: 0.5;
+}
+.db-stat-luxury-card.card-accent-blue {
+  color: #2563eb;
+}
+.db-stat-luxury-card.card-accent-purple {
+  color: #9333ea;
+}
+.db-stat-luxury-card.card-accent-green {
+  color: #16a34a;
+}
+.db-stat-luxury-card.card-accent-orange {
+  color: #ea580c;
+}
+.db-stat-luxury-card.card-accent-red {
+  color: #e53e3e;
 }
 
 .db-stat-card-top-row {
@@ -149,6 +181,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .db-stat-icon-wrapper.theme-wrap-blue {
   background: rgba(37, 99, 235, 0.08);
@@ -165,6 +198,14 @@
 .db-stat-icon-wrapper.theme-wrap-orange {
   background: rgba(234, 88, 12, 0.08);
   color: #ea580c;
+}
+.db-stat-icon-wrapper.theme-wrap-red {
+  background: rgba(229, 62, 62, 0.08);
+  color: #e53e3e;
+}
+
+.db-stat-luxury-card:hover .db-stat-icon-wrapper {
+  transform: scale(1.1) rotate(-4deg);
 }
 
 .db-vector-svg {
@@ -239,8 +280,9 @@
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .db-launch-tile:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.07);
+  border-color: #dbe4f0;
 }
 
 .db-tile-graphic-circle {
@@ -250,11 +292,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .db-launch-tile:hover .db-tile-graphic-circle {
-  transform: scale(1.06);
+  transform: scale(1.1) rotate(-4deg);
 }
 
 .db-tile-icon-svg {
@@ -309,6 +351,10 @@
   flex-direction: column;
   gap: 20px;
   min-height: 250px;
+  transition: box-shadow 0.25s;
+}
+.db-editorial-chart-card:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
 }
 @media (min-width: 1024px) {
   .db-editorial-chart-card.db-full-width-card-override {
@@ -394,12 +440,12 @@
 
 .db-pillar-active-fluid-bar {
   width: 100%;
-  background: #2563eb;
+  background: linear-gradient(180deg, #3b82f6, #1d4ed8);
   border-radius: 6px;
   transition: height 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .db-pillar-active-fluid-bar.db-pillar-fluid-bar-warning-alert {
-  background: #dd6b20;
+  background: linear-gradient(180deg, #f6ad55, #dd6b20);
 }
 
 .db-pillar-bottom-day-lbl {
@@ -489,13 +535,13 @@
   transition: width 0.6s ease;
 }
 .db-fee-rail-active-fill-bar-fluid.fill-theme-green {
-  background: #48bb78;
+  background: linear-gradient(90deg, #38a169, #48bb78);
 }
 .db-fee-rail-active-fill-bar-fluid.fill-theme-orange {
-  background: #ed8936;
+  background: linear-gradient(90deg, #dd6b20, #ed8936);
 }
 .db-fee-rail-active-fill-bar-fluid.fill-theme-red {
-  background: #e53e3e;
+  background: linear-gradient(90deg, #c53030, #e53e3e);
 }
 
 .db-fee-rail-right-value-digits {
@@ -520,6 +566,7 @@
   padding: 10px;
   border-radius: 8px;
   border: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
 }
 .db-schedule-table-row.item-status-class-done {
   opacity: 0.65;
