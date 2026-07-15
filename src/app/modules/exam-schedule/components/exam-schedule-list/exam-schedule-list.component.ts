@@ -88,7 +88,7 @@ export class ExamScheduleListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
         if (user) {
-          this.isAdmin = user.role === 'SUPER_ADMIN' || user.role === 'ADMIN';
+          this.isAdmin = user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' || user.role === 'SCHOOL_ADMIN';
           this.cdr.markForCheck();
         }
       });
