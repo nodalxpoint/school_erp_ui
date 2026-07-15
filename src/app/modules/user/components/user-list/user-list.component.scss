@@ -131,3 +131,21 @@
   color: var(--text-hint);
   padding: 24px;
 }
+
+.btn-danger-outline {
+  background: var(--bg-white);
+  color: var(--danger);
+  border: 1px solid var(--danger-light);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+
+  &:hover {
+    background: var(--danger-light);
+    border-color: var(--danger);
+  }
+}

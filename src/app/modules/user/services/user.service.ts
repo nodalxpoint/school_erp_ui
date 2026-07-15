@@ -32,4 +32,8 @@ export class UserService {
   addOrUpdateUser(dto: SaveUserRequest): Observable<any> {
     return this.http.post<any>(`${this.base}/addOrUpdate`, dto);
   }
+
+  deleteUser(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.base}/delete/${id}`);
+  }
 }

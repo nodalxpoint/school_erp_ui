@@ -1,6 +1,6 @@
 // core/models/auth.model.ts
 
-export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'TEACHER' | 'STUDENT' | 'PARENT';
+export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'TEACHER' | 'STUDENT' | 'PARENT' | 'ACCOUNTANT' | 'SCHOOL_ADMIN';
 
 export interface User {
   id: string;

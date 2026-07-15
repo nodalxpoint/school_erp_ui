@@ -46,4 +46,20 @@ export class UserListComponent implements OnInit {
   edit(user: UserResponseDto): void {
     this.router.navigate(['/users/edit'], { state: { user } });
   }
+
+  deleteUser(user: UserResponseDto): void {
+    if (!user.id) return;
+    if (confirm(`Are you sure you want to delete the user "${user.firstName} ${user.lastName || ''}"?`)) {
+      this.loading.set(true);
+      this.userService.deleteUser(user.id).subscribe({
+        next: () => {
+          this.loadUsers();
+        },
+        error: (err) => {
+          this.loading.set(false);
+          alert(err?.error?.message || 'Failed to delete user.');
+        }
+      });
+    }
+  }
 }

@@ -138,7 +138,7 @@
         </ng-template>
 
         <ng-template #feesCheck>
-          <ng-container *ngIf="item.href === '/fees'; else regularItem">
+          <ng-container *ngIf="item.href === '/fees' && currentRole !== 'ACCOUNTANT'; else regularItem">
             <div class="sidebar__nav-item sidebar__nav-item--dropdown"
                  [class.sidebar__nav-item--active]="isFeesActive()"
                  [class.sidebar__nav-item--collapsed]="sidebarCollapsed"

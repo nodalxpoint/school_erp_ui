@@ -64,6 +64,18 @@ const ROLE_STATS: Record<UserRole, StatCard[]> = {
     { title: 'Unread Notices Board', value: '2', change: 'Unread', changeType: 'neutral', icon: 'bell', color: 'purple' },
     { title: 'Upcoming Exam Terms', value: '3', change: 'Upcoming', changeType: 'neutral', icon: 'file-text', color: 'orange' },
   ],
+  ACCOUNTANT: [
+    { title: 'Total Active Students', value: '1,248', change: '+12 this month', changeType: 'up', icon: 'graduation-cap', color: 'blue', route: '/students' },
+    { title: 'Faculty Members', value: '86', change: '+3 this month', changeType: 'up', icon: 'users', color: 'purple', route: '/teachers' },
+    { title: 'Fee Ledger Collection', value: '₹8.4L', change: '92% completed', changeType: 'up', icon: 'credit-card', color: 'green', route: '/fees' },
+    { title: 'Present ', value: '94.2%', change: '-0.8% vs last', changeType: 'down', icon: 'calendar-check', color: 'orange' },
+  ],
+  SCHOOL_ADMIN: [
+    { title: 'Total Active Students', value: '1,248', change: '+12 this month', changeType: 'up', icon: 'graduation-cap', color: 'blue', route: '/students' },
+    { title: 'Faculty Members', value: '86', change: '+3 this month', changeType: 'up', icon: 'users', color: 'purple', route: '/teachers' },
+    { title: 'Fee Ledger Collection', value: '₹8.4L', change: '92% completed', changeType: 'up', icon: 'credit-card', color: 'green', route: '/fees' },
+    { title: 'Present ', value: '94.2%', change: '-0.8% vs last', changeType: 'down', icon: 'calendar-check', color: 'orange' },
+  ],
 };
 
 const RECENT_ACTIVITY: ActivityItem[] = [
@@ -105,6 +117,17 @@ const ROLE_QUICK_ACTIONS: Record<UserRole, QuickAction[]> = {
     { label: 'Pay Pending Fees', icon: 'credit-card', route: '/fees', color: 'blue' },
     { label: 'School Notices Board', icon: 'bell', route: '/notices', color: 'purple' },
     { label: 'Term Examination', icon: 'award', route: '/results', color: 'orange' },
+  ],
+  ACCOUNTANT: [
+    { label: 'Collect Fees Entry', icon: 'credit-card', route: '/fees/collect', color: 'green' },
+    { label: 'Fee Structure', icon: 'clipboard', route: '/fee-structure', color: 'blue' },
+    { label: 'Fee History', icon: 'bar-chart-3', route: '/fees/history', color: 'orange' },
+  ],
+  SCHOOL_ADMIN: [
+    { label: 'Register Student', icon: 'user-plus', route: '/students/add', color: 'blue' },
+    { label: 'Register Teacher', icon: 'user-plus', route: '/teachers/add', color: 'purple' },
+    { label: 'Mark Attendance Now', icon: 'calendar-check', route: '/attendance/mark', color: 'green' },
+    { label: 'View Reports Panel', icon: 'bar-chart-3', route: '/reports', color: 'orange' },
   ],
 };
 
@@ -167,7 +190,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.loadParentChildren();
     }
 
-    if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
+    if (role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'ACCOUNTANT' || role === 'SCHOOL_ADMIN') {
       this.loadAdminStats();
     }
 
@@ -225,7 +248,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   get isAdmin(): boolean {
-    return this.user?.role === 'ADMIN' || this.user?.role === 'SUPER_ADMIN';
+    return this.user?.role === 'ADMIN' || this.user?.role === 'SUPER_ADMIN' || this.user?.role === 'ACCOUNTANT' || this.user?.role === 'SCHOOL_ADMIN';
   }
 
   get isSuperAdmin(): boolean { return this.user?.role === 'SUPER_ADMIN'; }
@@ -251,7 +274,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.stats = [
             { title: 'Total Active Students', value: data.totalStudents.toLocaleString(), change: 'Total enrolled', changeType: 'neutral', icon: 'graduation-cap', color: 'blue', route: '/students' },
             { title: 'Faculty Members', value: data.totalTeachers.toLocaleString(), change: 'Total staff', changeType: 'neutral', icon: 'users', color: 'purple', route: '/teachers' },
-            { title: 'Fee Ledger Collection', value: this.formatCurrency(data.totalAmountCollected), change: 'Total collected', changeType: 'up', icon: 'credit-card', color: 'green', route: '/fees' },
+            { title: 'Fee Ledger Collection', value: this.formatCurrency(data.totalAmountCollected), change: 'Total collected', changeType: 'up', icon: 'credit-card', color: 'green', route: this.user?.role === 'SCHOOL_ADMIN' ? undefined : '/fees' },
             { title: 'Present ', value: data.presentStudents.toLocaleString(), change: 'Present today', changeType: 'neutral', icon: 'calendar-check', color: 'orange' }
           ];
           this.cdr.markForCheck();
