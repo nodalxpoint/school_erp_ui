@@ -77,23 +77,16 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
   }
 
   restoreRecentSearch(): void {
-    try {
-      const saved = localStorage.getItem('schoolerp:recent-fee-search');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.student && parsed.sessionId) {
-          this.selectedStudent.set(parsed.student);
-          this.studentSearchControl.setValue(
-            `${parsed.student.firstName} ${parsed.student.lastName}`,
-            { emitEvent: false }
-          );
-          this.selectedSessionId = parsed.sessionId;
-          // Trigger search after a brief timeout to guarantee dropdowns have populated
-          setTimeout(() => this.search(), 50);
-        }
-      }
-    } catch (e) {
-      console.error('Failed to restore recent fee search', e);
+    const cached = this.feeService.getRecentSearch();
+    if (cached && cached.student && cached.sessionId) {
+      this.selectedStudent.set(cached.student);
+      this.studentSearchControl.setValue(
+        `${cached.student.firstName} ${cached.student.lastName}`,
+        { emitEvent: false }
+      );
+      this.selectedSessionId = cached.sessionId;
+      // Trigger search after a brief timeout to guarantee dropdowns have populated
+      setTimeout(() => this.search(), 50);
     }
   }
 
@@ -128,11 +121,7 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
     this.searched.set(false);
     this.errorMsg.set('');
 
-    try {
-      localStorage.removeItem('schoolerp:recent-fee-search');
-    } catch (e) {
-      console.error('Failed to clear recent fee search', e);
-    }
+    this.feeService.clearRecentSearch();
   }
 
   search(): void {
@@ -143,14 +132,7 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
     this.searched.set(true);
     this.errorMsg.set('');
 
-    try {
-      localStorage.setItem('schoolerp:recent-fee-search', JSON.stringify({
-        student: student,
-        sessionId: this.selectedSessionId
-      }));
-    } catch (e) {
-      console.error('Failed to save recent fee search', e);
-    }
+    this.feeService.setRecentSearch(student, this.selectedSessionId);
 
     // Service maps: outer { success, data: MonthlyFeeStatusResponse } → res = MonthlyFeeStatusResponse
     this.feeService.getMonthlyFeeStatus(student.id, this.selectedSessionId)

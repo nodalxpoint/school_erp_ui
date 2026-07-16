@@ -74,4 +74,18 @@ export class FeeService {
     return this.http.post<any>(`${this.BASE}/monthlyStatus`, req)
       .pipe(map(res => res?.data ?? res));
   }
+
+  private recentSearchState: { student: any; sessionId: string } | null = null;
+
+  setRecentSearch(student: any, sessionId: string): void {
+    this.recentSearchState = { student, sessionId };
+  }
+
+  getRecentSearch(): { student: any; sessionId: string } | null {
+    return this.recentSearchState;
+  }
+
+  clearRecentSearch(): void {
+    this.recentSearchState = null;
+  }
 }
