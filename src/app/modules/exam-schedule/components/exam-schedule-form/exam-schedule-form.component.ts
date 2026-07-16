@@ -20,6 +20,7 @@ export class ExamScheduleFormComponent implements OnInit {
   isEditMode = false;
   isSaving = false;
   isAdmin = false; // ✅ Track if current user is admin
+  errorMessage = '';
 
   classes: ParamDropdownOption[] = [];
   subjects: ParamDropdownOption[] = [];
@@ -123,6 +124,7 @@ export class ExamScheduleFormComponent implements OnInit {
 
   onSubmit(): void {
     this.isSaving = true;
+    this.errorMessage = '';
     this.cdr.markForCheck();
 
     this.scheduleService.addOrUpdateExamSubject(this.formModel).subscribe({
@@ -130,8 +132,9 @@ export class ExamScheduleFormComponent implements OnInit {
         this.isSaving = false;
         this.router.navigate(['/exam-schedule']);
       },
-      error: () => {
+      error: (err) => {
         this.isSaving = false;
+        this.errorMessage = err?.error?.message || 'Failed to save. Please try again.';
         this.cdr.markForCheck();
       }
     });

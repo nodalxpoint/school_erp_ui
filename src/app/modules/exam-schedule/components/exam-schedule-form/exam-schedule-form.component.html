@@ -14,6 +14,13 @@
     <p>Map evaluation constraints, thresholds, maximum/passing criteria limits, and paper dates cleanly.</p>
   </div>
 
+  <div class="alert error" *ngIf="errorMessage">
+    <span class="alert-icon">⚠</span>
+    <div class="alert-content">
+      <span>{{ errorMessage }}</span>
+    </div>
+  </div>
+
   <div class="form-section">
     <div class="section-header">
       <div class="section-badge">01</div>

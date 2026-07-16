@@ -72,6 +72,29 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
         this.studentResults.set(res ?? []);
         this.showStudentDropdown.set(this.studentResults().length > 0);
       });
+
+    this.restoreRecentSearch();
+  }
+
+  restoreRecentSearch(): void {
+    try {
+      const saved = localStorage.getItem('schoolerp:recent-fee-search');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.student && parsed.sessionId) {
+          this.selectedStudent.set(parsed.student);
+          this.studentSearchControl.setValue(
+            `${parsed.student.firstName} ${parsed.student.lastName}`,
+            { emitEvent: false }
+          );
+          this.selectedSessionId = parsed.sessionId;
+          // Trigger search after a brief timeout to guarantee dropdowns have populated
+          setTimeout(() => this.search(), 50);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to restore recent fee search', e);
+    }
   }
 
   ngOnDestroy(): void {
@@ -104,6 +127,12 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
     this.monthlyStatus.set(null);
     this.searched.set(false);
     this.errorMsg.set('');
+
+    try {
+      localStorage.removeItem('schoolerp:recent-fee-search');
+    } catch (e) {
+      console.error('Failed to clear recent fee search', e);
+    }
   }
 
   search(): void {
@@ -113,6 +142,15 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.searched.set(true);
     this.errorMsg.set('');
+
+    try {
+      localStorage.setItem('schoolerp:recent-fee-search', JSON.stringify({
+        student: student,
+        sessionId: this.selectedSessionId
+      }));
+    } catch (e) {
+      console.error('Failed to save recent fee search', e);
+    }
 
     // Service maps: outer { success, data: MonthlyFeeStatusResponse } → res = MonthlyFeeStatusResponse
     this.feeService.getMonthlyFeeStatus(student.id, this.selectedSessionId)
@@ -127,6 +165,41 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
           this.loading.set(false);
         }
       });
+  }
+
+  exportToCsv(): void {
+    const student = this.selectedStudent();
+    const status = this.monthlyStatus();
+    if (!student || !status || this.months().length === 0) return;
+
+    const headers = ['Month', 'Year', 'Total Amount', 'Paid Amount', 'Balance Due', 'Status', 'Paid At'];
+    let csvContent = headers.map(h => `"${h.replace(/"/g, '""')}"`).join(',') + '\n';
+
+    this.months().forEach(m => {
+      const balance = m.totalAmount - m.paidAmount;
+      const row = [
+        m.monthName,
+        m.feeYear,
+        `₹${m.totalAmount.toFixed(2)}`,
+        `₹${m.paidAmount.toFixed(2)}`,
+        `₹${balance.toFixed(2)}`,
+        m.status,
+        m.paidAt ? m.paidAt.substring(0, 10) : '—'
+      ];
+      const line = row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
+      csvContent += line + '\n';
+    });
+
+    const filename = `${status.studentName.replace(/\s+/g, '_').toLowerCase()}_fee_history_${status.sessionName.replace(/\s+/g, '_').toLowerCase()}.csv`;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   reset(): void {

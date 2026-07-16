@@ -23,8 +23,8 @@ export class FeeStructureListComponent implements OnInit {
   filters: FeeStructureFilterRequest = {
     page: 0,
     size: 20,
-    sortBy: 'createdAt',
-    sortDirection: 'DESC',
+    sortBy: 'classes.className',
+    sortDirection: 'ASC',
     classId: '',
     feeName: '',
     frequency: '',
@@ -68,7 +68,8 @@ export class FeeStructureListComponent implements OnInit {
 
     this.feeService.filterFeeStructures(payload).subscribe({
       next: (res: any) => {
-        this.structures = res.data?.data ?? [];
+        const rawData = res.data?.data ?? [];
+        this.structures = this.sortStructuresByClass(rawData);
         this.loading = false;
         this.cdr.markForCheck();
       },
@@ -76,12 +77,56 @@ export class FeeStructureListComponent implements OnInit {
     });
   }
 
+  private sortStructuresByClass(structures: FeeStructureDto[]): FeeStructureDto[] {
+    const parseClassOrder = (name: string): number => {
+      if (!name) return 999;
+      const normalized = name.toLowerCase().trim();
+      
+      if (normalized.includes('nursery')) return -4;
+      if (normalized.includes('play')) return -3;
+      if (normalized.includes('lkg') || normalized.includes('l.k.g')) return -2;
+      if (normalized.includes('ukg') || normalized.includes('u.k.g')) return -1;
+      
+      const match = normalized.match(/\d+/);
+      if (match) {
+        return parseInt(match[0], 10);
+      }
+      
+      const romanMapping: { [key: string]: number } = {
+        'xii': 12, 'xi': 11, 'x': 10, 'ix': 9, 'viii': 8, 'vii': 7, 'vi': 6, 'v': 5, 'iv': 4, 'iii': 3, 'ii': 2, 'i': 1
+      };
+      
+      const words = normalized.split(/[\s-]+/);
+      for (const word of words) {
+        if (romanMapping[word] !== undefined) {
+          return romanMapping[word];
+        }
+      }
+      
+      return 100;
+    };
+
+    return [...structures].sort((a, b) => {
+      const nameA = a.className || '';
+      const nameB = b.className || '';
+      
+      const orderA = parseClassOrder(nameA);
+      const orderB = parseClassOrder(nameB);
+      
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      
+      return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+    });
+  }
+
   clearFilters(): void {
     this.filters = {
       page: 0,
       size: 20,
-      sortBy: 'createdAt',
-      sortDirection: 'DESC',
+      sortBy: 'classes.className',
+      sortDirection: 'ASC',
       classId: '',
       feeName: '',
       frequency: '',
