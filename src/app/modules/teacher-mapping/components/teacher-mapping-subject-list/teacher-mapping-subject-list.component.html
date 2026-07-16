@@ -40,44 +40,40 @@
     <span>Syncing class map records directly from the registry...</span>
   </div>
 
-  <div class="ms-grid-layout" *ngIf="!isLoading && classesMappedList.length > 0">
-    <div class="ms-item-card" *ngFor="let item of classesMappedList">
-      
-      <div class="ms-card-top">
-        <div class="ms-icon-wrap">📘</div>
-        <span class="ms-max-marks-badge" style="color: #2f855a; background: #f0fff4; border-color: #c6f6d5;">
-          Classroom Node
-        </span>
-      </div>
+  <!-- ── LIST / TABLE VIEW ── -->
+<div class="ms-list-card" *ngIf="!isLoading && classesMappedList.length > 0">
+  <div class="ms-list-header">
+    <div class="ms-col ms-col-subject">Subject</div>
+    <div class="ms-col ms-col-class">Target Class</div>
+    <div class="ms-col ms-col-section">Assigned Section</div>
+    <div class="ms-col ms-col-action">Action</div>
+  </div>
 
-      <div class="ms-card-body">
-        <h3 class="ms-item-title">{{ item.subjectName }}</h3>
-        
-        <p class="ms-item-code-meta" style="margin-top: 6px; font-size: 13.5px; color: #2d3748;">
-          Target Class: <strong style="color: #2b6cb0;">🏫 {{ item.className }}</strong>
-        </p>
-        <p class="ms-item-code-meta" style="font-size: 13px; color: #4a5568;">
-          Assigned Section: <strong>Section {{ item.sectionName }}</strong>
-        </p>
-      </div>
+  <div class="ms-list-row" *ngFor="let item of classesMappedList">
+    <div class="ms-col ms-col-subject" data-label="Subject">
+      <span class="ms-row-icon">📘</span>
+      <span class="ms-row-subject-name">{{ item.subjectName }}</span>
+    </div>
 
-      <div class="ms-card-footer">
-        <div class="ms-date-node">
-          <span class="ms-date-lbl">ROSTER MAPPING</span>
-          <span class="ms-date-val" style="color: #718096; font-size: 11px;">ID: {{ item.subjectId | slice:0:8 }}...</span>
-        </div>
-        
-        <button class="ms-btn-fetch-students" 
-                [disabled]="!isExamActive"
-                [style.opacity]="!isExamActive ? '0.5' : '1'"
-                [style.cursor]="!isExamActive ? 'not-allowed' : 'pointer'"
-                (click)="onFetchStudents(item)">
-          Add marks ➔
-        </button>
-      </div>
+    <div class="ms-col ms-col-class" data-label="Target Class">
+      <span class="ms-pill ms-pill-class">🏫 {{ item.className }}</span>
+    </div>
 
+    <div class="ms-col ms-col-section" data-label="Assigned Section">
+      <span class="ms-pill ms-pill-section">Section {{ item.sectionName }}</span>
+    </div>
+
+    <div class="ms-col ms-col-action" data-label="Action">
+      <button class="ms-btn-fetch-students"
+              [disabled]="!isExamActive"
+              [style.opacity]="!isExamActive ? '0.5' : '1'"
+              [style.cursor]="!isExamActive ? 'not-allowed' : 'pointer'"
+              (click)="onFetchStudents(item)">
+        Add marks ➔
+      </button>
     </div>
   </div>
+</div>
 
   <div class="ms-empty-state" *ngIf="!isLoading && classesMappedList.length === 0">
     <div class="ms-empty-icon">📂</div>

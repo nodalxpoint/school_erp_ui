@@ -297,19 +297,34 @@
 .ms-btn-fetch-students {
   display: inline-flex;
   align-items: center;
-  padding: 7px 14px;
-  background: #2b6cb0;
+  gap: 6px;
+  padding: 9px 18px;
+  background: linear-gradient(135deg, #2b6cb0 0%, #1a4e8a 100%);
   color: #fff;
   border: none;
-  border-radius: 8px;
-  font-size: 11.5px;
+  border-radius: 10px;
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s ease;
+  box-shadow: 0 2px 4px rgba(43, 108, 176, 0.25), 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .ms-btn-fetch-students:hover {
-  background: #2c5282;
+  background: linear-gradient(135deg, #2c5282 0%, #163f70 100%);
+  box-shadow: 0 4px 10px rgba(43, 108, 176, 0.35), 0 2px 4px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+.ms-btn-fetch-students:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(43, 108, 176, 0.3);
+}
+.ms-btn-fetch-students:disabled {
+  background: #cbd5e0;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
 }
 
 .ms-empty-state {
@@ -336,4 +351,156 @@
   font-size: 13px;
   color: #718096;
   margin: 0;
-}/*# sourceMappingURL=exam-marks-subject-list.component.css.map */
+}
+
+.ms-list-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+.ms-list-header {
+  display: flex;
+  align-items: center;
+  background: #2b6cb0;
+  padding: 14px 20px;
+}
+.ms-list-header .ms-col {
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ms-list-header .ms-col.ms-col-action {
+  justify-content: flex-end;
+  padding-right: 2rem;
+}
+
+.ms-list-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #edf2f7;
+  transition: background 0.15s ease;
+}
+.ms-list-row:last-child {
+  border-bottom: none;
+}
+.ms-list-row:nth-child(even) {
+  background: #f8fafc;
+}
+.ms-list-row:hover {
+  background: #ebf4ff;
+}
+
+.ms-col {
+  flex: 1;
+  min-width: 0;
+}
+.ms-col.ms-col-subject {
+  flex: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 0.4rem;
+}
+.ms-col.ms-col-action {
+  flex: 0.8;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+
+.ms-row-icon {
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7fafc;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.ms-row-subject-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1a202c;
+}
+
+.ms-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.ms-pill.ms-pill-class {
+  color: #2b6cb0;
+  background: #ebf4ff;
+  border: 1px solid #bee3f8;
+}
+.ms-pill.ms-pill-section {
+  color: #22543d;
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+}
+
+.ms-id-text {
+  font-size: 11.5px;
+  color: #718096;
+  font-family: monospace;
+}
+
+@media (max-width: 900px) {
+  .ms-header-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ms-live-clock-badge-wrap {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .ms-filter-group {
+    min-width: 100%;
+  }
+}
+@media (max-width: 768px) {
+  .ms-title {
+    font-size: 1.25rem;
+  }
+  .ms-list-card {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ms-list-header,
+  .ms-list-row {
+    min-width: 640px;
+  }
+  .ms-col-subject {
+    flex: 1.6;
+  }
+  .ms-col-class,
+  .ms-col-section {
+    flex: 1;
+  }
+  .ms-btn-fetch-students {
+    padding: 8px 14px;
+    font-size: 11.5px;
+  }
+}
+@media (max-width: 380px) {
+  .ms-header-card {
+    padding: 14px;
+  }
+  .ms-live-clock-badge-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}/*# sourceMappingURL=teacher-mapping-subject-list.component.css.map */
