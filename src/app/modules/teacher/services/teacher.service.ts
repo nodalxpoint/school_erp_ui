@@ -101,6 +101,10 @@ export class TeacherService {
     return this.http.post<{ message: string }>(`${this.base}/addOrUpdate`, dto);
   }
 
+  deleteTeacher(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.base}/delete/${id}`);
+  }
+
   // ── Assign Class Teacher ──────────────────────────────────────────────────
 
   assignClassTeacher(dto: AssignClassTeacherDto): Observable<{ message: string }> {

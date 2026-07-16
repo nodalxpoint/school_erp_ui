@@ -81,6 +81,25 @@ export class TeacherListComponent implements OnInit {
     }); 
   }
 
+  onDelete(t: TeacherResponseDto): void {
+    const id = t.id ?? t.teacherId;
+    if (!id) return;
+    const name = this.teacherName(t);
+    if (confirm(`Are you sure you want to delete the teacher "${name}"?`)) {
+      this.isLoading = true;
+      this.teacherService.deleteTeacher(id).subscribe({
+        next: () => {
+          this.loadTeachers();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          alert(err?.error?.message || 'Failed to delete teacher.');
+          this.cdr.markForCheck();
+        }
+      });
+    }
+  }
+
   get safeTeachers(): TeacherResponseDto[] { return this.teachers ?? []; }
   get pages(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i); }
   get currentPage(): number { return this.filter.page; }

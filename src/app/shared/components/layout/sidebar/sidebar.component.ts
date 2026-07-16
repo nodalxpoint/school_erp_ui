@@ -19,38 +19,38 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Admin Dashboard',   href: '/dashboard',         icon: 'layout-dashboard', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'Dashboard',         href: '/dashboard',         icon: 'layout-dashboard', roles: ['TEACHER', 'STUDENT', 'PARENT', 'ACCOUNTANT'] },
-  { label: 'Students',          href: '/students',          icon: 'graduation-cap',   roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'UDISE Compliance',  href: '/udise',             icon: 'shield-check',     roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'Teachers',          href: '/teachers',          icon: 'users',            roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER'] },
-  { label: 'Subjects',          href: '/subjects',          icon: 'book-open',        roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'Class Timetable',   href: '/timetable',         icon: 'calendar-check',    roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'Exams Module',      href: '/exams',             icon: 'exam-sheet',        roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] }, 
-  { label: 'Exam-Marks',        href: '/exam-marks',        icon: 'check-square',     roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'Attendance',        href: '/attendance',        icon: 'calendar-check',   roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER', 'STUDENT'] },
+  { label: 'Admin Dashboard', href: '/dashboard', icon: 'layout-dashboard', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
+  { label: 'Dashboard', href: '/dashboard', icon: 'layout-dashboard', roles: ['TEACHER', 'STUDENT', 'PARENT', 'ACCOUNTANT'] },
+  { label: 'Students', href: '/students', icon: 'graduation-cap', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
+  { label: 'UDISE Compliance', href: '/udise', icon: 'shield-check', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
+  { label: 'Teachers', href: '/teachers', icon: 'users', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER'] },
+  { label: 'Subjects', href: '/subjects', icon: 'book-open', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
+  { label: 'Class Timetable', href: '/timetable', icon: 'calendar-check', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
+  { label: 'Exams Module', href: '/exams', icon: 'exam-sheet', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
+  { label: 'Exam-Marks', href: '/exam-marks', icon: 'check-square', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
+  { label: 'Attendance', href: '/attendance', icon: 'calendar-check', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER', 'STUDENT'] },
   { label: 'Student Progression', href: '/students/progression', icon: 'graduation-cap', roles: ['TEACHER'] },
- 
- 
+
+
   // ✅ PARENT LINKS ENCODED SAFELY MATCHING BACKEND ROLE SPEC
   { label: 'Children Attendance', href: '/parent/attendance', icon: 'calendar-check', roles: ['PARENT'] },
-  { label: 'Exam Results',        href: '/parent/exams',      icon: 'exam-sheet',     roles: ['PARENT'] },
-  { label: 'Class Timetable',     href: '/parent/timetable',  icon: 'calendar-days',  roles: ['PARENT'] },
-  { label: 'Children Fees',       href: '/parent/fees',       icon: 'credit-card',    roles: ['PARENT'] },
-  
-  { label: 'Fees',              href: '/fees',              icon: 'credit-card',      roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT'] },
-  { label: 'Student Fees',      href: '/fees',              icon: 'credit-card',      roles: ['ACCOUNTANT'] },
-  { label: 'Fee Structure',     href: '/fee-structure',     icon: 'exam-sheet',       roles: ['ACCOUNTANT'] },
-  { label: 'Fee History',       href: '/fees/history',      icon: 'bar-chart-3',      roles: ['ACCOUNTANT'] },
-  { label: 'Users',             href: '/users',             icon: 'users',            roles: ['SUPER_ADMIN'] },
-  { label: 'Reports',           href: '/reports',           icon: 'bar-chart-3',      roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'Settings',          href: '/settings',          icon: 'settings',         roles: 'all' },
+  { label: 'Exam Results', href: '/parent/exams', icon: 'exam-sheet', roles: ['PARENT'] },
+  { label: 'Class Timetable', href: '/parent/timetable', icon: 'calendar-days', roles: ['PARENT'] },
+  { label: 'Children Fees', href: '/parent/fees', icon: 'credit-card', roles: ['PARENT'] },
+
+  { label: 'Fees', href: '/fees', icon: 'credit-card', roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT'] },
+  { label: 'Student Fees', href: '/fees', icon: 'credit-card', roles: ['ACCOUNTANT'] },
+  { label: 'Fee Structure', href: '/fee-structure', icon: 'exam-sheet', roles: ['ACCOUNTANT'] },
+  { label: 'Fee History', href: '/fees/history', icon: 'bar-chart-3', roles: ['ACCOUNTANT'] },
+  { label: 'Users', href: '/users', icon: 'users', roles: ['SUPER_ADMIN'] },
+  { label: 'Reports', href: '/reports', icon: 'bar-chart-3', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
+  { label: 'Settings', href: '/settings', icon: 'settings', roles: 'all' },
 ];
 
 const TEACHERS_ROUTES = ['/teachers', '/teacher-mapping', '/subjects/assign-teacher', '/teacher-timetable'];
 const SUBJECTS_ROUTES = ['/subjects/manage', '/subjects'];
-const EXAMS_ROUTES    = ['/exams', '/exam-schedule'];
-const FEES_ROUTES     = ['/fees', '/fee-structure'];
+const EXAMS_ROUTES = ['/exams', '/exam-schedule'];
+const FEES_ROUTES = ['/fees', '/fee-structure'];
 
 @Component({
   selector: 'app-sidebar',
@@ -65,12 +65,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
   sidebarCollapsed = false;
   currentPath = '';
   currentRole: UserRole | null = null;
-  
+
   teachersDropdownOpen = false;
   subjectsDropdownOpen = false;
   examsDropdownOpen = false;
   feesDropdownOpen = false;
-  
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -79,7 +79,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.uiState.sidebarOpen$.pipe(takeUntil(this.destroy$)).subscribe(v => { this.sidebarOpen = v; this.cdr.markForCheck(); });
@@ -100,7 +100,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this._autoOpenDropdown(this.currentPath);
 
     this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd), 
+      filter(e => e instanceof NavigationEnd),
       takeUntil(this.destroy$)
     ).subscribe((e: any) => {
       this.currentPath = e.urlAfterRedirects;
@@ -173,12 +173,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   getInitials(name: string): string { return getInitials(name); }
 
-  logout(): void { 
+  logout(): void {
     this.teachersDropdownOpen = false;
     this.subjectsDropdownOpen = false;
     this.examsDropdownOpen = false;
     this.feesDropdownOpen = false;
-    this.authService.logout(); 
+    this.authService.logout();
     this.cdr.markForCheck();
   }
 

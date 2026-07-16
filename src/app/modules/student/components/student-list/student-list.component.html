@@ -48,10 +48,7 @@
             <input class="col-filter" type="text" placeholder="Filter name..." [(ngModel)]="searchFirstName"
               (input)="onSearch()" />
           </td>
-          <td class="col-admission">
-            <input class="col-filter" type="text" placeholder="Admission No..." [(ngModel)]="searchAdmissionNo"
-              (input)="onSearch()" />
-          </td>
+          <td class="col-admission"></td>
           <td class="col-session">
             <select class="col-filter select-arrow" [(ngModel)]="selectedAcademicSessionId" (change)="onSearch()"
               [disabled]="loadingSessions">
