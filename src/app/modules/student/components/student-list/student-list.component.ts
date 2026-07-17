@@ -177,6 +177,24 @@ onViewStudent(student: any) {
   this.router.navigate(['/students/detail', student.id]);
 }
 
+  onDeleteStudent(student: StudentResponseDto): void {
+    if (!student.id) return;
+    const name = student.lastName ? `${student.firstName} ${student.lastName}` : student.firstName;
+    if (confirm(`Are you sure you want to delete the student "${name}"?`)) {
+      this.loading = true;
+      this.studentService.deleteStudent(student.id).subscribe({
+        next: () => {
+          this.loadStudents();
+        },
+        error: (err: any) => {
+          this.loading = false;
+          alert(err?.error?.message || 'Failed to delete student.');
+          this.cdr.markForCheck();
+        }
+      });
+    }
+  }
+
   onOpenUdise(student: StudentResponseDto): void {
     this.selectedStudentForUdise = student;
     this.showUdiseModal = true;

@@ -188,10 +188,18 @@ export class TeacherTimetableListComponent implements OnInit, OnDestroy {
   }
 
   onAddTimetable(): void {
-  // Guard Layer Constraint Checks
-  if (this.isTeacherRole) return; 
-  this.router.navigate(['/teacher-timetable/add']);
-}
+    // Guard Layer Constraint Checks
+    if (this.isTeacherRole) return;
+    this.router.navigate(['/teacher-timetable/add']);
+  }
+
+  onAddTimetableForSlot(day: string, period: number): void {
+    // Guard Layer Constraint Checks
+    if (this.isTeacherRole) return;
+    this.router.navigate(['/teacher-timetable/add'], {
+      state: { prefill: { dayOfWeek: day, period } }
+    });
+  }
 
   onEditTimetable(item: TimetableDto): void {
   // Guard Layer Constraint Checks

@@ -115,8 +115,11 @@
             </ng-container>
 
             <ng-template #emptyCell>
-              <div class="tl-empty-cell">
+              <div class="tl-empty-cell tl-empty-cell--clickable"
+                   style="cursor: pointer;"
+                   (click)="onAddTimetableForSlot(day, periodNum)">
                 <span class="tl-empty-dash">—</span>
+                <span class="tl-empty-add-hint">＋</span>
               </div>
             </ng-template>
 

@@ -135,6 +135,15 @@ export class TeacherTimetableFormComponent implements OnInit, OnDestroy {
           }
         });
       }
+    } else {
+      // 🔥 NEW: Pre-fill day & period when navigating from an empty cell click
+      const navigation = this.router.getCurrentNavigation();
+      const prefill = navigation?.extras.state?.['prefill'];
+      if (prefill) {
+        if (prefill.dayOfWeek) this.formModel.dayOfWeek = prefill.dayOfWeek;
+        if (prefill.period)    this.formModel.period    = prefill.period;
+        this.cdr.markForCheck();
+      }
     }
   }
 

@@ -43,6 +43,13 @@ export class TimetableFormComponent implements OnInit {
     if (stateData) {
       this.isEditMode = true;
       this.populateFormFields(stateData);
+    } else {
+      // 🔥 NEW: Pre-fill day & period when navigating from an empty cell click
+      const prefill = navigation?.extras.state?.['prefill'] || history.state?.['prefill'];
+      if (prefill) {
+        if (prefill.dayOfWeek) this.formModel.dayOfWeek = prefill.dayOfWeek;
+        if (prefill.period)    this.formModel.period    = prefill.period;
+      }
     }
   }
 

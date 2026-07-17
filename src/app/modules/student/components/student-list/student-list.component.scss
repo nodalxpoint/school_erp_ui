@@ -133,7 +133,7 @@ select.col-filter {
 .col-class     { width: 130px; }
 .col-section   { width: 100px; }
 .col-dob       { width: 130px; }
-.col-actions   { width: 160px; text-align: right !important; }
+.col-actions   { width: 240px; text-align: right !important; }
 
 .student-cell { display: flex; align-items: center; gap: 11px; }
 .avatar {
@@ -171,6 +171,7 @@ select.col-filter {
 
 .btn-view { @extend %action-btn; color: var(--text-muted); &:hover { border-color: var(--teal-border); color: var(--teal); background: var(--teal-light); } }
 .btn-edit { @extend %action-btn; color: var(--text-muted); &:hover { border-color: var(--primary-border); color: var(--primary); background: var(--primary-light); } }
+.btn-delete { @extend %action-btn; color: var(--text-muted); &:hover { border-color: var(--danger-border); color: var(--danger); background: var(--danger-light); } }
 .btn-udise { @extend %action-btn; color: var(--text-muted); &:hover { border-color: var(--violet-border); color: var(--violet); background: var(--violet-light); } }
 
 .footer-row td {

@@ -59,6 +59,11 @@ export class StudentService {
     );
   }
 
+  /** DELETE /students/delete/{id} */
+  deleteStudent(id: string): Observable<ApiResponse<string>> {
+    return this.http.delete<ApiResponse<string>>(`${this.BASE}/delete/${id}`);
+  }
+
   searchExistingParents(req: ParentSearchRequest): Observable<ParentSearchResultDto[]> {
     return this.http.post<ParentSearchApiResponse>(`/parent/list`, req).pipe(
       map(res => {

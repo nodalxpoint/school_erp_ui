@@ -103,7 +103,13 @@
             </ng-container>
 
             <ng-template #emptyCell>
-              <div class="tl-empty-cell"><span class="tl-empty-dash">—</span></div>
+              <div class="tl-empty-cell"
+                   [class.tl-empty-cell--clickable]="!isTeacherRole"
+                   [style.cursor]="isTeacherRole ? 'default' : 'pointer'"
+                   (click)="!isTeacherRole && onAddTimetableForSlot(day, periodNum)">
+                <span class="tl-empty-dash">—</span>
+                <span class="tl-empty-add-hint" *ngIf="!isTeacherRole">＋</span>
+              </div>
             </ng-template>
 
           </td>

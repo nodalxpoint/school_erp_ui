@@ -212,6 +212,12 @@ getSubjectIcon(subjectName: string | undefined): string {
     this.router.navigate(['/timetable/add']);
   }
 
+  onAddTimetableForSlot(day: string, period: number): void {
+    this.router.navigate(['/timetable/add'], {
+      state: { prefill: { dayOfWeek: day, period } }
+    });
+  }
+
   onEditTimetable(item: TimetableDto): void {
     this.router.navigate(['/timetable', item.id, 'edit'], {
       state: { timetable: item }
