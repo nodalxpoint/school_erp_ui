@@ -20,6 +20,8 @@ export class TeacherFormComponent implements OnInit {
   isSubmitting = false;
   showPassword = false;
   userId = '';
+  passKey = '';
+  regenerating = false;
 
   form: TeacherFormState = this.blank();
   errors: Partial<TeacherFormState> = {};
@@ -69,6 +71,7 @@ export class TeacherFormComponent implements OnInit {
       qualification: teacher.qualification ?? '',
       joiningDate: teacher.joiningDate?.substring(0, 10) ?? ''
     };
+    this.passKey = teacher.passKey ?? '';
     this.cdr.markForCheck();
   }
 
@@ -164,6 +167,40 @@ closePopup(): void {
     this.router.navigate(['/teachers']);
   }
 }
+
+  onRegeneratePasskey(): void {
+    if (!this.userId) return;
+
+    this.regenerating = true;
+    this.cdr.markForCheck();
+
+    this.teacherService.regeneratePasskey(this.userId).subscribe({
+      next: (res) => {
+        this.regenerating = false;
+        if (res.success) {
+          this.passKey = res.data ?? '';
+          this.popupType = 'success';
+          this.popupMessage = `Passkey regenerated successfully: ${res.data}`;
+          this.showResultPopup = true;
+          this.startPopupTimer();
+        } else {
+          this.popupType = 'error';
+          this.popupMessage = res.message || 'Failed to regenerate passkey.';
+          this.showResultPopup = true;
+          this.startPopupTimer();
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.regenerating = false;
+        this.popupType = 'error';
+        this.popupMessage = err?.error?.message || 'Failed to regenerate passkey. Please try again.';
+        this.showResultPopup = true;
+        this.startPopupTimer();
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   onCancel(): void {
     this.router.navigate(['/teachers']);

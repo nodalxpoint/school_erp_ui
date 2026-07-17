@@ -104,11 +104,21 @@
                [disabled]="isSubmitting" />
       </div>
 
+      <div class="te-input-group-box" *ngIf="isEditMode">
+        <label class="te-field-label">Teacher Pass Key</label>
+        <input class="te-field-input text-mono" [value]="passKey" readonly
+               placeholder="Generated upon registration" style="background-color: #f7fafc; cursor: not-allowed;" />
+      </div>
+
     </div>
 
     <div class="te-sheet-footer-panel">
-      <button class="te-btn-action-cancel" type="button" (click)="onCancel()" [disabled]="isSubmitting">Cancel</button>
-      <button class="te-btn-action-submit" type="button" (click)="onSubmit()" [disabled]="isSubmitting">
+      <button class="te-btn-action-cancel" type="button" (click)="onCancel()" [disabled]="isSubmitting || regenerating">Cancel</button>
+      <button class="te-btn-action-regenerate" type="button" *ngIf="isEditMode" [disabled]="isSubmitting || regenerating" (click)="onRegeneratePasskey()">
+        <span *ngIf="regenerating" class="te-loading-spinner"></span>
+        {{ regenerating ? 'Regenerating...' : 'Regenerate Passkey' }}
+      </button>
+      <button class="te-btn-action-submit" type="button" (click)="onSubmit()" [disabled]="isSubmitting || regenerating">
         <span *ngIf="isSubmitting" class="te-loading-spinner"></span>
         {{ isSubmitting ? 'Uploading specs...' : (isEditMode ? 'Update Teacher Specs' : 'Confirm Faculty Registration') }}
       </button>

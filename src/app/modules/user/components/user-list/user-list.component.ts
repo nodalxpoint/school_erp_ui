@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { UserResponseDto } from '../../models/user.model';
+import { UserListRequest } from '../../models/user.model';
 
 @Component({
   selector: 'app-user-list',
@@ -44,7 +45,21 @@ export class UserListComponent implements OnInit {
   }
 
   edit(user: UserResponseDto): void {
-    this.router.navigate(['/users/edit'], { state: { user } });
+    if (!user.id) return;
+    // 🔥 Fetch fresh data from API using userId before navigating to edit
+    this.loading.set(true);
+    this.userService.listUsers({ page: 0, size: 10, userId: user.id }).subscribe({
+      next: (res) => {
+        this.loading.set(false);
+        const freshUser = res.data?.[0] ?? user;
+        this.router.navigate(['/users/edit'], { state: { user: freshUser } });
+      },
+      error: () => {
+        this.loading.set(false);
+        // Fallback: navigate with existing data if API fails
+        this.router.navigate(['/users/edit'], { state: { user } });
+      }
+    });
   }
 
   deleteUser(user: UserResponseDto): void {

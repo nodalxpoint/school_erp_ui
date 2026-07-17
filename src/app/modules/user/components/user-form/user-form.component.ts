@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,11 +16,16 @@ export class UserFormComponent implements OnInit {
   form: FormGroup;
   isEditMode = false;
   saving = false;
+  userId = '';
+  passKey = '';
+  regenerating = false;
+  loadingUser = false;
 
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       adminId: [null],
@@ -38,22 +43,45 @@ export class UserFormComponent implements OnInit {
       || (history.state as { user?: UserResponseDto });
     const user = navState?.['user'] as UserResponseDto | undefined;
 
-    if (user) {
+    if (user?.id) {
       this.isEditMode = true;
-    this.form.patchValue({
-    adminId: user.id,
-    adminFirstName: user.firstName,
-    adminLastName: user.lastName,
-    adminEmail: user.email,
-    adminPhone: user.phoneNumber,
-    role: user.role
-  });
-      this.form.get('adminPassword')?.clearValidators();
-      this.form.get('adminPassword')?.updateValueAndValidity();
+      this.userId = user.id;
+      // Prefill immediately from nav state
+      this.patchForm(user);
+
+      // 🔥 Re-fetch fresh data from API to get latest passKey
+      this.loadingUser = true;
+      this.userService.listUsers({ page: 0, size: 10, userId: user.id }).subscribe({
+        next: (res) => {
+          this.loadingUser = false;
+          const freshUser = res.data?.[0];
+          if (freshUser) {
+            this.patchForm(freshUser);
+          }
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingUser = false;
+        }
+      });
     } else {
       this.form.get('adminPassword')?.setValidators(Validators.required);
       this.form.get('adminPassword')?.updateValueAndValidity();
     }
+  }
+
+  private patchForm(user: UserResponseDto): void {
+    this.passKey = user.passKey ?? '';
+    this.form.patchValue({
+      adminId: user.id,
+      adminFirstName: user.firstName,
+      adminLastName: user.lastName,
+      adminEmail: user.email,
+      adminPhone: user.phoneNumber,
+      role: user.role
+    });
+    this.form.get('adminPassword')?.clearValidators();
+    this.form.get('adminPassword')?.updateValueAndValidity();
   }
 
   save(): void {
@@ -76,6 +104,28 @@ export class UserFormComponent implements OnInit {
       },
       error: () => {
         this.saving = false;
+      }
+    });
+  }
+
+  onRegeneratePasskey(): void {
+    if (!this.userId) return;
+
+    this.regenerating = true;
+    this.userService.regeneratePasskey(this.userId).subscribe({
+      next: (res) => {
+        this.regenerating = false;
+        if (res.success) {
+          // 🔥 Update passKey display immediately with the new value returned by API
+          this.passKey = res.data ?? '';
+          this.cdr.detectChanges();
+        } else {
+          alert(res.message || 'Failed to regenerate passkey.');
+        }
+      },
+      error: (err) => {
+        this.regenerating = false;
+        alert(err?.error?.message || 'Failed to regenerate passkey. Please try again.');
       }
     });
   }

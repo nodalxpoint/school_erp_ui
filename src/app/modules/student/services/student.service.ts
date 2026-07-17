@@ -64,6 +64,10 @@ export class StudentService {
     return this.http.delete<ApiResponse<string>>(`${this.BASE}/delete/${id}`);
   }
 
+  regeneratePasskey(studentId: string): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>('/users/regeneratePasskey', { studentId });
+  }
+
   searchExistingParents(req: ParentSearchRequest): Observable<ParentSearchResultDto[]> {
     return this.http.post<ParentSearchApiResponse>(`/parent/list`, req).pipe(
       map(res => {

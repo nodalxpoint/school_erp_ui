@@ -245,6 +245,12 @@
     border: 1px solid hsl(var(--destructive) / 0.2);
     color: hsl(var(--destructive));
   }
+
+  &--success {
+    background: hsla(142, 70%, 45%, 0.08);
+    border: 1px solid hsla(142, 70%, 45%, 0.2);
+    color: hsl(142, 76%, 36%);
+  }
 }
 
 // ── Form ──────────────────────────────────────────

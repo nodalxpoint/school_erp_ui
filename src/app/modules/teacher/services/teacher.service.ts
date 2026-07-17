@@ -119,4 +119,8 @@ export class TeacherService {
       request
     );
   }
+
+  regeneratePasskey(teacherId: string): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/users/regeneratePasskey`, { teacherId });
+  }
 }

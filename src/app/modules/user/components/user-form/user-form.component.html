@@ -40,9 +40,21 @@
       </div>
     </div>
 
+    <div class="form-row" *ngIf="isEditMode">
+      <div class="form-group">
+        <label>Pass Key <span *ngIf="loadingUser" style="color:#718096; font-size:11px;">(fetching latest...)</span></label>
+        <input [value]="loadingUser ? 'Loading...' : (passKey || 'Not generated yet')" readonly
+               placeholder="Generated upon registration"
+               style="background-color: #f7fafc; cursor: not-allowed; font-weight: 700; letter-spacing: 0.1em; font-family: monospace;">
+      </div>
+    </div>
+
     <div class="form-actions">
-      <button type="button" class="btn-outline" (click)="cancel()">Cancel</button>
-      <button type="submit" class="btn-primary" [disabled]="saving">
+      <button type="button" class="btn-outline" (click)="cancel()" [disabled]="saving || regenerating">Cancel</button>
+      <button type="button" class="btn-outline" *ngIf="isEditMode" [disabled]="saving || regenerating" (click)="onRegeneratePasskey()">
+        {{ regenerating ? 'Regenerating...' : 'Regenerate Passkey' }}
+      </button>
+      <button type="submit" class="btn-primary" [disabled]="saving || regenerating">
         {{ saving ? 'Saving...' : 'Save User' }}
       </button>
     </div>

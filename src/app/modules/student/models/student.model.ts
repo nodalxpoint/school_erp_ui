@@ -27,6 +27,7 @@ export interface StudentResponseDto {
   parentEmail?: string;
   parentPhone?: string;
   udise?: StudentUdiseResponseDto;
+  passKey?: string;
 }
 
 // ─── addOrUpdate payload ──────────────────────────────────────────

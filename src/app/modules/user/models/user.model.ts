@@ -6,6 +6,7 @@ export interface UserResponseDto {
   phoneNumber: string;
   role: 'ACCOUNTANT' | 'SCHOOL_ADMIN';
   isActive?: boolean;
+  passKey?: string;
 }
 
 export interface SaveUserRequest {
@@ -24,4 +25,5 @@ export interface UserListRequest {
   sortBy?: string;
   sortDirection?: string;
   search?: string;
+  userId?: string;
 }

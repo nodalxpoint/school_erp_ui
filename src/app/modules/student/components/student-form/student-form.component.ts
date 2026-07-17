@@ -23,6 +23,8 @@ export class StudentFormComponent implements OnInit {
   loadingStudent = false;   // ✅ naya
   successMessage = '';
   errorMessage = '';
+  regenerating = false;
+  passKey = '';
 
   showPassword = false;
 
@@ -299,6 +301,8 @@ private patchEditData(): void {
     parentPhone:       student.parentPhone ?? student.emergencyContact ?? '',  // ✅ backend phone nahi bhej raha, emergencyContact hi use karo
   });
 
+  this.passKey = student.passKey ?? '';
+
   this.form.get('parentPassword')?.clearValidators();
   this.form.get('parentPassword')?.updateValueAndValidity();
 
@@ -354,6 +358,33 @@ private patchEditData(): void {
 
   onCancel(): void {
     this.router.navigate(['students', 'list']);
+  }
+
+  onRegeneratePasskey(): void {
+    if (!this.studentId) return;
+
+    this.regenerating = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.cdr.markForCheck();
+
+    this.studentService.regeneratePasskey(this.studentId).subscribe({
+      next: (res) => {
+        this.regenerating = false;
+        if (res.success) {
+          this.passKey = res.data ?? '';
+          this.successMessage = `Passkey regenerated successfully: ${res.data}`;
+        } else {
+          this.errorMessage = res.message || 'Failed to regenerate passkey.';
+        }
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.regenerating = false;
+        this.errorMessage = err?.error?.message || 'Failed to regenerate passkey. Please try again.';
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   isInvalid(f: string): boolean {

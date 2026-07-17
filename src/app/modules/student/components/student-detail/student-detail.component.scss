@@ -170,9 +170,9 @@
   &.other { background: var(--violet-light); border: 1px solid var(--violet-border); color: var(--violet); }
 }
 
-/* ── 3-Column Parent Account Responsive Section ── */
+/* ── 4-Column Parent Account Responsive Section ── */
 .info-body-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
   
   @media (max-width: 850px) { grid-template-columns: repeat(2, 1fr); }
   @media (max-width: 550px) { grid-template-columns: 1fr; }
@@ -181,13 +181,14 @@
     flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 0.35rem;
     border-bottom: none; border-right: 1px solid var(--border); padding: 1.2rem 1.5rem;
     
-    &:last-child { border-right: none; }
+    &:nth-child(4n), &:last-child { border-right: none; }
     @media (max-width: 850px) { 
       border-right: none; border-bottom: 1px solid var(--border); 
-      &:nth-child(2) { border-bottom: none; } 
+      &:last-child, &:nth-last-child(2) { border-bottom: none; } 
     }
     @media (max-width: 550px) { 
       border-bottom: 1px solid var(--border); 
+      &:nth-last-child(2) { border-bottom: 1px solid var(--border); }
       &:last-child { border-bottom: none; } 
     }
   }

@@ -10,6 +10,7 @@ export interface TeacherResponseDto {
   employeeCode?: string;
   qualification?: string;
   joiningDate?: string;
+  passKey?: string;
 }
 
 export interface ClassTeacherAssignmentResponseDto {

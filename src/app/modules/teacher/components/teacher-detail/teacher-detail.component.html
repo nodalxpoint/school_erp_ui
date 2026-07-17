@@ -51,6 +51,14 @@
         <span class="ted-spec-value font-date">📆 {{ teacher.joiningDate ? (teacher.joiningDate | date:'dd MMMM yyyy') : 'No record trace' }}</span>
       </div>
 
+      <div class="ted-spec-item-box">
+        <span class="ted-spec-label">Pass Key</span>
+        <span class="ted-spec-value">
+          <code class="ted-code-badge" *ngIf="teacher.passKey">{{ teacher.passKey }}</code>
+          <span class="ted-muted-fallback" *ngIf="!teacher.passKey">—</span>
+        </span>
+      </div>
+
     </div>
 
     <div class="ted-sheet-footer-panel">

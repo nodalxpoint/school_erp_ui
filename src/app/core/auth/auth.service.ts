@@ -63,6 +63,10 @@ if (role === 'PARENT') {
     );
   }
 
+  resetPassword(payload: { email: string; passKey: string; newPassword: string }): Observable<any> {
+    return this.http.publicPost<any>('/resetPassword', payload);
+  }
+
   register(payload: Omit<RegisterRequest, 'confirmPassword'>): Observable<AuthResponse> {
     return this.http.publicPost<AuthResponse>(ENDPOINTS.auth.register, payload).pipe(
       tap((res) => {

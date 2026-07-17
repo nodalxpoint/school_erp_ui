@@ -306,6 +306,11 @@
             <span class="field-error" *ngIf="isInvalid('parentPhone')">{{ getError('parentPhone') }}</span>
           </div>
 
+          <div class="form-group">
+            <label class="form-label">Guardian Pass Key</label>
+            <input class="form-control text-mono" [value]="passKey" readonly placeholder="Generated upon registration" style="background-color: var(--bg-row-odd); cursor: not-allowed;" />
+          </div>
+
          <div class="form-group full-width" [class.has-error]="isInvalid('parentPassword')" *ngIf="parentMode === 'NEW' && !isEditMode">
   <label class="form-label">
     Portal Authentication Password
@@ -334,6 +339,10 @@
 
       <div class="form-actions" *ngIf="parentMode === 'NEW' || selectedParentId || isEditMode">
         <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
+        <button type="button" class="btn-regenerate" *ngIf="isEditMode" [disabled]="regenerating" (click)="onRegeneratePasskey()">
+          <span class="btn-spinner" *ngIf="regenerating"></span>
+          {{ regenerating ? 'Regenerating...' : 'Regenerate Passkey' }}
+        </button>
         <button type="submit" class="btn-submit" [disabled]="submitting">
           <span class="btn-spinner" *ngIf="submitting"></span>
           {{ submitting ? 'Processing Records...' : (isEditMode ? 'Update Records' : 'Confirm Registration') }}

@@ -36,4 +36,8 @@ export class UserService {
   deleteUser(id: string): Observable<any> {
     return this.http.delete<any>(`${this.base}/delete/${id}`);
   }
+
+  regeneratePasskey(userId: string): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/users/regeneratePasskey`, { userId });
+  }
 }
