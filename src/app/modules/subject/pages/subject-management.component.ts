@@ -18,22 +18,31 @@ export class SubjectManagementComponent implements OnInit {
   totalElements = 0;
   totalPages = 0;
 
-  // Sidebar visibility flags
   isSidebarOpen = false;
   isSaving = false;
 
-  // Form Model
   formModel: CreateSubjectDto = { subjectName: '', subjectCode: '' };
 
-  // Filter Request state
   filter: SubjectFilterRequest = {
     page: 0,
     size: 10,
     sortBy: 'createdAt',
-    // sortDirection: 'desc'
   };
   searchText = '';
   includeDeleted = false;
+
+  // ✅ naya — confirm popup (delete + restore dono ke liye reuse)
+  showConfirm = false;
+  confirmMode: 'delete' | 'restore' = 'delete';
+  subjectToActOn: SubjectResponseDto | null = null;
+  confirming = false;
+
+  // ✅ naya — result toast
+  showResultPopup = false;
+  popupType: 'success' | 'error' = 'success';
+  popupMessage = '';
+  private popupTimer: any = null;
+  private readonly POPUP_DURATION = 4000;
 
   constructor(
     private subjectService: SubjectService,
@@ -54,7 +63,6 @@ export class SubjectManagementComponent implements OnInit {
       includeDeleted: this.includeDeleted
     }).subscribe({
       next: (res: any) => {
-        // Mapping as per PagedResponse implementation
         this.subjects = res?.data ?? [];
         this.totalElements = res?.totalElements ?? 0;
         this.totalPages = res?.totalPages ?? 0;
@@ -83,14 +91,12 @@ export class SubjectManagementComponent implements OnInit {
     this.loadSubjects();
   }
 
-  // Open pane for adding
   onAddSubject(): void {
     this.formModel = { subjectName: '', subjectCode: '' };
     this.isSidebarOpen = true;
     this.cdr.markForCheck();
   }
 
-  // Open pane for editing
   onEditSubject(sub: SubjectResponseDto): void {
     this.formModel = {
       id: sub.id,
@@ -106,40 +112,68 @@ export class SubjectManagementComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  // ✅ replaced — confirm() ki jagah popup
   onDeleteSubject(sub: SubjectResponseDto): void {
     if (!sub.id) return;
-    if (confirm(`Are you sure you want to delete the subject "${sub.name}"?`)) {
-      this.isLoading = true;
-      this.cdr.markForCheck();
-      this.subjectService.deleteSubject(sub.id).subscribe({
-        next: () => {
-          this.loadSubjects();
-        },
-        error: (err) => {
-          this.isLoading = false;
-          alert(err?.error?.message || 'Failed to delete subject.');
-          this.cdr.markForCheck();
-        }
-      });
-    }
+    this.subjectToActOn = sub;
+    this.confirmMode = 'delete';
+    this.showConfirm = true;
+    this.cdr.markForCheck();
   }
 
   onRestoreSubject(sub: SubjectResponseDto): void {
     if (!sub.id) return;
-    if (confirm(`Are you sure you want to restore the subject "${sub.name}"?`)) {
-      this.isLoading = true;
-      this.cdr.markForCheck();
-      this.subjectService.restoreSubject(sub.id).subscribe({
-        next: () => {
-          this.loadSubjects();
-        },
-        error: (err) => {
-          this.isLoading = false;
-          alert(err?.error?.message || 'Failed to restore subject.');
-          this.cdr.markForCheck();
-        }
-      });
-    }
+    this.subjectToActOn = sub;
+    this.confirmMode = 'restore';
+    this.showConfirm = true;
+    this.cdr.markForCheck();
+  }
+
+  cancelConfirm(): void {
+    this.showConfirm = false;
+    this.subjectToActOn = null;
+    this.cdr.markForCheck();
+  }
+
+  proceedConfirm(): void {
+    if (this.confirming) return;
+    if (!this.subjectToActOn?.id) return;
+    const id = this.subjectToActOn.id;
+    const isDelete = this.confirmMode === 'delete';
+
+    this.confirming = true;
+    this.cdr.markForCheck();
+
+    const call$ = isDelete
+      ? this.subjectService.deleteSubject(id)
+      : this.subjectService.restoreSubject(id);
+
+    call$.subscribe({
+      next: (res: any) => {
+        this.confirming = false;
+        this.showConfirm = false;
+        this.subjectToActOn = null;
+
+        this.popupType = 'success';
+        this.popupMessage = res?.message || (isDelete ? 'Subject deleted successfully' : 'Subject restored successfully');
+        this.showResultPopup = true;
+        this.cdr.markForCheck();
+        this.startPopupTimer();
+
+        this.loadSubjects();
+      },
+      error: (err: any) => {
+        this.confirming = false;
+        this.showConfirm = false;
+        this.subjectToActOn = null;
+
+        this.popupType = 'error';
+        this.popupMessage = err?.error?.message || (isDelete ? 'Failed to delete subject.' : 'Failed to restore subject.');
+        this.showResultPopup = true;
+        this.cdr.markForCheck();
+        this.startPopupTimer();
+      }
+    });
   }
 
   onToggleIncludeDeleted(): void {
@@ -147,21 +181,47 @@ export class SubjectManagementComponent implements OnInit {
     this.loadSubjects();
   }
 
+  // ✅ replaced — form submit pe bhi toast
   onSubmit(): void {
     if (!this.formModel.subjectName || !this.formModel.subjectCode) return;
 
     this.isSaving = true;
+    this.cdr.markForCheck();
+
     this.subjectService.addOrUpdateSubject(this.formModel).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isSaving = false;
         this.isSidebarOpen = false;
+
+        this.popupType = 'success';
+        this.popupMessage = res?.message || (this.formModel.id ? 'Subject updated successfully!' : 'Subject added successfully!');
+        this.showResultPopup = true;
+        this.cdr.markForCheck();
+        this.startPopupTimer();
+
         this.loadSubjects();
       },
-      error: () => {
+      error: (err: any) => {
         this.isSaving = false;
+
+        this.popupType = 'error';
+        this.popupMessage = err?.error?.message || 'Failed to save subject. Please try again.';
+        this.showResultPopup = true;
         this.cdr.markForCheck();
+        this.startPopupTimer();
       }
     });
+  }
+
+  private startPopupTimer(): void {
+    if (this.popupTimer) clearTimeout(this.popupTimer);
+    this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+  }
+
+  closePopup(): void {
+    if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+    this.showResultPopup = false;
+    this.cdr.markForCheck();
   }
 
   get safeSubjects(): SubjectResponseDto[] { return this.subjects ?? []; }

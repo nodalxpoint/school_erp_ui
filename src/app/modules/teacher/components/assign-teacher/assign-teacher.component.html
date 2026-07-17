@@ -117,4 +117,18 @@
     </div>
 
   </div>
+<!-- Result Toast -->
+  <div class="ast-toast-notification" *ngIf="showResultPopup" [class.ast-is-error]="popupType === 'error'">
+    <div class="ast-toast-icon">
+      <span *ngIf="popupType === 'success'">✔</span>
+      <span *ngIf="popupType === 'error'">⚠</span>
+    </div>
+    <div class="ast-toast-content">
+      <span class="ast-toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
+      <span class="ast-toast-message">{{ popupMessage }}</span>
+    </div>
+    <button class="ast-toast-close-btn" (click)="closePopup()">✕</button>
+    <div class="ast-toast-timer-track"><div class="ast-toast-timer-bar" [class.ast-timer-error]="popupType === 'error'"></div></div>
+  </div>
+
 </div>

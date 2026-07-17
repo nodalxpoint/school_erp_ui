@@ -47,6 +47,18 @@ export class StudentListComponent implements OnInit {
   selectedStudentForUdise: StudentResponseDto | null = null;
   showUdiseModal = false;
 
+
+  // naye properties add karo (existing properties ke sath)
+showDeleteConfirm = false;
+studentToDelete: StudentResponseDto | null = null;
+deleting = false;
+
+showResultPopup = false;
+popupType: 'success' | 'error' = 'success';
+popupMessage = '';
+private popupTimer: any = null;
+private readonly POPUP_DURATION = 4000;
+
   constructor(
     private studentService: StudentService,
     private studentState: StudentStateService,
@@ -177,23 +189,71 @@ onViewStudent(student: any) {
   this.router.navigate(['/students/detail', student.id]);
 }
 
-  onDeleteStudent(student: StudentResponseDto): void {
-    if (!student.id) return;
-    const name = student.lastName ? `${student.firstName} ${student.lastName}` : student.firstName;
-    if (confirm(`Are you sure you want to delete the student "${name}"?`)) {
-      this.loading = true;
-      this.studentService.deleteStudent(student.id).subscribe({
-        next: () => {
-          this.loadStudents();
-        },
-        error: (err: any) => {
-          this.loading = false;
-          alert(err?.error?.message || 'Failed to delete student.');
-          this.cdr.markForCheck();
-        }
-      });
+ onDeleteStudent(student: StudentResponseDto): void {
+  if (!student.id) return;
+  this.studentToDelete = student;
+  this.showDeleteConfirm = true;
+  this.cdr.markForCheck();
+}
+
+cancelDelete(): void {
+  this.showDeleteConfirm = false;
+  this.studentToDelete = null;
+  this.cdr.markForCheck();
+}
+
+confirmDelete(): void {
+  if (this.deleting) return;
+  if (!this.studentToDelete?.id) return;
+  const id = this.studentToDelete.id;
+
+  console.log('🔵 DELETE START', id);
+  this.deleting = true;
+  this.cdr.markForCheck();
+
+  this.studentService.deleteStudent(id).subscribe({
+    next: (res: any) => {
+      console.log('🟢 DELETE SUCCESS CALLBACK FIRED', res);
+      this.deleting = false;
+      this.showDeleteConfirm = false;
+      this.studentToDelete = null;
+
+      this.popupType = 'success';
+      this.popupMessage = res?.message || 'Student deleted successfully';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+
+      this.loadStudents();
+    },
+    error: (err: any) => {
+      console.log('🔴 DELETE ERROR CALLBACK FIRED', err);
+      this.deleting = false;
+      this.showDeleteConfirm = false;
+      this.studentToDelete = null;
+
+      this.popupType = 'error';
+      this.popupMessage = err?.error?.message || 'Failed to delete student.';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+    },
+    complete: () => {
+      console.log('⚪ DELETE OBSERVABLE COMPLETED');
     }
-  }
+  });
+}
+
+private startPopupTimer(): void {
+  if (this.popupTimer) clearTimeout(this.popupTimer);
+  this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+}
+
+closePopup(): void {
+  if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+  this.showResultPopup = false;
+  this.cdr.markForCheck();
+}
 
   onOpenUdise(student: StudentResponseDto): void {
     this.selectedStudentForUdise = student;

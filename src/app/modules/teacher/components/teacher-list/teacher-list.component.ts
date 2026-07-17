@@ -24,6 +24,18 @@ export class TeacherListComponent implements OnInit {
   };
   searchText = '';
 
+  // ✅ naya — delete confirm popup ke liye
+  showDeleteConfirm = false;
+  teacherToDelete: TeacherResponseDto | null = null;
+  deleting = false;
+
+  // ✅ naya — result toast ke liye
+  showResultPopup = false;
+  popupType: 'success' | 'error' = 'success';
+  popupMessage = '';
+  private popupTimer: any = null;
+  private readonly POPUP_DURATION = 4000;
+
   constructor(
     private teacherService: TeacherService,
     private router: Router,
@@ -64,7 +76,6 @@ export class TeacherListComponent implements OnInit {
     this.loadTeachers(); 
   }
 
-  // ✅ FIX: Navigates straight down to a new dedicated route page carrying data state matrix
   onView(t: TeacherResponseDto): void {
     this.router.navigate([`/teachers/${t.teacherId}`], {
       state: { teacher: t }
@@ -81,23 +92,66 @@ export class TeacherListComponent implements OnInit {
     }); 
   }
 
+  // ✅ replaced — ab confirm() ki jagah popup khulega
   onDelete(t: TeacherResponseDto): void {
     const id = t.id ?? t.teacherId;
     if (!id) return;
-    const name = this.teacherName(t);
-    if (confirm(`Are you sure you want to delete the teacher "${name}"?`)) {
-      this.isLoading = true;
-      this.teacherService.deleteTeacher(id).subscribe({
-        next: () => {
-          this.loadTeachers();
-        },
-        error: (err) => {
-          this.isLoading = false;
-          alert(err?.error?.message || 'Failed to delete teacher.');
-          this.cdr.markForCheck();
-        }
-      });
-    }
+    this.teacherToDelete = t;
+    this.showDeleteConfirm = true;
+    this.cdr.markForCheck();
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm = false;
+    this.teacherToDelete = null;
+    this.cdr.markForCheck();
+  }
+
+  confirmDelete(): void {
+    if (this.deleting) return;
+    const id = this.teacherToDelete?.id ?? this.teacherToDelete?.teacherId;
+    if (!id) return;
+
+    this.deleting = true;
+    this.cdr.markForCheck();
+
+    this.teacherService.deleteTeacher(id).subscribe({
+      next: (res: any) => {
+        this.deleting = false;
+        this.showDeleteConfirm = false;
+        this.teacherToDelete = null;
+
+        this.popupType = 'success';
+        this.popupMessage = res?.message || 'Teacher deleted successfully';
+        this.showResultPopup = true;
+        this.cdr.markForCheck();
+        this.startPopupTimer();
+
+        this.loadTeachers();
+      },
+      error: (err: any) => {
+        this.deleting = false;
+        this.showDeleteConfirm = false;
+        this.teacherToDelete = null;
+
+        this.popupType = 'error';
+        this.popupMessage = err?.error?.message || 'Failed to delete teacher.';
+        this.showResultPopup = true;
+        this.cdr.markForCheck();
+        this.startPopupTimer();
+      }
+    });
+  }
+
+  private startPopupTimer(): void {
+    if (this.popupTimer) clearTimeout(this.popupTimer);
+    this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+  }
+
+  closePopup(): void {
+    if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+    this.showResultPopup = false;
+    this.cdr.markForCheck();
   }
 
   get safeTeachers(): TeacherResponseDto[] { return this.teachers ?? []; }

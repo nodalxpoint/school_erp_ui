@@ -115,3 +115,38 @@
 
   </div>
 </div>
+
+
+<!-- Delete Confirm Popup -->
+<div class="te-confirm-backdrop" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+  <div class="te-confirm-box" (click)="$event.stopPropagation()">
+    <div class="te-confirm-icon">🗑</div>
+    <h3 class="te-confirm-title">Delete Teacher?</h3>
+    <p class="te-confirm-message">
+      Are you sure you want to delete
+      <strong>{{ teacherToDelete ? teacherName(teacherToDelete) : '' }}</strong>?
+      This action cannot be undone.
+    </p>
+    <div class="te-confirm-actions">
+      <button class="te-btn-confirm-cancel" (click)="cancelDelete()" [disabled]="deleting">Cancel</button>
+      <button class="te-btn-confirm-delete" (click)="confirmDelete()" [disabled]="deleting">
+        <span class="te-btn-spinner" *ngIf="deleting"></span>
+        {{ deleting ? 'Deleting...' : 'Yes, Delete' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Result Toast -->
+<div class="te-toast-notification" *ngIf="showResultPopup" [class.te-is-error]="popupType === 'error'">
+  <div class="te-toast-icon">
+    <span *ngIf="popupType === 'success'">✔</span>
+    <span *ngIf="popupType === 'error'">⚠</span>
+  </div>
+  <div class="te-toast-content">
+    <span class="te-toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
+    <span class="te-toast-message">{{ popupMessage }}</span>
+  </div>
+  <button class="te-toast-close-btn" (click)="closePopup()">✕</button>
+  <div class="te-toast-timer-track"><div class="te-toast-timer-bar" [class.te-timer-error]="popupType === 'error'"></div></div>
+</div>

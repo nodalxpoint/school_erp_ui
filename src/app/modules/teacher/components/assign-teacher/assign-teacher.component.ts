@@ -40,6 +40,12 @@ export class AssignTeacherComponent implements OnInit {
   isSubmitting = false;
   isEditMode = false;
 
+    showResultPopup = false;
+  popupType: 'success' | 'error' = 'success';
+  popupMessage = '';
+  private popupTimer: any = null;
+  private readonly POPUP_DURATION = 4000;
+
   constructor(
     private teacherService: TeacherService,
     private router: Router, 
@@ -158,27 +164,51 @@ export class AssignTeacherComponent implements OnInit {
     if (!this.form.academicSessionId)  this.errors['academicSessionId'] = 'Required';
     return !Object.keys(this.errors).length;
   }
+onSubmit(): void {
+  if (!this.validate()) return;
+  this.isSubmitting = true;
+  this.cdr.markForCheck();
 
-  onSubmit(): void {
-    if (!this.validate()) return;
-    this.isSubmitting = true;
+  const dto: AssignClassTeacherDto = { ...this.form };
+  this.teacherService.assignClassTeacher(dto).subscribe({
+    next: (res: any) => {
+      this.isSubmitting = false;
 
-    const dto: AssignClassTeacherDto = { ...this.form };
-    this.teacherService.assignClassTeacher(dto).subscribe({
-      next: () => {
-        this.isSubmitting = false;
-        this.resetForm();
-        this.assigned.emit();
-        this.router.navigate(['/teachers/class-teacher']); 
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.isSubmitting = false;
-        this.cdr.markForCheck();
-      }
-    });
+      this.popupType = 'success';
+      this.popupMessage = res?.message || (this.isEditMode ? 'Assignment updated successfully!' : 'Class teacher assigned successfully!');
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+
+      this.assigned.emit();
+    },
+    error: (err: any) => {
+      this.isSubmitting = false;
+
+      this.popupType = 'error';
+      this.popupMessage = err?.error?.message || 'Failed to assign class teacher. Please try again.';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+    }
+  });
+}
+
+private startPopupTimer(): void {
+  if (this.popupTimer) clearTimeout(this.popupTimer);
+  this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+}
+
+closePopup(): void {
+  if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+  const wasSuccess = this.popupType === 'success';
+  this.showResultPopup = false;
+  this.cdr.markForCheck();
+  if (wasSuccess) {
+    this.resetForm();
+    this.router.navigate(['/teachers/class-teacher']);
   }
-
+}
   onBack(): void {
     this.router.navigate(['/teachers/class-teacher']); 
   }

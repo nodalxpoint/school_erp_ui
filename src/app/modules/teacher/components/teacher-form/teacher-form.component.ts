@@ -24,6 +24,13 @@ export class TeacherFormComponent implements OnInit {
   form: TeacherFormState = this.blank();
   errors: Partial<TeacherFormState> = {};
 
+    showResultPopup = false;
+  popupType: 'success' | 'error' = 'success';
+  popupMessage = '';
+  private popupTimer: any = null;
+  private readonly POPUP_DURATION = 4000;
+
+
   constructor(
     private teacherService: TeacherService,
     private route: ActivatedRoute,
@@ -98,39 +105,65 @@ export class TeacherFormComponent implements OnInit {
     return !Object.keys(this.errors).length;
   }
 
-  onSubmit(): void {
-    if (!this.validate()) return;
+ onSubmit(): void {
+  if (!this.validate()) return;
 
-    this.isSubmitting = true;
-    this.cdr.markForCheck();
+  this.isSubmitting = true;
+  this.cdr.markForCheck();
 
-    const dto: CreateTeacherDto = {
-      firstName: this.form.firstName.trim(),
-      lastName: this.form.lastName.trim() || undefined,
-      email: this.form.email.trim(),
-      employeeCode: this.form.employeeCode.trim() || undefined,
-      qualification: this.form.qualification.trim() || undefined,
-      joiningDate: this.form.joiningDate || undefined
-    };
+  const dto: CreateTeacherDto = {
+    firstName: this.form.firstName.trim(),
+    lastName: this.form.lastName.trim() || undefined,
+    email: this.form.email.trim(),
+    employeeCode: this.form.employeeCode.trim() || undefined,
+    qualification: this.form.qualification.trim() || undefined,
+    joiningDate: this.form.joiningDate || undefined
+  };
 
-    if (this.isEditMode) {
-      dto.userId = this.userId;
-    } else {
-      dto.password = this.form.password;
-    }
-
-    this.teacherService.addOrUpdateTeacher(dto).subscribe({
-      next: (res) => {
-        this.isSubmitting = false;
-        this.router.navigate(['/teachers']);
-      },
-      error: (err) => {
-        this.isSubmitting = false;
-        this.cdr.markForCheck();
-        console.error('Save failed:', err);
-      }
-    });
+  if (this.isEditMode) {
+    dto.userId = this.userId;
+  } else {
+    dto.password = this.form.password;
   }
+
+  this.teacherService.addOrUpdateTeacher(dto).subscribe({
+    next: (res: any) => {
+      this.isSubmitting = false;
+
+      this.popupType = 'success';
+      this.popupMessage = res?.message || (this.isEditMode ? 'Teacher updated successfully!' : 'Teacher added successfully!');
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+    },
+    error: (err: any) => {
+      this.isSubmitting = false;
+
+      this.popupType = 'error';
+      this.popupMessage = err?.error?.message || 'Failed to save teacher. Please try again.';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+
+      console.error('Save failed:', err);
+    }
+  });
+}
+
+private startPopupTimer(): void {
+  if (this.popupTimer) clearTimeout(this.popupTimer);
+  this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+}
+
+closePopup(): void {
+  if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+  const wasSuccess = this.popupType === 'success';
+  this.showResultPopup = false;
+  this.cdr.markForCheck();
+  if (wasSuccess) {
+    this.router.navigate(['/teachers']);
+  }
+}
 
   onCancel(): void {
     this.router.navigate(['/teachers']);

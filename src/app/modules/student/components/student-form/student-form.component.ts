@@ -39,6 +39,12 @@ export class StudentFormComponent implements OnInit {
   loadingSections = false;
   loadingAcademicSessions = false;
 
+  showResultPopup = false;
+popupType: 'success' | 'error' = 'success';
+popupMessage = '';
+private popupTimer: any = null;
+private readonly POPUP_DURATION = 4000;
+
   // ✅ naya — patch sequencing ke liye
   private loadedStudent: StudentResponseDto | null = null;
   private classesReady = false;
@@ -322,24 +328,28 @@ private patchEditData(): void {
 
     if (!payload.parentPassword) delete payload.parentPassword;
 
-    this.studentService.saveStudent(payload).subscribe({
-      next: (res) => {
-        this.submitting = false;
-        if (res.success) {
-          this.successMessage = this.isEditMode ? 'Student updated successfully!' : 'Student added successfully!';
-          this.cdr.markForCheck();
-          setTimeout(() => this.router.navigate(['students', 'list']), 1200);
-        } else {
-          this.errorMessage = res.message || 'Something went wrong.';
-          this.cdr.markForCheck();
-        }
-      },
-      error: (err) => {
-        this.submitting = false;
-        this.errorMessage = err?.error?.message || 'Failed to save student. Please try again.';
-        this.cdr.markForCheck();
-      },
-    });
+ this.studentService.saveStudent(payload).subscribe({
+  next: (res) => {
+    this.submitting = false;
+    if (res.success) {
+      this.popupType = 'success';
+      this.popupMessage = res.message || (this.isEditMode ? 'Student updated successfully!' : 'Student added successfully!');
+    } else {
+      this.popupType = 'error';
+      this.popupMessage = res.message || 'Something went wrong.';
+    }
+    this.showResultPopup = true;
+    this.cdr.markForCheck();
+    this.startPopupTimer();
+  },
+  error: (err) => {
+    this.submitting = false;
+    this.popupType = 'error';
+    this.popupMessage = err?.error?.message || 'Failed to save student. Please try again.';
+    this.showResultPopup = true;
+    this.cdr.markForCheck();
+  },
+});
   }
 
   onCancel(): void {
@@ -350,6 +360,21 @@ private patchEditData(): void {
     const c = this.form.get(f);
     return !!(c && c.invalid && c.touched);
   }
+
+private startPopupTimer(): void {
+  if (this.popupTimer) clearTimeout(this.popupTimer);
+  this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+}
+
+closePopup(): void {
+  if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+  const wasSuccess = this.popupType === 'success';
+  this.showResultPopup = false;
+  this.cdr.markForCheck();
+  if (wasSuccess) {
+    this.router.navigate(['students', 'list']);
+  }
+}
 
   getError(f: string): string {
     const c = this.form.get(f);

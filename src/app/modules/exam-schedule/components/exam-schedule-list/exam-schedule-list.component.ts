@@ -190,7 +190,7 @@ export class ExamScheduleListComponent implements OnInit, OnDestroy {
     });
   }
 
-  onAddSchedule(): void {
+ onAddSchedule(): void {
     if (!this.isAdmin) return;
     this.router.navigate(['/exam-schedule/add'], {
       queryParams: { 

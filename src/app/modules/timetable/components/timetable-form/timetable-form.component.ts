@@ -30,6 +30,12 @@ export class TimetableFormComponent implements OnInit {
     dayOfWeek: 'MONDAY', startTime: '', endTime: '', roomNo: ''
   };
 
+   showResultPopup = false;
+  popupType: 'success' | 'error' = 'success';
+  popupMessage = '';
+  private popupTimer: any = null;
+  private readonly POPUP_DURATION = 4000;
+
   constructor(
     private timetableService: TimetableService,
     private router: Router,
@@ -129,18 +135,45 @@ export class TimetableFormComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
+ onSubmit(): void {
     this.isSaving = true;
+    this.cdr.markForCheck();
+
     this.timetableService.addOrUpdateTimetable(this.formModel).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isSaving = false;
-        this.router.navigate(['/timetable']);
-      },
-      error: () => {
-        this.isSaving = false;
+
+        this.popupType = 'success';
+        this.popupMessage = res?.message || (this.isEditMode ? 'Timetable slot updated successfully!' : 'Timetable slot created successfully!');
+        this.showResultPopup = true;
         this.cdr.markForCheck();
+        this.startPopupTimer();
+      },
+      error: (err: any) => {
+        this.isSaving = false;
+
+        this.popupType = 'error';
+        this.popupMessage = err?.error?.message || 'Failed to save timetable slot. Please try again.';
+        this.showResultPopup = true;
+        this.cdr.markForCheck();
+        this.startPopupTimer();
       }
     });
+  }
+
+  private startPopupTimer(): void {
+    if (this.popupTimer) clearTimeout(this.popupTimer);
+    this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+  }
+
+  closePopup(): void {
+    if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+    const wasSuccess = this.popupType === 'success';
+    this.showResultPopup = false;
+    this.cdr.markForCheck();
+    if (wasSuccess) {
+      this.router.navigate(['/timetable']);
+    }
   }
 
   onCancel(): void {

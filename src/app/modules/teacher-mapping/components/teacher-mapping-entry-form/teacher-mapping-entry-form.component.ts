@@ -29,6 +29,12 @@ export class TeacherMappingEntryFormComponent implements OnInit {
   classId = '';
   sectionId = '';
 
+    showResultPopup = false;
+  popupType: 'success' | 'error' = 'success';
+  popupMessage = '';
+  private popupTimer: any = null;
+  private readonly POPUP_DURATION = 4000;
+
   constructor(
     private marksService: ExamMarksService,
     private route: ActivatedRoute,
@@ -82,31 +88,58 @@ export class TeacherMappingEntryFormComponent implements OnInit {
   }
 
   onSubmitMarks(): void {
-    if (this.studentRecords.length === 0) return;
+  if (this.studentRecords.length === 0) return;
 
-    this.isSaving = true;
-    this.cdr.markForCheck();
+  this.isSaving = true;
+  this.cdr.markForCheck();
 
-    const finalPayload: ExamMarksSavePayload = {
-      examSubjectId: this.examSubjectId,
-      examId: this.examId,
-      academicSessionId: this.academicSessionId,
-      records: this.studentRecords.map(r => ({
-        studentId: r.studentId,
-        marksObtained: Number(r.marksObtained || 0),
-        remarks: 'Evaluated'
-      }))
-    };
+  const finalPayload: ExamMarksSavePayload = {
+    examSubjectId: this.examSubjectId,
+    examId: this.examId,
+    academicSessionId: this.academicSessionId,
+    records: this.studentRecords.map(r => ({
+      studentId: r.studentId,
+      marksObtained: Number(r.marksObtained || 0),
+      remarks: 'Evaluated'
+    }))
+  };
 
-    this.marksService.saveStudentExamMarks(finalPayload).subscribe({
-      next: () => {
-        this.isSaving = false;
-        alert('Marks submitted successfully!');
-        this.onGoBack();
-      },
-      error: () => { this.isSaving = false; this.cdr.markForCheck(); }
-    });
+  this.marksService.saveStudentExamMarks(finalPayload).subscribe({
+    next: (res: any) => {
+      this.isSaving = false;
+
+      this.popupType = 'success';
+      this.popupMessage = res?.message || 'Marks submitted successfully!';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+    },
+    error: (err: any) => {
+      this.isSaving = false;
+
+      this.popupType = 'error';
+      this.popupMessage = err?.error?.message || 'Failed to submit marks. Please try again.';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+    }
+  });
+}
+
+private startPopupTimer(): void {
+  if (this.popupTimer) clearTimeout(this.popupTimer);
+  this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+}
+
+closePopup(): void {
+  if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+  const wasSuccess = this.popupType === 'success';
+  this.showResultPopup = false;
+  this.cdr.markForCheck();
+  if (wasSuccess) {
+    this.onGoBack();
   }
+}
 
   onGoBack(): void {
     this.router.navigate(['/teacher-mapping']);

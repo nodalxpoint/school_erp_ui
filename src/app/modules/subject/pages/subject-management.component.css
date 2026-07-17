@@ -468,8 +468,14 @@
 }
 
 .col-actions {
-  width: 140px;
+  width: 220px;
   text-align: right;
+}
+
+.action-buttons-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .subject-cell {
@@ -533,6 +539,96 @@
   border-color: var(--primary-border);
   color: var(--primary);
   background: var(--primary-light);
+}
+
+.delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  background: #ffffff;
+  border: 1px solid var(--border-dark);
+  color: var(--text-muted);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.delete-btn:hover {
+  border-color: #feb2b2;
+  color: var(--danger-red);
+  background: var(--danger-bg);
+}
+
+.restore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  background: #ffffff;
+  border: 1px solid var(--border-dark);
+  color: var(--text-muted);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.restore-btn:hover {
+  border-color: var(--teal-border);
+  color: var(--teal);
+  background: var(--teal-light);
+}
+
+.badge-deleted {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--danger-red);
+  background: var(--danger-bg);
+  border: 1px solid #feb2b2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.sm-checkbox-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+.sm-checkbox-wrap input[type=checkbox] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid var(--border-dark);
+  accent-color: var(--primary);
+}
+
+.is-deleted-row {
+  opacity: 0.65;
+}
+.is-deleted-row .avatar-box {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+  color: #a0aec0;
+}
+.is-deleted-row .subject-name {
+  text-decoration: line-through;
+  color: var(--text-muted);
 }
 
 .pagination {
@@ -661,4 +757,267 @@
   font-size: 13px;
   color: var(--text-muted);
   max-width: 420px;
+}
+
+.sm-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+  animation: smConfirmFadeIn 0.15s ease;
+}
+
+.sm-confirm-box {
+  background: var(--bg-white);
+  border-radius: 16px;
+  padding: 1.75rem;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
+  animation: smConfirmPopIn 0.2s ease;
+}
+
+.sm-confirm-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  background: var(--danger-bg);
+  color: var(--danger-red);
+}
+.sm-confirm-icon--restore {
+  background: var(--teal-light);
+  color: var(--teal);
+}
+
+.sm-confirm-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.sm-confirm-message {
+  margin: 0 0 1.5rem;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.sm-confirm-message strong {
+  color: var(--text-primary);
+}
+
+.sm-confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.sm-btn-confirm-cancel {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--border-dark);
+  background: #fff;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sm-btn-confirm-cancel:hover:not(:disabled) {
+  background: #f7fafc;
+}
+.sm-btn-confirm-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sm-btn-confirm-proceed {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: var(--danger-red);
+  color: #fff;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.sm-btn-confirm-proceed:hover:not(:disabled) {
+  background: #c53030;
+}
+.sm-btn-confirm-proceed:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.sm-btn-confirm-proceed--restore {
+  background: var(--teal);
+}
+.sm-btn-confirm-proceed--restore:hover:not(:disabled) {
+  background: #285e5f;
+}
+
+.sm-btn-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: smSpinBtn 0.6s linear infinite;
+}
+
+@keyframes smConfirmFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes smConfirmPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes smSpinBtn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.sm-toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1100;
+  width: 340px;
+  max-width: calc(100vw - 40px);
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #16a34a;
+  padding: 14px 40px 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  overflow: hidden;
+  animation: smToastSlideIn 0.25s ease-out;
+}
+.sm-toast-notification.sm-is-error {
+  border-left-color: var(--danger-red);
+}
+
+.sm-toast-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  background: #f0fdf4;
+  color: #16a34a;
+  margin-top: 1px;
+}
+.sm-is-error .sm-toast-icon {
+  background: var(--danger-bg);
+  color: var(--danger-red);
+}
+
+.sm-toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sm-toast-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.sm-toast-message {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.sm-toast-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--text-hint);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: all 0.15s;
+}
+.sm-toast-close-btn:hover {
+  color: var(--text-muted);
+  background: #f7fafc;
+}
+
+.sm-toast-timer-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #edf2f7;
+}
+
+.sm-toast-timer-bar {
+  height: 100%;
+  width: 100%;
+  background: #16a34a;
+  transform-origin: left;
+  animation: smToastTimerShrink 4s linear forwards;
+}
+.sm-toast-timer-bar.sm-timer-error {
+  background: var(--danger-red);
+}
+
+@keyframes smToastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes smToastTimerShrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
 }/*# sourceMappingURL=subject-management.component.css.map */

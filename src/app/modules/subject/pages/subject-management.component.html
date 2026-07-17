@@ -215,3 +215,40 @@
   </div>
 
 </div>
+
+  <!-- Delete / Restore Confirm Popup -->
+  <div class="sm-confirm-backdrop" *ngIf="showConfirm" (click)="cancelConfirm()">
+    <div class="sm-confirm-box" (click)="$event.stopPropagation()">
+      <div class="sm-confirm-icon" [class.sm-confirm-icon--restore]="confirmMode === 'restore'">
+        {{ confirmMode === 'delete' ? '🗑' : '♻️' }}
+      </div>
+      <h3 class="sm-confirm-title">{{ confirmMode === 'delete' ? 'Delete Subject?' : 'Restore Subject?' }}</h3>
+      <p class="sm-confirm-message">
+        Are you sure you want to {{ confirmMode === 'delete' ? 'delete' : 'restore' }}
+        <strong>{{ subjectToActOn?.name }}</strong>?
+        <span *ngIf="confirmMode === 'delete'">This action cannot be undone.</span>
+      </p>
+      <div class="sm-confirm-actions">
+        <button class="sm-btn-confirm-cancel" (click)="cancelConfirm()" [disabled]="confirming">Cancel</button>
+        <button class="sm-btn-confirm-proceed" [class.sm-btn-confirm-proceed--restore]="confirmMode === 'restore'" (click)="proceedConfirm()" [disabled]="confirming">
+          <span class="sm-btn-spinner" *ngIf="confirming"></span>
+          {{ confirming ? (confirmMode === 'delete' ? 'Deleting...' : 'Restoring...') : (confirmMode === 'delete' ? 'Yes, Delete' : 'Yes, Restore') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Toast -->
+  <div class="sm-toast-notification" *ngIf="showResultPopup" [class.sm-is-error]="popupType === 'error'">
+    <div class="sm-toast-icon">
+      <span *ngIf="popupType === 'success'">✔</span>
+      <span *ngIf="popupType === 'error'">⚠</span>
+    </div>
+    <div class="sm-toast-content">
+      <span class="sm-toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
+      <span class="sm-toast-message">{{ popupMessage }}</span>
+    </div>
+    <button class="sm-toast-close-btn" (click)="closePopup()">✕</button>
+    <div class="sm-toast-timer-track"><div class="sm-toast-timer-bar" [class.sm-timer-error]="popupType === 'error'"></div></div>
+  </div>
+

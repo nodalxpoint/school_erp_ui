@@ -342,5 +342,18 @@
 
     </ng-container>
 
+  <div class="toast-notification" *ngIf="showResultPopup" [class.is-error]="popupType === 'error'">
+  <div class="toast-icon">
+    <span *ngIf="popupType === 'success'">✔</span>
+    <span *ngIf="popupType === 'error'">⚠</span>
+  </div>
+  <div class="toast-content">
+    <span class="toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
+    <span class="toast-message">{{ popupMessage }}</span>
+  </div>
+  <button class="toast-close-btn" (click)="closePopup()">✕</button>
+  <div class="toast-timer-track"><div class="toast-timer-bar"></div></div>
+</div>
+
   </form>
 </div>

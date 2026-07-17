@@ -109,4 +109,18 @@
 
     </form>
   </div>
+<!-- Result Toast -->
+  <div class="tt-toast-notification" *ngIf="showResultPopup" [class.tt-is-error]="popupType === 'error'">
+    <div class="tt-toast-icon">
+      <span *ngIf="popupType === 'success'">✔</span>
+      <span *ngIf="popupType === 'error'">⚠</span>
+    </div>
+    <div class="tt-toast-content">
+      <span class="tt-toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
+      <span class="tt-toast-message">{{ popupMessage }}</span>
+    </div>
+    <button class="tt-toast-close-btn" (click)="closePopup()">✕</button>
+    <div class="tt-toast-timer-track"><div class="tt-toast-timer-bar" [class.tt-timer-error]="popupType === 'error'"></div></div>
+  </div>
+
 </div>

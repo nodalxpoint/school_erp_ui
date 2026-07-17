@@ -227,4 +227,18 @@
 
   </div>
 
+<!-- Result Toast -->
+  <div class="ex-toast-notification" *ngIf="showResultPopup" [class.ex-is-error]="popupType === 'error'">
+    <div class="ex-toast-icon">
+      <span *ngIf="popupType === 'success'">✔</span>
+      <span *ngIf="popupType === 'error'">⚠</span>
+    </div>
+    <div class="ex-toast-content">
+      <span class="ex-toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
+      <span class="ex-toast-message">{{ popupMessage }}</span>
+    </div>
+    <button class="ex-toast-close-btn" (click)="closePopup()">✕</button>
+    <div class="ex-toast-timer-track"><div class="ex-toast-timer-bar" [class.ex-timer-error]="popupType === 'error'"></div></div>
+  </div>
+
 </div>

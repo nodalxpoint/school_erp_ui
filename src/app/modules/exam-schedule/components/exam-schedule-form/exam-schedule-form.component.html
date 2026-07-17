@@ -80,4 +80,18 @@
 
     </form>
   </div>
+<!-- Result Toast -->
+  <div class="es-toast-notification" *ngIf="showResultPopup" [class.es-is-error]="popupType === 'error'">
+    <div class="es-toast-icon">
+      <span *ngIf="popupType === 'success'">✔</span>
+      <span *ngIf="popupType === 'error'">⚠</span>
+    </div>
+    <div class="es-toast-content">
+      <span class="es-toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
+      <span class="es-toast-message">{{ popupMessage }}</span>
+    </div>
+    <button class="es-toast-close-btn" (click)="closePopup()">✕</button>
+    <div class="es-toast-timer-track"><div class="es-toast-timer-bar" [class.es-timer-error]="popupType === 'error'"></div></div>
+  </div>
+
 </div>

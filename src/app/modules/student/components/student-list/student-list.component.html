@@ -180,7 +180,42 @@
     </div>
   </div>
 
+  <app-student-udise-modal [isOpen]="showUdiseModal" [student]="selectedStudentForUdise" (closed)="onCloseUdise()">
+</app-student-udise-modal>
+
+<!-- Delete Confirm Popup -->
+<div class="confirm-backdrop" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+  <div class="confirm-box" (click)="$event.stopPropagation()">
+    <div class="confirm-icon">🗑</div>
+    <h3 class="confirm-title">Delete Student?</h3>
+    <p class="confirm-message">
+      Are you sure you want to delete
+      <strong>{{ studentToDelete?.firstName }} {{ studentToDelete?.lastName }}</strong>?
+      This action cannot be undone.
+    </p>
+    <div class="confirm-actions">
+      <button class="btn-confirm-cancel" (click)="cancelDelete()" [disabled]="deleting">Cancel</button>
+      <button class="btn-confirm-delete" (click)="confirmDelete()" [disabled]="deleting">
+        <span class="btn-spinner" *ngIf="deleting"></span>
+        {{ deleting ? 'Deleting...' : 'Yes, Delete' }}
+      </button>
+    </div>
+  </div>
 </div>
 
-<app-student-udise-modal [isOpen]="showUdiseModal" [student]="selectedStudentForUdise" (closed)="onCloseUdise()">
-</app-student-udise-modal>
+<!-- Result Toast -->
+<div class="toast-notification" *ngIf="showResultPopup" [class.is-error]="popupType === 'error'">
+  <div class="toast-icon">
+    <span *ngIf="popupType === 'success'">✔</span>
+    <span *ngIf="popupType === 'error'">⚠</span>
+  </div>
+  <div class="toast-content">
+    <span class="toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
+    <span class="toast-message">{{ popupMessage }}</span>
+  </div>
+  <button class="toast-close-btn" (click)="closePopup()">✕</button>
+  <div class="toast-timer-track"><div class="toast-timer-bar"></div></div>
+</div>
+
+</div>
+

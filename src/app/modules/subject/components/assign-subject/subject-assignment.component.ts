@@ -38,6 +38,12 @@ export class SubjectAssignmentComponent implements OnInit {
     subjectId: '', teacherId: '', classId: '', sectionId: '', academicSessionId: ''
   };
 
+   showResultPopup = false;
+  popupType: 'success' | 'error' = 'success';
+  popupMessage = '';
+  private popupTimer: any = null;
+  private readonly POPUP_DURATION = 4000;
+
   constructor(private subjectService: SubjectService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
@@ -117,19 +123,44 @@ export class SubjectAssignmentComponent implements OnInit {
   }
 
   onSubmitAssignment(): void {
-    this.isSaving = true;
-    this.subjectService.assignSubjectTeacher(this.formModel).subscribe({
-      next: () => {
-        this.isSaving = false;
-        this.isFormOpen = false;
-        this.loadAssignments();
-      },
-      error: () => {
-        this.isSaving = false;
-        this.cdr.markForCheck();
-      }
-    });
-  }
+  this.isSaving = true;
+  this.cdr.markForCheck();
+
+  this.subjectService.assignSubjectTeacher(this.formModel).subscribe({
+    next: (res: any) => {
+      this.isSaving = false;
+      this.isFormOpen = false;
+
+      this.popupType = 'success';
+      this.popupMessage = res?.message || 'Subject teacher assigned successfully!';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+
+      this.loadAssignments();
+    },
+    error: (err: any) => {
+      this.isSaving = false;
+
+      this.popupType = 'error';
+      this.popupMessage = err?.error?.message || 'Failed to assign subject teacher. Please try again.';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+    }
+  });
+}
+
+private startPopupTimer(): void {
+  if (this.popupTimer) clearTimeout(this.popupTimer);
+  this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+}
+
+closePopup(): void {
+  if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+  this.showResultPopup = false;
+  this.cdr.markForCheck();
+}
 
   get pages(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i); }
   get currentPage(): number { return this.filter.page; }

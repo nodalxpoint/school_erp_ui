@@ -63,4 +63,18 @@
 
     </form>
   </div>
+<!-- Result Toast -->
+  <div class="ef-toast-notification" *ngIf="showResultPopup" [class.ef-is-error]="popupType === 'error'">
+    <div class="ef-toast-icon">
+      <span *ngIf="popupType === 'success'">✔</span>
+      <span *ngIf="popupType === 'error'">⚠</span>
+    </div>
+    <div class="ef-toast-content">
+      <span class="ef-toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
+      <span class="ef-toast-message">{{ popupMessage }}</span>
+    </div>
+    <button class="ef-toast-close-btn" (click)="closePopup()">✕</button>
+    <div class="ef-toast-timer-track"><div class="ef-toast-timer-bar" [class.ef-timer-error]="popupType === 'error'"></div></div>
+  </div>
+
 </div>

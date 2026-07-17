@@ -36,6 +36,12 @@ export class ExamScheduleFormComponent implements OnInit {
     examDate: ''
   };
 
+   showResultPopup = false;
+  popupType: 'success' | 'error' = 'success';
+  popupMessage = '';
+  private popupTimer: any = null;
+  private readonly POPUP_DURATION = 4000;
+
   constructor(
     private scheduleService: ExamScheduleService,
     private authState: AuthStateService, // ✅ Injected safely
@@ -128,16 +134,40 @@ export class ExamScheduleFormComponent implements OnInit {
     this.cdr.markForCheck();
 
     this.scheduleService.addOrUpdateExamSubject(this.formModel).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.isSaving = false;
-        this.router.navigate(['/exam-schedule']);
-      },
-      error: (err) => {
-        this.isSaving = false;
-        this.errorMessage = err?.error?.message || 'Failed to save. Please try again.';
+
+        this.popupType = 'success';
+        this.popupMessage = res?.message || (this.isEditMode ? 'Exam subject updated successfully!' : 'Exam subject allocated successfully!');
+        this.showResultPopup = true;
         this.cdr.markForCheck();
+        this.startPopupTimer();
+      },
+      error: (err: any) => {
+        this.isSaving = false;
+
+        this.popupType = 'error';
+        this.popupMessage = err?.error?.message || 'Failed to save. Please try again.';
+        this.showResultPopup = true;
+        this.cdr.markForCheck();
+        this.startPopupTimer();
       }
     });
+  }
+
+  private startPopupTimer(): void {
+    if (this.popupTimer) clearTimeout(this.popupTimer);
+    this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+  }
+
+  closePopup(): void {
+    if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+    const wasSuccess = this.popupType === 'success';
+    this.showResultPopup = false;
+    this.cdr.markForCheck();
+    if (wasSuccess) {
+      this.router.navigate(['/exam-schedule']);
+    }
   }
 
   onCancel(): void {

@@ -87,4 +87,18 @@
     </div>
   </div>
 
+<!-- Result Toast -->
+  <div class="me-toast-notification" *ngIf="showResultPopup" [class.me-is-error]="popupType === 'error'">
+    <div class="me-toast-icon">
+      <span *ngIf="popupType === 'success'">✔</span>
+      <span *ngIf="popupType === 'error'">⚠</span>
+    </div>
+    <div class="me-toast-content">
+      <span class="me-toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
+      <span class="me-toast-message">{{ popupMessage }}</span>
+    </div>
+    <button class="me-toast-close-btn" (click)="closePopup()">✕</button>
+    <div class="me-toast-timer-track"><div class="me-toast-timer-bar" [class.me-timer-error]="popupType === 'error'"></div></div>
+  </div>
+
 </div>

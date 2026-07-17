@@ -41,6 +41,12 @@ export class TeacherTimetableFormComponent implements OnInit, OnDestroy {
     dayOfWeek: 'MONDAY', startTime: '', endTime: '', roomNo: ''
   };
 
+    showResultPopup = false;
+  popupType: 'success' | 'error' = 'success';
+  popupMessage = '';
+  private popupTimer: any = null;
+  private readonly POPUP_DURATION = 4000;
+
   constructor(
     private timetableService: TeacherTimetableService,
     private authState: AuthStateService,
@@ -185,33 +191,59 @@ export class TeacherTimetableFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSubmit(): void {
-    const payload = { ...this.formModel };
+onSubmit(): void {
+  const payload = { ...this.formModel };
 
-    // Strict payload overwrite safeguard validation checkpoint
-    if (!this.isAdmin && this.realTeacherIdFromBackend) {
-      payload.teacherId = this.realTeacherIdFromBackend;
-    }
-
-    if (payload.startTime && payload.startTime.length === 5) {
-      payload.startTime = payload.startTime + ':00';
-    }
-    if (payload.endTime && payload.endTime.length === 5) {
-      payload.endTime = payload.endTime + ':00';
-    }
-
-    this.isSaving = true;
-    this.timetableService.addOrUpdateTimetable(payload).subscribe({
-      next: () => {
-        this.isSaving = false;
-        this.router.navigate(['/teacher-timetable']);
-      },
-      error: () => {
-        this.isSaving = false;
-        this.cdr.markForCheck();
-      }
-    });
+  if (!this.isAdmin && this.realTeacherIdFromBackend) {
+    payload.teacherId = this.realTeacherIdFromBackend;
   }
+
+  if (payload.startTime && payload.startTime.length === 5) {
+    payload.startTime = payload.startTime + ':00';
+  }
+  if (payload.endTime && payload.endTime.length === 5) {
+    payload.endTime = payload.endTime + ':00';
+  }
+
+  this.isSaving = true;
+  this.cdr.markForCheck();
+
+  this.timetableService.addOrUpdateTimetable(payload).subscribe({
+    next: (res: any) => {
+      this.isSaving = false;
+
+      this.popupType = 'success';
+      this.popupMessage = res?.message || (this.isEditMode ? 'Timetable slot updated successfully!' : 'Timetable slot created successfully!');
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+    },
+    error: (err: any) => {
+      this.isSaving = false;
+
+      this.popupType = 'error';
+      this.popupMessage = err?.error?.message || 'Failed to save timetable slot. Please try again.';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+    }
+  });
+}
+
+private startPopupTimer(): void {
+  if (this.popupTimer) clearTimeout(this.popupTimer);
+  this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+}
+
+closePopup(): void {
+  if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+  const wasSuccess = this.popupType === 'success';
+  this.showResultPopup = false;
+  this.cdr.markForCheck();
+  if (wasSuccess) {
+    this.router.navigate(['/teacher-timetable']);
+  }
+}
 
   onCancel(): void {
     this.router.navigate(['/teacher-timetable']);
