@@ -133,14 +133,17 @@ export class ExamMarksListComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  // ── 3. Student autocomplete — debounced POST /students/list ──
+ // ── 3. Student autocomplete — debounced POST /students/list ──
   setupStudentAutocomplete(): void {
     this.studentSearch$.pipe(
       debounceTime(400),
       distinctUntilChanged(),
       // previous pending request cancel ho jata hai switchMap se
       switchMap(term => {
-        if (!term.trim()) {
+        const trimmed = term.trim();
+
+        // ✅ Minimum 3 characters ke bina API call hi nahi hogi
+        if (trimmed.length < 3) {
           this.suggestedStudents = [];
           this.showSuggestions   = false;
           this.searchingStudents = false;
@@ -151,7 +154,7 @@ export class ExamMarksListComponent implements OnInit {
         this.searchingStudents = true;
         this.cdr.markForCheck();
 
-        return this.marksService.searchStudents(term);
+        return this.marksService.searchStudents(trimmed);
       })
     ).subscribe({
       next: students => {

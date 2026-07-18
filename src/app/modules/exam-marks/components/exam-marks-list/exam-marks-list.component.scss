@@ -957,3 +957,8 @@ select:focus-visible {
     cursor: not-allowed;
   }
 }
+
+.min-char-hint {
+  position: absolute; top: 100%; left: 0; margin-top: 4px;
+  font-size: 11px; color: var(--text-hint, #a0aec0); padding: 4px 8px;
+}

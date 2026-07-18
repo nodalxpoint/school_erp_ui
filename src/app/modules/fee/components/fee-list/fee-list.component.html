@@ -152,23 +152,23 @@
               <th class="text-right">Actions</th>
             </tr>
           </thead>
-          <tbody>
+      <tbody>
             <tr *ngFor="let f of fees">
-              <td>
+              <td data-label="Student">
                 <div class="student-profile-cell">
                   <span class="avatar-mimic">{{ f.studentName.charAt(0).toUpperCase() }}</span>
                   <span class="student-name-txt">{{f.studentName}}</span>
                 </div>
               </td>
-              <td><span class="structure-name-txt">{{ f.feeStructureName || '—' }}</span></td>
-              <td><span class="term-pill-node">{{f.feeMonth | number:'2.0-0'}} / {{f.feeYear}}</span></td>
-              <td><strong class="currency-node">{{ f.totalAmount != null ? '₹' + (f.totalAmount | number:'1.2-2') : '—' }}</strong></td>
-              <td>
+              <td data-label="Fee Structure"><span class="structure-name-txt">{{ f.feeStructureName || '—' }}</span></td>
+              <td data-label="Month / Year"><span class="term-pill-node">{{f.feeMonth | number:'2.0-0'}} / {{f.feeYear}}</span></td>
+              <td data-label="Amount"><strong class="currency-node">{{ f.totalAmount != null ? '₹' + (f.totalAmount | number:'1.2-2') : '—' }}</strong></td>
+              <td data-label="Status">
                 <span [class]="'badge ' + (f.paymentStatus === 'PAID' ? 'status-paid' : f.paymentStatus === 'PARTIAL' ? 'status-partial' : 'status-pending')">
                   {{f.paymentStatus}}
                 </span>
               </td>
-              <td class="text-right">
+              <td class="text-right" data-label="Actions">
                 <button class="btn-row-edit" (click)="openFeeForm(f)">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>

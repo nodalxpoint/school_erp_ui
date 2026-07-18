@@ -61,6 +61,10 @@
               <div class="inline-spinner" *ngIf="searchingStudents"></div>
             </div>
 
+            <div class="min-char-hint" *ngIf="searchStudentName.trim().length > 0 && searchStudentName.trim().length < 3">
+              Type at least 3 characters to search
+            </div>
+
             <!-- Suggestion Dropdown -->
             <ul class="suggestion-menu" *ngIf="showSuggestions && suggestedStudents.length > 0">
               <li *ngFor="let s of suggestedStudents" (mousedown)="selectStudent(s)">

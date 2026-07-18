@@ -19,7 +19,6 @@ export class FeeFormComponent implements OnInit {
   isEditMode = false;
   isLoading = false;
 
-  // Auto-suggest student management
   studentSearchToken = '';
   dynamicStudentsList: any[] = [];
   showSuggestions = false;
@@ -31,6 +30,13 @@ export class FeeFormComponent implements OnInit {
     feeMonth: new Date().getMonth() + 1,
     feeYear: new Date().getFullYear()
   };
+
+  // ✅ naya — toast popup ke liye
+  showResultPopup = false;
+  popupType: 'success' | 'error' = 'success';
+  popupMessage = '';
+  private popupTimer: any = null;
+  private readonly POPUP_DURATION = 4000;
 
   constructor(
     private feeService: FeeService,
@@ -77,7 +83,6 @@ export class FeeFormComponent implements OnInit {
     this.studentSearchToken = data.studentName || '';
   }
 
-  // ── Student search ──
   onStudentSearchInput(): void {
     if (this.studentSearchToken.trim().length < 2) {
       this.dynamicStudentsList = [];
@@ -108,17 +113,17 @@ export class FeeFormComponent implements OnInit {
     this.router.navigate(['../list'], { relativeTo: this.route });
   }
 
+  // ✅ replaced — alert() ki jagah toast
   onSaveSubmit(): void {
     if (!this.formData.studentId || !this.formData.academicSessionId) {
-      alert('Please select a student and an academic session.');
+      this.showToast('error', 'Please select a student and an academic session.');
       return;
     }
     if (!this.formData.feeMonth || !this.formData.feeYear) {
-      alert('Fee month and year are required.');
+      this.showToast('error', 'Fee month and year are required.');
       return;
     }
 
-    // Build clean payload — only send non-empty optional fields
     const payload: SaveFeeRequest = {
       studentId: this.formData.studentId,
       academicSessionId: this.formData.academicSessionId,
@@ -132,15 +137,37 @@ export class FeeFormComponent implements OnInit {
     this.cdr.markForCheck();
 
     this.feeService.saveFee(payload).subscribe({
-      next: () => {
-        this.router.navigate(['../list'], { relativeTo: this.route });
-      },
-      error: (err) => {
+      next: (res: any) => {
         this.isLoading = false;
-        this.cdr.markForCheck();
-        const msg = err?.error?.message || 'Failed to save fee record. Please try again.';
-        alert(msg);
+        this.showToast('success', res?.message || (this.isEditMode ? 'Fee record updated successfully!' : 'Fee entry created successfully!'));
+      },
+      error: (err: any) => {
+        this.isLoading = false;
+        this.showToast('error', err?.error?.message || 'Failed to save fee record. Please try again.');
       }
     });
+  }
+
+  private showToast(type: 'success' | 'error', message: string): void {
+    this.popupType = type;
+    this.popupMessage = message;
+    this.showResultPopup = true;
+    this.cdr.markForCheck();
+    this.startPopupTimer();
+  }
+
+  private startPopupTimer(): void {
+    if (this.popupTimer) clearTimeout(this.popupTimer);
+    this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+  }
+
+  closePopup(): void {
+    if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+    const wasSuccess = this.popupType === 'success';
+    this.showResultPopup = false;
+    this.cdr.markForCheck();
+    if (wasSuccess) {
+      this.router.navigate(['../list'], { relativeTo: this.route });
+    }
   }
 }
