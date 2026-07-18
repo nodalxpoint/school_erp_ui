@@ -3,7 +3,10 @@
   <!-- Loading state -->
   <div *ngIf="loading" class="profile-loading">
     <div class="loading-ring">
-      <div></div><div></div><div></div><div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
     </div>
     <p>Loading your profile...</p>
   </div>
@@ -12,14 +15,17 @@
   <div *ngIf="!loading && error" class="profile-error">
     <div class="error-icon">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
       </svg>
     </div>
     <h3>Something went wrong</h3>
     <p>{{ error }}</p>
     <button (click)="fetchProfile()" class="retry-btn">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.65"/>
+        <polyline points="1 4 1 10 7 10" />
+        <path d="M3.51 15a9 9 0 1 0 .49-3.65" />
       </svg>
       Try Again
     </button>
@@ -49,7 +55,8 @@
           </span>
           <div *ngIf="profile.schoolName" class="school-chip">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
             </svg>
             {{ profile.schoolName }}
           </div>
@@ -57,14 +64,15 @@
         <div class="hero-meta">
           <div class="meta-chip">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
             </svg>
             {{ profile.email }}
           </div>
           <div class="meta-chip" *ngIf="profile.phoneNumber">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+              <path
+                d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z" />
             </svg>
             {{ profile.phoneNumber }}
           </div>
@@ -80,7 +88,8 @@
         <div class="card-header">
           <div class="card-icon card-icon--blue">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
             </svg>
           </div>
           <h2>Account Details</h2>
@@ -106,16 +115,47 @@
             <span class="detail-label">Role</span>
             <span class="detail-value">{{ getFormatRole(profile.role) }}</span>
           </div>
+          <div *ngIf="profile.passKey" class="detail-item detail-item--full">
+            <span class="detail-label">Pass Key</span>
+            <div class="passkey-field">
+              <span class="passkey-value">
+                {{ showPassKey ? profile.passKey : '••••••••' }}
+              </span>
+              <div class="passkey-actions">
+                <button class="passkey-btn" (click)="togglePassKey()" [title]="showPassKey ? 'Hide Pass Key' : 'Show Pass Key'">
+                  <svg *ngIf="!showPassKey" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg *ngIf="showPassKey" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+                <button class="passkey-btn passkey-btn--copy" (click)="copyToClipboard(profile.passKey, 'passKey')" [title]="copiedKey === 'passKey' ? 'Copied!' : 'Copy Pass Key'">
+                  <svg *ngIf="copiedKey !== 'passKey'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  <svg *ngIf="copiedKey === 'passKey'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Teacher details -->
-      <div *ngIf="profile.role === 'TEACHER' && profile.teacherDetails" class="profile-card profile-card--anim" style="animation-delay: 0.12s">
+      <div *ngIf="profile.role === 'TEACHER' && profile.teacherDetails" class="profile-card profile-card--anim"
+        style="animation-delay: 0.12s">
         <div class="card-header">
           <div class="card-icon card-icon--purple">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
           </div>
           <h2>Teacher Information</h2>
@@ -127,21 +167,52 @@
           </div>
           <div class="detail-item">
             <span class="detail-label">Joining Date</span>
-            <span class="detail-value">{{ profile.teacherDetails.joiningDate ? (profile.teacherDetails.joiningDate | date:'mediumDate') : '—' }}</span>
+            <span class="detail-value">{{ profile.teacherDetails.joiningDate ? (profile.teacherDetails.joiningDate |
+              date:'mediumDate') : '—' }}</span>
           </div>
           <div class="detail-item detail-item--full">
             <span class="detail-label">Qualification</span>
             <span class="detail-value">{{ profile.teacherDetails.qualification || '—' }}</span>
           </div>
+          <div *ngIf="profile.teacherDetails.teacherPassKey" class="detail-item detail-item--full">
+            <span class="detail-label">Teacher Pass Key</span>
+            <div class="passkey-field">
+              <span class="passkey-value">
+                {{ showTeacherPassKey ? profile.teacherDetails.teacherPassKey : '••••••••' }}
+              </span>
+              <div class="passkey-actions">
+                <button class="passkey-btn" (click)="toggleTeacherPassKey()" [title]="showTeacherPassKey ? 'Hide' : 'Show'">
+                  <svg *ngIf="!showTeacherPassKey" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg *ngIf="showTeacherPassKey" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+                <button class="passkey-btn passkey-btn--copy" (click)="copyToClipboard(profile.teacherDetails.teacherPassKey, 'teacherPassKey')" [title]="copiedKey === 'teacherPassKey' ? 'Copied!' : 'Copy'">
+                  <svg *ngIf="copiedKey !== 'teacherPassKey'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  <svg *ngIf="copiedKey === 'teacherPassKey'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Parent details -->
-      <div *ngIf="profile.role === 'PARENT' && profile.parentDetails" class="profile-card profile-card--anim" style="animation-delay: 0.12s">
+      <div *ngIf="profile.role === 'PARENT' && profile.parentDetails" class="profile-card profile-card--anim"
+        style="animation-delay: 0.12s">
         <div class="card-header">
           <div class="card-icon card-icon--green">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
             </svg>
           </div>
           <h2>Parent Information</h2>
@@ -158,6 +229,34 @@
           <div class="detail-item detail-item--full">
             <span class="detail-label">Emergency Contact</span>
             <span class="detail-value detail-value--mono">{{ profile.parentDetails.emergencyContact || '—' }}</span>
+          </div>
+          <div *ngIf="profile.parentDetails.parentPassKey" class="detail-item detail-item--full">
+            <span class="detail-label">Parent Pass Key</span>
+            <div class="passkey-field">
+              <span class="passkey-value">
+                {{ showParentPassKey ? profile.parentDetails.parentPassKey : '••••••••' }}
+              </span>
+              <div class="passkey-actions">
+                <button class="passkey-btn" (click)="toggleParentPassKey()" [title]="showParentPassKey ? 'Hide' : 'Show'">
+                  <svg *ngIf="!showParentPassKey" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg *ngIf="showParentPassKey" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+                <button class="passkey-btn passkey-btn--copy" (click)="copyToClipboard(profile.parentDetails.parentPassKey, 'parentPassKey')" [title]="copiedKey === 'parentPassKey' ? 'Copied!' : 'Copy'">
+                  <svg *ngIf="copiedKey !== 'parentPassKey'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  <svg *ngIf="copiedKey === 'parentPassKey'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -16,7 +16,12 @@ export class ProfileComponent implements OnInit {
   loading = true;
   error: string | null = null;
 
-  constructor(private authService: AuthService, private cdr: ChangeDetectorRef) {}
+  showPassKey = false;
+  showTeacherPassKey = false;
+  showParentPassKey = false;
+  copiedKey: string | null = null;
+
+  constructor(private authService: AuthService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.fetchProfile();
@@ -53,5 +58,28 @@ export class ProfileComponent implements OnInit {
   getFormatRole(role: string): string {
     if (!role) return '';
     return role.replace('_', ' ');
+  }
+
+  togglePassKey(): void {
+    this.showPassKey = !this.showPassKey;
+  }
+
+  toggleTeacherPassKey(): void {
+    this.showTeacherPassKey = !this.showTeacherPassKey;
+  }
+
+  toggleParentPassKey(): void {
+    this.showParentPassKey = !this.showParentPassKey;
+  }
+
+  copyToClipboard(value: string, key: string): void {
+    navigator.clipboard.writeText(value).then(() => {
+      this.copiedKey = key;
+      setTimeout(() => {
+        this.copiedKey = null;
+        this.cdr.markForCheck();
+      }, 2000);
+      this.cdr.markForCheck();
+    });
   }
 }

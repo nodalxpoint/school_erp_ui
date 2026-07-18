@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 // ── Tokens ────────────────────────────────────────────────────────────────────
-$blue:   #4f75ff;
+$blue: #4f75ff;
 $purple: #9b5cf6;
-$green:  #10b981;
-$amber:  #f59e0b;
-$red:    #ef4444;
+$green: #10b981;
+$amber: #f59e0b;
+$red: #ef4444;
 $surface: #f8faff;
 $card-bg: #ffffff;
-$border:  #e8edf5;
+$border: #e8edf5;
 $text-primary: #0f172a;
 $text-secondary: #64748b;
 $text-muted: #94a3b8;
@@ -51,9 +51,19 @@ $text-muted: #94a3b8;
       border-radius: 50%;
       animation: loading-ring 1.1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 
-      &:nth-child(1) { animation-delay: -0.45s; }
-      &:nth-child(2) { animation-delay: -0.3s;  border-top-color: $purple; }
-      &:nth-child(3) { animation-delay: -0.15s; border-top-color: $green; }
+      &:nth-child(1) {
+        animation-delay: -0.45s;
+      }
+
+      &:nth-child(2) {
+        animation-delay: -0.3s;
+        border-top-color: $purple;
+      }
+
+      &:nth-child(3) {
+        animation-delay: -0.15s;
+        border-top-color: $green;
+      }
     }
   }
 }
@@ -145,23 +155,29 @@ $text-muted: #94a3b8;
     opacity: 0.35;
 
     &--1 {
-      width: 300px; height: 300px;
+      width: 300px;
+      height: 300px;
       background: #818cf8;
-      top: -80px; right: 60px;
+      top: -80px;
+      right: 60px;
       animation: orb-float 6s ease-in-out infinite;
     }
 
     &--2 {
-      width: 200px; height: 200px;
+      width: 200px;
+      height: 200px;
       background: #38bdf8;
-      bottom: -60px; left: 120px;
+      bottom: -60px;
+      left: 120px;
       animation: orb-float 8s ease-in-out infinite reverse;
     }
 
     &--3 {
-      width: 160px; height: 160px;
+      width: 160px;
+      height: 160px;
       background: #f472b6;
-      top: 20px; left: 40%;
+      top: 20px;
+      left: 40%;
       animation: orb-float 5s ease-in-out infinite 1s;
     }
   }
@@ -343,9 +359,20 @@ $text-muted: #94a3b8;
   justify-content: center;
   flex-shrink: 0;
 
-  &--blue   { background: #eff4ff; color: $blue; }
-  &--purple { background: #f5f0ff; color: $purple; }
-  &--green  { background: #ecfdf5; color: $green; }
+  &--blue {
+    background: #eff4ff;
+    color: $blue;
+  }
+
+  &--purple {
+    background: #f5f0ff;
+    color: $purple;
+  }
+
+  &--green {
+    background: #ecfdf5;
+    color: $green;
+  }
 }
 
 // ── Two-column detail grid ────────────────────────────────────────────────────
@@ -403,25 +430,113 @@ $text-muted: #94a3b8;
   }
 }
 
+// ── Pass Key Field ────────────────────────────────────────────────────────────
+.passkey-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: #f8faff;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  margin-top: 0.15rem;
+
+  .passkey-value {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.88rem;
+    color: #334155;
+    letter-spacing: 0.05em;
+    flex: 1;
+  }
+}
+
+.passkey-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.passkey-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid $border;
+  border-radius: 7px;
+  background: #fff;
+  color: $text-secondary;
+  cursor: pointer;
+  transition: all 0.18s ease;
+
+  &:hover {
+    background: #f0f4ff;
+    border-color: $blue;
+    color: $blue;
+    transform: scale(1.08);
+  }
+
+  &--copy {
+    &:hover {
+      background: #f0fdf4;
+      border-color: $green;
+      color: $green;
+    }
+  }
+
+  svg {
+    display: block;
+    flex-shrink: 0;
+  }
+}
+
 // ── Animations ────────────────────────────────────────────────────────────────
 @keyframes loading-ring {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes orb-float {
-  0%, 100% { transform: translateY(0px) scale(1); }
-  50%      { transform: translateY(-20px) scale(1.05); }
+
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+
+  50% {
+    transform: translateY(-20px) scale(1.05);
+  }
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.6; transform: scale(0.8); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
 }
-
-
