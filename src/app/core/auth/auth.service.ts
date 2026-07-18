@@ -76,6 +76,10 @@ if (role === 'PARENT') {
     );
   }
 
+  getProfile(): Observable<any> {
+    return this.http.get<any>('/users/profile');
+  }
+
   // ✅ FIXED: No backend call now, directly cleans state instantly from client side
   logout(): void {
     this.clearAndRedirect();

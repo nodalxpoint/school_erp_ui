@@ -44,7 +44,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Fee History', href: '/fees/history', icon: 'bar-chart-3', roles: ['ACCOUNTANT'] },
   { label: 'Users', href: '/users', icon: 'users', roles: ['SUPER_ADMIN'] },
   { label: 'Reports', href: '/reports', icon: 'bar-chart-3', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'Settings', href: '/settings', icon: 'settings', roles: 'all' },
+  { label: 'Profile', href: '/profile', icon: 'user', roles: 'all' },
 ];
 
 const TEACHERS_ROUTES = ['/teachers', '/teacher-mapping', '/subjects/assign-teacher', '/teacher-timetable'];

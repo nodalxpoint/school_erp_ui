@@ -3,6 +3,7 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { ProfileComponent } from './modules/user/components/profile/profile.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
@@ -25,6 +26,7 @@ export const routes: Routes = [
     children: [
 
       { path: 'dashboard', loadComponent: () => import('./modules/dashboard/dashboard.component').then(m => m.DashboardComponent) },
+      { path: 'profile', component: ProfileComponent },
 
       {
         path: 'parent',

@@ -1,0 +1,167 @@
+<div class="profile-container">
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="profile-loading">
+    <div class="loading-ring">
+      <div></div><div></div><div></div><div></div>
+    </div>
+    <p>Loading your profile...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="!loading && error" class="profile-error">
+    <div class="error-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
+    <h3>Something went wrong</h3>
+    <p>{{ error }}</p>
+    <button (click)="fetchProfile()" class="retry-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.65"/>
+      </svg>
+      Try Again
+    </button>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!loading && !error && profile" class="profile-content">
+
+    <!-- Hero Banner -->
+    <div class="profile-hero">
+      <div class="hero-bg">
+        <div class="hero-orb hero-orb--1"></div>
+        <div class="hero-orb hero-orb--2"></div>
+        <div class="hero-orb hero-orb--3"></div>
+      </div>
+      <div class="hero-body">
+        <div class="avatar-wrap">
+          <div class="profile-avatar">
+            {{ getInitials(profile.firstName + ' ' + (profile.lastName || '')) }}
+          </div>
+        </div>
+        <div class="hero-info">
+          <h1 class="hero-name">{{ profile.firstName }} {{ profile.lastName }}</h1>
+          <span class="role-badge role-badge--{{ profile.role | lowercase }}">
+            <span class="role-dot"></span>
+            {{ getFormatRole(profile.role) }}
+          </span>
+          <div *ngIf="profile.schoolName" class="school-chip">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+            {{ profile.schoolName }}
+          </div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-chip">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            {{ profile.email }}
+          </div>
+          <div class="meta-chip" *ngIf="profile.phoneNumber">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+            </svg>
+            {{ profile.phoneNumber }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="profile-grid">
+
+      <!-- Account Details Card -->
+      <div class="profile-card profile-card--anim" style="animation-delay: 0.05s">
+        <div class="card-header">
+          <div class="card-icon card-icon--blue">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <h2>Account Details</h2>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">First Name</span>
+            <span class="detail-value">{{ profile.firstName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Last Name</span>
+            <span class="detail-value">{{ profile.lastName || '—' }}</span>
+          </div>
+          <div class="detail-item detail-item--full">
+            <span class="detail-label">Email Address</span>
+            <span class="detail-value detail-value--mono">{{ profile.email }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Phone Number</span>
+            <span class="detail-value">{{ profile.phoneNumber || '—' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Role</span>
+            <span class="detail-value">{{ getFormatRole(profile.role) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Teacher details -->
+      <div *ngIf="profile.role === 'TEACHER' && profile.teacherDetails" class="profile-card profile-card--anim" style="animation-delay: 0.12s">
+        <div class="card-header">
+          <div class="card-icon card-icon--purple">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h2>Teacher Information</h2>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Employee Code</span>
+            <span class="detail-value detail-value--code">{{ profile.teacherDetails.employeeCode || '—' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Joining Date</span>
+            <span class="detail-value">{{ profile.teacherDetails.joiningDate ? (profile.teacherDetails.joiningDate | date:'mediumDate') : '—' }}</span>
+          </div>
+          <div class="detail-item detail-item--full">
+            <span class="detail-label">Qualification</span>
+            <span class="detail-value">{{ profile.teacherDetails.qualification || '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Parent details -->
+      <div *ngIf="profile.role === 'PARENT' && profile.parentDetails" class="profile-card profile-card--anim" style="animation-delay: 0.12s">
+        <div class="card-header">
+          <div class="card-icon card-icon--green">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            </svg>
+          </div>
+          <h2>Parent Information</h2>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Father's Name</span>
+            <span class="detail-value">{{ profile.parentDetails.fatherName || '—' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Mother's Name</span>
+            <span class="detail-value">{{ profile.parentDetails.motherName || '—' }}</span>
+          </div>
+          <div class="detail-item detail-item--full">
+            <span class="detail-label">Emergency Contact</span>
+            <span class="detail-value detail-value--mono">{{ profile.parentDetails.emergencyContact || '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
