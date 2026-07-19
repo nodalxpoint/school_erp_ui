@@ -21,16 +21,16 @@
       </div>
     </div>
 
-    <div class="ex-filters-row" style="align-items: flex-end; display: flex; gap: 14px; flex-wrap: wrap;">
-      
-      <div class="ex-filter-group" style="flex: 1; min-width: 180px;">
+    <div class="ex-filters-row">
+
+      <div class="ex-filter-group">
         <label class="ex-label">Academic Session</label>
         <select class="ex-select" [(ngModel)]="filterModel.academicSessionId" (change)="loadExamTermsDropdown(false)">
           <option *ngFor="let s of sessions" [value]="s.id">{{ s.label }}</option>
         </select>
       </div>
 
-      <div class="ex-filter-group" style="flex: 1; min-width: 180px;">
+      <div class="ex-filter-group">
         <label class="ex-label">Select Exam Term</label>
         <select class="ex-select" [(ngModel)]="filterModel.examId" [disabled]="examTerms.length === 0">
           <option value="" disabled>-- No Exams Found --</option>
@@ -38,29 +38,30 @@
         </select>
       </div>
 
-      <div class="ex-filter-group" style="flex: 1; min-width: 180px;">
+      <div class="ex-filter-group">
         <label class="ex-label">Class Standard</label>
         <select class="ex-select" [(ngModel)]="filterModel.classId">
           <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
         </select>
       </div>
 
-      <button class="ex-btn-add" 
-              style="background: #2b6cb0; border-color: #2b6cb0; padding: 11px 22px; display: inline-flex; align-items: center; gap: 6px;" 
-              [disabled]="!filterModel.examId"
-              (click)="onFetchSchedule()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        Fetch Schedule
-      </button>
+      <div class="ex-filter-actions">
+        <button class="ex-btn-add ex-btn-add--primary"
+                [disabled]="!filterModel.examId"
+                (click)="onFetchSchedule()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Fetch Schedule
+        </button>
 
-      <button class="ex-btn-add" *ngIf="isAdmin" (click)="onAddSchedule()" style="background: #2F855A;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Map Subject Paper
-      </button>
+        <button class="ex-btn-add ex-btn-add--success" *ngIf="isAdmin" (click)="onAddSchedule()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Map Subject Paper
+        </button>
+      </div>
     </div>
   </div>
 
@@ -73,33 +74,62 @@
     <table class="ex-routine-table">
       <thead>
         <tr>
-          <th>Exam Date & Day</th>
+          <th>Exam Date &amp; Day</th>
           <th>Subject Details</th>
           <th>Class Assigned</th>
           <th>Maximum Marks</th>
           <th>Passing Marks</th>
-          <th *ngIf="isAdmin" style="width: 100px;">Action</th>
+          <th *ngIf="isAdmin" class="ex-th-action">Action</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let item of scheduledSubjects" class="ex-routine-row">
           <td class="ex-cell-date-node">
-            <span class="date-txt">📅 {{ item.examDate | date:'mediumDate' }}</span>
-            <span class="day-badge">{{ item.examDay || 'Scheduled' }}</span>
+            <span class="date-stack">
+              <span class="date-inner">
+                <svg class="date-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="3"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span class="date-txt">{{ item.examDate | date:'mediumDate' }}</span>
+              </span>
+              <span class="day-badge">{{ item.examDay || 'Scheduled' }}</span>
+            </span>
           </td>
           <td class="ex-cell-subject-node">
-            <span class="sub-name-lbl">📘 {{ item.subjectName }}</span>
+            <span class="sub-name-inner">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+              <span class="sub-name-lbl">{{ item.subjectName }}</span>
+            </span>
             <span class="sub-code-lbl">Code: {{ item.subjectCode || '—' }}</span>
           </td>
           <td class="ex-cell-normal">
-            <span class="class-tag">🏫 {{ item.className || 'Configured Class' }}</span>
+            <span class="class-tag">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M3 21h18"></path>
+                <path d="M5 21V7l8-4 8 4v14"></path>
+                <path d="M10 21v-6h4v6"></path>
+                <path d="M9 9h1"></path>
+                <path d="M14 9h1"></path>
+              </svg>
+              {{ item.className || 'Configured Class' }}
+            </span>
           </td>
           <td class="ex-cell-marks max-marks-color">{{ item.maxMarks }} Marks</td>
           <td class="ex-cell-marks passing-marks-color">{{ item.passingMarks }} Marks</td>
-          
+
           <td *ngIf="isAdmin" class="ex-cell-action">
-            <button class="ex-row-edit-btn" (click)="onEditSchedule(item)">
-              ⚙️ Modify
+            <button class="ex-row-edit-btn" (click)="onEditSchedule(item)" title="Modify this schedule entry">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              <span>Modify</span>
             </button>
           </td>
         </tr>
@@ -108,14 +138,30 @@
   </div>
 
   <div class="ex-empty-state" *ngIf="!isLoading && scheduledSubjects.length === 0 && hasSearched">
-    <div class="ex-empty-icon">📝</div>
+    <div class="ex-empty-icon">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="9" y1="13" x2="15" y2="13"/>
+        <line x1="9" y1="17" x2="13" y2="17"/>
+      </svg>
+    </div>
     <h3 class="ex-empty-title">No subject papers mapped</h3>
     <p class="ex-empty-sub">There are no exam date sheets found for this current search criteria range.</p>
-    <button class="ex-btn-add" *ngIf="isAdmin && activeFilter.examId" style="margin-top: 12px;" (click)="onAddSchedule()">+ Allocate First Paper</button>
+    <button class="ex-btn-add ex-btn-add--success" *ngIf="isAdmin && activeFilter.examId" style="margin-top: 12px;" (click)="onAddSchedule()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Allocate First Paper
+    </button>
   </div>
 
-  <div class="ex-empty-state" *ngIf="!isLoading && !hasSearched" style="background: #fafafb; border-style: dashed;">
-    <div class="ex-empty-icon" style="font-size: 28px;">🔍</div>
+  <div class="ex-empty-state ex-empty-state--dashed" *ngIf="!isLoading && !hasSearched">
+    <div class="ex-empty-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </div>
     <h3 class="ex-empty-title">Ready to query routine database</h3>
     <p class="ex-empty-sub">Adjust your academic variables criteria dropdown stack above and click "Fetch Schedule".</p>
   </div>

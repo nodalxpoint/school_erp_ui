@@ -153,23 +153,29 @@
               </svg>
             </div>
 
-            <ul *ngIf="feesDropdownOpen && !sidebarCollapsed" class="sidebar__dropdown-list">
-              <li>
-                <a routerLink="/fees" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/fees') || currentPath.startsWith('/fees/')" (click)="closeSidebar()">
-                  <span class="sidebar__dropdown-dot"></span>Student Fees
-                </a>
-              </li>
-              <li>
-                <a routerLink="/fee-structure" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="currentPath.startsWith('/fee-structure')" (click)="closeSidebar()">
-                  <span class="sidebar__dropdown-dot"></span>Fee Structure
-                </a>
-              </li>
-              <li>
-  <a routerLink="/fees/history" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/fees/history')" (click)="closeSidebar()">
-    <span class="sidebar__dropdown-dot"></span>Fee History
-  </a>
-</li>
-            </ul>
+           <ul *ngIf="feesDropdownOpen && !sidebarCollapsed" class="sidebar__dropdown-list">
+  <li>
+    <a routerLink="/fees" class="sidebar__dropdown-item"
+       [class.sidebar__dropdown-item--active]="isStudentFeesActive()"
+       (click)="closeSidebar()">
+      <span class="sidebar__dropdown-dot"></span>Student Fees
+    </a>
+  </li>
+  <li>
+    <a routerLink="/fee-structure" class="sidebar__dropdown-item"
+       [class.sidebar__dropdown-item--active]="currentPath.startsWith('/fee-structure')"
+       (click)="closeSidebar()">
+      <span class="sidebar__dropdown-dot"></span>Fee Structure
+    </a>
+  </li>
+  <li>
+    <a routerLink="/fees/history" class="sidebar__dropdown-item"
+       [class.sidebar__dropdown-item--active]="isFeeHistoryActive()"
+       (click)="closeSidebar()">
+      <span class="sidebar__dropdown-dot"></span>Fee History
+    </a>
+  </li>
+</ul>
           </ng-container>
         </ng-template>
 

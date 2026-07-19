@@ -166,6 +166,23 @@
   color: #fff;
 }
 
+/* ✅ naya — form khud flex container hona chahiye taaki andar ke saare
+   sections (.form-section, parent-strategy-wrapper, form-actions, etc.)
+   ke beech consistent gap aaye. Pehle sirf .form-page pe gap tha jo
+   sirf uske direct children (form-header, form-title-row, <form>) tak
+   hi limited tha — form ke ANDAR ke blocks aapas me chipke hue the. */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+@media (max-width: 480px) {
+  form {
+    gap: 1.25rem;
+  }
+}
+
 .form-section {
   background: var(--bg-white);
   border: 1px solid var(--border);
@@ -426,6 +443,39 @@ select.form-control.select-pilled {
   }
 }
 
+.btn-regenerate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 24px;
+  background: #ed8936;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  box-shadow: 0 4px 6px -1px rgba(237, 137, 54, 0.12);
+}
+.btn-regenerate:hover:not(:disabled) {
+  background: #dd6b20;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(237, 137, 54, 0.2);
+}
+.btn-regenerate:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+@media (max-width: 480px) {
+  .btn-regenerate {
+    width: 100%;
+  }
+}
+
 .btn-spinner {
   width: 14px;
   height: 14px;
@@ -480,7 +530,6 @@ select.form-control.select-pilled {
   border-radius: 14px;
   padding: 2rem;
   text-align: center;
-  margin-top: 0.5rem;
 }
 .parent-strategy-wrapper h3 {
   margin: 0 0 0.5rem;
@@ -569,7 +618,6 @@ select.form-control.select-pilled {
 .mode-reset-row {
   display: flex;
   justify-content: flex-start;
-  margin-bottom: -0.5rem;
 }
 
 .lookup-search-box {

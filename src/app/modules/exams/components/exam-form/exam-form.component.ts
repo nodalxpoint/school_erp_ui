@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExamService } from '../../services/exam.service';
 import { ExamDto } from '../../models/exam.model';
@@ -72,8 +72,18 @@ export class ExamFormComponent implements OnInit {
     }
   }
 
-  onSubmit(): void {
-    if (!this.formModel.examName || !this.formModel.startDate || !this.formModel.endDate) return;
+  onSubmit(form: NgForm): void {
+    // ✅ naya — form invalid hai to sab fields ko touched mark karo (red errors dikhne ke liye)
+    // aur ek clear "form fill nahi hai" wala toast bhi dikhao
+    if (form.invalid) {
+      form.form.markAllAsTouched();
+      this.popupType = 'error';
+      this.popupMessage = 'Please fill all the required fields correctly before submitting.';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+      return;
+    }
 
     this.isSaving = true;
     this.cdr.markForCheck();

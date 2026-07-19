@@ -1,8 +1,9 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TeacherService } from '../../services/teacher.service';
+import { TeacherListStateService } from '../../services/teacher-list-state.service';
 import { TeacherResponseDto, TeacherFilterRequest } from '../../models/teacher.model';
 
 @Component({
@@ -24,26 +25,68 @@ export class TeacherListComponent implements OnInit {
   };
   searchText = '';
 
-  // ✅ naya — delete confirm popup ke liye
+  // Delete confirm popup
   showDeleteConfirm = false;
   teacherToDelete: TeacherResponseDto | null = null;
   deleting = false;
 
-  // ✅ naya — result toast ke liye
+  // Result toast
   showResultPopup = false;
   popupType: 'success' | 'error' = 'success';
   popupMessage = '';
   private popupTimer: any = null;
   private readonly POPUP_DURATION = 4000;
 
+  // Action menu (3-dot dropdown)
+  openMenuId: string | null = null;
+
   constructor(
     private teacherService: TeacherService,
+    private listState: TeacherListStateService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) { }
 
-  ngOnInit(): void { 
-    this.loadTeachers(); 
+  ngOnInit(): void {
+    this.restoreState();
+    this.loadTeachers();
+  }
+
+  // ── State persistence ────────────────────────────────────────
+
+  private restoreState(): void {
+    const saved = this.listState.get();
+    if (!saved) return;
+    this.searchText = saved.searchText;
+    this.filter.page = saved.page;
+  }
+
+  private persistState(): void {
+    this.listState.save({
+      searchText: this.searchText,
+      page: this.filter.page,
+    });
+  }
+
+  // Close any open action-menu when clicking anywhere else on the page
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    if (this.openMenuId !== null) {
+      this.openMenuId = null;
+      this.cdr.markForCheck();
+    }
+  }
+
+  toggleActionMenu(id: string | undefined, event: Event): void {
+    event.stopPropagation();
+    if (!id) return;
+    this.openMenuId = this.openMenuId === id ? null : id;
+    this.cdr.markForCheck();
+  }
+
+  closeActionMenu(): void {
+    this.openMenuId = null;
+    this.cdr.markForCheck();
   }
 
   loadTeachers(): void {
@@ -66,17 +109,20 @@ export class TeacherListComponent implements OnInit {
     });
   }
 
-  onSearch(): void { 
-    this.filter.page = 0; 
-    this.loadTeachers(); 
+  onSearch(): void {
+    this.filter.page = 0;
+    this.persistState();
+    this.loadTeachers();
   }
 
-  onPageChange(p: number): void { 
-    this.filter.page = p; 
-    this.loadTeachers(); 
+  onPageChange(p: number): void {
+    this.filter.page = p;
+    this.persistState();
+    this.loadTeachers();
   }
 
   onView(t: TeacherResponseDto): void {
+    this.closeActionMenu();
     this.router.navigate([`/teachers/${t.teacherId}`], {
       state: { teacher: t }
     });
@@ -87,15 +133,16 @@ export class TeacherListComponent implements OnInit {
   }
 
   onEdit(t: TeacherResponseDto): void {
+    this.closeActionMenu();
     this.router.navigate(['/teachers', t.teacherId, 'edit'], {
       state: { teacher: t }
-    }); 
+    });
   }
 
-  // ✅ replaced — ab confirm() ki jagah popup khulega
   onDelete(t: TeacherResponseDto): void {
     const id = t.id ?? t.teacherId;
     if (!id) return;
+    this.closeActionMenu();
     this.teacherToDelete = t;
     this.showDeleteConfirm = true;
     this.cdr.markForCheck();
@@ -169,6 +216,11 @@ export class TeacherListComponent implements OnInit {
   }
 
   trackById(_: number, t: TeacherResponseDto): string {
+    return t.id ?? t.teacherId ?? '';
+  }
+
+  // Stable row id used to key the open action-menu (id or teacherId)
+  rowId(t: TeacherResponseDto): string {
     return t.id ?? t.teacherId ?? '';
   }
 }

@@ -8,6 +8,12 @@
   --bg-white:        #ffffff;
   --text-primary:    #1a202c;
   --text-muted:      #718096;
+  --text-hint:       #a0aec0;
+  --success:         #2F855A;
+  --success-hover:   #276749;
+
+  display: block;
+  width: 100%;
 }
 
 .ex-page-wrapper {
@@ -42,13 +48,20 @@
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
 }
 
-.ex-filters-row { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 16px; }
-.ex-filter-group { display: flex; flex-direction: column; gap: 5px; min-width: 200px; flex: 1; }
+.ex-filters-row { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 16px; }
+.ex-filter-group { display: flex; flex-direction: column; gap: 5px; min-width: 180px; flex: 1; }
 .ex-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-.ex-input, .ex-select { width: 100%; padding: 10px; border: 1px solid var(--border-dark); border-radius: 8px; font-size: 13.5px; outline: none; &:focus { border-color: var(--primary); } }
+.ex-input, .ex-select { width: 100%; padding: 10px; border: 1px solid var(--border-dark); border-radius: 8px; font-size: 13.5px; outline: none; box-sizing: border-box; &:focus { border-color: var(--primary); } }
+
+.ex-filter-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
 .ex-btn-add {
-  display: inline-flex; align-items: center; gap: 6px; padding: 11px 20px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; &:hover { background: var(--primary-hover); }
+  display: inline-flex; align-items: center; gap: 6px; padding: 11px 20px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.15s ease;
+  &:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-1px); }
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  &--primary { background: var(--primary); }
+  &--success { background: var(--success); &:hover:not(:disabled) { background: var(--success-hover); } }
 }
 
 // Loading styles
@@ -88,7 +101,15 @@
 
 .ex-card-overlay { position: absolute; inset: 0; background: rgba(26,32,44,0.85); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; opacity: 0; transition: opacity 0.15s ease-in-out; pointer-events: none; text-transform: uppercase; }
 
-.ex-empty-state { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 50px 24px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; .ex-empty-icon { font-size: 32px; margin-bottom: 4px; } .ex-empty-title { font-size: 15px; font-weight: 700; margin: 0; } .ex-empty-sub { font-size: 13px; color: var(--text-muted); margin: 0; } }
+.ex-empty-state {
+  background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 50px 24px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+  .ex-empty-icon { color: var(--text-hint); margin-bottom: 4px; }
+  .ex-empty-title { font-size: 15px; font-weight: 700; margin: 0; color: var(--text-primary); }
+  .ex-empty-sub { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+  &--dashed { background: #fafafb; border-style: dashed; }
+}
 
 // ─── SLIDING DRAWER CONTAINER CSS ANIMATIONS PANEL ───
 .ex-drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); z-index: 999; }
@@ -107,32 +128,92 @@
 .ex-btn-submit { padding: 10px 22px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; &:hover { background: var(--primary-hover); } }
 
 .ex-table-matrix-wrapper {
-  width: 100%; overflow-x: auto; background: #fff;
+  width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: #fff;
   border: 1px solid var(--border, #e2e8f0); border-radius: 16px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.01);
 }
 .ex-routine-table {
   width: 100%; border-collapse: collapse; text-align: left; min-width: 900px;
-  th { background: #2b6cb0; color: #fff; font-size: 12px; font-weight: 700; padding: 14px; text-transform: uppercase; }
-  td { padding: 14px; border-bottom: 1px solid #edf2f7; }
+  th { background: var(--primary); color: #fff; font-size: 12px; font-weight: 700; padding: 14px; text-transform: uppercase; letter-spacing: 0.03em; }
+  td { padding: 14px; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
 }
+.ex-th-action { width: 110px; text-align: center; }
+
 .ex-routine-row { transition: background 0.15s; &:hover { background: #f8fafc; } }
-.ex-cell-date-node {
-  display: flex; flex-direction: column; gap: 4px;
-  .date-txt { font-size: 13.5px; font-weight: 700; color: #1a202c; }
-  .day-badge { font-size: 9.5px; font-weight: 700; color: #dd6b20; background: #fffaf0; border: 1px solid #fbd38d; padding: 2px 6px; border-radius: 4px; width: fit-content; }
-}
+
+// ✅ date cell — flex lives on an inner span, NOT the <td>, so the
+// table layout never breaks (td stays a proper table-cell)
+.ex-cell-date-node { font-size: 13.5px; }
+.date-stack { display: flex; flex-direction: column; gap: 4px; }
+.date-inner { display: inline-flex; align-items: center; gap: 6px; }
+.date-ico { color: var(--text-hint); flex-shrink: 0; }
+.date-txt { font-size: 13.5px; font-weight: 700; color: #1a202c; }
+.day-badge { font-size: 9.5px; font-weight: 700; color: #dd6b20; background: #fffaf0; border: 1px solid #fbd38d; padding: 2px 6px; border-radius: 4px; width: fit-content; }
+
 .ex-cell-subject-node {
-  .sub-name-lbl { font-size: 14px; font-weight: 700; color: #2b6cb0; display: block; }
-  .sub-code-lbl { font-size: 11px; color: #718096; display: block; }
+  .sub-name-inner { display: inline-flex; align-items: center; gap: 7px; color: var(--primary); }
+  .sub-name-lbl { font-size: 14px; font-weight: 700; color: var(--primary); }
+  .sub-code-lbl { font-size: 11px; color: #718096; display: block; margin-top: 3px; }
 }
-.class-tag { font-size: 12px; font-weight: 600; color: #4a5568; background: #edf2f7; padding: 4px 8px; border-radius: 6px; }
+
+.class-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: #4a5568; background: #edf2f7; padding: 5px 10px; border-radius: 6px;
+}
+
 .ex-cell-marks {
   font-size: 13px; font-weight: 700; font-family: monospace;
-  &.max-marks-color { color: #2b6cb0; }
+  &.max-marks-color { color: var(--primary); }
   &.passing-marks-color { color: #38a169; }
 }
+
+.ex-cell-action { text-align: center; }
+
+// ── PREMIUM MODIFY BUTTON ─────────────────
 .ex-row-edit-btn {
-  padding: 6px 12px; background: #fff; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;
-  &:hover { border-color: #2b6cb0; color: #2b6cb0; background: #ebf4ff; }
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 8px 16px; background: #fff; border: 1px solid var(--border-dark); border-radius: 9px;
+  color: var(--text-primary); font-size: 12.5px; font-weight: 700; cursor: pointer;
+  transition: all 0.15s ease;
+
+  svg { color: var(--text-muted); transition: color 0.15s ease; flex-shrink: 0; }
+
+  &:hover {
+    border-color: var(--primary-border); color: var(--primary-hover); background: var(--primary-light);
+    transform: translateY(-1px);
+  }
+  &:hover svg { color: var(--primary); }
+}
+
+// ══════════════════════════════════════════════════════════
+// RESPONSIVE — stays a list/table on mobile (no card stacking),
+// just gets more compact and scrolls sideways when needed
+// ══════════════════════════════════════════════════════════
+@media (max-width: 720px) {
+
+  .ex-header-card { padding: 16px; }
+  .ex-title { font-size: 1.2rem; }
+
+  .ex-header-top { flex-direction: column; align-items: flex-start; }
+  .ex-live-clock-badge-wrap { width: 100%; box-sizing: border-box; justify-content: space-between; }
+
+  .ex-filters-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .ex-filter-group { min-width: 0; width: 100%; }
+
+  .ex-filter-actions { width: 100%; flex-direction: column; }
+  .ex-filter-actions .ex-btn-add { width: 100%; justify-content: center; }
+
+  .ex-table-matrix-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  .ex-routine-table {
+    min-width: 760px; // narrower than desktop's 900px, still scrolls but less far
+  }
+
+  th, .ex-routine-row td { padding: 11px 12px; }
+
+  .sub-name-lbl { font-size: 13px; }
+  .date-txt { font-size: 12.5px; }
+  .class-tag { font-size: 11.5px; }
+
+  .ex-empty-state { padding: 36px 18px; }
 }

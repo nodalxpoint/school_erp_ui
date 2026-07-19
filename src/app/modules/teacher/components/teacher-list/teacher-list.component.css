@@ -151,20 +151,30 @@
 
 .te-search-clear {
   position: absolute;
-  right: 12px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   background: none;
   border: none;
+  border-radius: 6px;
   color: var(--text-hint);
-  font-size: 18px;
   cursor: pointer;
+  transition: all 0.15s;
 }
 .te-search-clear:hover {
   color: #1a202c;
+  background: var(--bg-row-odd);
 }
 
 .te-btn-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 10px 20px;
   background: #f7fafc;
   color: #4a5568;
@@ -285,7 +295,7 @@
 }
 .table-row td {
   padding: 12px 16px;
-  Skinner-vertical-align: middle;
+  vertical-align: middle;
 }
 
 .col-teacher {
@@ -305,8 +315,8 @@
 }
 
 .col-actions {
-  width: 180px;
-  text-align: right;
+  width: 70px;
+  text-align: center;
 }
 
 .teacher-cell {
@@ -334,7 +344,7 @@
 .teacher-info {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
 .teacher-name {
@@ -344,6 +354,9 @@
 }
 
 .teacher-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 12px;
   color: var(--text-muted);
 }
@@ -374,60 +387,94 @@
   font-size: 13px;
 }
 
-.te-action-buttons-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.delete-btn, .edit-btn, .view-btn {
+.te-date-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 12px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.action-menu-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.btn-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
-  font-size: 12px;
-  font-weight: 700;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
   cursor: pointer;
-  border: 1px solid var(--border-dark);
-  background: #fff;
-  transition: all 0.15s ease;
-  white-space: nowrap;
+  transition: all 0.15s;
+}
+.btn-dots:hover {
+  background: var(--bg-row-odd);
+  border-color: var(--border-dark);
+  color: var(--text-primary);
 }
 
-.view-btn {
-  color: var(--text-muted);
-}
-.view-btn:hover {
-  border-color: var(--teal-border);
-  color: var(--teal);
-  background: var(--teal-light);
-}
-.view-btn--active {
-  background: var(--teal-light) !important;
-  border-color: var(--teal-border) !important;
-  color: var(--teal) !important;
+.action-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 160px;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+  z-index: 20;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: dropdownPopIn 0.12s ease-out;
 }
 
-.edit-btn {
-  color: var(--text-muted);
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: none;
+  background: none;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all 0.12s;
 }
-.edit-btn:hover {
-  border-color: var(--primary-border);
-  color: var(--primary);
+.dropdown-item:hover {
   background: var(--primary-light);
+  color: var(--primary);
 }
-
-.delete-btn {
-  color: var(--text-muted);
-}
-.delete-btn:hover {
-  border-color: var(--danger-border);
+.dropdown-item--danger {
   color: var(--danger);
+}
+.dropdown-item--danger:hover {
   background: var(--danger-light);
+  color: var(--danger);
 }
 
+@keyframes dropdownPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .pagination {
   display: flex;
   align-items: center;
@@ -495,7 +542,7 @@
 .sk {
   background: #edf2f7;
   border-radius: 4px;
-  animation: pulse sk-load 1.2s infinite ease-in-out;
+  animation: skLoad 1.2s infinite ease-in-out;
 }
 
 .sk-name {
@@ -529,7 +576,7 @@
   border-radius: 8px;
 }
 
-@keyframes sk-load {
+@keyframes skLoad {
   0%, 100% {
     opacity: 0.6;
   }
@@ -547,7 +594,14 @@
   gap: 8px;
 }
 .te-empty-state .te-empty-icon {
-  font-size: 36px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg-row-odd);
+  color: var(--text-hint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 4px;
 }
 .te-empty-state .te-empty-title {
@@ -594,7 +648,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
   background: var(--danger-light);
   color: var(--danger);
 }
@@ -727,7 +780,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
   background: #f0fdf4;
   color: #16a34a;
   margin-top: 1px;
@@ -761,10 +813,12 @@
   position: absolute;
   top: 10px;
   right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   color: var(--text-hint);
-  font-size: 12px;
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -812,5 +866,119 @@
   }
   to {
     transform: scaleX(0);
+  }
+}
+@media (max-width: 1024px) {
+  .te-header-card {
+    padding: 18px 20px;
+  }
+  .te-title {
+    font-size: 1.3rem;
+  }
+}
+@media (max-width: 768px) {
+  .te-header-card {
+    padding: 16px;
+    gap: 12px;
+  }
+  .te-eyebrow {
+    font-size: 10.5px;
+  }
+  .te-title {
+    font-size: 1.15rem;
+  }
+  .te-filters-row {
+    gap: 10px;
+  }
+  .te-search-input-wrap {
+    flex: 1 1 100%;
+    min-width: 0;
+    order: 1;
+  }
+  .te-btn-search {
+    flex: 1 1 calc(50% - 5px);
+    justify-content: center;
+    order: 2;
+  }
+  .te-btn-add {
+    flex: 1 1 calc(50% - 5px);
+    justify-content: center;
+    order: 3;
+  }
+  .avatar {
+    width: 34px;
+    height: 32px;
+    font-size: 12px;
+  }
+  .teacher-name {
+    font-size: 13px;
+  }
+  .teacher-email {
+    font-size: 11.5px;
+  }
+  .pagination {
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .te-toast-notification {
+    left: 12px;
+    right: 12px;
+    top: 12px;
+    width: auto;
+    max-width: none;
+  }
+}
+@media (max-width: 480px) {
+  .list-wrapper {
+    gap: 12px;
+  }
+  .table-pane {
+    border-radius: 12px;
+  }
+  .te-header-card {
+    padding: 14px;
+  }
+  .te-title {
+    font-size: 1.05rem;
+  }
+  .te-eyebrow {
+    letter-spacing: 0.03em;
+  }
+  .te-search-input {
+    padding: 9px 32px 9px 34px;
+    font-size: 13px;
+  }
+  .te-search-icon {
+    left: 12px;
+  }
+  .te-btn-search span,
+  .te-btn-add span {
+    display: none;
+  }
+  .te-btn-search, .te-btn-add {
+    padding: 10px 14px;
+  }
+  .btn-dots {
+    width: 30px;
+    height: 30px;
+  }
+  .action-dropdown {
+    min-width: 148px;
+  }
+  .dropdown-item {
+    padding: 9px 10px;
+    font-size: 12px;
+  }
+  .pg-btn {
+    min-width: 30px;
+    height: 30px;
+    font-size: 12.5px;
+  }
+  .te-confirm-box {
+    padding: 1.4rem;
+  }
+  .te-confirm-title {
+    font-size: 1rem;
   }
 }/*# sourceMappingURL=teacher-list.component.css.map */

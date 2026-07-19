@@ -316,7 +316,13 @@ private patchEditData(): void {
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+
+      // ✅ naya — jab tak form fill nahi hai, ek clear error popup dikhao
+      this.popupType = 'error';
+      this.popupMessage = 'Please fill all the required fields correctly before submitting.';
+      this.showResultPopup = true;
       this.cdr.markForCheck();
+      this.startPopupTimer();
       return;
     }
     this.submitting = true;
@@ -352,6 +358,7 @@ private patchEditData(): void {
     this.popupMessage = err?.error?.message || 'Failed to save student. Please try again.';
     this.showResultPopup = true;
     this.cdr.markForCheck();
+    this.startPopupTimer();
   },
 });
   }

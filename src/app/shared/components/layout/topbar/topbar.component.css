@@ -27,7 +27,14 @@
   }
 }
 .topbar__menu-btn {
-  display: flex;
+  display: none;
+}
+@media (max-width: 1023px) {
+  .topbar__menu-btn {
+    display: flex;
+  }
+}
+.topbar__menu-btn {
   align-items: center;
   justify-content: center;
   padding: 0.5rem;

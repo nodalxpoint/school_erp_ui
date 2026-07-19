@@ -1,8 +1,18 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SubjectService } from '../services/subject.service';
 import { SubjectResponseDto, SubjectFilterRequest, CreateSubjectDto } from '../models/subject.model';
+
+const SM_STATE_KEY = 'sm_subject_directory_state_v1';
+
+interface PersistedSmState {
+  page: number;
+  size: number;
+  sortBy: string | undefined;
+  searchText: string;
+  includeDeleted: boolean;
+}
 
 @Component({
   selector: 'app-subject-management',
@@ -31,26 +41,63 @@ export class SubjectManagementComponent implements OnInit {
   searchText = '';
   includeDeleted = false;
 
-  // ✅ naya — confirm popup (delete + restore dono ke liye reuse)
+  // confirm popup (delete + restore dono ke liye reuse)
   showConfirm = false;
   confirmMode: 'delete' | 'restore' = 'delete';
   subjectToActOn: SubjectResponseDto | null = null;
   confirming = false;
 
-  // ✅ naya — result toast
+  // result toast
   showResultPopup = false;
   popupType: 'success' | 'error' = 'success';
   popupMessage = '';
   private popupTimer: any = null;
   private readonly POPUP_DURATION = 4000;
 
+  // ✅ naya — row-level 3-dot action menu
+  openMenuId: string | null = null;
+
   constructor(
     private subjectService: SubjectService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private elRef: ElementRef
   ) { }
 
   ngOnInit(): void {
+    this.restoreState();
     this.loadSubjects();
+  }
+
+  // ─── State persistence: page/search/filter restore hote hai jab
+  // user doosre page pe jaake wapas is component pe aata hai ─────────
+  private restoreState(): void {
+    try {
+      const raw = sessionStorage.getItem(SM_STATE_KEY);
+      if (!raw) return;
+      const saved: PersistedSmState = JSON.parse(raw);
+      this.filter.page = saved.page ?? 0;
+      this.filter.size = saved.size ?? this.filter.size;
+      this.filter.sortBy = saved.sortBy ?? this.filter.sortBy;
+      this.searchText = saved.searchText ?? '';
+      this.includeDeleted = saved.includeDeleted ?? false;
+    } catch {
+      // corrupt/inaccessible storage — silently ignore, defaults apply
+    }
+  }
+
+  private persistState(): void {
+    try {
+      const toSave: PersistedSmState = {
+        page: this.filter.page,
+        size: this.filter.size,
+        sortBy: this.filter.sortBy,
+        searchText: this.searchText,
+        includeDeleted: this.includeDeleted
+      };
+      sessionStorage.setItem(SM_STATE_KEY, JSON.stringify(toSave));
+    } catch {
+      // storage unavailable — non-fatal, just won't persist
+    }
   }
 
   loadSubjects(): void {
@@ -67,6 +114,7 @@ export class SubjectManagementComponent implements OnInit {
         this.totalElements = res?.totalElements ?? 0;
         this.totalPages = res?.totalPages ?? 0;
         this.isLoading = false;
+        this.persistState();
         this.cdr.markForCheck();
       },
       error: () => {
@@ -98,6 +146,7 @@ export class SubjectManagementComponent implements OnInit {
   }
 
   onEditSubject(sub: SubjectResponseDto): void {
+    this.closeMenu();
     this.formModel = {
       id: sub.id,
       subjectName: sub.name,
@@ -112,8 +161,8 @@ export class SubjectManagementComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  // ✅ replaced — confirm() ki jagah popup
   onDeleteSubject(sub: SubjectResponseDto): void {
+    this.closeMenu();
     if (!sub.id) return;
     this.subjectToActOn = sub;
     this.confirmMode = 'delete';
@@ -122,6 +171,7 @@ export class SubjectManagementComponent implements OnInit {
   }
 
   onRestoreSubject(sub: SubjectResponseDto): void {
+    this.closeMenu();
     if (!sub.id) return;
     this.subjectToActOn = sub;
     this.confirmMode = 'restore';
@@ -181,7 +231,6 @@ export class SubjectManagementComponent implements OnInit {
     this.loadSubjects();
   }
 
-  // ✅ replaced — form submit pe bhi toast
   onSubmit(): void {
     if (!this.formModel.subjectName || !this.formModel.subjectCode) return;
 
@@ -222,6 +271,35 @@ export class SubjectManagementComponent implements OnInit {
     if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
     this.showResultPopup = false;
     this.cdr.markForCheck();
+  }
+
+  // ─── 3-dot row action menu ──────────────────────────────
+  toggleMenu(id: string | undefined, event: MouseEvent): void {
+    event.stopPropagation();
+    if (!id) return;
+    this.openMenuId = this.openMenuId === id ? null : id;
+    this.cdr.markForCheck();
+  }
+
+  closeMenu(): void {
+    if (this.openMenuId !== null) {
+      this.openMenuId = null;
+      this.cdr.markForCheck();
+    }
+  }
+
+  // Bahar click ya scroll hone pe menu band ho jaye
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (this.openMenuId === null) return;
+    if (!this.elRef.nativeElement.contains(event.target)) {
+      this.closeMenu();
+    }
+  }
+
+  @HostListener('window:keydown.escape')
+  onEscapeKey(): void {
+    this.closeMenu();
   }
 
   get safeSubjects(): SubjectResponseDto[] { return this.subjects ?? []; }

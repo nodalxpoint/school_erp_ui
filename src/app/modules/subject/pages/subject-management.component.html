@@ -1,14 +1,14 @@
 <div class="list-wrapper">
 
   <div class="sm-full-form-canvas" *ngIf="isSidebarOpen">
-    
+
     <div class="sm-form-navigation">
       <div class="sm-breadcrumb">
         <span class="sm-crumb-link" (click)="onCloseSidebar()">Subject Directory</span>
         <span class="sm-crumb-sep">/</span>
         <span class="sm-crumb-current">{{ formModel.id ? 'Modify Configuration' : 'New Configuration' }}</span>
       </div>
-      
+
       <button class="sm-btn-top-back" type="button" (click)="onCloseSidebar()" [disabled]="isSaving">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -19,7 +19,7 @@
     </div>
 
     <div class="sm-form-workspace-card">
-      
+
       <div class="sm-form-header-banner">
         <div class="sm-header-icon-box">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -34,25 +34,25 @@
       </div>
 
       <form (ngSubmit)="onSubmit()" #subjectForm="ngForm" class="sm-form-body-container">
-        
+
         <div class="sm-group-divider">
           <span>Subject Specifications</span>
         </div>
 
         <div class="sm-form-element">
           <label class="sm-form-label">Subject Title Name <span class="required">*</span></label>
-          <input type="text" class="sm-form-control" [(ngModel)]="formModel.subjectName" name="subjectName" 
+          <input type="text" class="sm-form-control" [(ngModel)]="formModel.subjectName" name="subjectName"
                  placeholder="e.g. Mathematics" required #nameValid="ngModel" [disabled]="isSaving"
                  [class.is-invalid]="nameValid.touched && !formModel.subjectName" />
-          <span class="sm-error-inline-hint" *ngIf="nameValid.touched && !formModel.subjectName">⚠️ Subject title mapping sequence is mandatory.</span>
+          <span class="sm-error-inline-hint" *ngIf="nameValid.touched && !formModel.subjectName">Subject title mapping sequence is mandatory.</span>
         </div>
 
         <div class="sm-form-element">
           <label class="sm-form-label">Unique Course Identification Code <span class="required">*</span></label>
-          <input type="text" class="sm-form-control text-mono text-uppercase" [(ngModel)]="formModel.subjectCode" name="subjectCode" 
+          <input type="text" class="sm-form-control text-mono text-uppercase" [(ngModel)]="formModel.subjectCode" name="subjectCode"
                  placeholder="e.g. MATH101" required #codeValid="ngModel" [disabled]="isSaving"
                  [class.is-invalid]="codeValid.touched && !formModel.subjectCode" />
-          <span class="sm-error-inline-hint" *ngIf="codeValid.touched && !formModel.subjectCode">⚠️ Alpha-numeric tracking index code is required.</span>
+          <span class="sm-error-inline-hint" *ngIf="codeValid.touched && !formModel.subjectCode">Alpha-numeric tracking index code is required.</span>
         </div>
 
         <div class="sm-action-footer">
@@ -68,7 +68,7 @@
   </div>
 
   <div class="table-pane" *ngIf="!isSidebarOpen">
-    
+
     <div class="sm-header-card">
       <div class="sm-header-top">
         <div class="sm-title-block">
@@ -85,16 +85,21 @@
           </svg>
           <input class="sm-search-input" type="text" [(ngModel)]="searchText"
                  placeholder="Search subjects by name or index code…" (keyup.enter)="onSearch()" />
-          <button class="sm-search-clear" *ngIf="searchText" (click)="onClearSearch()">×</button>
+          <button class="sm-search-clear" *ngIf="searchText" (click)="onClearSearch()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
-        
+
         <button class="sm-btn-search" (click)="onSearch()">Filter Directory</button>
 
         <label class="sm-checkbox-wrap">
           <input type="checkbox" [(ngModel)]="includeDeleted" (change)="onToggleIncludeDeleted()" />
           Include Deleted
         </label>
-        
+
         <button class="sm-btn-add" (click)="onAddSubject()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="5" x2="12" y2="19"/>
@@ -126,6 +131,7 @@
       <p class="empty-sub">Get started by onboarding and cataloging a fresh course track entry using the button control panel above.</p>
     </div>
 
+    <!-- Desktop / tablet table -->
     <div class="sm-table-scroll-wrapper" *ngIf="!isLoading && safeSubjects.length > 0">
       <table class="teacher-table">
         <thead>
@@ -138,8 +144,8 @@
         </thead>
         <tbody>
           <tr *ngFor="let s of safeSubjects; trackBy: trackById" class="table-row">
-            
-            <td class="col-subject">
+
+            <td class="col-subject" data-label="Subject">
               <div class="subject-cell" [class.is-deleted-row]="s.isDeleted">
                 <div class="avatar-box">{{ s.name ? s.name[0].toUpperCase() : 'S' }}</div>
                 <div class="subject-info">
@@ -148,44 +154,64 @@
                 </div>
               </div>
             </td>
-            
-            <td class="col-code">
+
+            <td class="col-code" data-label="Code">
               <code class="code-chip">{{ s.code }}</code>
             </td>
-            
-            <td class="col-date">
-              <span class="date-txt">📆 {{ s.createdAt | date:'dd MMM yyyy, hh:mm a' }}</span>
+
+            <td class="col-date" data-label="Registered">
+              <span class="date-txt">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="3"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                {{ s.createdAt | date:'dd MMM yyyy, hh:mm a' }}
+              </span>
             </td>
-            
-            <td class="col-actions">
-              <div class="action-buttons-group">
-                <ng-container *ngIf="!s.isDeleted">
-                  <button class="edit-btn" (click)="onEditSubject(s)" title="Edit Subject Details">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                    Modify Specs
-                  </button>
-                  <button class="delete-btn" (click)="onDeleteSubject(s)" title="Delete Subject">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <polyline points="3 6 5 6 21 6"></polyline>
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                      <line x1="10" y1="11" x2="10" y2="17"></line>
-                      <line x1="14" y1="11" x2="14" y2="17"></line>
-                    </svg>
-                    Remove
-                  </button>
-                </ng-container>
-                <ng-container *ngIf="s.isDeleted">
-                  <button class="restore-btn" (click)="onRestoreSubject(s)" title="Restore Subject">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <polyline points="23 4 23 10 17 10"></polyline>
-                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                    </svg>
-                    Restore
-                  </button>
-                </ng-container>
+
+            <td class="col-actions" data-label="Actions">
+              <div class="action-menu-anchor">
+                <button class="kebab-btn" type="button" (click)="toggleMenu(s.id, $event)"
+                        [class.is-active]="openMenuId === s.id" title="Row actions" aria-haspopup="true"
+                        [attr.aria-expanded]="openMenuId === s.id">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="5" r="2"></circle>
+                    <circle cx="12" cy="12" r="2"></circle>
+                    <circle cx="12" cy="19" r="2"></circle>
+                  </svg>
+                </button>
+
+                <div class="action-dropdown" *ngIf="openMenuId === s.id" (click)="$event.stopPropagation()">
+                  <ng-container *ngIf="!s.isDeleted">
+                    <button class="dropdown-item" type="button" (click)="onEditSubject(s)">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                      Modify Specs
+                    </button>
+                    <button class="dropdown-item dropdown-item--danger" type="button" (click)="onDeleteSubject(s)">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                      </svg>
+                      Remove
+                    </button>
+                  </ng-container>
+                  <ng-container *ngIf="s.isDeleted">
+                    <button class="dropdown-item dropdown-item--teal" type="button" (click)="onRestoreSubject(s)">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                      </svg>
+                      Restore
+                    </button>
+                  </ng-container>
+                </div>
               </div>
             </td>
 
@@ -200,11 +226,11 @@
           <polyline points="15 18 9 12 15 6"/>
         </svg>
       </button>
-      
+
       <button *ngFor="let p of pages" class="pg-btn" [class.active]="p === currentPage" (click)="onPageChange(p)">
         {{ p + 1 }}
       </button>
-      
+
       <button class="pg-btn" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 1)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <polyline points="9 18 15 12 9 6"/>
@@ -216,39 +242,58 @@
 
 </div>
 
-  <!-- Delete / Restore Confirm Popup -->
-  <div class="sm-confirm-backdrop" *ngIf="showConfirm" (click)="cancelConfirm()">
-    <div class="sm-confirm-box" (click)="$event.stopPropagation()">
-      <div class="sm-confirm-icon" [class.sm-confirm-icon--restore]="confirmMode === 'restore'">
-        {{ confirmMode === 'delete' ? '🗑' : '♻️' }}
-      </div>
-      <h3 class="sm-confirm-title">{{ confirmMode === 'delete' ? 'Delete Subject?' : 'Restore Subject?' }}</h3>
-      <p class="sm-confirm-message">
-        Are you sure you want to {{ confirmMode === 'delete' ? 'delete' : 'restore' }}
-        <strong>{{ subjectToActOn?.name }}</strong>?
-        <span *ngIf="confirmMode === 'delete'">This action cannot be undone.</span>
-      </p>
-      <div class="sm-confirm-actions">
-        <button class="sm-btn-confirm-cancel" (click)="cancelConfirm()" [disabled]="confirming">Cancel</button>
-        <button class="sm-btn-confirm-proceed" [class.sm-btn-confirm-proceed--restore]="confirmMode === 'restore'" (click)="proceedConfirm()" [disabled]="confirming">
-          <span class="sm-btn-spinner" *ngIf="confirming"></span>
-          {{ confirming ? (confirmMode === 'delete' ? 'Deleting...' : 'Restoring...') : (confirmMode === 'delete' ? 'Yes, Delete' : 'Yes, Restore') }}
-        </button>
-      </div>
+<!-- Delete / Restore Confirm Popup -->
+<div class="sm-confirm-backdrop" *ngIf="showConfirm" (click)="cancelConfirm()">
+  <div class="sm-confirm-box" (click)="$event.stopPropagation()">
+    <div class="sm-confirm-icon" [class.sm-confirm-icon--restore]="confirmMode === 'restore'">
+      <svg *ngIf="confirmMode === 'delete'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line>
+        <line x1="14" y1="11" x2="14" y2="17"></line>
+      </svg>
+      <svg *ngIf="confirmMode === 'restore'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+    </div>
+    <h3 class="sm-confirm-title">{{ confirmMode === 'delete' ? 'Delete Subject?' : 'Restore Subject?' }}</h3>
+    <p class="sm-confirm-message">
+      Are you sure you want to {{ confirmMode === 'delete' ? 'delete' : 'restore' }}
+      <strong>{{ subjectToActOn?.name }}</strong>?
+      <span *ngIf="confirmMode === 'delete'">This action cannot be undone.</span>
+    </p>
+    <div class="sm-confirm-actions">
+      <button class="sm-btn-confirm-cancel" (click)="cancelConfirm()" [disabled]="confirming">Cancel</button>
+      <button class="sm-btn-confirm-proceed" [class.sm-btn-confirm-proceed--restore]="confirmMode === 'restore'" (click)="proceedConfirm()" [disabled]="confirming">
+        <span class="sm-btn-spinner" *ngIf="confirming"></span>
+        {{ confirming ? (confirmMode === 'delete' ? 'Deleting...' : 'Restoring...') : (confirmMode === 'delete' ? 'Yes, Delete' : 'Yes, Restore') }}
+      </button>
     </div>
   </div>
+</div>
 
-  <!-- Result Toast -->
-  <div class="sm-toast-notification" *ngIf="showResultPopup" [class.sm-is-error]="popupType === 'error'">
-    <div class="sm-toast-icon">
-      <span *ngIf="popupType === 'success'">✔</span>
-      <span *ngIf="popupType === 'error'">⚠</span>
-    </div>
-    <div class="sm-toast-content">
-      <span class="sm-toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
-      <span class="sm-toast-message">{{ popupMessage }}</span>
-    </div>
-    <button class="sm-toast-close-btn" (click)="closePopup()">✕</button>
-    <div class="sm-toast-timer-track"><div class="sm-toast-timer-bar" [class.sm-timer-error]="popupType === 'error'"></div></div>
+<!-- Result Toast -->
+<div class="sm-toast-notification" *ngIf="showResultPopup" [class.sm-is-error]="popupType === 'error'">
+  <div class="sm-toast-icon">
+    <svg *ngIf="popupType === 'success'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <svg *ngIf="popupType === 'error'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+      <line x1="12" y1="9" x2="12" y2="13"></line>
+      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+    </svg>
   </div>
-
+  <div class="sm-toast-content">
+    <span class="sm-toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
+    <span class="sm-toast-message">{{ popupMessage }}</span>
+  </div>
+  <button class="sm-toast-close-btn" (click)="closePopup()">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+  <div class="sm-toast-timer-track"><div class="sm-toast-timer-bar" [class.sm-timer-error]="popupType === 'error'"></div></div>
+</div>
