@@ -11,23 +11,15 @@
   <div class="tab-container">
     <button 
       class="tab-btn" 
+      [class.active]="activeTab === 'reportCards'" 
+      (click)="switchTab('reportCards')">
+      Report Card
+    </button>
+    <button 
+      class="tab-btn" 
       [class.active]="activeTab === 'students'" 
       (click)="switchTab('students')">
       Student Directory Report
-    </button>
-    <button 
-      class="tab-btn" 
-      [class.active]="activeTab === 'fees'" 
-      (click)="switchTab('fees')"
-      disabled>
-      Fee Defaulters (Locked)
-    </button>
-    <button 
-      class="tab-btn" 
-      [class.active]="activeTab === 'attendance'" 
-      (click)="switchTab('attendance')"
-      disabled>
-      Attendance Summary (Locked)
     </button>
   </div>
 
@@ -67,14 +59,25 @@
         </select>
       </div>
 
-      <!-- Gender -->
-      <div class="filter-group">
+      <!-- Gender (Only for Student Directory) -->
+      <div class="filter-group" *ngIf="activeTab === 'students'">
         <label for="gender">Gender</label>
         <select id="gender" [(ngModel)]="filters.gender">
           <option value="All">All Genders</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
           <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <!-- Exam ID (Only for Report Card) -->
+      <div class="filter-group" *ngIf="activeTab === 'reportCards'">
+        <label for="exam">Exam</label>
+        <select id="exam" [(ngModel)]="filters.examId">
+          <option value="">All Exams</option>
+          <option *ngFor="let opt of exams" [value]="opt.id">
+            {{ opt.label }}
+          </option>
         </select>
       </div>
     </div>
@@ -84,17 +87,64 @@
       <button class="btn btn--secondary" (click)="clearFilters()">
         Reset Filters
       </button>
-      <button class="btn btn--primary" (click)="generateReport(0)">
-        Generate Report
-      </button>
-      <button class="btn btn--success" (click)="exportReport()" [disabled]="!reportData || reportData.rows.length === 0">
-        Export CSV
-      </button>
+
+      <!-- If on Report Cards Tab -->
+      <ng-container *ngIf="activeTab === 'reportCards'">
+        <button class="btn btn--primary" (click)="loadReportCardsData()" [disabled]="!filters.classId || !filters.sectionId">
+          Generate Report Cards
+        </button>
+        <button class="btn btn--success" (click)="downloadReportCardsPdf()" [disabled]="!reportCardsList || reportCardsList.length === 0">
+          Download Report Cards
+        </button>
+      </ng-container>
+
+      <!-- If on Student Directory Tab -->
+      <ng-container *ngIf="activeTab === 'students'">
+        <button class="btn btn--primary" (click)="generateReport(0)">
+          Generate Report
+        </button>
+        <button class="btn btn--success" (click)="exportReport()" [disabled]="!reportData || reportData.rows.length === 0">
+          Export CSV
+        </button>
+      </ng-container>
     </div>
   </div>
 
-  <!-- Report Data Table Grid -->
-  <div class="table-card">
+  <!-- Report Cards Status Block (Only for Report Cards Tab) -->
+  <div class="table-card" *ngIf="activeTab === 'reportCards'">
+    <div class="loader-overlay" *ngIf="loading">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && (!reportCardsList || reportCardsList.length === 0)">
+      <div class="empty-state__icon">📋</div>
+      <h3 class="empty-state__title">Generate Report Cards</h3>
+      <p class="empty-state__description">
+        Choose your parameters above and click "Generate Report Cards" to prepare files.
+      </p>
+    </div>
+
+    <!-- Ready state -->
+    <div class="empty-state" *ngIf="!loading && reportCardsList && reportCardsList.length > 0">
+      <div class="empty-state__icon" style="color: #2ec4b6; font-size: 40px; margin-bottom: 10px;">✓</div>
+      <h3 class="empty-state__title" style="color: #2ec4b6;">Report Cards Generated!</h3>
+      <p class="empty-state__description" style="margin-bottom: 20px;">
+        Found <strong>{{ reportCardsList.length }}</strong> student report cards. Click "Download Report Cards" to save them one-by-one.
+      </p>
+      
+      <!-- List of generated students for admin visibility -->
+      <div style="margin-top: 20px; max-height: 250px; overflow-y: auto; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto; padding: 15px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
+        <div *ngFor="let s of reportCardsList" style="padding: 8px 0; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; font-size: 14px; font-family: inherit;">
+          <span style="font-weight: 500;">Roll {{ s.rollNo || '-' }} - {{ s.firstName }} {{ s.lastName }}</span>
+          <span style="color: #6c757d; font-size: 13px;">Adm No: {{ s.admissionNo }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Data Table Grid (Only for Student Directory Tab) -->
+  <div class="table-card" *ngIf="activeTab === 'students'">
     <div class="loader-overlay" *ngIf="loading">
       <div class="spinner"></div>
     </div>
@@ -156,6 +206,110 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 📄 DYNAMIC DOCK-HIDDEN REPORT CARD HTML TEMPLATE FOR HIGH-QUALITY PDF      -->
+<!-- ========================================================================= -->
+<div *ngIf="currentPrintStudent" id="pdf-report-card-template" style="position: absolute; left: -9999px; top: -9999px; width: 790px; padding: 45px; background: #ffffff; color: #000000; font-family: 'Times New Roman', Times, serif; box-sizing: border-box; border: 4px double #000000; line-height: 1.4;">
+  
+  <!-- School Logo/Header Name -->
+  <div style="text-align: center; border-bottom: 2px solid #000000; padding-bottom: 15px; margin-bottom: 20px;">
+    <h1 style="font-size: 32px; font-weight: bold; margin: 0; text-transform: uppercase; letter-spacing: 1px;">
+      {{ currentPrintStudent.schoolName || 'ABC PUBLIC SCHOOL' }}
+    </h1>
+    <h3 style="font-size: 18px; font-weight: normal; font-style: italic; margin: 5px 0 0 0; color: #333;">
+      Annual Progress Academic Record
+    </h3>
+  </div>
+
+  <div style="text-align: center; margin-bottom: 25px;">
+    <h2 style="font-size: 20px; font-weight: bold; margin: 0; text-decoration: underline; text-transform: uppercase; letter-spacing: 0.5px;">
+      REPORT CARD
+    </h2>
+  </div>
+
+  <!-- Student Info Details Grid (2 Columns) -->
+  <div style="display: flex; justify-content: space-between; margin-bottom: 25px; font-size: 15px; line-height: 1.6;">
+    <div style="width: 48%;">
+      <div><strong>Student Name :</strong> {{ currentPrintStudent.firstName }} {{ currentPrintStudent.lastName }}</div>
+      <div><strong>Admission No :</strong> {{ currentPrintStudent.admissionNo }}</div>
+      <div><strong>Roll No      :</strong> {{ currentPrintStudent.rollNo || '-' }}</div>
+      <div><strong>Father Name  :</strong> {{ currentPrintStudent.fatherName || '-' }}</div>
+    </div>
+    <div style="width: 48%; padding-left: 20px; border-left: 1px dashed #ccc;">
+      <div><strong>Class        :</strong> {{ currentPrintStudent.className }}-{{ currentPrintStudent.sectionName }}</div>
+      <div><strong>Academic Year:</strong> {{ currentPrintStudent.academicSessionName }}</div>
+      <div><strong>Attendance   :</strong> {{ currentPrintStudent.attendancePercentage }}</div>
+      <div><strong>Overall Result:</strong> <span style="font-weight: bold;">{{ currentPrintStudent.overallResult }}</span></div>
+    </div>
+  </div>
+
+  <!-- Loop through Exam Results -->
+  <div *ngFor="let exam of currentPrintStudent.examResults; let last = last" style="margin-bottom: 25px;">
+    <h3 style="font-size: 16px; font-weight: bold; text-transform: uppercase; border-bottom: 1.5px solid #000000; padding-bottom: 3px; margin: 0 0 10px 0;">
+      Exam: {{ exam.examName }}
+    </h3>
+    
+    <table style="width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 14px;">
+      <thead>
+        <tr style="border-top: 1.5px solid #000000; border-bottom: 1.5px solid #000000; text-align: left; background-color: #f8f9fa;">
+          <th style="padding: 8px 10px; font-weight: bold; border-right: 1px solid #000000;">Subject</th>
+          <th style="padding: 8px 10px; font-weight: bold; text-align: center; border-right: 1px solid #000000; width: 120px;">Max Marks</th>
+          <th style="padding: 8px 10px; font-weight: bold; text-align: center; border-right: 1px solid #000000; width: 120px;">Obtained</th>
+          <th style="padding: 8px 10px; font-weight: bold; text-align: center; width: 100px;">Grade</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let sub of exam.subjectMarks" style="border-bottom: 1px solid #e9ecef;">
+          <td style="padding: 8px 10px; border-right: 1px solid #e9ecef;">{{ sub.subjectName }}</td>
+          <td style="padding: 8px 10px; text-align: center; border-right: 1px solid #e9ecef;">{{ sub.maxMarks }}</td>
+          <td style="padding: 8px 10px; text-align: center; border-right: 1px solid #e9ecef; font-weight: 500;">
+            {{ sub.marksObtained !== null ? sub.marksObtained : '-' }}
+          </td>
+          <td style="padding: 8px 10px; text-align: center; font-weight: bold;">{{ sub.grade }}</td>
+        </tr>
+        
+        <!-- Totals Row -->
+        <tr style="border-top: 1.5px solid #000000; border-bottom: 1.5px solid #000000; font-weight: bold; background-color: #f8f9fa;">
+          <td style="padding: 8px 10px; border-right: 1px solid #000000; text-transform: uppercase;">Total</td>
+          <td style="padding: 8px 10px; text-align: center; border-right: 1px solid #000000;">{{ exam.examTotalMaxMarks }}</td>
+          <td style="padding: 8px 10px; text-align: center; border-right: 1px solid #000000;">{{ exam.examTotalMarksObtained }}</td>
+          <td style="padding: 8px 10px; text-align: center;">-</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 15px; font-weight: bold; padding: 5px 0;">
+      <div>Percentage: {{ exam.examPercentage }}%</div>
+      <div>Exam Grade: {{ exam.examGrade }}</div>
+      <div>Exam Result: {{ exam.examResult }}</div>
+    </div>
+  </div>
+
+  <!-- Overall Remarks & Grading Key -->
+  <div style="border-top: 1.5px solid #000000; padding-top: 15px; margin-top: 20px;">
+    <div style="font-size: 15px; margin-bottom: 8px;">
+      <strong>Overall Percentage :</strong> {{ currentPrintStudent.overallPercentage }}%
+    </div>
+    <div style="font-size: 15px; margin-bottom: 8px;">
+      <strong>Overall Grade :</strong> {{ currentPrintStudent.overallGrade }}
+    </div>
+    <div style="font-size: 15px; margin-bottom: 20px;">
+      <strong>Class Teacher Remarks :</strong> 
+      <span style="font-style: italic;">{{ currentPrintStudent.classTeacherRemarks || 'No remarks recorded.' }}</span>
+    </div>
+  </div>
+
+  <!-- Signatures Line (Principal and Teacher) -->
+  <div style="display: flex; justify-content: space-between; margin-top: 60px; font-size: 14px;">
+    <div style="text-align: center; width: 200px; border-top: 1px solid #000000; padding-top: 5px;">
+      Class Teacher
+    </div>
+    <div style="text-align: center; width: 200px; border-top: 1px solid #000000; padding-top: 5px;">
+      Principal
     </div>
   </div>
 </div>
