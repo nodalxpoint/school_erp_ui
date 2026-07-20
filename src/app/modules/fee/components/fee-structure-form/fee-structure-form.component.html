@@ -1,49 +1,77 @@
 <div class="school-erp-container">
 
   <div class="app-header">
-    <div class="page-title-node">
-      <span>{{ isEditMode ? 'Edit Fee Structure' : 'Add Fee Structure' }}</span>
+    <div class="header-title-block">
+      <div class="page-eyebrow">Fee Management · Structure</div>
+      <div class="page-title-node">{{ isEditMode ? 'Edit Fee Structure' : 'Add Fee Structure' }}</div>
+      <p class="page-subtitle">{{ isEditMode ? 'Update amount, frequency and due-date parameters for this class fee.' : 'Define a new recurring or one-time fee structure for a class.' }}</p>
     </div>
     <button class="btn-action-secondary" (click)="onCancel()">
-      ← Back to List
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Back to List
     </button>
   </div>
 
   <div class="main-dashboard-layout single-panel-focus">
     <div class="form-wrapper-block">
+
+      <div class="section-header">
+        <div class="section-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="2" y="6" width="20" height="12" rx="2"/>
+            <line x1="2" y1="10" x2="22" y2="10"/>
+          </svg>
+        </div>
+        <div>
+          <h2>Structure Parameters</h2>
+          <p>Class, session, amount and billing frequency configuration</p>
+        </div>
+      </div>
+
       <div class="modal-form-grid">
 
         <!-- Class -->
         <div class="form-field">
           <label>Class <span class="required-star">*</span></label>
-          <select class="modal-input" [(ngModel)]="formData.classId">
+          <select class="modal-input" [class.invalid]="submitted && !formData.classId" [(ngModel)]="formData.classId">
             <option value="">Select Class</option>
             <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
           </select>
+          <span class="field-error" *ngIf="submitted && !formData.classId">Please select a class.</span>
         </div>
 
         <!-- Academic Session -->
         <div class="form-field">
           <label>Academic Session <span class="required-star">*</span></label>
-          <select class="modal-input" [(ngModel)]="formData.academicSessionId">
+          <select class="modal-input" [class.invalid]="submitted && !formData.academicSessionId" [(ngModel)]="formData.academicSessionId">
             <option value="">Select Academic Session</option>
             <option *ngFor="let s of academicSessions" [value]="s.id">{{ s.label }}</option>
           </select>
+          <span class="field-error" *ngIf="submitted && !formData.academicSessionId">Please select an academic session.</span>
         </div>
 
         <!-- Fee Name -->
         <div class="form-field">
           <label>Fee Name <span class="required-star">*</span></label>
-          <input type="text" class="modal-input" [(ngModel)]="formData.feeName"
-                 placeholder="e.g. Monthly Tuition Fee">
+          <input type="text" class="modal-input" [class.invalid]="submitted && !formData.feeName?.trim()"
+                 [(ngModel)]="formData.feeName" placeholder="e.g. Monthly Tuition Fee">
+          <span class="field-error" *ngIf="submitted && !formData.feeName?.trim()">Fee name is required.</span>
         </div>
 
         <!-- Amount & Frequency -->
         <div class="form-field-row-split">
           <div class="form-field">
             <label>Amount (₹) <span class="required-star">*</span></label>
-            <input type="number" class="modal-input" [(ngModel)]="formData.amount"
-                   placeholder="0.00" min="1">
+            <div class="input-with-icon">
+              <span class="input-icon-prefix">₹</span>
+              <input type="number" class="modal-input has-prefix"
+                     [class.invalid]="submitted && (!formData.amount || formData.amount <= 0)"
+                     [(ngModel)]="formData.amount" placeholder="0.00" min="1">
+            </div>
+            <span class="field-error" *ngIf="submitted && (!formData.amount || formData.amount <= 0)">Enter a valid amount.</span>
           </div>
           <div class="form-field">
             <label>Frequency <span class="required-star">*</span></label>
@@ -56,11 +84,11 @@
           </div>
         </div>
 
-        <!-- Due Date ✅ added -->
-<div class="form-field">
-  <label>Due Date <span class="optional-tag">(optional)</span></label>
-  <input type="date" class="modal-input" [(ngModel)]="formData.dueDate">
-</div>
+        <!-- Due Date -->
+        <div class="form-field">
+          <label>Due Date <span class="optional-tag">Optional</span></label>
+          <input type="date" class="modal-input" [(ngModel)]="formData.dueDate">
+        </div>
 
         <!-- Summary preview -->
         <div class="preview-box" *ngIf="formData.feeName && formData.amount > 0">
@@ -71,7 +99,6 @@
             <strong>{{ formData.feeName }}</strong> — ₹{{ formData.amount | number:'1.2-2' }}
             <span class="freq-chip">{{ formData.frequency }}</span>
             <span class="due-chip" *ngIf="formData.dueDate">Due: {{ formData.dueDate | date:'mediumDate' }}</span>
- 
           </div>
         </div>
 
@@ -79,6 +106,7 @@
         <div class="form-actions-footer-row">
           <button class="btn-secondary-link" (click)="onCancel()" [disabled]="isLoading">Cancel</button>
           <button class="btn-action-primary" (click)="onSaveSubmit()" [disabled]="isLoading">
+            <span class="btn-spinner" *ngIf="isLoading"></span>
             <span *ngIf="!isLoading">{{ isEditMode ? 'Update Structure' : 'Save Structure' }}</span>
             <span *ngIf="isLoading">Saving...</span>
           </button>
@@ -104,6 +132,10 @@
     <div class="toast-text">
       <span class="toast-title">{{ toastType === 'success' ? 'Success' : 'Error' }}</span>
       <span class="toast-msg">{{ toastMessage }}</span>
+    </div>
+    <button type="button" class="toast-close-btn" (click)="closeToast()">✕</button>
+    <div class="toast-timer-track">
+      <div class="toast-timer-bar" *ngIf="showToast" [class.timer-error]="toastType === 'error'"></div>
     </div>
   </div>
 

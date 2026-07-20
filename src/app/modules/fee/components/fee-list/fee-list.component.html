@@ -29,7 +29,7 @@
       <div class="filter-column-wrapper">
         <div class="select-group">
           <label class="filter-label">Session</label>
-          <select class="premium-input select-native" [(ngModel)]="filters.academicSessionId">
+          <select class="premium-input select-native" [(ngModel)]="filters.academicSessionId" (change)="onFilterChange()">
             <option value="">Select Session</option>
             <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
           </select>
@@ -47,11 +47,14 @@
                    [disabled]="!!filters.classId">
             <button class="clear-search-btn"
                     *ngIf="selectedStudent || studentSearchQuery"
-                    (click)="clearSelectedStudent()">
-              ×
+                    (click)="clearSelectedStudent()"
+                    aria-label="Clear student search">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
             </button>
           </div>
-          
+
           <div class="student-suggestions-box" *ngIf="showSuggestions && dynamicStudentsList.length > 0">
             <div class="suggestion-row-item"
                  *ngFor="let student of dynamicStudentsList"
@@ -73,7 +76,7 @@
 
       <div class="select-group">
         <label class="filter-label">Section</label>
-        <select class="premium-input select-native" [(ngModel)]="filters.sectionId" [disabled]="!filters.classId || !!selectedStudent">
+        <select class="premium-input select-native" [(ngModel)]="filters.sectionId" (change)="onFilterChange()" [disabled]="!filters.classId || !!selectedStudent">
           <option value="">Select Section</option>
           <option *ngFor="let s of sections" [value]="s.id">{{s.label}}</option>
         </select>
@@ -81,7 +84,7 @@
 
       <div class="select-group">
         <label class="filter-label">Status</label>
-        <select class="premium-input select-native" [(ngModel)]="filters.paymentStatus" [disabled]="!!selectedStudent">
+        <select class="premium-input select-native" [(ngModel)]="filters.paymentStatus" (change)="onFilterChange()" [disabled]="!!selectedStudent">
           <option value="">Status</option>
           <option value="PAID">PAID</option>
           <option value="PENDING">PENDING</option>
@@ -90,7 +93,7 @@
 
       <div class="select-group">
         <label class="filter-label">Month</label>
-        <select class="premium-input select-native" [(ngModel)]="filters.feeMonth">
+        <select class="premium-input select-native" [(ngModel)]="filters.feeMonth" (change)="onFilterChange()">
           <option [value]="undefined">All Months</option>
           <option [value]="1">January</option>
           <option [value]="2">February</option>
@@ -109,11 +112,14 @@
 
       <div class="select-group">
         <label class="filter-label">Year</label>
-        <input type="number" class="premium-input" placeholder="Year" [(ngModel)]="filters.feeYear" min="2020" max="2099">
+        <select class="premium-input select-native" [(ngModel)]="filters.feeYear" (change)="onFilterChange()">
+          <option [value]="undefined">All Years</option>
+          <option *ngFor="let y of yearOptions" [value]="y">{{ y }}</option>
+        </select>
       </div>
 
       <div class="filter-actions-group">
-        <button class="btn-primary-trigger" (click)="onSearch()">Search</button>
+        <button class="btn-primary-trigger" (click)="onSearch(true)">Search</button>
         <button class="btn-secondary-clear" (click)="clearAllFilters()" title="Reset All Filters">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M23 4v6h-6M1 20v-6h6"></path>
@@ -199,11 +205,27 @@
       </select>
     </div>
     <div class="page-btns" *ngIf="totalPages > 1">
-      <button class="page-btn" (click)="goToPage(0)" [disabled]="filters.page === 0">«</button>
-      <button class="page-btn" (click)="goToPage(filters.page - 1)" [disabled]="filters.page === 0">‹</button>
+      <button class="page-btn" (click)="goToPage(0)" [disabled]="filters.page === 0" aria-label="First page">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>
+        </svg>
+      </button>
+      <button class="page-btn" (click)="goToPage(filters.page - 1)" [disabled]="filters.page === 0" aria-label="Previous page">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
       <button *ngFor="let p of pages" class="page-btn" [class.active]="p === filters.page" (click)="goToPage(p)">{{ p + 1 }}</button>
-      <button class="page-btn" (click)="goToPage(filters.page + 1)" [disabled]="filters.page >= totalPages - 1">›</button>
-      <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="filters.page >= totalPages - 1">»</button>
+      <button class="page-btn" (click)="goToPage(filters.page + 1)" [disabled]="filters.page >= totalPages - 1" aria-label="Next page">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+      <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="filters.page >= totalPages - 1" aria-label="Last page">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>
+        </svg>
+      </button>
     </div>
   </div>
 

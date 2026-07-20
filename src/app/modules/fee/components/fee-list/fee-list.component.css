@@ -211,8 +211,6 @@ input.premium-input.text-input {
   right: 10px;
   background: none;
   border: none;
-  font-size: 18px;
-  font-weight: 700;
   color: var(--text-muted);
   cursor: pointer;
   display: flex;

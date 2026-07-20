@@ -6,6 +6,14 @@ import { FeeService } from '../../services/fee.service';
 import { FeeStructureDto, FeeStructureFilterRequest } from '../../models/fee.model';
 import { DropdownOption } from '../../../student/models/student.model';
 
+const FS_STATE_KEY = 'fs_fee_structure_state_v1';
+
+interface PersistedFsState {
+  academicSessionId: string;
+  classId: string;
+  frequency: string;
+}
+
 @Component({
   selector: 'app-fee-structure-list',
   standalone: true,
@@ -19,6 +27,9 @@ export class FeeStructureListComponent implements OnInit {
   loading = false;
   classes: DropdownOption[] = [];
   sessions: DropdownOption[] = [];
+
+  // ✅ naya — sessionStorage se restore hone tak yahi hold rakhta hai
+  private restoredFilter: Partial<PersistedFsState> = {};
 
   filters: FeeStructureFilterRequest = {
     page: 0,
@@ -39,18 +50,64 @@ export class FeeStructureListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.restoreState();
+
     this.feeService.getParams('classes').subscribe(data => {
       this.classes = data;
+
+      const restoredClassValid = !!this.restoredFilter.classId &&
+        this.classes.some(c => c.id === this.restoredFilter.classId);
+      if (restoredClassValid) {
+        this.filters.classId = this.restoredFilter.classId!;
+      }
+
       this.cdr.markForCheck();
     });
+
     this.feeService.getParams('academic_sessions').subscribe(data => {
       this.sessions = data;
+
       if (this.sessions.length > 0) {
-        this.filters.academicSessionId = this.sessions[0].id;
+        const restoredSessionValid = !!this.restoredFilter.academicSessionId &&
+          this.sessions.some(s => s.id === this.restoredFilter.academicSessionId);
+
+        this.filters.academicSessionId = restoredSessionValid
+          ? this.restoredFilter.academicSessionId!
+          : this.sessions[0].id;
       }
+
+      if (this.restoredFilter.frequency) {
+        this.filters.frequency = this.restoredFilter.frequency;
+      }
+
       this.onSearch();
       this.cdr.markForCheck();
     });
+  }
+
+  // ─── State persistence: session/class/frequency yaad rehta hai
+  // jab tum doosre page pe jaake wapas is list pe aate ho ────────
+  private restoreState(): void {
+    try {
+      const raw = sessionStorage.getItem(FS_STATE_KEY);
+      if (!raw) return;
+      this.restoredFilter = JSON.parse(raw) as PersistedFsState;
+    } catch {
+      // corrupt/inaccessible storage — silently ignore, defaults apply
+    }
+  }
+
+  private persistState(): void {
+    try {
+      const toSave: PersistedFsState = {
+        academicSessionId: this.filters.academicSessionId || '',
+        classId: this.filters.classId || '',
+        frequency: this.filters.frequency || ''
+      };
+      sessionStorage.setItem(FS_STATE_KEY, JSON.stringify(toSave));
+    } catch {
+      // storage unavailable — non-fatal, just won't persist
+    }
   }
 
   onSearch(): void {
@@ -62,7 +119,6 @@ export class FeeStructureListComponent implements OnInit {
       sortDirection: this.filters.sortDirection
     };
     if (this.filters.classId) payload.classId = this.filters.classId;
-    if (this.filters.feeName) payload.feeName = this.filters.feeName;
     if (this.filters.frequency) payload.frequency = this.filters.frequency;
     if (this.filters.academicSessionId) payload.academicSessionId = this.filters.academicSessionId;
 
@@ -71,6 +127,7 @@ export class FeeStructureListComponent implements OnInit {
         const rawData = res.data?.data ?? [];
         this.structures = this.sortStructuresByClass(rawData);
         this.loading = false;
+        this.persistState();
         this.cdr.markForCheck();
       },
       error: () => { this.loading = false; this.cdr.markForCheck(); }

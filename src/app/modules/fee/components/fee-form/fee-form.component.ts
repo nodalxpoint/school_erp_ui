@@ -1,7 +1,9 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil, catchError, map } from 'rxjs/operators';
 import { FeeService } from '../../services/fee.service';
 import { SaveFeeRequest } from '../../models/fee.model';
 import { DropdownOption } from '../../../student/models/student.model';
@@ -14,7 +16,7 @@ import { DropdownOption } from '../../../student/models/student.model';
   styleUrls: ['./fee-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FeeFormComponent implements OnInit {
+export class FeeFormComponent implements OnInit, OnDestroy {
   sessions: DropdownOption[] = [];
   isEditMode = false;
   isLoading = false;
@@ -23,6 +25,15 @@ export class FeeFormComponent implements OnInit {
   dynamicStudentsList: any[] = [];
   showSuggestions = false;
   selectedStudentObj: any | null = null;
+  isSearchingStudents = false;
+
+  // ✅ naya — debounced student search: har keystroke pe API call nahi jaati,
+  // typing rukne ke ~350ms baad hi search fire hoti hai
+  private searchTerms$ = new Subject<string>();
+  private destroy$ = new Subject<void>();
+
+  // ✅ naya — submit try karne ke baad hi red validation errors dikhengi
+  submitted = false;
 
   formData: SaveFeeRequest = {
     studentId: '',
@@ -62,6 +73,41 @@ export class FeeFormComponent implements OnInit {
         this.formData.id = editId;
       }
     }
+
+    // ✅ naya — debounced search pipeline: 350ms tak typing rukne ka wait,
+    // fir wahi text dobara na ho (distinctUntilChanged), fir switchMap se
+    // purani pending request cancel karke nayi bhejo
+    this.searchTerms$.pipe(
+      map(term => term.trim()),
+      debounceTime(1000),
+      distinctUntilChanged(),
+      switchMap(term => {
+        if (term.length < 2) {
+          this.dynamicStudentsList = [];
+          this.showSuggestions = false;
+          this.isSearchingStudents = false;
+          this.cdr.markForCheck();
+          return of(null);
+        }
+        this.isSearchingStudents = true;
+        this.cdr.markForCheck();
+        return this.feeService.getStudentsList(term).pipe(
+          catchError(() => of([]))
+        );
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe(res => {
+      if (res === null) return; // short/empty term already handled above
+      this.dynamicStudentsList = res;
+      this.showSuggestions = true;
+      this.isSearchingStudents = false;
+      this.cdr.markForCheck();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   mapIncomingEditForm(data: any): void {
@@ -84,19 +130,38 @@ export class FeeFormComponent implements OnInit {
   }
 
   onStudentSearchInput(): void {
-    if (this.studentSearchToken.trim().length < 2) {
+    // ✅ naya — user dobara type kare to purani selection clear karo taaki
+    // wo confusion na ho ki abhi kaun sa student actually selected hai
+    if (this.selectedStudentObj) {
+      this.selectedStudentObj = null;
+      this.formData.studentId = '';
+    }
+
+    // ✅ naya — seedha API call nahi, debounce stream me daal do
+    this.searchTerms$.next(this.studentSearchToken);
+  }
+
+  // Manual "Search" button click — turant search karo, debounce ka wait nahi
+  triggerSearchQuery(): void {
+    const term = this.studentSearchToken.trim();
+    if (term.length < 2) {
       this.dynamicStudentsList = [];
       this.showSuggestions = false;
       return;
     }
-    this.triggerSearchQuery();
-  }
-
-  triggerSearchQuery(): void {
-    this.feeService.getStudentsList(this.studentSearchToken).subscribe(res => {
-      this.dynamicStudentsList = res;
-      this.showSuggestions = true;
-      this.cdr.markForCheck();
+    this.isSearchingStudents = true;
+    this.cdr.markForCheck();
+    this.feeService.getStudentsList(term).subscribe({
+      next: (res) => {
+        this.dynamicStudentsList = res;
+        this.showSuggestions = true;
+        this.isSearchingStudents = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.isSearchingStudents = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -109,12 +174,29 @@ export class FeeFormComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  onCancel(): void {
-    this.router.navigate(['../list'], { relativeTo: this.route });
+  // ✅ naya — agar edit mode me student change karna ho to selection clear karke
+  // dobara search box khol sako
+  onChangeStudentClick(): void {
+    this.selectedStudentObj = null;
+    this.formData.studentId = '';
+    this.studentSearchToken = '';
+    this.dynamicStudentsList = [];
+    this.showSuggestions = false;
+    this.cdr.markForCheck();
   }
 
-  // ✅ replaced — alert() ki jagah toast
+  // ✅ fix — relative navigation ('../list') route structure ke hisaab se
+  // kabhi-kabhi resolve nahi hoti thi (back/cancel button "kaam nahi karta"
+  // wali complaint isi wajah se thi). Baaki saare forms ki tarah absolute
+  // path use karo — hamesha reliably kaam karega.
+  onCancel(): void {
+    this.router.navigate(['/fees/list']);
+  }
+
   onSaveSubmit(): void {
+    this.submitted = true;
+    this.cdr.markForCheck();
+
     if (!this.formData.studentId || !this.formData.academicSessionId) {
       this.showToast('error', 'Please select a student and an academic session.');
       return;
@@ -136,6 +218,9 @@ export class FeeFormComponent implements OnInit {
     this.isLoading = true;
     this.cdr.markForCheck();
 
+    // ✅ same saveFee API create aur edit dono ke liye — payload me id
+    // hone/na hone se hi backend decide karta hai, isliye alag se koi
+    // edit-specific API call ki zaroorat nahi hai (jaisa expect kiya gaya)
     this.feeService.saveFee(payload).subscribe({
       next: (res: any) => {
         this.isLoading = false;
@@ -167,7 +252,7 @@ export class FeeFormComponent implements OnInit {
     this.showResultPopup = false;
     this.cdr.markForCheck();
     if (wasSuccess) {
-      this.router.navigate(['../list'], { relativeTo: this.route });
+      this.router.navigate(['/fees/list']);
     }
   }
 }

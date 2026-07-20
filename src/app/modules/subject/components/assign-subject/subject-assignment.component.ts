@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SubjectService, ParamDropdownOption } from '../../services/subject.service';
+import { SubjectAssignmentStateService } from '../../services/subject-assignment-state.service';
 import { SubjectTeacherAssignmentResponseDto, SubjectTeacherAssignmentFilterRequest, AssignSubjectTeacherDto } from '../../models/subject.model';
 
 @Component({
@@ -38,17 +39,70 @@ export class SubjectAssignmentComponent implements OnInit {
     subjectId: '', teacherId: '', classId: '', sectionId: '', academicSessionId: ''
   };
 
-   showResultPopup = false;
+  showResultPopup = false;
   popupType: 'success' | 'error' = 'success';
   popupMessage = '';
   private popupTimer: any = null;
   private readonly POPUP_DURATION = 4000;
 
-  constructor(private subjectService: SubjectService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private subjectService: SubjectService,
+    private listState: SubjectAssignmentStateService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    this.loadAssignments();
+    this.restoreState();
     this.loadDropdownContexts();
+
+    // If a class filter was restored, its sections need to be loaded too
+    if (this.filter.classId) {
+      this.loadSectionsFor(this.filter.classId, false);
+    }
+
+    this.loadAssignments();
+  }
+
+  // ── State persistence ────────────────────────────────────────
+
+  private restoreState(): void {
+    const saved = this.listState.get();
+    if (!saved) return;
+
+    this.filter.classId = saved.classId;
+    this.filter.sectionId = saved.sectionId;
+    this.filter.teacherId = saved.teacherId;
+    this.filter.subjectId = saved.subjectId;
+    this.filter.academicSessionId = saved.academicSessionId;
+    this.filter.page = saved.page;
+  }
+
+  private persistState(): void {
+    this.listState.save({
+      classId: this.filter.classId || '',
+      sectionId: this.filter.sectionId || '',
+      teacherId: this.filter.teacherId || '',
+      subjectId: this.filter.subjectId || '',
+      academicSessionId: this.filter.academicSessionId || '',
+      page: this.filter.page,
+    });
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.filter.classId || this.filter.sectionId ||
+              this.filter.teacherId || this.filter.subjectId || this.filter.academicSessionId);
+  }
+
+  clearFilters(): void {
+    this.filter.classId = '';
+    this.filter.sectionId = '';
+    this.filter.teacherId = '';
+    this.filter.subjectId = '';
+    this.filter.academicSessionId = '';
+    this.sections = [];
+    this.filter.page = 0;
+    this.listState.clear();
+    this.loadAssignments();
   }
 
   loadDropdownContexts(): void {
@@ -58,14 +112,21 @@ export class SubjectAssignmentComponent implements OnInit {
     this.subjectService.getDropdownOptions('academic_sessions').subscribe(data => { this.sessions = data; this.cdr.markForCheck(); });
   }
 
+  private loadSectionsFor(classId: string, resetSelection: boolean): void {
+    if (resetSelection) {
+      this.sections = [];
+    }
+    this.subjectService.getSectionOptions(classId).subscribe(data => {
+      this.sections = data;
+      this.cdr.markForCheck();
+    });
+  }
+
   onFilterClassChange(classId: string): void {
     this.filter.sectionId = '';
     this.sections = [];
     if (classId) {
-      this.subjectService.getSectionOptions(classId).subscribe(data => {
-        this.sections = data;
-        this.cdr.markForCheck();
-      });
+      this.loadSectionsFor(classId, true);
     }
     this.onApplyFilters();
   }
@@ -74,10 +135,7 @@ export class SubjectAssignmentComponent implements OnInit {
     this.formModel.sectionId = '';
     this.sections = [];
     if (classId) {
-      this.subjectService.getSectionOptions(classId).subscribe(data => {
-        this.sections = data;
-        this.cdr.markForCheck();
-      });
+      this.loadSectionsFor(classId, true);
     }
   }
 
@@ -108,11 +166,13 @@ export class SubjectAssignmentComponent implements OnInit {
 
   onApplyFilters(): void {
     this.filter.page = 0;
+    this.persistState();
     this.loadAssignments();
   }
 
   onPageChange(p: number): void {
     this.filter.page = p;
+    this.persistState();
     this.loadAssignments();
   }
 
@@ -135,10 +195,7 @@ export class SubjectAssignmentComponent implements OnInit {
 
     this.sections = [];
     if (assignment.classId) {
-      this.subjectService.getSectionOptions(assignment.classId).subscribe(data => {
-        this.sections = data;
-        this.cdr.markForCheck();
-      });
+      this.loadSectionsFor(assignment.classId, false);
     }
 
     this.isFormOpen = true;
@@ -146,44 +203,44 @@ export class SubjectAssignmentComponent implements OnInit {
   }
 
   onSubmitAssignment(): void {
-  this.isSaving = true;
-  this.cdr.markForCheck();
+    this.isSaving = true;
+    this.cdr.markForCheck();
 
-  this.subjectService.assignSubjectTeacher(this.formModel).subscribe({
-    next: (res: any) => {
-      this.isSaving = false;
-      this.isFormOpen = false;
+    this.subjectService.assignSubjectTeacher(this.formModel).subscribe({
+      next: (res: any) => {
+        this.isSaving = false;
+        this.isFormOpen = false;
 
-      this.popupType = 'success';
-      this.popupMessage = res?.message || 'Subject teacher assigned successfully!';
-      this.showResultPopup = true;
-      this.cdr.markForCheck();
-      this.startPopupTimer();
+        this.popupType = 'success';
+        this.popupMessage = res?.message || 'Subject teacher assigned successfully!';
+        this.showResultPopup = true;
+        this.cdr.markForCheck();
+        this.startPopupTimer();
 
-      this.loadAssignments();
-    },
-    error: (err: any) => {
-      this.isSaving = false;
+        this.loadAssignments();
+      },
+      error: (err: any) => {
+        this.isSaving = false;
 
-      this.popupType = 'error';
-      this.popupMessage = err?.error?.message || 'Failed to assign subject teacher. Please try again.';
-      this.showResultPopup = true;
-      this.cdr.markForCheck();
-      this.startPopupTimer();
-    }
-  });
-}
+        this.popupType = 'error';
+        this.popupMessage = err?.error?.message || 'Failed to assign subject teacher. Please try again.';
+        this.showResultPopup = true;
+        this.cdr.markForCheck();
+        this.startPopupTimer();
+      }
+    });
+  }
 
-private startPopupTimer(): void {
-  if (this.popupTimer) clearTimeout(this.popupTimer);
-  this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
-}
+  private startPopupTimer(): void {
+    if (this.popupTimer) clearTimeout(this.popupTimer);
+    this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+  }
 
-closePopup(): void {
-  if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
-  this.showResultPopup = false;
-  this.cdr.markForCheck();
-}
+  closePopup(): void {
+    if (this.popupTimer) { clearTimeout(this.popupTimer); this.popupTimer = null; }
+    this.showResultPopup = false;
+    this.cdr.markForCheck();
+  }
 
   get pages(): number[] { return Array.from({ length: this.totalPages }, (_, i) => i); }
   get currentPage(): number { return this.filter.page; }

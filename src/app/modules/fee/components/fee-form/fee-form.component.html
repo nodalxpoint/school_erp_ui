@@ -24,31 +24,39 @@
 
       <div class="modal-form-grid">
 
-        <!-- Student Search -->
-        <div class="form-field student-search-container" *ngIf="!isEditMode">
+        <!-- Student Search — ✅ ab edit mode me bhi editable hai, create jaisa hi -->
+        <div class="form-field student-search-container">
           <label>Student <span class="required-star">*</span></label>
-          <div class="search-input-wrapper">
-            <input type="text"
-                   class="modal-input"
-                   placeholder="Type student name or admission number..."
-                   [(ngModel)]="studentSearchToken"
-                   (input)="onStudentSearchInput()">
-            <button class="btn-input-search-action" (click)="triggerSearchQuery()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-              <span>Search</span>
-            </button>
-          </div>
 
-          <div class="student-suggestions-box" *ngIf="showSuggestions && dynamicStudentsList.length > 0">
-            <div class="suggestion-row-item"
-                 *ngFor="let student of dynamicStudentsList"
-                 (click)="selectActiveStudent(student)">
-              <span class="st-name">{{ student.firstName }} {{ student.lastName }}</span>
-              <span class="st-meta">Class {{ student.className }} ({{ student.sectionName }}) · {{ student.admissionNo }}</span>
+          <ng-container *ngIf="!selectedStudentObj">
+            <div class="search-input-wrapper">
+              <input type="text"
+                     class="modal-input"
+                     [class.invalid]="submitted && !formData.studentId"
+                     placeholder="Type student name or admission number..."
+                     [(ngModel)]="studentSearchToken"
+                     (input)="onStudentSearchInput()">
+              <button class="btn-input-search-action" (click)="triggerSearchQuery()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <span>Search</span>
+              </button>
             </div>
-          </div>
+
+            <span class="search-hint-text" *ngIf="isSearchingStudents">Searching students…</span>
+
+            <div class="student-suggestions-box" *ngIf="showSuggestions && dynamicStudentsList.length > 0">
+              <div class="suggestion-row-item"
+                   *ngFor="let student of dynamicStudentsList"
+                   (click)="selectActiveStudent(student)">
+                <span class="st-name">{{ student.firstName }} {{ student.lastName }}</span>
+                <span class="st-meta">Class {{ student.className }} ({{ student.sectionName }}) · {{ student.admissionNo }}</span>
+              </div>
+            </div>
+
+            <span class="field-error" *ngIf="submitted && !formData.studentId">Please select a student.</span>
+          </ng-container>
 
           <div class="selected-profile-confirmation-badge" *ngIf="selectedStudentObj">
             <span class="avatar-node">{{ selectedStudentObj.firstName.charAt(0) }}</span>
@@ -56,35 +64,25 @@
               <strong>{{ selectedStudentObj.firstName }} {{ selectedStudentObj.lastName }}</strong>
               <span>Class {{ selectedStudentObj.className || '—' }}<ng-container *ngIf="selectedStudentObj.sectionName"> ({{ selectedStudentObj.sectionName }})</ng-container></span>
             </div>
+            <button type="button" class="btn-change-student" (click)="onChangeStudentClick()">Change</button>
           </div>
         </div>
 
-        <!-- Edit mode: student display (read-only) -->
-        <div class="form-field" *ngIf="isEditMode && selectedStudentObj">
-          <label>Student</label>
-          <div class="selected-profile-confirmation-badge">
-            <span class="avatar-node">{{ selectedStudentObj.firstName.charAt(0) }}</span>
-            <div class="profile-details">
-              <strong>{{ selectedStudentObj.firstName }} {{ selectedStudentObj.lastName }}</strong>
-              <span>Class {{ selectedStudentObj.className || '—' }}<ng-container *ngIf="selectedStudentObj.sectionName"> ({{ selectedStudentObj.sectionName }})</ng-container></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Academic Session -->
+        <!-- Academic Session — ✅ ab edit mode me bhi editable -->
         <div class="form-field">
           <label>Academic Session <span class="required-star">*</span></label>
-          <select class="modal-input" [(ngModel)]="formData.academicSessionId" [disabled]="isEditMode">
+          <select class="modal-input" [class.invalid]="submitted && !formData.academicSessionId" [(ngModel)]="formData.academicSessionId">
             <option value="">Select Session</option>
             <option *ngFor="let s of sessions" [value]="s.id">{{ s.label }}</option>
           </select>
+          <span class="field-error" *ngIf="submitted && !formData.academicSessionId">This field is required.</span>
         </div>
 
-        <!-- Month & Year -->
+        <!-- Month & Year — ✅ ab edit mode me bhi editable -->
         <div class="form-field-row-split">
           <div class="form-field">
             <label>Fee Month <span class="required-star">*</span></label>
-            <select class="modal-input" [(ngModel)]="formData.feeMonth" [disabled]="isEditMode">
+            <select class="modal-input" [class.invalid]="submitted && !formData.feeMonth" [(ngModel)]="formData.feeMonth">
               <option [value]="1">January</option>
               <option [value]="2">February</option>
               <option [value]="3">March</option>
@@ -98,10 +96,12 @@
               <option [value]="11">November</option>
               <option [value]="12">December</option>
             </select>
+            <span class="field-error" *ngIf="submitted && !formData.feeMonth">This field is required.</span>
           </div>
           <div class="form-field">
             <label>Fee Year <span class="required-star">*</span></label>
-            <input type="number" class="modal-input" [(ngModel)]="formData.feeYear" [readonly]="isEditMode" min="2020" max="2099">
+            <input type="number" class="modal-input" [class.invalid]="submitted && !formData.feeYear" [(ngModel)]="formData.feeYear" min="2020" max="2099">
+            <span class="field-error" *ngIf="submitted && !formData.feeYear">This field is required.</span>
           </div>
         </div>
 

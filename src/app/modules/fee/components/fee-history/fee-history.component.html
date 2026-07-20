@@ -1,5 +1,6 @@
 <div class="page-container">
   <div class="page-header">
+    <div class="page-eyebrow">Fee Management · History</div>
     <h2 class="page-title">Student Fee History</h2>
     <p class="page-subtitle">Search fee records by student and academic session</p>
   </div>
@@ -16,6 +17,7 @@
             type="text"
             [formControl]="studentSearchControl"
             placeholder="Search by student name…"
+            (focus)="studentResults().length > 0 && showStudentDropdown.set(true)"
           />
           <button
             *ngIf="selectedStudent()"
@@ -23,6 +25,8 @@
             class="clear-btn"
             (click)="clearStudent()"
           >×</button>
+
+          <span class="search-hint-text" *ngIf="searchingStudents()">Searching…</span>
 
           <ul *ngIf="showStudentDropdown()" class="autocomplete-list">
             <li *ngFor="let s of studentResults()" (click)="selectStudent(s)">
@@ -152,49 +156,51 @@
       </button>
     </div>
 
-    <!-- ── Table ──────────────────────────────────────── -->
+    <!-- ── Table (horizontal scroll on small screens) ─── -->
     <div class="table-wrapper">
-      <table class="premium-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Month</th>
-            <th>Total Amount</th>
-            <th>Paid Amount</th>
-            <th>Balance</th>
-            <th>Status</th>
-            <th>Paid At</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let m of months(); let i = index" [class.odd-row]="i % 2 === 1">
-            <td class="row-num">{{ i + 1 }}</td>
-            <td class="month-name">{{ m.monthName }}</td>
-            <td class="amount">₹{{ m.totalAmount | number:'1.2-2' }}</td>
-            <td class="amount">₹{{ m.paidAmount | number:'1.2-2' }}</td>
-            <td class="amount" [class.balance-due]="(m.totalAmount - m.paidAmount) > 0">
-              ₹{{ (m.totalAmount - m.paidAmount) | number:'1.2-2' }}
-            </td>
-            <td>
-              <span
-                class="badge"
-                [class.badge--paid]="m.status === 'PAID'"
-                [class.badge--pending]="m.status === 'PENDING'"
-              >
-                {{ m.status }}
-              </span>
-            </td>
-            <td>{{ m.paidAt ? (m.paidAt | date:'dd MMM yyyy') : '—' }}</td>
-          </tr>
+      <div class="table-scroll">
+        <table class="premium-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Month</th>
+              <th>Total Amount</th>
+              <th>Paid Amount</th>
+              <th>Balance</th>
+              <th>Status</th>
+              <th>Paid At</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of months(); let i = index" [class.odd-row]="i % 2 === 1">
+              <td class="row-num">{{ i + 1 }}</td>
+              <td class="month-name">{{ m.monthName }}</td>
+              <td class="amount">₹{{ m.totalAmount | number:'1.2-2' }}</td>
+              <td class="amount">₹{{ m.paidAmount | number:'1.2-2' }}</td>
+              <td class="amount" [class.balance-due]="(m.totalAmount - m.paidAmount) > 0">
+                ₹{{ (m.totalAmount - m.paidAmount) | number:'1.2-2' }}
+              </td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge--paid]="m.status === 'PAID'"
+                  [class.badge--pending]="m.status === 'PENDING'"
+                >
+                  {{ m.status }}
+                </span>
+              </td>
+              <td>{{ m.paidAt ? (m.paidAt | date:'dd MMM yyyy') : '—' }}</td>
+            </tr>
 
-          <tr *ngIf="months().length === 0">
-            <td colspan="7" class="empty-state">
-              <div class="empty-icon">📭</div>
-              No fee records found for this student and session.
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            <tr *ngIf="months().length === 0">
+              <td colspan="7" class="empty-state">
+                <div class="empty-icon">📭</div>
+                No fee records found for this student and session.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </ng-container>

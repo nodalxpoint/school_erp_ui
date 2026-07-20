@@ -29,68 +29,95 @@
       </div>
     </div>
 
-    <form (ngSubmit)="onSubmit()" #timeForm="ngForm" class="form-grid">
-      
+    <form (ngSubmit)="onSubmit(timeForm)" #timeForm="ngForm" class="form-grid">
+
       <div class="form-group">
         <label class="form-label">Academic Session *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.academicSessionId" name="academicSession" required>
+        <select class="form-control select-pilled"
+          [class.invalid]="academicSession.invalid && academicSession.touched"
+          [(ngModel)]="formModel.academicSessionId" name="academicSession" #academicSession="ngModel" required>
           <option value="" disabled>Select Session</option>
           <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
         </select>
+        <span class="field-error" *ngIf="academicSession.invalid && academicSession.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Class Standard *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.classId" name="class" (change)="onClassChange()" required>
+        <select class="form-control select-pilled"
+          [class.invalid]="classCtrl.invalid && classCtrl.touched"
+          [(ngModel)]="formModel.classId" name="class" #classCtrl="ngModel" (change)="onClassChange()" required>
           <option value="">Select Class</option>
           <option *ngFor="let c of classes" [value]="c.id">{{c.label}}</option>
         </select>
+        <span class="field-error" *ngIf="classCtrl.invalid && classCtrl.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Section *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.sectionId" name="section" required>
+        <select class="form-control select-pilled"
+          [class.invalid]="sectionCtrl.invalid && sectionCtrl.touched"
+          [(ngModel)]="formModel.sectionId" name="section" #sectionCtrl="ngModel" required>
           <option value="">Select Section</option>
           <option *ngFor="let s of sections" [value]="s.id">{{s.label}}</option>
         </select>
+        <span class="field-error" *ngIf="sectionCtrl.invalid && sectionCtrl.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Day Of Week *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.dayOfWeek" name="dayOfWeek" required>
+        <select class="form-control select-pilled"
+          [class.invalid]="dayOfWeek.invalid && dayOfWeek.touched"
+          [(ngModel)]="formModel.dayOfWeek" name="dayOfWeek" #dayOfWeek="ngModel" required>
           <option *ngFor="let d of daysList" [value]="d">{{d}}</option>
         </select>
+        <span class="field-error" *ngIf="dayOfWeek.invalid && dayOfWeek.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Period Sequence Number *</label>
-        <input type="number" min="1" max="12" class="form-control" [(ngModel)]="formModel.period" name="period" required />
+        <input type="number" min="1" max="12" class="form-control"
+          [class.invalid]="period.invalid && period.touched"
+          [(ngModel)]="formModel.period" name="period" #period="ngModel" required />
+        <span class="field-error" *ngIf="period.invalid && period.touched">Enter a valid period between 1 and 12.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Subject Allocation *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.subjectId" name="subject" required>
+        <select class="form-control select-pilled"
+          [class.invalid]="subjectCtrl.invalid && subjectCtrl.touched"
+          [(ngModel)]="formModel.subjectId" name="subject" #subjectCtrl="ngModel" required>
           <option value="">Select Subject</option>
           <option *ngFor="let sb of subjects" [value]="sb.id">{{sb.label}}</option>
         </select>
+        <span class="field-error" *ngIf="subjectCtrl.invalid && subjectCtrl.touched">This field is required.</span>
       </div>
 
       <div class="form-group full-width">
         <label class="form-label">Assigned Teacher *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.teacherId" name="teacher" required>
+        <select class="form-control select-pilled"
+          [class.invalid]="teacherCtrl.invalid && teacherCtrl.touched"
+          [(ngModel)]="formModel.teacherId" name="teacher" #teacherCtrl="ngModel" required>
           <option value="">Select Teacher</option>
           <option *ngFor="let t of teachers" [value]="t.id">{{t.label}}</option>
         </select>
+        <span class="field-error" *ngIf="teacherCtrl.invalid && teacherCtrl.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Start Time *</label>
-        <input type="time" class="form-control" [(ngModel)]="formModel.startTime" name="startTime" required />
+        <input type="time" class="form-control"
+          [class.invalid]="startTime.invalid && startTime.touched"
+          [(ngModel)]="formModel.startTime" name="startTime" #startTime="ngModel" required />
+        <span class="field-error" *ngIf="startTime.invalid && startTime.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">End Time *</label>
-        <input type="time" class="form-control" [(ngModel)]="formModel.endTime" name="endTime" required />
+        <input type="time" class="form-control"
+          [class.invalid]="endTime.invalid && endTime.touched"
+          [(ngModel)]="formModel.endTime" name="endTime" #endTime="ngModel" required />
+        <span class="field-error" *ngIf="endTime.invalid && endTime.touched">This field is required.</span>
       </div>
 
       <div class="form-group full-width">
@@ -100,7 +127,7 @@
 
       <div class="form-actions full-width">
         <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
-        <button type="submit" class="btn-submit" [disabled]="!timeForm.form.valid || isSaving">
+        <button type="submit" class="btn-submit" [disabled]="isSaving">
           {{ isSaving ? 'Saving slot params...' : (isEditMode ? 'Update Slot Configuration' : 'Confirm Allocation') }}
         </button>
       </div>

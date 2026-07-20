@@ -8,6 +8,9 @@
   --teal:           #2c7a7b;
   --teal-light:     #e6fffa;
   --teal-border:    #81e6d9;
+  --danger:         #e53e3e;
+  --danger-light:   #fff5f5;
+  --danger-border:  #fed7d7;
   --border:         #e2e8f0;
   --border-dark:    #cbd5e0;
   --bg-white:       #ffffff;
@@ -44,6 +47,7 @@
   align-items: center;
   gap: 0.4rem;
   font-size: 0.82rem;
+  flex-wrap: wrap;
 }
 
 .breadcrumb-link {
@@ -68,6 +72,7 @@
   font-weight: 600;
   color: var(--text-primary);
   cursor: pointer;
+  transition: all 0.15s ease;
 
   &:hover {
     background: var(--bg-row-odd);
@@ -83,22 +88,27 @@
     font-weight: 800;
     color: var(--text-primary);
     letter-spacing: -0.02em;
+    @media (max-width: 480px) { font-size: 1.25rem; }
   }
   p {
     margin: 0;
     font-size: 0.85rem;
     color: var(--text-muted);
+    line-height: 1.4;
   }
 }
 
 // ─── Form sections ────────────────────────────────────────────────────────────
 .form-section {
-  background: #fff;
+  background: var(--bg-white);
   border: 1px solid var(--border);
   border-left: 4px solid var(--primary);
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+  transition: box-shadow 0.2s ease;
+
+  &:hover { box-shadow: 0 6px 20px rgba(43, 108, 176, 0.08); }
 }
 
 .section-header {
@@ -108,6 +118,7 @@
   padding: 1.1rem 1.5rem;
   background: var(--bg-row-odd);
   border-bottom: 1px solid var(--border);
+  @media (max-width: 480px) { padding: 1rem; }
 
   h2 { margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
   p  { margin: 0; font-size: 0.78rem; color: var(--text-muted); }
@@ -125,6 +136,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 3px 6px rgba(43, 108, 176, 0.15);
 }
 
 // ─── Form grid & controls ─────────────────────────────────────────────────────
@@ -163,9 +175,32 @@
   font-size: 13.5px;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.15s;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
 
-  &:focus { border-color: var(--primary); }
+  &::placeholder { color: var(--text-hint); }
+  &:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.12); }
+
+  // ✅ naya — validation error state (bina fill kiye submit karne par ye highlight hoga)
+  &.invalid {
+    border-color: var(--danger);
+    background: var(--danger-light);
+    &:focus { box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12); }
+  }
+
+  &:disabled { background: var(--bg-row-odd); color: var(--text-muted); cursor: not-allowed; }
+}
+
+// ✅ naya — field ke neeche red error text
+.field-error {
+  font-size: 11.5px;
+  color: var(--danger);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+  &::before { content: '⚠'; font-size: 11px; }
 }
 
 select.form-control.select-pilled {
@@ -177,14 +212,40 @@ select.form-control.select-pilled {
   padding-right: 2.5rem;
 }
 
+.form-group-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+
+  .form-control {
+    background-color: var(--bg-row-odd) !important;
+    border-color: var(--border) !important;
+    color: var(--text-muted) !important;
+    pointer-events: none; // Safety layer constraint bypass
+
+    // Explicit removal of cross arrow vectors inside native select pickers
+    &.select-pilled {
+      background-image: none !important;
+      padding-right: 14px !important;
+    }
+  }
+}
+
 // ─── Form actions ─────────────────────────────────────────────────────────────
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 12px;
   border-top: 1px solid var(--border);
   padding-top: 1.25rem;
   margin-top: 0.5rem;
+  flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
+  }
 }
 
 .btn-cancel {
@@ -196,12 +257,15 @@ select.form-control.select-pilled {
   font-size: 13.5px;
   cursor: pointer;
   color: var(--text-primary);
+  font-family: inherit;
+  transition: all 0.15s ease;
 
   &:hover {
     background: var(--bg-row-odd);
     border-color: var(--primary);
     color: var(--primary);
   }
+  @media (max-width: 480px) { text-align: center; width: 100%; }
 }
 
 .btn-submit {
@@ -213,28 +277,13 @@ select.form-control.select-pilled {
   font-weight: 700;
   font-size: 13.5px;
   cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 6px -1px rgba(43, 108, 176, 0.12);
 
-  &:hover { background: var(--primary-hover); }
-}
-
-// Append this block safely at the bottom of timetable-form.component.scss
-
-.form-group-disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-  
-  .form-control {
-    background-color: var(--bg-row-odd) !important;
-    border-color: var(--border) !important;
-    color: var(--text-muted) !important;
-    pointer-events: none; // Safety layer constraint bypass
-    
-    // Explicit removal of cross arrow vectors inside native select pickers
-    &.select-pilled {
-      background-image: none !important;
-      padding-right: 14px !important;
-    }
-  }
+  &:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(43, 108, 176, 0.2); }
+  &:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+  @media (max-width: 480px) { width: 100%; }
 }
 
 // ─── Result Toast (top-right, premium) ───
@@ -249,7 +298,7 @@ select.form-control.select-pilled {
   overflow: hidden;
   animation: tfToastSlideIn 0.25s ease-out;
 
-  &.tf-is-error { border-left-color: #e53e3e; }
+  &.tf-is-error { border-left-color: var(--danger); }
 }
 
 .tf-toast-icon {
@@ -257,7 +306,7 @@ select.form-control.select-pilled {
   display: flex; align-items: center; justify-content: center; font-size: 15px;
   background: #f0fdf4; color: #16a34a; margin-top: 1px;
 
-  .tf-is-error & { background: #fff5f5; color: #e53e3e; }
+  .tf-is-error & { background: var(--danger-light); color: var(--danger); }
 }
 
 .tf-toast-content { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -279,7 +328,7 @@ select.form-control.select-pilled {
   height: 100%; width: 100%; background: #16a34a; transform-origin: left;
   animation: tfToastTimerShrink 4s linear forwards;
 
-  &.tf-timer-error { background: #e53e3e; }
+  &.tf-timer-error { background: var(--danger); }
 }
 
 @keyframes tfToastSlideIn {
@@ -289,4 +338,8 @@ select.form-control.select-pilled {
 @keyframes tfToastTimerShrink {
   from { transform: scaleX(1); }
   to { transform: scaleX(0); }
+}
+
+@media (max-width: 480px) {
+  .tf-toast-notification { top: 12px; right: 12px; left: 12px; width: auto; }
 }

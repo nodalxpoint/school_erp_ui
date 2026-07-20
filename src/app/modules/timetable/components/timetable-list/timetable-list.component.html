@@ -4,7 +4,7 @@
     <div class="tl-header-top">
       <div class="tl-title-block">
         <div class="tl-eyebrow">School ERP</div>
-        <h1 class="tl-title">Class Timetable Matrix</h1>
+        <h1 class="tl-title">Class Timetable</h1>
       </div>
 
       <div class="tl-live-clock-badge-wrap">
@@ -21,17 +21,17 @@
       </div>
 
       <div class="tl-view-toggle">
-        <button class="tl-toggle-btn" [class.active]="viewMode === 'weekly'" (click)="setWeeklyView()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
-          Weekly View
-        </button>
         <button class="tl-toggle-btn" [class.active]="viewMode === 'daily'" (click)="setDailyView()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M12 8v4l3 3"/>
           </svg>
           Daily View
+        </button>
+        <button class="tl-toggle-btn" [class.active]="viewMode === 'weekly'" (click)="setWeeklyView()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Weekly View
         </button>
       </div>
     </div>
@@ -53,10 +53,27 @@
 
       <div class="tl-filter-group">
         <label class="tl-label">Section</label>
-        <select class="tl-select" [(ngModel)]="filter.sectionId" (change)="loadTimetables()" [disabled]="!filter.classId">
+        <select class="tl-select" [(ngModel)]="filter.sectionId" (change)="onSectionChange()" [disabled]="!filter.classId">
           <option value="">Select Section</option>
           <option *ngFor="let s of sections" [value]="s.id">{{ s.label }}</option>
         </select>
+      </div>
+
+      <div class="tl-filter-group tl-filter-group--search">
+        <label class="tl-label">Search Slot</label>
+        <div class="tl-search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="text"
+            class="tl-search-input"
+            placeholder="Subject, teacher or room..."
+            [value]="searchTerm"
+            (input)="onSearchInput($any($event.target).value)"
+          />
+          <button class="tl-search-clear" *ngIf="searchTerm" (click)="clearSearch()" aria-label="Clear search">✕</button>
+        </div>
       </div>
 
       <button class="tl-btn-add" (click)="onAddTimetable()">
@@ -70,28 +87,103 @@
 
   <div class="tl-loading-card" *ngIf="isLoading">
     <div class="tl-spinner"></div>
-    <span>Syncing timetable architecture grid records...</span>
+    <span>Syncing timetable records...</span>
   </div>
 
-  <div class="tl-matrix-wrapper" *ngIf="!isLoading && timetables.length > 0">
+  <div class="tl-error-card" *ngIf="!isLoading && loadError">
+    <span>Couldn't load the timetable right now.</span>
+    <button class="tl-btn-retry" (click)="loadTimetables()">Retry</button>
+  </div>
+
+  <!-- ══════════════ DAILY CARD VIEW ══════════════ -->
+  <ng-container *ngIf="!isLoading && !loadError && viewMode === 'daily'">
+
+    <div class="tl-day-tabs">
+      <button
+        *ngFor="let day of daysList; trackBy: trackByDay"
+        class="tl-day-tab"
+        [class.active]="activeDay === day"
+        (click)="selectDay(day)"
+      >
+        {{ day.charAt(0) + day.slice(1).toLowerCase().slice(0,2) }}
+      </button>
+    </div>
+
+    <div class="tl-day-summary">
+      <span class="tl-summary-text">
+        {{ activeDay.charAt(0) + activeDay.slice(1).toLowerCase() }} LECTURES
+        <span *ngIf="isViewingToday" class="tl-today-chip">TODAY</span>
+        · {{ visibleSlots.length }} ACTIVE {{ visibleSlots.length === 1 ? 'SEGMENT' : 'SEGMENTS' }}
+      </span>
+    </div>
+
+    <div class="tl-card-list" *ngIf="visibleSlots.length > 0; else emptyDayState">
+      <div
+        class="tl-slot-row"
+        *ngFor="let slot of visibleSlots; trackBy: trackBySlotId"
+        [ngClass]="getSubjectClass(slot.subjectName)"
+        (click)="onEditTimetable(slot)"
+      >
+        <div class="tl-slot-row-main">
+          <div class="tl-slot-row-title">
+            <span class="tl-sub-emoji-badge">{{ getSubjectIcon(slot.subjectName) }}</span>
+            <span class="sub-name">{{ slot.subjectName }}</span>
+          </div>
+          <div class="tl-slot-row-meta">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="ico-meta">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span class="t-name">{{ slot.teacherName }}</span>
+            <span class="dot-sep" *ngIf="slot.roomNo">·</span>
+            <span class="room-pill" *ngIf="slot.roomNo">Room {{ slot.roomNo }}</span>
+          </div>
+        </div>
+
+        <div class="tl-slot-row-time">
+          {{ slot.startTime }} – {{ slot.endTime }}
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyDayState>
+      <div class="tl-empty-state">
+        <div class="tl-empty-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <h3 class="tl-empty-title">
+          {{ searchTerm ? 'No slots match your search' : 'No lectures scheduled' }}
+        </h3>
+        <p class="tl-empty-sub">
+          {{ searchTerm ? 'Try a different subject, teacher or room.' : 'This day has no active timetable entries for this class.' }}
+        </p>
+        <button class="tl-btn-add" style="margin: 12px auto 0;" (click)="onAddTimetable()" *ngIf="!searchTerm">+ Add First Slot</button>
+      </div>
+    </ng-template>
+
+  </ng-container>
+
+  <!-- ══════════════ WEEKLY MATRIX VIEW ══════════════ -->
+  <div class="tl-matrix-wrapper" *ngIf="!isLoading && !loadError && viewMode === 'weekly' && timetables.length > 0">
     <table class="tl-table">
       <thead>
         <tr class="tl-th-row">
           <th class="tl-axis-header">Days \ Periods</th>
-          <th *ngFor="let p of periodsList" class="tl-period-header">
+          <th *ngFor="let p of periodsList; trackBy: trackByPeriod" class="tl-period-header">
             <span class="p-title">Period {{ p }}</span>
           </th>
         </tr>
       </thead>
-      
+
       <tbody>
-        <tr *ngFor="let day of filteredDays" class="tl-data-row">
+        <tr *ngFor="let day of daysList; trackBy: trackByDay" class="tl-data-row">
           <td class="tl-day-column">
             <span class="day-lbl">{{ day }}</span>
           </td>
-          
-          <td *ngFor="let periodNum of periodsList" class="tl-matrix-cell">
-            
+
+          <td *ngFor="let periodNum of periodsList; trackBy: trackByPeriod" class="tl-matrix-cell">
+
             <ng-container *ngIf="getSlotData(day, periodNum) as slot; else emptyCell">
               <div class="tl-slot-card" [ngClass]="getSubjectClass(slot.subjectName)" (click)="onEditTimetable(slot)">
                 <div class="tl-slot-subject">
@@ -129,7 +221,7 @@
     </table>
   </div>
 
-  <div class="tl-empty-state" *ngIf="!isLoading && timetables.length === 0">
+  <div class="tl-empty-state" *ngIf="!isLoading && !loadError && viewMode === 'weekly' && timetables.length === 0">
     <div class="tl-empty-icon">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>

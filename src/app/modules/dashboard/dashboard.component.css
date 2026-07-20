@@ -817,4 +817,42 @@
   100% {
     transform: rotate(360deg);
   }
+}
+.trend-icon-svg {
+  width: 10px;
+  height: 10px;
+  margin-right: 3px;
+  vertical-align: -1px;
+  display: inline-block;
+}
+
+.db-switch-child-row {
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+.db-switch-child-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #fff;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.db-switch-child-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.28);
+}
+
+.db-empty-state-text {
+  text-align: center;
+  color: #a0aec0;
+  width: 100%;
+  padding: 20px 0;
 }/*# sourceMappingURL=dashboard.component.css.map */

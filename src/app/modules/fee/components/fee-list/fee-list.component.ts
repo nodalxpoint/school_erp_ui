@@ -1,8 +1,11 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router'; // ✅ Added ActivatedRoute
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subject, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { FeeService } from '../../services/fee.service';
+import { FeeListStateService } from '../../services/fee-list-state.service';
 import { StudentFeeResponseDto, FeeFilterRequest } from '../../models/fee.model';
 import { DropdownOption } from '../../../student/models/student.model';
 
@@ -14,7 +17,7 @@ import { DropdownOption } from '../../../student/models/student.model';
   styleUrls: ['./fee-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FeeListComponent implements OnInit {
+export class FeeListComponent implements OnInit, OnDestroy {
   fees: StudentFeeResponseDto[] = [];
   loading = false;
 
@@ -27,6 +30,7 @@ export class FeeListComponent implements OnInit {
   sessions: DropdownOption[] = [];
   classes: DropdownOption[] = [];
   sections: DropdownOption[] = [];
+  yearOptions: number[] = [];
 
   studentSearchQuery = '';
   selectedStudent: any = null;
@@ -34,21 +38,106 @@ export class FeeListComponent implements OnInit {
   showSuggestions = false;
   totalPages = 0;
 
+  // Debounced student-name autocomplete + cleanup
+  private studentSearch$ = new Subject<string>();
+  private destroy$ = new Subject<void>();
+
   constructor(
-    private feeService: FeeService, 
-    private router: Router, 
-    private route: ActivatedRoute, // ✅ Injected ActivatedRoute
+    private feeService: FeeService,
+    private listState: FeeListStateService,
+    private router: Router,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    this.buildYearOptions();
+    this.restoreState();
     this.loadDropdowns();
+
+    // If a class filter was restored, its sections need to be loaded too
+    if (this.filters.classId) {
+      this.loadSectionsFor(this.filters.classId);
+    }
+
+    // Debounce the student autocomplete: waits 350ms after typing stops,
+    // skips repeat calls for the same term, and switchMap cancels any
+    // in-flight request if the user keeps typing.
+    this.studentSearch$
+      .pipe(
+        debounceTime(1000),
+        distinctUntilChanged(),
+        switchMap(term => {
+          if (term.length < 2) {
+            this.dynamicStudentsList = [];
+            this.showSuggestions = false;
+            this.cdr.markForCheck();
+            return of(null);
+          }
+          return this.feeService.getStudentsList(term);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(res => {
+        if (res) {
+          this.dynamicStudentsList = res;
+          this.showSuggestions = true;
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private buildYearOptions(): void {
+    const current = new Date().getFullYear();
+    this.yearOptions = [];
+    for (let y = current + 1; y >= current - 5; y--) {
+      this.yearOptions.push(y);
+    }
+  }
+
+  // ── State persistence ────────────────────────────────────────
+
+  private restoreState(): void {
+    const saved = this.listState.get();
+    if (!saved) return;
+
+    this.filters.academicSessionId = saved.academicSessionId;
+    this.filters.classId = saved.classId;
+    this.filters.sectionId = saved.sectionId;
+    this.filters.paymentStatus = saved.paymentStatus;
+    this.filters.feeMonth = saved.feeMonth;
+    this.filters.feeYear = saved.feeYear;
+    this.filters.page = saved.page;
+    this.filters.size = saved.size;
+    this.studentSearchQuery = saved.studentSearchQuery;
+    this.selectedStudent = saved.selectedStudent;
+  }
+
+  private persistState(): void {
+    this.listState.save({
+      academicSessionId: this.filters.academicSessionId || '',
+      classId: this.filters.classId || '',
+      sectionId: this.filters.sectionId || '',
+      paymentStatus: this.filters.paymentStatus || '',
+      feeMonth: this.filters.feeMonth,
+      feeYear: this.filters.feeYear,
+      page: this.filters.page,
+      size: this.filters.size,
+      studentSearchQuery: this.studentSearchQuery,
+      selectedStudent: this.selectedStudent,
+    });
   }
 
   loadDropdowns(): void {
     this.feeService.getParams('academic_sessions').subscribe(data => {
       this.sessions = data;
-      if (this.sessions && this.sessions.length > 0) {
+      // Only default to the first session if nothing was restored
+      if (this.sessions && this.sessions.length > 0 && !this.filters.academicSessionId) {
         this.filters.academicSessionId = this.sessions[0].id;
       }
       this.onSearch(true);
@@ -57,19 +146,18 @@ export class FeeListComponent implements OnInit {
     this.feeService.getParams('classes').subscribe(data => { this.classes = data; this.cdr.markForCheck(); });
   }
 
+  private loadSectionsFor(classId: string): void {
+    this.feeService.getParams('sections', classId).subscribe(data => {
+      this.sections = data;
+      this.cdr.markForCheck();
+    });
+  }
+
+  // Called from the student-name input's (input) event — pushes into the
+  // debounced autocomplete stream instead of calling the API every keystroke.
   onStudentSearchInput(): void {
     const term = this.studentSearchQuery ? this.studentSearchQuery.trim() : '';
-    if (term.length >= 2) {
-      this.feeService.getStudentsList(term).subscribe(res => {
-        this.dynamicStudentsList = res;
-        this.showSuggestions = true;
-        this.cdr.markForCheck();
-      });
-    } else {
-      this.dynamicStudentsList = [];
-      this.showSuggestions = false;
-      this.cdr.markForCheck();
-    }
+    this.studentSearch$.next(term);
   }
 
   selectStudent(student: any): void {
@@ -84,6 +172,7 @@ export class FeeListComponent implements OnInit {
     this.sections = [];
 
     this.cdr.markForCheck();
+    this.onSearch(true);
   }
 
   clearSelectedStudent(): void {
@@ -92,6 +181,7 @@ export class FeeListComponent implements OnInit {
     this.dynamicStudentsList = [];
     this.showSuggestions = false;
     this.cdr.markForCheck();
+    this.onSearch(true);
   }
 
   onStudentBlur(): void {
@@ -101,21 +191,29 @@ export class FeeListComponent implements OnInit {
     }, 200);
   }
 
+  // Class change loads the relevant sections and resets sectionId,
+  // but does NOT trigger a search — user still needs to hit "Search".
   onClassChange(): void {
-    this.filters.sectionId = ''; 
+    this.filters.sectionId = '';
     this.sections = [];
     if (this.filters.classId) {
-      this.feeService.getParams('sections', this.filters.classId).subscribe(data => { 
-        this.sections = data; 
-        this.cdr.markForCheck(); 
-      });
+      this.loadSectionsFor(this.filters.classId);
     }
+    this.persistState();
+  }
+
+  // Session, Section, Status, Month, Year no longer auto-search on change.
+  // They just persist the current selection; actual API call happens
+  // only when the user clicks the "Search" button (onSearch(true)).
+  onFilterChange(): void {
+    this.persistState();
   }
 
   onSearch(resetPage = false): void {
     if (resetPage) {
       this.filters.page = 0;
     }
+    this.persistState();
     this.loading = true;
     const cleanPayload: any = {
       page: this.filters.page, size: this.filters.size
@@ -141,16 +239,16 @@ export class FeeListComponent implements OnInit {
 
     this.feeService.filterFees(cleanPayload).subscribe({
       next: (res: any) => {
-        this.fees = res.data?.data ?? []; 
+        this.fees = res.data?.data ?? [];
         this.totalPages = res.data?.totalPages ?? 0;
         this.loading = false;
         this.cdr.markForCheck();
       },
-      error: () => { 
+      error: () => {
         this.fees = [];
         this.totalPages = 0;
-        this.loading = false; 
-        this.cdr.markForCheck(); 
+        this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -166,21 +264,20 @@ export class FeeListComponent implements OnInit {
     this.studentSearchQuery = '';
     this.dynamicStudentsList = [];
     this.showSuggestions = false;
-    this.sections = []; 
+    this.sections = [];
     this.totalPages = 0;
+    this.listState.clear();
     this.onSearch(true);
   }
 
   // ── FIXED: Proper relative link matrix redirection ──
   openFeeForm(rowToModify?: StudentFeeResponseDto): void {
     if (rowToModify) {
-      // Relative link calculation targeting: fee/edit/:id safely
-      this.router.navigate(['../edit', rowToModify.id], { 
+      this.router.navigate(['../edit', rowToModify.id], {
         relativeTo: this.route,
-        state: { data: rowToModify } 
+        state: { data: rowToModify }
       });
     } else {
-      // Relative link calculation targeting: fee/add safely
       this.router.navigate(['../add'], { relativeTo: this.route });
     }
   }

@@ -190,11 +190,27 @@
       flex-shrink: 0;
     }
     .profile-details {
-      display: flex; flex-direction: column; gap: 1px; overflow: hidden;
+      display: flex; flex-direction: column; gap: 1px; overflow: hidden; flex: 1;
       strong { font-size: 13.5px; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       span { font-size: 11px; color: var(--text-muted); }
     }
   }
+}
+
+// ✅ naya — edit mode me student change karne ka option
+.btn-change-student {
+  background: var(--bg-white);
+  border: 1px solid var(--teal-border);
+  color: var(--teal);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  &:hover { background: var(--teal); color: #fff; }
 }
 
 .modal-input {
@@ -219,7 +235,35 @@ input.modal-input[readonly] {
   cursor: not-allowed;
 }
 
+// ✅ naya — validation error state (bina fill kiye submit karne par ye highlight hoga)
+.modal-input.invalid {
+  border-color: var(--danger) !important;
+  background: var(--danger-light) !important;
+  &:focus { box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15); }
+}
+
+// ✅ naya — field ke neeche red error text
+.field-error {
+  font-size: 11px;
+  color: var(--danger);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+  &::before { content: '⚠'; font-size: 10.5px; }
+}
+
 .required-star { color: var(--danger); margin-left: 2px; }
+
+// ✅ naya — debounced search chalte waqt chhota sa hint
+.search-hint-text {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 2px;
+  display: inline-block;
+}
 
 // ── Info banner ──
 .form-info-banner {
@@ -418,4 +462,8 @@ input.modal-input[readonly] {
     margin: 0 auto;
     padding: 32px;
   }
+}
+
+@media (max-width: 480px) {
+  .ff-toast-notification { top: 12px; right: 12px; left: 12px; width: auto; }
 }

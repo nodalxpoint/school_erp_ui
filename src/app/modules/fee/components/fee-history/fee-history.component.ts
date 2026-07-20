@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, HostListener, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil, tap, catchError } from 'rxjs/operators';
 import { FeeService } from '../../services/fee.service';
 import { MonthlyFeeStatusResponse, MonthFeeDetail } from '../../models/fee.model';
 
@@ -28,6 +28,8 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
   studentResults       = signal<any[]>([]);
   selectedStudent      = signal<any>(null);
   showStudentDropdown  = signal(false);
+  // ✅ naya — debounce ke waqt "Searching…" indicator dikhane ke liye
+  searchingStudents    = signal(false);
 
   // API response
   monthlyStatus = signal<MonthlyFeeStatusResponse | null>(null);
@@ -49,28 +51,54 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(private feeService: FeeService) {}
+  constructor(
+    private feeService: FeeService,
+    private elementRef: ElementRef
+  ) {}
+
+  // ✅ naya — dropdown ke bahar kahin bhi click karo to autocomplete list
+  // apne aap band ho jaayegi (pehle sirf select/clear karne par hi band hoti thi)
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.showStudentDropdown.set(false);
+    }
+  }
 
   ngOnInit(): void {
     this.loadAcademicSessions();
 
     this.studentSearchControl.valueChanges
       .pipe(
-        debounceTime(300),
+        // ✅ naya — jaise hi user dobara type kare, purani confirmed selection
+        // turant invalidate ho jaati hai (debounce se pehle hi) — warna
+        // "Search" button purani selection ke saath hi chal jaata tha
+        tap(() => {
+          if (this.selectedStudent()) {
+            this.selectedStudent.set(null);
+          }
+        }),
+        debounceTime(1000),
         distinctUntilChanged(),
         switchMap(term => {
-          if (!term || term.trim().length < 2) {
+          const trimmed = (term ?? '').trim();
+          if (trimmed.length < 2) {
             this.studentResults.set([]);
             this.showStudentDropdown.set(false);
-            return [];
+            this.searchingStudents.set(false);
+            return of([]);
           }
-          return this.feeService.getStudentsList(term);
+          this.searchingStudents.set(true);
+          return this.feeService.getStudentsList(trimmed).pipe(
+            catchError(() => of([]))
+          );
         }),
         takeUntil(this.destroy$)
       )
       .subscribe(res => {
+        this.searchingStudents.set(false);
         this.studentResults.set(res ?? []);
-        this.showStudentDropdown.set(this.studentResults().length > 0);
+        this.showStudentDropdown.set((res ?? []).length > 0);
       });
 
     this.restoreRecentSearch();
