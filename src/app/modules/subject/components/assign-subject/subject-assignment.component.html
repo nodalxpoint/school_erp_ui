@@ -6,7 +6,7 @@
       <div class="ex-breadcrumb">
         <span class="ex-crumb-link" (click)="isFormOpen = false">Subject Mapping</span>
         <span class="ex-crumb-sep">/</span>
-        <span class="ex-crumb-current">New Assignment Mapping</span>
+        <span class="ex-crumb-current">{{ formModel.assignmentId ? 'Modify Assignment Mapping' : 'New Assignment Mapping' }}</span>
       </div>
       
       <button class="ex-btn-top-back" type="button" (click)="isFormOpen = false" [disabled]="isSaving">
@@ -27,7 +27,7 @@
           </svg>
         </div>
         <div class="ex-header-text-block">
-          <h3 class="ex-form-main-title">New Academic Assignment Mapping</h3>
+          <h3 class="ex-form-main-title">{{ formModel.assignmentId ? 'Modify Academic Assignment Mapping' : 'New Academic Assignment Mapping' }}</h3>
           <p class="ex-form-sub-title">Configure course books allocations and anchor specialized faculty experts straight inside the classroom matrix.</p>
         </div>
       </div>
@@ -98,7 +98,7 @@
           <button type="button" class="ex-modal-btn-secondary" (click)="isFormOpen = false" [disabled]="isSaving">Dismiss</button>
           <button type="submit" class="ex-modal-btn-primary" [disabled]="!assignForm.form.valid || isSaving">
             <span class="ex-micro-spinner" *ngIf="isSaving"></span>
-            {{ isSaving ? 'Compiling Parameters...' : 'Confirm Assignment Mapping' }}
+            {{ isSaving ? 'Compiling Parameters...' : (formModel.assignmentId ? 'Update Assignment Mapping' : 'Confirm Assignment Mapping') }}
           </button>
         </div>
       </form>
@@ -188,10 +188,11 @@
         <table class="ex-registry-table">
           <thead>
             <tr>
-              <th style="width: 25%;">Target Classroom</th>
-              <th style="width: 30%;">Subject Mapping</th>
+              <th style="width: 20%;">Target Classroom</th>
+              <th style="width: 25%;">Subject Mapping</th>
               <th style="width: 25%;">Assigned Teacher</th>
-              <th style="width: 20%;">Academic Session</th>
+              <th style="width: 15%;">Academic Session</th>
+              <th style="width: 15%; text-align: right; padding-right: 20px;">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -212,6 +213,15 @@
               </td>
               <td>
                 <span class="ex-session-tag">... {{ a.academicSessionName }}</span>
+              </td>
+              <td style="text-align: right; padding-right: 20px;">
+                <button class="ex-btn-edit-action" type="button" (click)="onEditAssignment(a)" title="Modify Mapping Parameters">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  <span>Edit</span>
+                </button>
               </td>
             </tr>
           </tbody>

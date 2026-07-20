@@ -202,6 +202,32 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
+.ex-btn-edit-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid #bee3f8;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+    transform: translateY(-1px);
+  }
+
+  svg {
+    transition: transform 0.15s ease;
+  }
+}
+
 .ex-pagination-bar { display: flex; gap: 6px; padding: 14px 20px; background: #f8fafc; border-top: 1px solid var(--border); }
 .ex-pg-num { min-width: 32px; height: 32px; border: 1px solid var(--border); background: #fff; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; &--active { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; } &:hover:not(&--active) { border-color: var(--primary); color: var(--primary); } }
 .ex-pg-arrow { min-width: 32px; height: 32px; border: 1px solid var(--border); background: #fff; border-radius: 8px; cursor: pointer; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; color: var(--text-muted); &:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); } &:disabled { opacity: 0.4; cursor: not-allowed; } }

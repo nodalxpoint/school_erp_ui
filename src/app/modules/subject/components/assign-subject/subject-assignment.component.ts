@@ -118,6 +118,29 @@ export class SubjectAssignmentComponent implements OnInit {
 
   onOpenForm(): void {
     this.formModel = { subjectId: '', teacherId: '', classId: '', sectionId: '', academicSessionId: '' };
+    this.sections = [];
+    this.isFormOpen = true;
+    this.cdr.markForCheck();
+  }
+
+  onEditAssignment(assignment: SubjectTeacherAssignmentResponseDto): void {
+    this.formModel = {
+      assignmentId: assignment.id,
+      subjectId: assignment.subjectId,
+      teacherId: assignment.teacherId,
+      classId: assignment.classId,
+      sectionId: assignment.sectionId,
+      academicSessionId: assignment.academicSessionId
+    };
+
+    this.sections = [];
+    if (assignment.classId) {
+      this.subjectService.getSectionOptions(assignment.classId).subscribe(data => {
+        this.sections = data;
+        this.cdr.markForCheck();
+      });
+    }
+
     this.isFormOpen = true;
     this.cdr.markForCheck();
   }
