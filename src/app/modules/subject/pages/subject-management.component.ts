@@ -32,6 +32,7 @@ export class SubjectManagementComponent implements OnInit {
   isSaving = false;
 
   formModel: CreateSubjectDto = { subjectName: '', subjectCode: '' };
+  formErrorMessage = '';
 
   filter: SubjectFilterRequest = {
     page: 0,
@@ -141,6 +142,7 @@ export class SubjectManagementComponent implements OnInit {
 
   onAddSubject(): void {
     this.formModel = { subjectName: '', subjectCode: '' };
+    this.formErrorMessage = '';
     this.isSidebarOpen = true;
     this.cdr.markForCheck();
   }
@@ -152,12 +154,14 @@ export class SubjectManagementComponent implements OnInit {
       subjectName: sub.name,
       subjectCode: sub.code
     };
+    this.formErrorMessage = '';
     this.isSidebarOpen = true;
     this.cdr.markForCheck();
   }
 
   onCloseSidebar(): void {
     this.isSidebarOpen = false;
+    this.formErrorMessage = '';
     this.cdr.markForCheck();
   }
 
@@ -235,6 +239,7 @@ export class SubjectManagementComponent implements OnInit {
     if (!this.formModel.subjectName || !this.formModel.subjectCode) return;
 
     this.isSaving = true;
+    this.formErrorMessage = '';
     this.cdr.markForCheck();
 
     this.subjectService.addOrUpdateSubject(this.formModel).subscribe({
@@ -252,9 +257,10 @@ export class SubjectManagementComponent implements OnInit {
       },
       error: (err: any) => {
         this.isSaving = false;
+        this.formErrorMessage = err?.error?.message || 'Failed to save subject. Please try again.';
 
         this.popupType = 'error';
-        this.popupMessage = err?.error?.message || 'Failed to save subject. Please try again.';
+        this.popupMessage = this.formErrorMessage;
         this.showResultPopup = true;
         this.cdr.markForCheck();
         this.startPopupTimer();
