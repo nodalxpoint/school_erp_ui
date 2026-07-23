@@ -28,6 +28,7 @@ export interface FeeFilterRequest {
   academicSessionId?: string;
   classId?: string;
   sectionId?: string;
+  feeStructureId?: string;
   paymentStatus?: string;
   dueDateFrom?: string;
   dueDateTo?: string;
@@ -40,8 +41,13 @@ export interface SaveFeeRequest {
   id?: string;             // present only in edit mode
   studentId: string;
   academicSessionId: string;
+  feeStructureId?: string;
   feeMonth: number;
   feeYear: number;
+  totalAmount?: number;
+  paidAmount?: number;
+  paymentStatus?: string;
+  remarks?: string;
 }
 
 // ── Fee Structure Models ──────────────────────────────────────

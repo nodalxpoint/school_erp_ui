@@ -35,21 +35,24 @@ export class ExamMarksListComponent implements OnInit {
   saveError = '';
 
   // ── Filter State ──────────────────────────────────────────────
-  searchStudentName  = '';   // input mein dikhne wala naam
-  selectedStudentId  = '';   // suggestion se pick hua student ID
-  selectedExamId     = '';
-  selectedSubjectId  = '';
-  selectedClassId    = '';
-  selectedSectionId  = '';
+  searchStudentName         = '';   // input mein dikhne wala naam
+  selectedStudentId         = '';   // suggestion se pick hua student ID
+  selectedAcademicSessionId = '';
+  selectedExamId            = '';
+  selectedSubjectId         = '';
+  selectedClassId           = '';
+  selectedSectionId         = '';
 
   // ── Dropdown Lists ────────────────────────────────────────────
-  exams:    DropdownOption[] = [];
-  subjects: DropdownOption[] = [];
-  classes:  DropdownOption[] = [];
-  sections: DropdownOption[] = [];
+  academicSessions: DropdownOption[] = [];
+  exams:            DropdownOption[] = [];
+  subjects:         DropdownOption[] = [];
+  classes:          DropdownOption[] = [];
+  sections:         DropdownOption[] = [];
 
-  loadingClasses  = false;
-  loadingSections = false;
+  loadingAcademicSessions = false;
+  loadingClasses          = false;
+  loadingSections         = false;
 
   // ── Student Autocomplete ──────────────────────────────────────
   suggestedStudents: StudentSuggestion[] = [];
@@ -80,12 +83,16 @@ export class ExamMarksListComponent implements OnInit {
     // Page open hote hi koi data nahi dikhana — sirf Search click pe loadExamMarks() chalega
   }
 
-  // ── 1. Page open hote hi 4 dropdowns load: classes, subjects, exams, sections ──
-  // Sections yahan bina classId ke aati hain — section <select> tab tak disabled
-  // rahega jab tak user koi class select na kare (UI me [disabled]="!selectedClassId").
-  // Class select hone par onClassFilterChange() sections ko classId ke saath
-  // dobara (sahi filtered) fetch karta hai.
+  // ── 1. Page open hote hi dropdowns load: academic sessions, classes, subjects, exams, sections ──
   loadDropdowns(): void {
+    // Academic Sessions — type: 'academic_sessions' POST /param/list
+    this.loadingAcademicSessions = true;
+    this.cdr.markForCheck();
+    this.marksService.getDropdownOptions('academic_sessions').subscribe({
+      next: data => { this.academicSessions = data; this.loadingAcademicSessions = false; this.cdr.markForCheck(); },
+      error: ()   => { this.loadingAcademicSessions = false; this.cdr.markForCheck(); }
+    });
+
     this.loadingClasses = true;
     this.cdr.markForCheck();
 
@@ -100,8 +107,8 @@ export class ExamMarksListComponent implements OnInit {
       next: data => { this.subjects = data; this.cdr.markForCheck(); }
     });
 
-    // Exams — type: 'exams' POST /param/list
-    this.marksService.getDropdownOptions('exams').subscribe({
+    // Exams — type: 'examIsActive' POST /param/list (sirf active exams load honge)
+    this.marksService.getDropdownOptions('examIsActive').subscribe({
       next: data => { this.exams = data; this.cdr.markForCheck(); }
     });
 
@@ -213,6 +220,7 @@ export class ExamMarksListComponent implements OnInit {
               ? { firstName: this.searchStudentName.trim() }
               : {}),
 
+      ...(this.selectedAcademicSessionId ? { academicSessionId: this.selectedAcademicSessionId } : {}),
       ...(this.selectedClassId   ? { classId:   this.selectedClassId   } : {}),
       ...(this.selectedSectionId ? { sectionId: this.selectedSectionId } : {}),
       ...(this.selectedSubjectId ? { subjectId: this.selectedSubjectId } : {}),
@@ -261,14 +269,15 @@ export class ExamMarksListComponent implements OnInit {
 
   // ── 8. Reset all filters ──────────────────────────────────────
   clearAllFilters(): void {
-    this.searchStudentName = '';
-    this.selectedStudentId = '';
-    this.selectedExamId    = '';
-    this.selectedSubjectId = '';
-    this.selectedClassId   = '';
-    this.selectedSectionId = '';
-    this.currentPage       = 0;
-    this.showSuggestions   = false;
+    this.searchStudentName         = '';
+    this.selectedStudentId         = '';
+    this.selectedAcademicSessionId = '';
+    this.selectedExamId            = '';
+    this.selectedSubjectId         = '';
+    this.selectedClassId           = '';
+    this.selectedSectionId         = '';
+    this.currentPage               = 0;
+    this.showSuggestions           = false;
     this.loadExamMarks();
   }
 
@@ -291,9 +300,16 @@ export class ExamMarksListComponent implements OnInit {
   hasActiveFilters(): boolean {
     return !!(
       this.searchStudentName || this.selectedStudentId ||
+      this.selectedAcademicSessionId ||
       this.selectedExamId    || this.selectedSubjectId ||
       this.selectedClassId   || this.selectedSectionId
     );
+  }
+
+  getSessionLabel(sessionId?: string): string {
+    if (!sessionId) return '—';
+    const found = this.academicSessions.find(s => s.id === sessionId);
+    return found ? found.label : '—';
   }
 
   get pages(): number[] {

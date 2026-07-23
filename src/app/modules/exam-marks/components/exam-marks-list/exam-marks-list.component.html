@@ -15,6 +15,95 @@
     </div>
   </div>
 
+  <!-- ─── Filter Bar (sits below page-header, above table) ─── -->
+  <div class="filter-bar">
+
+    <!-- Student Name Autocomplete -->
+    <div class="filter-item" style="position: relative;">
+      <label>Student Name</label>
+      <div class="search-input-wrapper">
+        <input class="col-filter" type="text" placeholder="Search student..." [(ngModel)]="searchStudentName"
+          (input)="onStudentInputChange()" (blur)="closeSuggestions()" (keyup.enter)="onSearchTrigger()" />
+        <div class="inline-spinner" *ngIf="searchingStudents"></div>
+      </div>
+
+      <div class="min-char-hint" *ngIf="searchStudentName.trim().length > 0 && searchStudentName.trim().length < 3">
+        Type at least 3 characters
+      </div>
+
+      <!-- Suggestion Dropdown -->
+      <ul class="suggestion-menu" *ngIf="showSuggestions && suggestedStudents.length > 0">
+        <li *ngFor="let s of suggestedStudents" (mousedown)="selectStudent(s)">
+          <div class="suggest-item">
+            <span class="s-name">{{ s.firstName }} {{ s.lastName }}</span>
+            <span class="s-adm">Adm: {{ s.admissionNo }}</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Academic Session Dropdown -->
+    <div class="filter-item">
+      <label>Academic Session</label>
+      <select class="col-filter select-arrow" [(ngModel)]="selectedAcademicSessionId"
+        [disabled]="loadingAcademicSessions">
+        <option value="">{{ loadingAcademicSessions ? 'Loading...' : 'All Sessions' }}</option>
+        <option *ngFor="let s of academicSessions" [value]="s.id">{{ s.label }}</option>
+      </select>
+    </div>
+
+    <!-- Class Dropdown -->
+    <div class="filter-item">
+      <label>Class</label>
+      <select class="col-filter select-arrow" [(ngModel)]="selectedClassId" (change)="onClassFilterChange()"
+        [disabled]="loadingClasses">
+        <option value="">{{ loadingClasses ? 'Loading...' : 'All Classes' }}</option>
+        <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
+      </select>
+    </div>
+
+    <!-- Section Dropdown -->
+    <div class="filter-item">
+      <label>Section</label>
+      <select class="col-filter select-arrow" [(ngModel)]="selectedSectionId"
+        [disabled]="!selectedClassId || loadingSections">
+        <option value="">
+          {{ !selectedClassId ? 'Select class' : loadingSections ? 'Loading...' : 'All Sections' }}
+        </option>
+        <option *ngFor="let sec of sections" [value]="sec.id">{{ sec.label }}</option>
+      </select>
+    </div>
+
+    <!-- Subject Dropdown
+    <div class="filter-item">
+      <label>Subject</label>
+      <select class="col-filter select-arrow" [(ngModel)]="selectedSubjectId">
+        <option value="">All Subjects</option>
+        <option *ngFor="let sub of subjects" [value]="sub.id">{{ sub.label }}</option>
+      </select>
+    </div> -->
+
+    <!-- Exam Dropdown -->
+    <div class="filter-item">
+      <label>Exam</label>
+      <select class="col-filter select-arrow" [(ngModel)]="selectedExamId">
+        <option value="">All Exams</option>
+        <option *ngFor="let ex of exams" [value]="ex.id">{{ ex.label }}</option>
+      </select>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="filter-actions-item">
+      <button class="btn-search-filter" (click)="onSearchTrigger()">
+        🔍 Search
+      </button>
+      <button class="btn-clear-filter-bar" *ngIf="hasActiveFilters()" (click)="clearAllFilters()">
+        ✕ Clear
+      </button>
+    </div>
+
+  </div>
+
   <!-- Error Alert -->
   <div class="alert-error" *ngIf="error">⚠ {{ error }}</div>
 
@@ -33,108 +122,15 @@
         <tr class="header-row">
           <th class="col-no">#</th>
           <th class="col-name">Student</th>
-         
+          <th class="col-session">Academic Session</th>
           <th class="col-class">Class</th>
           <th class="col-section">Section</th>
-           <th class="col-subject">Subject</th>
+          <th class="col-subject">Subject</th>
           <th class="col-exam">Exam</th>
           <th class="col-marks">Marks</th>
           <th class="col-actions">Actions</th>
         </tr>
 
-        <!-- Filter Row -->
-        <tr class="filter-row">
-
-          <td class="col-no"></td>
-
-          <!-- Student Name + Autocomplete -->
-          <td class="col-name" style="position: relative;">
-            <div class="search-input-wrapper">
-              <input
-                class="col-filter"
-                type="text"
-                placeholder="Search student..."
-                [(ngModel)]="searchStudentName"
-                (input)="onStudentInputChange()"
-                (blur)="closeSuggestions()"
-                (keyup.enter)="onSearchTrigger()" />
-              <div class="inline-spinner" *ngIf="searchingStudents"></div>
-            </div>
-
-            <div class="min-char-hint" *ngIf="searchStudentName.trim().length > 0 && searchStudentName.trim().length < 3">
-              Type at least 3 characters to search
-            </div>
-
-            <!-- Suggestion Dropdown -->
-            <ul class="suggestion-menu" *ngIf="showSuggestions && suggestedStudents.length > 0">
-              <li *ngFor="let s of suggestedStudents" (mousedown)="selectStudent(s)">
-                <div class="suggest-item">
-                  <span class="s-name">{{ s.firstName }} {{ s.lastName }}</span>
-                  <span class="s-adm">Adm: {{ s.admissionNo }}</span>
-                </div>
-              </li>
-            </ul>
-          </td>
-
-        
-
-          <!-- Class Dropdown — sections reload hoti hain, search nahi -->
-          <td class="col-class">
-            <select
-              class="col-filter select-arrow"
-              [(ngModel)]="selectedClassId"
-              (change)="onClassFilterChange()"
-              [disabled]="loadingClasses">
-              <option value="">{{ loadingClasses ? 'Loading...' : 'All Classes' }}</option>
-              <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
-            </select>
-          </td>
-
-          <!-- Section Dropdown — classId hone ke baad enable -->
-          <td class="col-section">
-            <select
-              class="col-filter select-arrow"
-              [(ngModel)]="selectedSectionId"
-              [disabled]="!selectedClassId || loadingSections">
-              <option value="">
-                {{ !selectedClassId ? 'Select class' : loadingSections ? 'Loading...' : 'All Sections' }}
-              </option>
-              <option *ngFor="let sec of sections" [value]="sec.id">{{ sec.label }}</option>
-            </select>
-          </td>
-
-            <!-- Subject Dropdown -->
-          <td class="col-subject"></td>
-
-            <!-- Exam Dropdown -->
-          <td class="col-exam">
-            <select class="col-filter select-arrow" [(ngModel)]="selectedExamId">
-              <option value="">All Exams</option>
-              <option *ngFor="let ex of exams" [value]="ex.id">{{ ex.label }}</option>
-            </select>
-          </td>
-
-        
-
-          <!-- Marks col empty in filter row -->
-          <td class="col-marks"></td>
-
-          <!-- Search + Reset -->
-          <td class="col-actions filter-clear-cell">
-            <div class="filter-action-btns">
-              <button class="btn-search-filter" (click)="onSearchTrigger()">
-                🔍 Search
-              </button>
-              <button
-                class="btn-clear-filter"
-                *ngIf="hasActiveFilters()"
-                (click)="clearAllFilters()">
-                ✕
-              </button>
-            </div>
-          </td>
-
-        </tr>
       </thead>
 
       <!-- Table Body -->
@@ -161,17 +157,17 @@
               </div>
             </td>
 
-          
+            <td class="col-session fw-500 text-muted">{{ getSessionLabel(m.academicSessionId) }}</td>
+
             <td class="col-class fw-500">{{ m.className || '—' }}</td>
 
             <td class="col-section">
               <span class="section-chip">{{ m.sectionName || '—' }}</span>
             </td>
 
-          
             <td class="col-subject fw-600">{{ m.subjectName || '—' }}</td>
 
-                <td class="col-exam fw-600" style="color:#4a5568;">{{ m.examName || '—' }}</td>
+            <td class="col-exam fw-600" style="color:#4a5568;">{{ m.examName || '—' }}</td>
 
             <!-- Marks Badge — red if below 40% (jab tak maxMarks na ho, sirf marksObtained dikhao) -->
             <td class="col-marks">
@@ -183,16 +179,14 @@
             <td class="col-actions">
               <div class="action-btns">
                 <button class="btn-view" (click)="onViewRecord(m)" title="View details">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2.5">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
                   </svg>
                   View
                 </button>
                 <button class="btn-edit" *ngIf="isAdmin" (click)="onEditRecord(m)" title="Edit marks">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2.5">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                   </svg>
@@ -206,7 +200,7 @@
 
         <!-- Empty State -->
         <tr *ngIf="!loading && marksRecords.length === 0" class="empty-row">
-          <td colspan="8">
+          <td colspan="9">
             <div class="empty-state" *ngIf="hasActiveFilters()">
               <div class="empty-icon">🔍</div>
               <p class="empty-title">No records match your filters</p>
@@ -226,7 +220,7 @@
       <!-- Footer -->
       <tfoot *ngIf="totalElements > 0 && !loading">
         <tr class="footer-row">
-          <td colspan="8">
+          <td colspan="9">
             <div class="table-footer-summary">
               Showing <strong>{{ startIndex }}</strong> – <strong>{{ endIndex }}</strong>
               of <strong>{{ totalElements }}</strong> records
@@ -244,11 +238,7 @@
     <div class="page-btns">
       <button class="page-btn" (click)="goToPage(0)" [disabled]="currentPage === 0">«</button>
       <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">‹</button>
-      <button
-        *ngFor="let p of pages"
-        class="page-btn"
-        [class.active]="p === currentPage"
-        (click)="goToPage(p)">
+      <button *ngFor="let p of pages" class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">
         {{ p + 1 }}
       </button>
       <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">›</button>
@@ -285,13 +275,18 @@
             <span class="detail-val">{{ selectedRecord?.subjectName }}</span>
           </div>
           <div class="detail-item">
+            <span class="detail-label">Academic Session</span>
+            <span class="detail-val">{{ getSessionLabel(selectedRecord?.academicSessionId) }}</span>
+          </div>
+          <div class="detail-item">
             <span class="detail-label">Exam</span>
             <span class="detail-val">{{ selectedRecord?.examName }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Marks Obtained</span>
             <span class="detail-val highlight-val">
-              {{ selectedRecord?.marksObtained }}<span *ngIf="selectedRecord?.maxMarks"> / {{ selectedRecord?.maxMarks }}</span>
+              {{ selectedRecord?.marksObtained }}<span *ngIf="selectedRecord?.maxMarks"> / {{ selectedRecord?.maxMarks
+                }}</span>
             </span>
           </div>
           <div class="detail-item full-width">
@@ -318,7 +313,7 @@
       </div>
       <div class="modal-body">
         <div class="alert-banner error" *ngIf="saveError">⚠ {{ saveError }}</div>
-        
+
         <div class="form-grid">
           <div class="form-field">
             <label>Subject</label>
@@ -330,11 +325,13 @@
           </div>
           <div class="form-field">
             <label>Marks Obtained (Max: {{ selectedRecord?.maxMarks || '—' }})</label>
-            <input type="number" class="form-input" [(ngModel)]="editMarksObtained" min="0" [max]="selectedRecord?.maxMarks || 999" />
+            <input type="number" class="form-input" [(ngModel)]="editMarksObtained" min="0"
+              [max]="selectedRecord?.maxMarks || 999" />
           </div>
           <div class="form-field full-width">
             <label>Remarks</label>
-            <textarea class="form-input textarea-remarks" [(ngModel)]="editRemarks" rows="3" placeholder="Enter teacher remarks..."></textarea>
+            <textarea class="form-input textarea-remarks" [(ngModel)]="editRemarks" rows="3"
+              placeholder="Enter teacher remarks..."></textarea>
           </div>
         </div>
       </div>

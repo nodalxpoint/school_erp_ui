@@ -24,7 +24,7 @@ export class FeeService {
 
   /** Fetch Dropdown Data using Param API */
  /** Fetch Dropdown Data using Param API */
-  getParams(type: 'classes' | 'sections' | 'academic_sessions', classId?: string, search?: string): Observable<DropdownOption[]> {
+  getParams(type: 'classes' | 'sections' | 'academic_sessions' | 'fee_structures' | string, classId?: string, search?: string): Observable<DropdownOption[]> {
     // Yahan hum sortBy aur sortDirection ko default values de rahe hain
     // taaki interface requirement satisfy ho jaye aur error na aaye.
     const req: ParamListRequest = {

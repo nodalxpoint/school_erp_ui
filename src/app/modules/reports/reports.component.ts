@@ -61,7 +61,7 @@ export class ReportsComponent implements OnInit {
       this.cdr.markForCheck();
     });
 
-    this.examMarksService.getDropdownOptions('exams').subscribe(data => {
+    this.examMarksService.getDropdownOptions('examIsActive').subscribe(data => {
       this.exams = data;
       this.cdr.markForCheck();
     });

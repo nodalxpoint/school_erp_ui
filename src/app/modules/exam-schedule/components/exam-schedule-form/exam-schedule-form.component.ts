@@ -94,13 +94,25 @@ export class ExamScheduleFormComponent implements OnInit {
     this.scheduleService.getDropdownOptions('classes').subscribe(data => { this.classes = data; this.cdr.markForCheck(); });
     this.scheduleService.getDropdownOptions('subjects').subscribe(data => { this.subjects = data; this.cdr.markForCheck(); });
     
-    this.scheduleService.getExamsWithSubjects({ page: 0, size: 100 }).subscribe({
+    this.scheduleService.getExamsWithSubjects({ page: 0, size: 100, isActive: 'Y' }).subscribe({
       next: (res) => {
-        this.examTerms = (res.data ?? []).map(e => ({ id: e.examId, label: e.examName }));
-        
+        const rawExams = res.data ?? [];
+        this.examTerms = rawExams.map(e => ({
+          id: e.examId || (e as any).id,
+          label: e.examName,
+          isActive: e.isActive === 'Y' || e.isActive === true || String(e.isActive).toUpperCase() === 'Y'
+        }));
+
         this.route.queryParams.subscribe(params => {
           if (!this.isEditMode) {
-            if (params['examId']) this.formModel.examId = params['examId'];
+            if (params['examId']) {
+              this.formModel.examId = params['examId'];
+            } else {
+              const activeExam = this.examTerms.find(e => e.isActive);
+              if (activeExam) {
+                this.formModel.examId = activeExam.id;
+              }
+            }
             if (params['classId']) this.formModel.classId = params['classId'];
           }
           this.checkFallbackRoutingLoad();
@@ -113,7 +125,7 @@ export class ExamScheduleFormComponent implements OnInit {
   checkFallbackRoutingLoad(): void {
     const pathId = this.route.snapshot.paramMap.get('id');
     if (pathId && (!this.formModel.subjectId || !this.formModel.examId)) {
-      this.scheduleService.getExamsWithSubjects({ page: 0, size: 100 }).subscribe(res => {
+      this.scheduleService.getExamsWithSubjects({ page: 0, size: 100, isActive: 'Y' }).subscribe(res => {
         const activeExams = res.data ?? [];
         for (const exam of activeExams) {
           if (exam.subjects) {

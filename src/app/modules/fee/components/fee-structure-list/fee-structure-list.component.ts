@@ -11,7 +11,7 @@ const FS_STATE_KEY = 'fs_fee_structure_state_v1';
 interface PersistedFsState {
   academicSessionId: string;
   classId: string;
-  frequency: string;
+  feeName: string;
 }
 
 @Component({
@@ -27,6 +27,7 @@ export class FeeStructureListComponent implements OnInit {
   loading = false;
   classes: DropdownOption[] = [];
   sessions: DropdownOption[] = [];
+  feeNames: DropdownOption[] = [];
 
   // ✅ naya — sessionStorage se restore hone tak yahi hold rakhta hai
   private restoredFilter: Partial<PersistedFsState> = {};
@@ -64,6 +65,11 @@ export class FeeStructureListComponent implements OnInit {
       this.cdr.markForCheck();
     });
 
+    this.feeService.getParams('fee_types').subscribe(data => {
+      this.feeNames = data;
+      this.cdr.markForCheck();
+    });
+
     this.feeService.getParams('academic_sessions').subscribe(data => {
       this.sessions = data;
 
@@ -76,8 +82,8 @@ export class FeeStructureListComponent implements OnInit {
           : this.sessions[0].id;
       }
 
-      if (this.restoredFilter.frequency) {
-        this.filters.frequency = this.restoredFilter.frequency;
+      if (this.restoredFilter.feeName) {
+        this.filters.feeName = this.restoredFilter.feeName;
       }
 
       this.onSearch();
@@ -85,7 +91,7 @@ export class FeeStructureListComponent implements OnInit {
     });
   }
 
-  // ─── State persistence: session/class/frequency yaad rehta hai
+  // ─── State persistence: session/class/feeName yaad rehta hai
   // jab tum doosre page pe jaake wapas is list pe aate ho ────────
   private restoreState(): void {
     try {
@@ -102,7 +108,7 @@ export class FeeStructureListComponent implements OnInit {
       const toSave: PersistedFsState = {
         academicSessionId: this.filters.academicSessionId || '',
         classId: this.filters.classId || '',
-        frequency: this.filters.frequency || ''
+        feeName: this.filters.feeName || ''
       };
       sessionStorage.setItem(FS_STATE_KEY, JSON.stringify(toSave));
     } catch {
@@ -119,7 +125,7 @@ export class FeeStructureListComponent implements OnInit {
       sortDirection: this.filters.sortDirection
     };
     if (this.filters.classId) payload.classId = this.filters.classId;
-    if (this.filters.frequency) payload.frequency = this.filters.frequency;
+    if (this.filters.feeName) payload.feeName = this.filters.feeName;
     if (this.filters.academicSessionId) payload.academicSessionId = this.filters.academicSessionId;
 
     this.feeService.filterFeeStructures(payload).subscribe({

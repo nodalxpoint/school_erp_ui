@@ -57,6 +57,7 @@ export interface ExamMarksFilterRequest {
   sectionId?: string;
   subjectId?: string;
   examId?: string;
+  academicSessionId?: string;
 }
 
 // /students/list response ka ek student object

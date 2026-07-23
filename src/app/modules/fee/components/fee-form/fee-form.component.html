@@ -24,48 +24,62 @@
 
       <div class="modal-form-grid">
 
-        <!-- Student Search — ✅ ab edit mode me bhi editable hai, create jaisa hi -->
-        <div class="form-field student-search-container">
-          <label>Student <span class="required-star">*</span></label>
+        <!-- Student Search & Fee Structure Dropdown (Side-by-side row) -->
+        <div class="form-field-row-split">
 
-          <ng-container *ngIf="!selectedStudentObj">
-            <div class="search-input-wrapper">
-              <input type="text"
-                     class="modal-input"
-                     [class.invalid]="submitted && !formData.studentId"
-                     placeholder="Type student name or admission number..."
-                     [(ngModel)]="studentSearchToken"
-                     (input)="onStudentSearchInput()">
-              <button class="btn-input-search-action" (click)="triggerSearchQuery()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <span>Search</span>
-              </button>
-            </div>
+          <!-- Student Search -->
+          <div class="form-field student-search-container">
+            <label>Student <span class="required-star">*</span></label>
 
-            <span class="search-hint-text" *ngIf="isSearchingStudents">Searching students…</span>
-
-            <div class="student-suggestions-box" *ngIf="showSuggestions && dynamicStudentsList.length > 0">
-              <div class="suggestion-row-item"
-                   *ngFor="let student of dynamicStudentsList"
-                   (click)="selectActiveStudent(student)">
-                <span class="st-name">{{ student.firstName }} {{ student.lastName }}</span>
-                <span class="st-meta">Class {{ student.className }} ({{ student.sectionName }}) · {{ student.admissionNo }}</span>
+            <ng-container *ngIf="!selectedStudentObj">
+              <div class="search-input-wrapper">
+                <input type="text"
+                       class="modal-input"
+                       [class.invalid]="submitted && !formData.studentId"
+                       placeholder="Type student name or admission number..."
+                       [(ngModel)]="studentSearchToken"
+                       (input)="onStudentSearchInput()">
+                <button class="btn-input-search-action" (click)="triggerSearchQuery()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                  <span>Search</span>
+                </button>
               </div>
-            </div>
 
-            <span class="field-error" *ngIf="submitted && !formData.studentId">Please select a student.</span>
-          </ng-container>
+              <span class="search-hint-text" *ngIf="isSearchingStudents">Searching students…</span>
 
-          <div class="selected-profile-confirmation-badge" *ngIf="selectedStudentObj">
-            <span class="avatar-node">{{ selectedStudentObj.firstName.charAt(0) }}</span>
-            <div class="profile-details">
-              <strong>{{ selectedStudentObj.firstName }} {{ selectedStudentObj.lastName }}</strong>
-              <span>Class {{ selectedStudentObj.className || '—' }}<ng-container *ngIf="selectedStudentObj.sectionName"> ({{ selectedStudentObj.sectionName }})</ng-container></span>
+              <div class="student-suggestions-box" *ngIf="showSuggestions && dynamicStudentsList.length > 0">
+                <div class="suggestion-row-item"
+                     *ngFor="let student of dynamicStudentsList"
+                     (click)="selectActiveStudent(student)">
+                  <span class="st-name">{{ student.firstName }} {{ student.lastName }}</span>
+                  <span class="st-meta">Class {{ student.className }} ({{ student.sectionName }}) · {{ student.admissionNo }}</span>
+                </div>
+              </div>
+
+              <span class="field-error" *ngIf="submitted && !formData.studentId">Please select a student.</span>
+            </ng-container>
+
+            <div class="selected-profile-confirmation-badge" *ngIf="selectedStudentObj">
+              <span class="avatar-node">{{ selectedStudentObj.firstName.charAt(0) }}</span>
+              <div class="profile-details">
+                <strong>{{ selectedStudentObj.firstName }} {{ selectedStudentObj.lastName }}</strong>
+                <span>Class {{ selectedStudentObj.className || '—' }}<ng-container *ngIf="selectedStudentObj.sectionName"> ({{ selectedStudentObj.sectionName }})</ng-container></span>
+              </div>
+              <button type="button" class="btn-change-student" (click)="onChangeStudentClick()">Change</button>
             </div>
-            <button type="button" class="btn-change-student" (click)="onChangeStudentClick()">Change</button>
           </div>
+
+          <!-- Fee Structure / Fee Type Dropdown -->
+          <div class="form-field">
+            <label>Fee Structure / Fee Type</label>
+            <select class="modal-input" [(ngModel)]="formData.feeStructureId" (change)="onFeeStructureChange()" [disabled]="!formData.studentId">
+              <option value="">Select Fee</option>
+              <option *ngFor="let fs of feeStructures" [value]="fs.id">{{ fs.label }}</option>
+            </select>
+          </div>
+
         </div>
 
         <!-- Academic Session — ✅ ab edit mode me bhi editable -->
@@ -105,15 +119,31 @@
           </div>
         </div>
 
-        <!-- Auto-resolved info -->
+        <!-- Amount & Status (Editable Payment Amount & Auto/Partial Status) -->
+        <div class="form-field-row-split">
+          <div class="form-field">
+            <label>Total Fee Structure Amount (₹)</label>
+            <input type="text" class="modal-input readonly-input" [value]="'₹' + ((formData.totalAmount || 0) | number:'1.2-2')" readonly>
+          </div>
+          <div class="form-field">
+            <label>Paying Amount (₹) <span class="required-star">*</span></label>
+            <input type="number"
+                   class="modal-input"
+                   [class.invalid]="submitted && (formData.paidAmount === undefined || formData.paidAmount === null)"
+                   [(ngModel)]="formData.paidAmount"
+                   (input)="onPaidAmountChange()"
+                   placeholder="e.g. 1000">
+            <span class="field-error" *ngIf="submitted && (formData.paidAmount === undefined || formData.paidAmount === null)">Amount is required.</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Payment Status Badge -->
         <div class="auto-resolve-info">
           <div class="info-row">
-            <span class="info-label">Fee Amount</span>
-            <span class="info-value auto-tag">Auto · from class fee structure</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Payment Status</span>
-            <span class="info-value paid-tag">PAID</span>
+            <span class="info-label">Calculated Payment Status</span>
+            <span class="info-value paid-tag" [class.partial-tag]="formData.paymentStatus === 'PARTIAL'" [class.pending-tag]="formData.paymentStatus === 'PENDING'">
+              {{ formData.paymentStatus || 'PAID' }}
+            </span>
           </div>
         </div>
 

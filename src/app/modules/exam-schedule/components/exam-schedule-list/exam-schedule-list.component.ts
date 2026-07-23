@@ -216,20 +216,25 @@ export class ExamScheduleListComponent implements OnInit, OnDestroy {
     if (!this.filterModel.academicSessionId) return;
 
     this.scheduleService.getExamsWithSubjects({
-      page: 0, size: 100, academicSessionId: this.filterModel.academicSessionId
+      page: 0, size: 100, academicSessionId: this.filterModel.academicSessionId, isActive: 'Y'
     }).subscribe(res => {
-      this.examTerms = (res.data ?? []).map(e => ({
-        id: e.examId,
-        label: e.examName
+      const rawData = res.data ?? [];
+      console.log('[ExamSchedule] Raw exams loaded:', rawData);
+
+      this.examTerms = rawData.map(e => ({
+        id: e.examId || (e as any).id,
+        label: e.examName,
+        isActive: e.isActive === 'Y' || e.isActive === true || String(e.isActive).toUpperCase() === 'Y'
       }));
 
       if (this.examTerms.length > 0) {
+        const activeExam = this.examTerms.find(e => e.isActive);
         const restoredExamValid = !!this.restoredFilter.examId &&
           this.examTerms.some(e => e.id === this.restoredFilter.examId);
 
-        this.filterModel.examId = restoredExamValid
-          ? this.restoredFilter.examId!
-          : this.examTerms[0].id;
+        this.filterModel.examId = activeExam
+          ? activeExam.id
+          : (restoredExamValid ? this.restoredFilter.examId! : this.examTerms[0].id);
       } else {
         this.filterModel.examId = '';
       }

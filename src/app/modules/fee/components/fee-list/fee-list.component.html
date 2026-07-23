@@ -35,7 +35,7 @@
           </select>
         </div>
 
-        <div class="select-group student-search-group" style="position: relative;">
+        <!-- <div class="select-group student-search-group" style="position: relative;">
           <label class="filter-label">Student Search</label>
           <div class="search-input-wrapper" style="position: relative; display: flex; align-items: center;">
             <input type="text"
@@ -63,7 +63,7 @@
               <span class="st-meta">Class {{ student.className }} ({{ student.sectionName }}) · {{ student.admissionNo }}</span>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
 
       <div class="select-group">
@@ -88,6 +88,14 @@
           <option value="">Status</option>
           <option value="PAID">PAID</option>
           <option value="PENDING">PENDING</option>
+        </select>
+      </div>
+
+      <div class="select-group">
+        <label class="filter-label">Fee Type</label>
+        <select class="premium-input select-native" [(ngModel)]="filters.feeStructureId" (change)="onFilterChange()">
+          <option value="">All Fee Types</option>
+          <option *ngFor="let fs of feeStructures" [value]="fs.id">{{fs.label}}</option>
         </select>
       </div>
 

@@ -23,13 +23,14 @@ export class FeeListComponent implements OnInit, OnDestroy {
 
   filters: FeeFilterRequest = {
     page: 0, size: 10,
-    academicSessionId: '', classId: '', sectionId: '', paymentStatus: '',
+    academicSessionId: '', classId: '', sectionId: '', feeStructureId: '', paymentStatus: '',
     feeMonth: undefined, feeYear: undefined
   };
 
   sessions: DropdownOption[] = [];
   classes: DropdownOption[] = [];
   sections: DropdownOption[] = [];
+  feeStructures: DropdownOption[] = [];
   yearOptions: number[] = [];
 
   studentSearchQuery = '';
@@ -144,6 +145,7 @@ export class FeeListComponent implements OnInit, OnDestroy {
       this.cdr.markForCheck();
     });
     this.feeService.getParams('classes').subscribe(data => { this.classes = data; this.cdr.markForCheck(); });
+    this.feeService.getParams('fee_structures').subscribe(data => { this.feeStructures = data; this.cdr.markForCheck(); });
   }
 
   private loadSectionsFor(classId: string): void {
@@ -220,6 +222,7 @@ export class FeeListComponent implements OnInit, OnDestroy {
     };
 
     if (this.filters.academicSessionId) cleanPayload.academicSessionId = this.filters.academicSessionId;
+    if (this.filters.feeStructureId) cleanPayload.feeStructureId = this.filters.feeStructureId;
 
     if (this.selectedStudent) {
       cleanPayload.studentId = this.selectedStudent.id;
@@ -257,7 +260,7 @@ export class FeeListComponent implements OnInit, OnDestroy {
     this.filters = {
       page: 0, size: 10,
       academicSessionId: this.sessions && this.sessions.length > 0 ? this.sessions[0].id : '',
-      classId: '', sectionId: '', paymentStatus: '',
+      classId: '', sectionId: '', feeStructureId: '', paymentStatus: '',
       feeMonth: undefined, feeYear: undefined
     };
     this.selectedStudent = null;

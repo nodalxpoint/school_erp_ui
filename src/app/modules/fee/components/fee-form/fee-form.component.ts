@@ -18,6 +18,7 @@ import { DropdownOption } from '../../../student/models/student.model';
 })
 export class FeeFormComponent implements OnInit, OnDestroy {
   sessions: DropdownOption[] = [];
+  feeStructures: DropdownOption[] = [];
   isEditMode = false;
   isLoading = false;
 
@@ -38,6 +39,7 @@ export class FeeFormComponent implements OnInit, OnDestroy {
   formData: SaveFeeRequest = {
     studentId: '',
     academicSessionId: '',
+    feeStructureId: '',
     feeMonth: new Date().getMonth() + 1,
     feeYear: new Date().getFullYear()
   };
@@ -59,6 +61,11 @@ export class FeeFormComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.feeService.getParams('academic_sessions').subscribe(data => {
       this.sessions = data;
+      this.cdr.markForCheck();
+    });
+
+    this.feeService.getParams('fee_structures').subscribe(data => {
+      this.feeStructures = data;
       this.cdr.markForCheck();
     });
 
@@ -115,6 +122,7 @@ export class FeeFormComponent implements OnInit, OnDestroy {
       id: data.id,
       studentId: data.studentId,
       academicSessionId: data.academicSessionId,
+      feeStructureId: data.feeStructureId || '',
       feeMonth: data.feeMonth,
       feeYear: data.feeYear
     };
@@ -171,7 +179,51 @@ export class FeeFormComponent implements OnInit, OnDestroy {
     this.studentSearchToken = `${student.firstName} ${student.lastName}`;
     this.showSuggestions = false;
     this.dynamicStudentsList = [];
+
+    const classId = student.classId || student.classes?.id;
+    if (classId) {
+      this.loadClassFeeStructures(classId);
+    } else {
+      this.loadClassFeeStructures('');
+    }
     this.cdr.markForCheck();
+  }
+
+  loadClassFeeStructures(classId: string): void {
+    this.feeService.getParams('class_fee_structures', classId).subscribe(data => {
+      this.feeStructures = data;
+      if (this.formData.feeStructureId) {
+        this.onFeeStructureChange();
+      }
+      this.cdr.markForCheck();
+    });
+  }
+
+  onFeeStructureChange(): void {
+    const selected = this.feeStructures.find(fs => fs.id === this.formData.feeStructureId);
+    if (selected && selected.amount != null) {
+      this.formData.totalAmount = selected.amount;
+      this.formData.paidAmount = selected.amount;
+    }
+    this.updatePaymentStatus();
+    this.cdr.markForCheck();
+  }
+
+  onPaidAmountChange(): void {
+    this.updatePaymentStatus();
+    this.cdr.markForCheck();
+  }
+
+  updatePaymentStatus(): void {
+    const paid = Number(this.formData.paidAmount) || 0;
+    const total = Number(this.formData.totalAmount) || 0;
+    if (paid <= 0) {
+      this.formData.paymentStatus = 'PENDING';
+    } else if (total > 0 && paid < total) {
+      this.formData.paymentStatus = 'PARTIAL';
+    } else {
+      this.formData.paymentStatus = 'PAID';
+    }
   }
 
   // ✅ naya — agar edit mode me student change karna ho to selection clear karke
@@ -179,6 +231,8 @@ export class FeeFormComponent implements OnInit, OnDestroy {
   onChangeStudentClick(): void {
     this.selectedStudentObj = null;
     this.formData.studentId = '';
+    this.formData.feeStructureId = '';
+    this.feeStructures = [];
     this.studentSearchToken = '';
     this.dynamicStudentsList = [];
     this.showSuggestions = false;
@@ -209,8 +263,12 @@ export class FeeFormComponent implements OnInit, OnDestroy {
     const payload: SaveFeeRequest = {
       studentId: this.formData.studentId,
       academicSessionId: this.formData.academicSessionId,
+      feeStructureId: this.formData.feeStructureId || undefined,
       feeMonth: this.formData.feeMonth,
-      feeYear: this.formData.feeYear
+      feeYear: this.formData.feeYear,
+      totalAmount: this.formData.totalAmount != null ? Number(this.formData.totalAmount) : undefined,
+      paidAmount: this.formData.paidAmount != null ? Number(this.formData.paidAmount) : undefined,
+      paymentStatus: this.formData.paymentStatus
     };
 
     if (this.formData.id) payload.id = this.formData.id;

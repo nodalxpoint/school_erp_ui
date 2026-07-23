@@ -319,6 +319,15 @@ input.modal-input[readonly] {
       font-size: 11.5px;
       font-weight: 700;
       letter-spacing: 0.05em;
+
+      &.partial-tag {
+        background: #fffbeb;
+        color: #b45309;
+      }
+      &.pending-tag {
+        background: #fee2e2;
+        color: #991b1b;
+      }
     }
   }
 }

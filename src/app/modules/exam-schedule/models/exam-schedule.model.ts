@@ -20,6 +20,7 @@ export interface BackendExamDto {
   startDate: string;
   endDate: string;
   createdAt?: string;
+  isActive?: string | boolean;
   examSubjects?: ExamSubjectDto[];
   subjects?: ExamSubjectDto[]; // Support both examSubjects and subjects fields
 }
