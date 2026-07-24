@@ -286,7 +286,11 @@ export class FeeFormComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         this.isLoading = false;
-        this.showToast('error', err?.error?.message || 'Failed to save fee record. Please try again.');
+        const errorMessage = err?.error?.message
+          || (typeof err?.error === 'string' ? err.error : null)
+          || err?.message
+          || 'Failed to save fee record. Please try again.';
+        this.showToast('error', errorMessage);
       }
     });
   }
@@ -296,12 +300,12 @@ export class FeeFormComponent implements OnInit, OnDestroy {
     this.popupMessage = message;
     this.showResultPopup = true;
     this.cdr.markForCheck();
-    this.startPopupTimer();
+    this.startPopupTimer(type === 'error' ? 6000 : this.POPUP_DURATION);
   }
 
-  private startPopupTimer(): void {
+  private startPopupTimer(duration: number = this.POPUP_DURATION): void {
     if (this.popupTimer) clearTimeout(this.popupTimer);
-    this.popupTimer = setTimeout(() => this.closePopup(), this.POPUP_DURATION);
+    this.popupTimer = setTimeout(() => this.closePopup(), duration);
   }
 
   closePopup(): void {
