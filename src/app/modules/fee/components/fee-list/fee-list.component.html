@@ -85,9 +85,10 @@
       <div class="select-group">
         <label class="filter-label">Status</label>
         <select class="premium-input select-native" [(ngModel)]="filters.paymentStatus" (change)="onFilterChange()" [disabled]="!!selectedStudent">
-          <option value="">Status</option>
+          <option value="">All Status</option>
           <option value="PAID">PAID</option>
           <option value="PENDING">PENDING</option>
+          <option value="PARTIAL">PARTIAL</option>
         </select>
       </div>
 
@@ -183,13 +184,26 @@
                 </span>
               </td>
               <td class="text-right" data-label="Actions">
-                <button class="btn-row-edit" (click)="openFeeForm(f)">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                  </svg>
-                  <span>Edit</span>
-                </button>
+                <!-- PENDING virtual row: id = null → Pay Now button -->
+                <ng-container *ngIf="!f.id">
+                  <button class="btn-row-pay" (click)="openFeeForm(f)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <span>Pay Now</span>
+                  </button>
+                </ng-container>
+                <!-- Existing record: id present → Edit button -->
+                <ng-container *ngIf="f.id">
+                  <button class="btn-row-edit" (click)="openFeeForm(f)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    <span>Edit</span>
+                  </button>
+                </ng-container>
               </td>
             </tr>
             <tr *ngIf="fees.length === 0">

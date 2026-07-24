@@ -276,10 +276,19 @@ export class FeeListComponent implements OnInit, OnDestroy {
   // ── FIXED: Proper relative link matrix redirection ──
   openFeeForm(rowToModify?: StudentFeeResponseDto): void {
     if (rowToModify) {
-      this.router.navigate(['../edit', rowToModify.id], {
-        relativeTo: this.route,
-        state: { data: rowToModify }
-      });
+      if (rowToModify.id) {
+        // Existing record → Edit
+        this.router.navigate(['../edit', rowToModify.id], {
+          relativeTo: this.route,
+          state: { data: rowToModify }
+        });
+      } else {
+        // PENDING virtual row (id = null) → Pay Now → Add form with pre-filled data
+        this.router.navigate(['../add'], {
+          relativeTo: this.route,
+          state: { data: rowToModify }
+        });
+      }
     } else {
       this.router.navigate(['../add'], { relativeTo: this.route });
     }

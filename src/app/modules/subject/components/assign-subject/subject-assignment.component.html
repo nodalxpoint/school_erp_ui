@@ -151,6 +151,14 @@
         </div>
 
         <div class="ex-filter-group">
+          <label class="ex-label">Subject</label>
+          <select class="ex-select" [(ngModel)]="filter.subjectId" (change)="onApplyFilters()">
+            <option value="">All Subjects</option>
+            <option *ngFor="let sb of subjects" [value]="sb.id">{{sb.label}}</option>
+          </select>
+        </div>
+
+        <div class="ex-filter-group">
           <label class="ex-label">Teacher Faculty</label>
           <select class="ex-select" [(ngModel)]="filter.teacherId" (change)="onApplyFilters()">
             <option value="">All Teachers</option>

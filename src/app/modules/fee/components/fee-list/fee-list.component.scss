@@ -349,6 +349,13 @@ input.premium-input {
     &:hover { background: var(--primary); color: #fff; }
   }
 
+  .btn-row-pay {
+    background: var(--teal-light); border: 1px solid var(--teal-border); color: var(--teal);
+    padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    transition: all 0.15s ease;
+    &:hover { background: var(--teal); color: #fff; }
+  }
+
   .no-data-fallback {
     display: block; text-align: center; padding: 48px 20px; color: var(--text-muted); font-size: 13.5px;
     &::before { display: none; }

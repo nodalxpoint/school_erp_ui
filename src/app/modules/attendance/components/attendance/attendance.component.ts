@@ -41,6 +41,10 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   isAttendanceAlreadyTaken = false;
   isTeacherRole = false; // ← Track karega ki login user Teacher hai ya nahi
 
+  isInitializing = true; // ← Initial class allocation check ke liye loading state
+  isNoClassAssigned = false;
+  noClassAssignedMessage = '';
+
   toast: { message: string; type: 'success' | 'error' } | null = null;
 
   constructor(
@@ -104,23 +108,32 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   }
 
   loadInitialConfigurations(): void {
-    this.teacherService.getAcademicSessionOptions().subscribe((data) => {
-      this.sessions = data;
-      if (this.sessions.length > 0) {
-        this.selectedSessionId = this.sessions[0].id;
+    this.isInitializing = true;
+    this.teacherService.getAcademicSessionOptions().subscribe({
+      next: (data) => {
+        this.sessions = data;
+        if (this.sessions.length > 0) {
+          this.selectedSessionId = this.sessions[0].id;
+        }
+        this.checkTeacherClassAndAutoFetch();
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.checkTeacherClassAndAutoFetch();
+        this.cdr.markForCheck();
       }
-      this.checkTeacherClassAndAutoFetch();
-      this.cdr.markForCheck();
     });
   }
 
   checkTeacherClassAndAutoFetch(): void {
     this.attendanceService.getMyClassDetails().subscribe({
       next: (res) => {
+        this.isInitializing = false;
         if (res.success && res.data?.classId) {
           this.selectedClassId = res.data.classId;
           this.selectedSectionId = res.data.sectionId;
           this.isTeacherClassAllocated = true;
+          this.isNoClassAssigned = false;
 
           if (res.data.attendanceCheck === 'ATTENDANCE_TAKEN') {
             this.isAttendanceAlreadyTaken = true;
@@ -131,14 +144,28 @@ export class AttendanceComponent implements OnInit, OnDestroy {
 
           this.loadAttendanceSheet();
         } else {
-          this.loadAllClassesViaParam();
+          this.handleNoClassOrFallback(res?.message);
         }
         this.cdr.markForCheck();
       },
-      error: () => {
-        this.loadAllClassesViaParam();
+      error: (err) => {
+        this.isInitializing = false;
+        const errorMsg = err?.error?.message || err?.message;
+        this.handleNoClassOrFallback(errorMsg);
+        this.cdr.markForCheck();
       },
     });
+  }
+
+  private handleNoClassOrFallback(serverMessage?: string): void {
+    const isTeacher = this.isTeacherRole || this.authState.currentUser?.role === 'TEACHER';
+    if (isTeacher) {
+      this.isNoClassAssigned = true;
+      this.noClassAssignedMessage = 'You are not assigned to any class';
+    } else {
+      this.isNoClassAssigned = false;
+      this.loadAllClassesViaParam();
+    }
   }
 
   loadAllClassesViaParam(): void {
