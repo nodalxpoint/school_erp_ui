@@ -23,6 +23,10 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
   academicSessions = signal<DropdownOption[]>([]);
   selectedSessionId = '';
 
+  // Fee Structure (Fee Name) dropdown
+  feeStructures = signal<DropdownOption[]>([]);
+  selectedFeeStructureId = '';
+
   // Student search
   studentSearchControl = new FormControl('');
   studentResults       = signal<any[]>([]);
@@ -67,6 +71,7 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadAcademicSessions();
+    this.loadFeeStructures();
 
     this.studentSearchControl.valueChanges
       .pipe(
@@ -132,6 +137,12 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadFeeStructures(): void {
+    this.feeService.getParams('fee_structures').subscribe(res => {
+      this.feeStructures.set(res);
+    });
+  }
+
   selectStudent(student: any): void {
     this.selectedStudent.set(student);
     this.studentSearchControl.setValue(
@@ -163,7 +174,7 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
     this.feeService.setRecentSearch(student, this.selectedSessionId);
 
     // Service maps: outer { success, data: MonthlyFeeStatusResponse } → res = MonthlyFeeStatusResponse
-    this.feeService.getMonthlyFeeStatus(student.id, this.selectedSessionId)
+    this.feeService.getMonthlyFeeStatus(student.id, this.selectedSessionId, this.selectedFeeStructureId)
       .subscribe({
         next: (res: any) => {
           this.monthlyStatus.set(res as MonthlyFeeStatusResponse);
@@ -214,6 +225,7 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
 
   reset(): void {
     this.selectedSessionId = this.academicSessions()[0]?.id ?? '';
+    this.selectedFeeStructureId = '';
     this.clearStudent();
   }
 }

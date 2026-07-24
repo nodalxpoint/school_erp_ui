@@ -58,14 +58,23 @@ export class FeeFormComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {}
 
+  classes: DropdownOption[] = [];
+
   ngOnInit(): void {
     this.feeService.getParams('academic_sessions').subscribe(data => {
       this.sessions = data;
       this.cdr.markForCheck();
     });
 
-    this.feeService.getParams('fee_structures').subscribe(data => {
-      this.feeStructures = data;
+    this.feeService.getParams('classes').subscribe(data => {
+      this.classes = data;
+      if (this.selectedStudentObj && this.selectedStudentObj.classId && !this.selectedStudentObj.className) {
+        const cls = this.classes.find(c => c.id === this.selectedStudentObj.classId);
+        if (cls) {
+          this.selectedStudentObj.className = cls.label;
+          this.cdr.markForCheck();
+        }
+      }
       this.cdr.markForCheck();
     });
 
@@ -81,9 +90,7 @@ export class FeeFormComponent implements OnInit, OnDestroy {
       }
     }
 
-    // ✅ naya — debounced search pipeline: 350ms tak typing rukne ka wait,
-    // fir wahi text dobara na ho (distinctUntilChanged), fir switchMap se
-    // purani pending request cancel karke nayi bhejo
+    // ✅ debounced search pipeline
     this.searchTerms$.pipe(
       map(term => term.trim()),
       debounceTime(1000),
@@ -104,7 +111,7 @@ export class FeeFormComponent implements OnInit, OnDestroy {
       }),
       takeUntil(this.destroy$)
     ).subscribe(res => {
-      if (res === null) return; // short/empty term already handled above
+      if (res === null) return;
       this.dynamicStudentsList = res;
       this.showSuggestions = true;
       this.isSearchingStudents = false;
@@ -118,23 +125,64 @@ export class FeeFormComponent implements OnInit, OnDestroy {
   }
 
   mapIncomingEditForm(data: any): void {
+    const existingPaidAmount = data.paidAmount;
+
     this.formData = {
       id: data.id,
       studentId: data.studentId,
       academicSessionId: data.academicSessionId,
       feeStructureId: data.feeStructureId || '',
       feeMonth: data.feeMonth,
-      feeYear: data.feeYear
+      feeYear: data.feeYear,
+      totalAmount: data.totalAmount,
+      paidAmount: existingPaidAmount,
+      paymentStatus: data.paymentStatus
     };
+
+    const classId = data.classId || data.class_id || (data.student ? data.student.classId : '');
+    const matchedClass = this.classes.find(c => c.id === classId);
 
     this.selectedStudentObj = {
       firstName: data.studentName || 'Student',
       lastName: '',
       id: data.studentId,
-      className: data.className || '',
-      sectionName: data.sectionName || ''
+      className: data.className || (matchedClass ? matchedClass.label : ''),
+      sectionName: data.sectionName || '',
+      classId: classId || ''
     };
     this.studentSearchToken = data.studentName || '';
+
+    // Extract first word of studentName for API search (e.g. "neymar junior" -> "neymar")
+    const searchToken = data.studentName ? data.studentName.trim().split(' ')[0] : (data.studentId || '');
+
+    if (searchToken) {
+      this.feeService.getStudentsList(searchToken).subscribe(students => {
+        const match = students.find((s: any) => s.id === data.studentId) || students[0];
+        if (match) {
+          const resolvedClassId = match.classId || match.classes?.id || classId;
+          const resolvedClassName = match.className || match.classes?.className || (this.classes.find(c => c.id === resolvedClassId)?.label) || '';
+          const resolvedSectionName = match.sectionName || match.sections?.sectionName || '';
+
+          this.selectedStudentObj = {
+            ...this.selectedStudentObj,
+            firstName: match.firstName || this.selectedStudentObj.firstName,
+            lastName: match.lastName || '',
+            className: resolvedClassName || this.selectedStudentObj.className,
+            sectionName: resolvedSectionName || this.selectedStudentObj.sectionName,
+            classId: resolvedClassId
+          };
+
+          if (resolvedClassId) {
+            this.loadClassFeeStructures(resolvedClassId, true);
+          }
+          this.cdr.markForCheck();
+        } else if (classId) {
+          this.loadClassFeeStructures(classId, true);
+        }
+      });
+    } else if (classId) {
+      this.loadClassFeeStructures(classId, true);
+    }
   }
 
   onStudentSearchInput(): void {
@@ -189,21 +237,28 @@ export class FeeFormComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  loadClassFeeStructures(classId: string): void {
+  loadClassFeeStructures(classId: string, keepExistingPaidAmount = false): void {
+    if (!classId) {
+      this.feeStructures = [];
+      this.cdr.markForCheck();
+      return;
+    }
     this.feeService.getParams('class_fee_structures', classId).subscribe(data => {
       this.feeStructures = data;
       if (this.formData.feeStructureId) {
-        this.onFeeStructureChange();
+        this.onFeeStructureChange(keepExistingPaidAmount);
       }
       this.cdr.markForCheck();
     });
   }
 
-  onFeeStructureChange(): void {
+  onFeeStructureChange(keepExistingPaidAmount = false): void {
     const selected = this.feeStructures.find(fs => fs.id === this.formData.feeStructureId);
     if (selected && selected.amount != null) {
       this.formData.totalAmount = selected.amount;
-      this.formData.paidAmount = selected.amount;
+      if (!keepExistingPaidAmount || this.formData.paidAmount === undefined || this.formData.paidAmount === null) {
+        this.formData.paidAmount = selected.amount;
+      }
     }
     this.updatePaymentStatus();
     this.cdr.markForCheck();

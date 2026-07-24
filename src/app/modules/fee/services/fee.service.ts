@@ -69,8 +69,12 @@ export class FeeService {
   }
 
   /** Get Monthly Fee Status for a student in an academic session */
-  getMonthlyFeeStatus(studentId: string, academicSessionId: string): Observable<MonthlyFeeStatusResponse> {
-    const req: MonthlyStatusRequest = { studentId, academicSessionId };
+  getMonthlyFeeStatus(studentId: string, academicSessionId: string, feeStructureId?: string): Observable<MonthlyFeeStatusResponse> {
+    const req: MonthlyStatusRequest = { 
+      studentId, 
+      academicSessionId,
+      ...(feeStructureId ? { feeStructureId } : {})
+    };
     return this.http.post<any>(`${this.BASE}/monthlyStatus`, req)
       .pipe(map(res => res?.data ?? res));
   }

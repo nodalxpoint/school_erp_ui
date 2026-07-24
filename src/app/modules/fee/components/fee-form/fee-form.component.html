@@ -65,7 +65,7 @@
               <span class="avatar-node">{{ selectedStudentObj.firstName.charAt(0) }}</span>
               <div class="profile-details">
                 <strong>{{ selectedStudentObj.firstName }} {{ selectedStudentObj.lastName }}</strong>
-                <span>Class {{ selectedStudentObj.className || '—' }}<ng-container *ngIf="selectedStudentObj.sectionName"> ({{ selectedStudentObj.sectionName }})</ng-container></span>
+                <span>{{ selectedStudentObj.className ? (selectedStudentObj.className.startsWith('Class') ? selectedStudentObj.className : 'Class ' + selectedStudentObj.className) : 'Class —' }}<ng-container *ngIf="selectedStudentObj.sectionName"> ({{ selectedStudentObj.sectionName }})</ng-container></span>
               </div>
               <button type="button" class="btn-change-student" (click)="onChangeStudentClick()">Change</button>
             </div>

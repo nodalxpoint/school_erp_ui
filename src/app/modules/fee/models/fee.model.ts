@@ -88,6 +88,7 @@ export interface SaveFeeStructureRequest {
 export interface MonthlyStatusRequest {
   studentId: string;
   academicSessionId: string;
+  feeStructureId?: string;
 }
 
 export interface MonthFeeDetail {

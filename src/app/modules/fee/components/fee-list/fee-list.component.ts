@@ -38,6 +38,10 @@ export class FeeListComponent implements OnInit, OnDestroy {
   dynamicStudentsList: any[] = [];
   showSuggestions = false;
   totalPages = 0;
+  showResultPopup = false;
+  popupType: 'success' | 'error' = 'error';
+  popupMessage = '';
+  private popupTimer: any = null;
 
   // Debounced student-name autocomplete + cleanup
   private studentSearch$ = new Subject<string>();
@@ -49,16 +53,17 @@ export class FeeListComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.buildYearOptions();
     this.restoreState();
     this.loadDropdowns();
 
-    // If a class filter was restored, its sections need to be loaded too
+    // If a class filter was restored, its sections and fee structures need to be loaded too
     if (this.filters.classId) {
       this.loadSectionsFor(this.filters.classId);
+      this.loadFeeStructuresFor(this.filters.classId);
     }
 
     // Debounce the student autocomplete: waits 350ms after typing stops,
@@ -89,8 +94,27 @@ export class FeeListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.popupTimer) clearTimeout(this.popupTimer);
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  showToast(type: 'success' | 'error', message: string): void {
+    this.popupType = type;
+    this.popupMessage = message;
+    this.showResultPopup = true;
+    this.cdr.markForCheck();
+    if (this.popupTimer) clearTimeout(this.popupTimer);
+    this.popupTimer = setTimeout(() => {
+      this.showResultPopup = false;
+      this.cdr.markForCheck();
+    }, 4000);
+  }
+
+  closePopup(): void {
+    this.showResultPopup = false;
+    if (this.popupTimer) clearTimeout(this.popupTimer);
+    this.cdr.markForCheck();
   }
 
   private buildYearOptions(): void {
@@ -141,16 +165,24 @@ export class FeeListComponent implements OnInit, OnDestroy {
       if (this.sessions && this.sessions.length > 0 && !this.filters.academicSessionId) {
         this.filters.academicSessionId = this.sessions[0].id;
       }
-      this.onSearch(true);
+      if (this.areAllFiltersSelected()) {
+        this.onSearch(true);
+      }
       this.cdr.markForCheck();
     });
     this.feeService.getParams('classes').subscribe(data => { this.classes = data; this.cdr.markForCheck(); });
-    this.feeService.getParams('fee_structures').subscribe(data => { this.feeStructures = data; this.cdr.markForCheck(); });
   }
 
   private loadSectionsFor(classId: string): void {
     this.feeService.getParams('sections', classId).subscribe(data => {
       this.sections = data;
+      this.cdr.markForCheck();
+    });
+  }
+
+  private loadFeeStructuresFor(classId: string): void {
+    this.feeService.getParams('class_fee_structures', classId).subscribe(data => {
+      this.feeStructures = data;
       this.cdr.markForCheck();
     });
   }
@@ -172,9 +204,10 @@ export class FeeListComponent implements OnInit, OnDestroy {
     this.filters.sectionId = '';
     this.filters.paymentStatus = '';
     this.sections = [];
+    this.feeStructures = [];
 
     this.cdr.markForCheck();
-    this.onSearch(true);
+    this.onSearch(true, true);
   }
 
   clearSelectedStudent(): void {
@@ -183,7 +216,6 @@ export class FeeListComponent implements OnInit, OnDestroy {
     this.dynamicStudentsList = [];
     this.showSuggestions = false;
     this.cdr.markForCheck();
-    this.onSearch(true);
   }
 
   onStudentBlur(): void {
@@ -193,13 +225,15 @@ export class FeeListComponent implements OnInit, OnDestroy {
     }, 200);
   }
 
-  // Class change loads the relevant sections and resets sectionId,
-  // but does NOT trigger a search — user still needs to hit "Search".
+  // Class change loads the relevant sections and fee structures, resets dependent selections
   onClassChange(): void {
     this.filters.sectionId = '';
+    this.filters.feeStructureId = '';
     this.sections = [];
+    this.feeStructures = [];
     if (this.filters.classId) {
       this.loadSectionsFor(this.filters.classId);
+      this.loadFeeStructuresFor(this.filters.classId);
     }
     this.persistState();
   }
@@ -211,7 +245,37 @@ export class FeeListComponent implements OnInit, OnDestroy {
     this.persistState();
   }
 
-  onSearch(resetPage = false): void {
+  areAllFiltersSelected(): boolean {
+    const f = this.filters;
+    const isSessionSelected = !!f.academicSessionId;
+    const isClassSelected = !!f.classId;
+    const isSectionSelected = !!f.sectionId;
+    const isStatusSelected = !!f.paymentStatus;
+    const isFeeTypeSelected = !!f.feeStructureId;
+    const isMonthSelected = f.feeMonth !== undefined && f.feeMonth !== null && String(f.feeMonth) !== '' && String(f.feeMonth) !== 'undefined';
+    const isYearSelected = f.feeYear !== undefined && f.feeYear !== null && String(f.feeYear) !== '' && String(f.feeYear) !== 'undefined';
+
+    return isSessionSelected && isClassSelected && isSectionSelected && isStatusSelected && isFeeTypeSelected && isMonthSelected && isYearSelected;
+  }
+
+  onSearch(resetPage = false, isUserAction = false): void {
+    if (isUserAction && !this.areAllFiltersSelected() && !this.selectedStudent) {
+      this.showToast('error', 'Please select all filters (Session, Class, Section, Status, Fee Type, Month, Year) before searching.');
+      this.fees = [];
+      this.totalPages = 0;
+      this.loading = false;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    if (!this.areAllFiltersSelected() && !this.selectedStudent) {
+      this.fees = [];
+      this.totalPages = 0;
+      this.loading = false;
+      this.cdr.markForCheck();
+      return;
+    }
+
     if (resetPage) {
       this.filters.page = 0;
     }
@@ -268,9 +332,11 @@ export class FeeListComponent implements OnInit, OnDestroy {
     this.dynamicStudentsList = [];
     this.showSuggestions = false;
     this.sections = [];
+    this.feeStructures = [];
+    this.fees = [];
     this.totalPages = 0;
     this.listState.clear();
-    this.onSearch(true);
+    this.cdr.markForCheck();
   }
 
   // ── FIXED: Proper relative link matrix redirection ──
@@ -352,12 +418,12 @@ export class FeeListComponent implements OnInit, OnDestroy {
 
   get pages(): number[] {
     const total = this.totalPages;
-    const cur   = this.filters.page;
-    let start   = Math.max(0, cur - 2);
-    let end     = Math.min(total - 1, cur + 2);
+    const cur = this.filters.page;
+    let start = Math.max(0, cur - 2);
+    let end = Math.min(total - 1, cur + 2);
     if (end - start < 4) {
       if (start === 0) end = Math.min(total - 1, 4);
-      else             start = Math.max(0, end - 4);
+      else start = Math.max(0, end - 4);
     }
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
