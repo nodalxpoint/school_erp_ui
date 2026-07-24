@@ -8,6 +8,9 @@
   --teal:           #2c7a7b;
   --teal-light:     #e6fffa;
   --teal-border:    #81e6d9;
+  --danger:         #e53e3e;
+  --danger-light:   #fff5f5;
+  --danger-border:  #fed7d7;
   --border:         #e2e8f0;
   --border-dark:    #cbd5e0;
   --bg-white:       #ffffff;
@@ -163,9 +166,28 @@
   font-size: 13.5px;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 
-  &:focus { border-color: var(--primary); }
+  &:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.12); }
+
+  // ✅ naya — validation error state (koi field bina fill kiye submit try kare to ye dikhega)
+  &.invalid {
+    border-color: var(--danger);
+    background: var(--danger-light);
+    &:focus { box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12); }
+  }
+}
+
+// ✅ naya — field ke neeche red error text
+.field-error {
+  font-size: 11.5px;
+  color: var(--danger);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+  &::before { content: '⚠'; font-size: 11px; }
 }
 
 select.form-control.select-pilled {
@@ -214,32 +236,26 @@ select.form-control.select-pilled {
   font-size: 13.5px;
   cursor: pointer;
 
-  &:hover { background: var(--primary-hover); }
+  &:hover:not(:disabled) { background: var(--primary-hover); }
+  &:disabled { opacity: 0.65; cursor: not-allowed; }
 }
-
-// Append this block safely at the bottom of timetable-form.component.scss
 
 .form-group-disabled {
   opacity: 0.65;
   cursor: not-allowed;
-  
+
   .form-control {
     background-color: var(--bg-row-odd) !important;
     border-color: var(--border) !important;
     color: var(--text-muted) !important;
     pointer-events: none; // Safety layer constraint bypass
-    
+
     // Explicit removal of cross arrow vectors inside native select pickers
     &.select-pilled {
       background-image: none !important;
       padding-right: 14px !important;
     }
   }
-}
-// Visual structural match complete integration
-.form-page {
-  max-width: 900px;
-  margin: 20px auto;
 }
 
 // ─── Result Toast (top-right, premium) ───
@@ -254,7 +270,7 @@ select.form-control.select-pilled {
   overflow: hidden;
   animation: efToastSlideIn 0.25s ease-out;
 
-  &.ef-is-error { border-left-color: #e53e3e; }
+  &.ef-is-error { border-left-color: var(--danger); }
 }
 
 .ef-toast-icon {
@@ -262,7 +278,7 @@ select.form-control.select-pilled {
   display: flex; align-items: center; justify-content: center; font-size: 15px;
   background: #f0fdf4; color: #16a34a; margin-top: 1px;
 
-  .ef-is-error & { background: #fff5f5; color: #e53e3e; }
+  .ef-is-error & { background: var(--danger-light); color: var(--danger); }
 }
 
 .ef-toast-content { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -284,7 +300,7 @@ select.form-control.select-pilled {
   height: 100%; width: 100%; background: #16a34a; transform-origin: left;
   animation: efToastTimerShrink 4s linear forwards;
 
-  &.ef-timer-error { background: #e53e3e; }
+  &.ef-timer-error { background: var(--danger); }
 }
 
 @keyframes efToastSlideIn {

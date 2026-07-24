@@ -24,22 +24,34 @@
     <div class="ex-filters-row">
       <div class="ex-filter-group">
         <label class="ex-label">Search Exam Name</label>
-        <input type="text" class="ex-input" placeholder="e.g. Mid Term" [(ngModel)]="filter.examName" (input)="loadExams()" />
+        <div class="ex-search-input-wrap">
+          <svg class="ex-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" class="ex-input ex-input--search" placeholder="e.g. Mid Term"
+                 [ngModel]="filter.examName" (ngModelChange)="onSearchInputChange($event)" />
+        </div>
       </div>
 
       <div class="ex-filter-group" *ngIf="sessions.length > 0">
         <label class="ex-label">Academic Session</label>
-        <select class="ex-select" [(ngModel)]="filter.academicSessionId" (change)="loadExams()">
+        <select class="ex-select" [(ngModel)]="filter.academicSessionId" (change)="onSessionChange()">
           <option *ngFor="let s of sessions" [value]="s.id">{{ s.label }}</option>
         </select>
       </div>
 
-      <div class="ex-action-buttons-wrap" style="display: flex; gap: 10px;">
+      <div class="ex-action-buttons-wrap">
         <button class="ex-btn-cancel" *ngIf="hasChanges" (click)="onCancelChanges()">
           Cancel
         </button>
         <button class="ex-btn-save-status" *ngIf="hasChanges" (click)="onSaveChanges()">
-          💾 Save Configuration
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Save Configuration
         </button>
         <button class="ex-btn-add" *ngIf="isAdmin && !hasChanges" (click)="onAddExam()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -70,24 +82,50 @@
         </thead>
         <tbody>
           <tr *ngFor="let ex of exams" class="ex-table-data-row">
-            
+
             <td class="ex-cell-name font-bold">
-              <span class="ex-term-avatar-ico">📝</span>{{ ex.examName }}
+              <span class="ex-name-inner">
+                <span class="ex-term-avatar-ico">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="9" y1="13" x2="15" y2="13"/>
+                    <line x1="9" y1="17" x2="13" y2="17"/>
+                  </svg>
+                </span>
+                {{ ex.examName }}
+              </span>
             </td>
-            
+
             <td class="ex-cell-date">
-              📅 {{ ex.startDate | date:'mediumDate' }}
+              <span class="ex-date-inner">
+                <svg class="ex-date-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="3"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                {{ ex.startDate | date:'mediumDate' }}
+              </span>
             </td>
-            
+
             <td class="ex-cell-date">
-              📅 {{ ex.endDate | date:'mediumDate' }}
+              <span class="ex-date-inner">
+                <svg class="ex-date-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="3"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                {{ ex.endDate | date:'mediumDate' }}
+              </span>
             </td>
-            
+
             <td class="ex-cell-status">
               <div class="ex-status-toggle-wrapper">
                 <label class="ex-ios-switch" [class.ex-ios-switch--disabled]="!isAdmin">
-                  <input type="checkbox" 
-                         [checked]="ex.isActive === 'Y'" 
+                  <input type="checkbox"
+                         [checked]="ex.isActive === 'Y'"
                          [disabled]="!isAdmin"
                          (change)="onToggleActiveStatus(ex, $event)" />
                   <span class="ex-ios-slider"></span>
@@ -97,10 +135,14 @@
                 </span>
               </div>
             </td>
-            
+
             <td class="ex-cell-actions-panel" *ngIf="isAdmin">
-              <button type="button" class="ex-btn-row-action-modify" (click)="onEditExam(ex, $event)">
-                ⚙️ Modify Specs
+              <button type="button" class="ex-btn-row-action-modify" (click)="onEditExam(ex, $event)" title="Modify exam specs">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                <span>Modify Specs</span>
               </button>
             </td>
 
@@ -111,10 +153,19 @@
   </div>
 
   <div class="ex-empty-state" *ngIf="!isLoading && exams.length === 0">
-    <div class="ex-empty-icon">📂</div>
+    <div class="ex-empty-icon">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+      </svg>
+    </div>
     <h3 class="ex-empty-title">No examinations configured</h3>
     <p class="ex-empty-sub">There are no active exam records mapped inside this academic search criteria.</p>
-    <button class="ex-btn-add" *ngIf="isAdmin" style="margin-top: 10px;" (click)="onAddExam()">+ Register First Term</button>
+    <button class="ex-btn-add" *ngIf="isAdmin" style="margin-top: 10px;" (click)="onAddExam()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Register First Term
+    </button>
   </div>
 
 </div>

@@ -27,7 +27,7 @@ export class ExamMarksService {
    *   - Class select hone par sections classId ke saath dobara call hoti hain (filtered list).
    */
   getDropdownOptions(
-    type: 'classes' | 'sections' | 'subjects' | 'exams',
+    type: 'classes' | 'sections' | 'subjects' | 'exams' | 'academic_sessions' | 'examIsActive',
     classId?: string
   ): Observable<DropdownOption[]> {
 

@@ -1,8 +1,11 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router'; // ✅ Added ActivatedRoute
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subject, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { FeeService } from '../../services/fee.service';
+import { FeeListStateService } from '../../services/fee-list-state.service';
 import { StudentFeeResponseDto, FeeFilterRequest } from '../../models/fee.model';
 import { DropdownOption } from '../../../student/models/student.model';
 
@@ -14,62 +17,181 @@ import { DropdownOption } from '../../../student/models/student.model';
   styleUrls: ['./fee-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FeeListComponent implements OnInit {
+export class FeeListComponent implements OnInit, OnDestroy {
   fees: StudentFeeResponseDto[] = [];
   loading = false;
 
   filters: FeeFilterRequest = {
     page: 0, size: 10,
-    academicSessionId: '', classId: '', sectionId: '', paymentStatus: '',
+    academicSessionId: '', classId: '', sectionId: '', feeStructureId: '', paymentStatus: '',
     feeMonth: undefined, feeYear: undefined
   };
 
   sessions: DropdownOption[] = [];
   classes: DropdownOption[] = [];
   sections: DropdownOption[] = [];
+  feeStructures: DropdownOption[] = [];
+  yearOptions: number[] = [];
 
   studentSearchQuery = '';
   selectedStudent: any = null;
   dynamicStudentsList: any[] = [];
   showSuggestions = false;
   totalPages = 0;
+  showResultPopup = false;
+  popupType: 'success' | 'error' = 'error';
+  popupMessage = '';
+  private popupTimer: any = null;
+
+  // Debounced student-name autocomplete + cleanup
+  private studentSearch$ = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
   constructor(
-    private feeService: FeeService, 
-    private router: Router, 
-    private route: ActivatedRoute, // ✅ Injected ActivatedRoute
+    private feeService: FeeService,
+    private listState: FeeListStateService,
+    private router: Router,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
+    this.buildYearOptions();
+    this.restoreState();
     this.loadDropdowns();
+
+    // If a class filter was restored, its sections and fee structures need to be loaded too
+    if (this.filters.classId) {
+      this.loadSectionsFor(this.filters.classId);
+      this.loadFeeStructuresFor(this.filters.classId);
+    }
+
+    // Debounce the student autocomplete: waits 350ms after typing stops,
+    // skips repeat calls for the same term, and switchMap cancels any
+    // in-flight request if the user keeps typing.
+    this.studentSearch$
+      .pipe(
+        debounceTime(1000),
+        distinctUntilChanged(),
+        switchMap(term => {
+          if (term.length < 2) {
+            this.dynamicStudentsList = [];
+            this.showSuggestions = false;
+            this.cdr.markForCheck();
+            return of(null);
+          }
+          return this.feeService.getStudentsList(term);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(res => {
+        if (res) {
+          this.dynamicStudentsList = res;
+          this.showSuggestions = true;
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    if (this.popupTimer) clearTimeout(this.popupTimer);
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  showToast(type: 'success' | 'error', message: string): void {
+    this.popupType = type;
+    this.popupMessage = message;
+    this.showResultPopup = true;
+    this.cdr.markForCheck();
+    if (this.popupTimer) clearTimeout(this.popupTimer);
+    this.popupTimer = setTimeout(() => {
+      this.showResultPopup = false;
+      this.cdr.markForCheck();
+    }, 4000);
+  }
+
+  closePopup(): void {
+    this.showResultPopup = false;
+    if (this.popupTimer) clearTimeout(this.popupTimer);
+    this.cdr.markForCheck();
+  }
+
+  private buildYearOptions(): void {
+    const current = new Date().getFullYear();
+    this.yearOptions = [];
+    for (let y = current + 1; y >= current - 5; y--) {
+      this.yearOptions.push(y);
+    }
+  }
+
+  // ── State persistence ────────────────────────────────────────
+
+  private restoreState(): void {
+    const saved = this.listState.get();
+    if (!saved) return;
+
+    this.filters.academicSessionId = saved.academicSessionId;
+    this.filters.classId = saved.classId;
+    this.filters.sectionId = saved.sectionId;
+    this.filters.paymentStatus = saved.paymentStatus;
+    this.filters.feeMonth = saved.feeMonth;
+    this.filters.feeYear = saved.feeYear;
+    this.filters.page = saved.page;
+    this.filters.size = saved.size;
+    this.studentSearchQuery = saved.studentSearchQuery;
+    this.selectedStudent = saved.selectedStudent;
+  }
+
+  private persistState(): void {
+    this.listState.save({
+      academicSessionId: this.filters.academicSessionId || '',
+      classId: this.filters.classId || '',
+      sectionId: this.filters.sectionId || '',
+      paymentStatus: this.filters.paymentStatus || '',
+      feeMonth: this.filters.feeMonth,
+      feeYear: this.filters.feeYear,
+      page: this.filters.page,
+      size: this.filters.size,
+      studentSearchQuery: this.studentSearchQuery,
+      selectedStudent: this.selectedStudent,
+    });
   }
 
   loadDropdowns(): void {
     this.feeService.getParams('academic_sessions').subscribe(data => {
       this.sessions = data;
-      if (this.sessions && this.sessions.length > 0) {
+      // Only default to the first session if nothing was restored
+      if (this.sessions && this.sessions.length > 0 && !this.filters.academicSessionId) {
         this.filters.academicSessionId = this.sessions[0].id;
       }
-      this.onSearch(true);
+      if (this.areAllFiltersSelected()) {
+        this.onSearch(true);
+      }
       this.cdr.markForCheck();
     });
     this.feeService.getParams('classes').subscribe(data => { this.classes = data; this.cdr.markForCheck(); });
   }
 
+  private loadSectionsFor(classId: string): void {
+    this.feeService.getParams('sections', classId).subscribe(data => {
+      this.sections = data;
+      this.cdr.markForCheck();
+    });
+  }
+
+  private loadFeeStructuresFor(classId: string): void {
+    this.feeService.getParams('class_fee_structures', classId).subscribe(data => {
+      this.feeStructures = data;
+      this.cdr.markForCheck();
+    });
+  }
+
+  // Called from the student-name input's (input) event — pushes into the
+  // debounced autocomplete stream instead of calling the API every keystroke.
   onStudentSearchInput(): void {
     const term = this.studentSearchQuery ? this.studentSearchQuery.trim() : '';
-    if (term.length >= 2) {
-      this.feeService.getStudentsList(term).subscribe(res => {
-        this.dynamicStudentsList = res;
-        this.showSuggestions = true;
-        this.cdr.markForCheck();
-      });
-    } else {
-      this.dynamicStudentsList = [];
-      this.showSuggestions = false;
-      this.cdr.markForCheck();
-    }
+    this.studentSearch$.next(term);
   }
 
   selectStudent(student: any): void {
@@ -82,8 +204,10 @@ export class FeeListComponent implements OnInit {
     this.filters.sectionId = '';
     this.filters.paymentStatus = '';
     this.sections = [];
+    this.feeStructures = [];
 
     this.cdr.markForCheck();
+    this.onSearch(true, true);
   }
 
   clearSelectedStudent(): void {
@@ -101,27 +225,68 @@ export class FeeListComponent implements OnInit {
     }, 200);
   }
 
+  // Class change loads the relevant sections and fee structures, resets dependent selections
   onClassChange(): void {
-    this.filters.sectionId = ''; 
+    this.filters.sectionId = '';
+    this.filters.feeStructureId = '';
     this.sections = [];
+    this.feeStructures = [];
     if (this.filters.classId) {
-      this.feeService.getParams('sections', this.filters.classId).subscribe(data => { 
-        this.sections = data; 
-        this.cdr.markForCheck(); 
-      });
+      this.loadSectionsFor(this.filters.classId);
+      this.loadFeeStructuresFor(this.filters.classId);
     }
+    this.persistState();
   }
 
-  onSearch(resetPage = false): void {
+  // Session, Section, Status, Month, Year no longer auto-search on change.
+  // They just persist the current selection; actual API call happens
+  // only when the user clicks the "Search" button (onSearch(true)).
+  onFilterChange(): void {
+    this.persistState();
+  }
+
+  areAllFiltersSelected(): boolean {
+    const f = this.filters;
+    const isSessionSelected = !!f.academicSessionId;
+    const isClassSelected = !!f.classId;
+    const isSectionSelected = !!f.sectionId;
+    const isStatusSelected = !!f.paymentStatus;
+    const isFeeTypeSelected = !!f.feeStructureId;
+    const isMonthSelected = f.feeMonth !== undefined && f.feeMonth !== null && String(f.feeMonth) !== '' && String(f.feeMonth) !== 'undefined';
+    const isYearSelected = f.feeYear !== undefined && f.feeYear !== null && String(f.feeYear) !== '' && String(f.feeYear) !== 'undefined';
+
+    return isSessionSelected && isClassSelected && isSectionSelected && isStatusSelected && isFeeTypeSelected && isMonthSelected && isYearSelected;
+  }
+
+  onSearch(resetPage = false, isUserAction = false): void {
+    if (isUserAction && !this.areAllFiltersSelected() && !this.selectedStudent) {
+      this.showToast('error', 'Please select all filters (Session, Class, Section, Status, Fee Type, Month, Year) before searching.');
+      this.fees = [];
+      this.totalPages = 0;
+      this.loading = false;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    if (!this.areAllFiltersSelected() && !this.selectedStudent) {
+      this.fees = [];
+      this.totalPages = 0;
+      this.loading = false;
+      this.cdr.markForCheck();
+      return;
+    }
+
     if (resetPage) {
       this.filters.page = 0;
     }
+    this.persistState();
     this.loading = true;
     const cleanPayload: any = {
       page: this.filters.page, size: this.filters.size
     };
 
     if (this.filters.academicSessionId) cleanPayload.academicSessionId = this.filters.academicSessionId;
+    if (this.filters.feeStructureId) cleanPayload.feeStructureId = this.filters.feeStructureId;
 
     if (this.selectedStudent) {
       cleanPayload.studentId = this.selectedStudent.id;
@@ -141,16 +306,16 @@ export class FeeListComponent implements OnInit {
 
     this.feeService.filterFees(cleanPayload).subscribe({
       next: (res: any) => {
-        this.fees = res.data?.data ?? []; 
+        this.fees = res.data?.data ?? [];
         this.totalPages = res.data?.totalPages ?? 0;
         this.loading = false;
         this.cdr.markForCheck();
       },
-      error: () => { 
+      error: () => {
         this.fees = [];
         this.totalPages = 0;
-        this.loading = false; 
-        this.cdr.markForCheck(); 
+        this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -159,28 +324,38 @@ export class FeeListComponent implements OnInit {
     this.filters = {
       page: 0, size: 10,
       academicSessionId: this.sessions && this.sessions.length > 0 ? this.sessions[0].id : '',
-      classId: '', sectionId: '', paymentStatus: '',
+      classId: '', sectionId: '', feeStructureId: '', paymentStatus: '',
       feeMonth: undefined, feeYear: undefined
     };
     this.selectedStudent = null;
     this.studentSearchQuery = '';
     this.dynamicStudentsList = [];
     this.showSuggestions = false;
-    this.sections = []; 
+    this.sections = [];
+    this.feeStructures = [];
+    this.fees = [];
     this.totalPages = 0;
-    this.onSearch(true);
+    this.listState.clear();
+    this.cdr.markForCheck();
   }
 
   // ── FIXED: Proper relative link matrix redirection ──
   openFeeForm(rowToModify?: StudentFeeResponseDto): void {
     if (rowToModify) {
-      // Relative link calculation targeting: fee/edit/:id safely
-      this.router.navigate(['../edit', rowToModify.id], { 
-        relativeTo: this.route,
-        state: { data: rowToModify } 
-      });
+      if (rowToModify.id) {
+        // Existing record → Edit
+        this.router.navigate(['../edit', rowToModify.id], {
+          relativeTo: this.route,
+          state: { data: rowToModify }
+        });
+      } else {
+        // PENDING virtual row (id = null) → Pay Now → Add form with pre-filled data
+        this.router.navigate(['../add'], {
+          relativeTo: this.route,
+          state: { data: rowToModify }
+        });
+      }
     } else {
-      // Relative link calculation targeting: fee/add safely
       this.router.navigate(['../add'], { relativeTo: this.route });
     }
   }
@@ -243,12 +418,12 @@ export class FeeListComponent implements OnInit {
 
   get pages(): number[] {
     const total = this.totalPages;
-    const cur   = this.filters.page;
-    let start   = Math.max(0, cur - 2);
-    let end     = Math.min(total - 1, cur + 2);
+    const cur = this.filters.page;
+    let start = Math.max(0, cur - 2);
+    let end = Math.min(total - 1, cur + 2);
     if (end - start < 4) {
       if (start === 0) end = Math.min(total - 1, 4);
-      else             start = Math.max(0, end - 4);
+      else start = Math.max(0, end - 4);
     }
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }

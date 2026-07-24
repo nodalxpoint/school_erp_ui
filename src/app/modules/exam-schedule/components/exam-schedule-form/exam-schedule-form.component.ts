@@ -2,7 +2,7 @@
 
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExamScheduleService, ParamDropdownOption } from '../../services/exam-schedule.service';
 import { ExamSubjectDto } from '../../models/exam-schedule.model';
@@ -94,13 +94,25 @@ export class ExamScheduleFormComponent implements OnInit {
     this.scheduleService.getDropdownOptions('classes').subscribe(data => { this.classes = data; this.cdr.markForCheck(); });
     this.scheduleService.getDropdownOptions('subjects').subscribe(data => { this.subjects = data; this.cdr.markForCheck(); });
     
-    this.scheduleService.getExamsWithSubjects({ page: 0, size: 100 }).subscribe({
+    this.scheduleService.getExamsWithSubjects({ page: 0, size: 100, isActive: 'Y' }).subscribe({
       next: (res) => {
-        this.examTerms = (res.data ?? []).map(e => ({ id: e.examId, label: e.examName }));
-        
+        const rawExams = res.data ?? [];
+        this.examTerms = rawExams.map(e => ({
+          id: e.examId || (e as any).id,
+          label: e.examName,
+          isActive: e.isActive === 'Y' || e.isActive === true || String(e.isActive).toUpperCase() === 'Y'
+        }));
+
         this.route.queryParams.subscribe(params => {
           if (!this.isEditMode) {
-            if (params['examId']) this.formModel.examId = params['examId'];
+            if (params['examId']) {
+              this.formModel.examId = params['examId'];
+            } else {
+              const activeExam = this.examTerms.find(e => e.isActive);
+              if (activeExam) {
+                this.formModel.examId = activeExam.id;
+              }
+            }
             if (params['classId']) this.formModel.classId = params['classId'];
           }
           this.checkFallbackRoutingLoad();
@@ -113,7 +125,7 @@ export class ExamScheduleFormComponent implements OnInit {
   checkFallbackRoutingLoad(): void {
     const pathId = this.route.snapshot.paramMap.get('id');
     if (pathId && (!this.formModel.subjectId || !this.formModel.examId)) {
-      this.scheduleService.getExamsWithSubjects({ page: 0, size: 100 }).subscribe(res => {
+      this.scheduleService.getExamsWithSubjects({ page: 0, size: 100, isActive: 'Y' }).subscribe(res => {
         const activeExams = res.data ?? [];
         for (const exam of activeExams) {
           if (exam.subjects) {
@@ -128,7 +140,31 @@ export class ExamScheduleFormComponent implements OnInit {
     }
   }
 
-  onSubmit(): void {
+  onSubmit(form: NgForm): void {
+    // ✅ naya — pehle yaha koi validity check hi nahi tha, form invalid hote hue bhi
+    // seedha save call ja sakti thi. Ab required fields check hoga, touched mark hoga
+    // (red errors dikhne ke liye) aur ek clear toast bhi dikhega.
+    if (form.invalid) {
+      form.form.markAllAsTouched();
+      this.popupType = 'error';
+      this.popupMessage = 'Please fill all the required fields correctly before submitting.';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+      return;
+    }
+
+    // ✅ naya — passing marks max marks se zyada na ho, ye bhi ek basic sanity check hai
+    if (this.formModel.passingMarks != null && this.formModel.maxMarks != null &&
+        Number(this.formModel.passingMarks) > Number(this.formModel.maxMarks)) {
+      this.popupType = 'error';
+      this.popupMessage = 'Passing marks cannot be greater than maximum marks.';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+      return;
+    }
+
     this.isSaving = true;
     this.errorMessage = '';
     this.cdr.markForCheck();
@@ -166,7 +202,16 @@ export class ExamScheduleFormComponent implements OnInit {
     this.showResultPopup = false;
     this.cdr.markForCheck();
     if (wasSuccess) {
-      this.router.navigate(['/exam-schedule']);
+      // ✅ naya — jis class/exam ke liye paper abhi create/update hua,
+      // wahi list page ko navigation state ke through bhej do taaki
+      // list page wapas jaake wahi class dikhaye (sessionStorage wale
+      // purane filter se override karke)
+      this.router.navigate(['/exam-schedule'], {
+        state: {
+          justCreatedClassId: this.formModel.classId,
+          justCreatedExamId: this.formModel.examId
+        }
+      });
     }
   }
 

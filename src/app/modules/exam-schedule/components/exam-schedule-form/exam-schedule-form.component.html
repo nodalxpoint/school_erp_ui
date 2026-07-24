@@ -30,50 +30,68 @@
       </div>
     </div>
 
-    <form (ngSubmit)="onSubmit()" #scheduleForm="ngForm" class="form-grid">
-      
+    <form (ngSubmit)="onSubmit(scheduleForm)" #scheduleForm="ngForm" class="form-grid">
+
       <div class="form-group">
         <label class="form-label">Associated Exam Term *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.examId" name="examId" required>
+        <select class="form-control select-pilled"
+          [class.invalid]="examId.invalid && examId.touched"
+          [(ngModel)]="formModel.examId" name="examId" #examId="ngModel" required>
           <option value="" disabled>Select Term</option>
           <option *ngFor="let e of examTerms" [value]="e.id">{{ e.label }}</option>
         </select>
+        <span class="field-error" *ngIf="examId.invalid && examId.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Target Class Standard *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.classId" name="classId" required>
+        <select class="form-control select-pilled"
+          [class.invalid]="classId.invalid && classId.touched"
+          [(ngModel)]="formModel.classId" name="classId" #classId="ngModel" required>
           <option value="" disabled>Select Class</option>
           <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
         </select>
+        <span class="field-error" *ngIf="classId.invalid && classId.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Subject Allocation *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.subjectId" name="subjectId" required>
+        <select class="form-control select-pilled"
+          [class.invalid]="subjectId.invalid && subjectId.touched"
+          [(ngModel)]="formModel.subjectId" name="subjectId" #subjectId="ngModel" required>
           <option value="" disabled>Select Subject</option>
           <option *ngFor="let s of subjects" [value]="s.id">{{ s.label }}</option>
         </select>
+        <span class="field-error" *ngIf="subjectId.invalid && subjectId.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Examination Date *</label>
-        <input type="date" class="form-control" [(ngModel)]="formModel.examDate" name="examDate" required />
+        <input type="date" class="form-control"
+          [class.invalid]="examDate.invalid && examDate.touched"
+          [(ngModel)]="formModel.examDate" name="examDate" #examDate="ngModel" required />
+        <span class="field-error" *ngIf="examDate.invalid && examDate.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Maximum Marks (Max Limits) *</label>
-        <input type="number" min="1" max="200" class="form-control" [(ngModel)]="formModel.maxMarks" name="maxMarks" required />
+        <input type="number" min="1" max="200" class="form-control"
+          [class.invalid]="maxMarks.invalid && maxMarks.touched"
+          [(ngModel)]="formModel.maxMarks" name="maxMarks" #maxMarks="ngModel" required />
+        <span class="field-error" *ngIf="maxMarks.invalid && maxMarks.touched">Enter a valid value between 1 and 200.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Passing Marks (Min Threshold) *</label>
-        <input type="number" min="0" max="200" class="form-control" [(ngModel)]="formModel.passingMarks" name="passingMarks" required />
+        <input type="number" min="0" max="200" class="form-control"
+          [class.invalid]="passingMarks.invalid && passingMarks.touched"
+          [(ngModel)]="formModel.passingMarks" name="passingMarks" #passingMarks="ngModel" required />
+        <span class="field-error" *ngIf="passingMarks.invalid && passingMarks.touched">Enter a valid value between 0 and 200.</span>
       </div>
 
       <div class="form-actions full-width">
         <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
-        <button type="submit" class="btn-submit" [disabled]="!scheduleForm.form.valid || isSaving">
+        <button type="submit" class="btn-submit" [disabled]="isSaving">
           {{ isSaving ? 'Committing configurations...' : (isEditMode ? 'Update Paper Details' : 'Confirm Allocation') }}
         </button>
       </div>

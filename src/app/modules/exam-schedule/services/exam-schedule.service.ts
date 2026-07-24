@@ -8,6 +8,7 @@ import { BackendExamDto, ExamSubjectDto } from '../models/exam-schedule.model';
 export interface ParamDropdownOption {
   id: string;
   label: string;
+  isActive?: boolean;
 }
 
 export interface PagedResponse<T> {

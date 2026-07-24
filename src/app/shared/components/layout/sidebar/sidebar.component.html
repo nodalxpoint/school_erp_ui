@@ -64,11 +64,11 @@
                 <span class="sidebar__dropdown-dot"></span>Assign Subject Teacher
               </a>
             </li>
-            <li>
-              <a routerLink="/teacher-timetable" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/teacher-timetable')" (click)="closeSidebar()">
-                <span class="sidebar__dropdown-dot"></span>Teacher Timetable
-              </a>
-            </li>
+          <li *ngIf="currentRole === 'TEACHER'">
+  <a routerLink="/teacher-timetable" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/teacher-timetable')" (click)="closeSidebar()">
+    <span class="sidebar__dropdown-dot"></span>Teacher Timetable
+  </a>
+</li>
             <li *ngIf="currentRole === 'TEACHER'">
               <a routerLink="/teacher-mapping" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/teacher-mapping')" (click)="closeSidebar()">
                 <span class="sidebar__dropdown-dot"></span>Teacher Mapping
@@ -153,31 +153,37 @@
               </svg>
             </div>
 
-            <ul *ngIf="feesDropdownOpen && !sidebarCollapsed" class="sidebar__dropdown-list">
-              <li>
-                <a routerLink="/fees" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/fees') || currentPath.startsWith('/fees/')" (click)="closeSidebar()">
-                  <span class="sidebar__dropdown-dot"></span>Student Fees
-                </a>
-              </li>
-              <li>
-                <a routerLink="/fee-structure" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="currentPath.startsWith('/fee-structure')" (click)="closeSidebar()">
-                  <span class="sidebar__dropdown-dot"></span>Fee Structure
-                </a>
-              </li>
-              <li>
-  <a routerLink="/fees/history" class="sidebar__dropdown-item" [class.sidebar__dropdown-item--active]="isExactActive('/fees/history')" (click)="closeSidebar()">
-    <span class="sidebar__dropdown-dot"></span>Fee History
-  </a>
-</li>
-            </ul>
+           <ul *ngIf="feesDropdownOpen && !sidebarCollapsed" class="sidebar__dropdown-list">
+  <li>
+    <a routerLink="/fees" class="sidebar__dropdown-item"
+       [class.sidebar__dropdown-item--active]="isStudentFeesActive()"
+       (click)="closeSidebar()">
+      <span class="sidebar__dropdown-dot"></span>Student Fees
+    </a>
+  </li>
+  <li>
+    <a routerLink="/fee-structure" class="sidebar__dropdown-item"
+       [class.sidebar__dropdown-item--active]="currentPath.startsWith('/fee-structure')"
+       (click)="closeSidebar()">
+      <span class="sidebar__dropdown-dot"></span>Fee Structure
+    </a>
+  </li>
+  <li>
+    <a routerLink="/fees/history" class="sidebar__dropdown-item"
+       [class.sidebar__dropdown-item--active]="isFeeHistoryActive()"
+       (click)="closeSidebar()">
+      <span class="sidebar__dropdown-dot"></span>Fee History
+    </a>
+  </li>
+</ul>
           </ng-container>
         </ng-template>
 
         <ng-template #regularItem>
-          <a [routerLink]="item.href"
-             class="sidebar__nav-item"
-             [class.sidebar__nav-item--active]="isActive(item.href)"
-             [class.sidebar__nav-item--collapsed]="sidebarCollapsed"
+        <a [routerLink]="item.href"
+   class="sidebar__nav-item"
+   [class.sidebar__nav-item--active]="item.href === '/fees' ? isStudentFeesActive() : (item.href === '/fees/history' ? isFeeHistoryActive() : isActive(item.href))"
+       [class.sidebar__nav-item--collapsed]="sidebarCollapsed"
              [title]="sidebarCollapsed ? item.label : ''"
              (click)="closeSidebar()">
             

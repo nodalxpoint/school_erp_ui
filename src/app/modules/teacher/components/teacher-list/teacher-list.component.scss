@@ -1,4 +1,3 @@
-
 :host {
   --primary:        #2b6cb0;
   --primary-light:  #ebf4ff;
@@ -146,15 +145,19 @@
 
 .te-search-clear {
   position: absolute;
-  right: 12px; top: 50%;
+  right: 10px; top: 50%;
   transform: translateY(-50%);
-  background: none; border: none;
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px;
+  background: none; border: none; border-radius: 6px;
   color: var(--text-hint);
-  font-size: 18px; cursor: pointer;
-  &:hover { color: #1a202c; }
+  cursor: pointer;
+  transition: all 0.15s;
+  &:hover { color: #1a202c; background: var(--bg-row-odd); }
 }
 
 .te-btn-search {
+  display: inline-flex; align-items: center; gap: 6px;
   padding: 10px 20px;
   background: #f7fafc;
   color: #4a5568;
@@ -234,14 +237,14 @@
     box-shadow: inset 3px 0 0 0 var(--primary);
   }
 
-  td { padding: 12px 16px; Skinner-vertical-align: middle; }
+  td { padding: 12px 16px; vertical-align: middle; }
 }
 
 .col-teacher { min-width: 260px; }
 .col-code    { width: 130px; }
 .col-qual    { width: 160px; }
 .col-date    { width: 150px; }
-.col-actions { width: 180px; text-align: right; }
+.col-actions { width: 70px; text-align: center; }
 
 .teacher-cell { display: flex; align-items: center; gap: 12px; }
 
@@ -253,9 +256,12 @@
   flex-shrink: 0; text-transform: uppercase;
 }
 
-.teacher-info { display: flex; flex-direction: column; gap: 1px; }
+.teacher-info { display: flex; flex-direction: column; gap: 2px; }
 .teacher-name { font-size: 14px; font-weight: 700; color: #2d3748; }
-.teacher-email { font-size: 12px; color: var(--text-muted); }
+.teacher-email {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--text-muted);
+}
 
 .code-chip {
   font-size: 11.5px; font-family: monospace; font-weight: 700;
@@ -270,32 +276,60 @@
 
 .muted { color: var(--text-hint); font-size: 13px; }
 
-.te-action-buttons-wrap {
-  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
-}
-
-// Shared Button Mechanics Structure
-%action-btn {
+.te-date-badge {
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700;
-  cursor: pointer; border: 1px solid var(--border-dark); background: #fff;
-  transition: all 0.15s ease; white-space: nowrap;
+  font-size: 12.5px; color: var(--text-muted); font-weight: 600;
 }
 
-.view-btn {
-  @extend %action-btn; color: var(--text-muted);
-  &:hover { border-color: var(--teal-border); color: var(--teal); background: var(--teal-light); }
-  &--active { background: var(--teal-light) !important; border-color: var(--teal-border) !important; color: var(--teal) !important; }
+// ─── Action column: 3-dot dropdown menu ───
+.action-menu-wrapper {
+  position: relative;
+  display: inline-flex;
 }
 
-.edit-btn {
-  @extend %action-btn; color: var(--text-muted);
-  &:hover { border-color: var(--primary-border); color: var(--primary); background: var(--primary-light); }
+.btn-dots {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid transparent; background: transparent;
+  color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+
+  &:hover { background: var(--bg-row-odd); border-color: var(--border-dark); color: var(--text-primary); }
 }
 
-.delete-btn {
-  @extend %action-btn; color: var(--text-muted);
-  &:hover { border-color: var(--danger-border); color: var(--danger); background: var(--danger-light); }
+.action-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 160px;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
+  z-index: 20;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: dropdownPopIn 0.12s ease-out;
+}
+
+.dropdown-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border: none; background: none; border-radius: 7px;
+  font-size: 12.5px; font-weight: 600; color: var(--text-primary);
+  cursor: pointer; text-align: left; width: 100%; transition: all 0.12s;
+
+  &:hover { background: var(--primary-light); color: var(--primary); }
+
+  &--danger {
+    color: var(--danger);
+    &:hover { background: var(--danger-light); color: var(--danger); }
+  }
+}
+
+@keyframes dropdownPopIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 // ─── PAGINATION PANEL FOOTER ───────────────────────────
@@ -322,7 +356,7 @@
 }
 .sk-avatar { width: 38px; height: 36px; background: #edf2f7; border-radius: 10px; }
 .sk-lines { display: flex; flex-direction: column; gap: 6px; flex: 1; }
-.sk { background: #edf2f7; border-radius: 4px; animation: pulse sk-load 1.2s infinite ease-in-out; }
+.sk { background: #edf2f7; border-radius: 4px; animation: skLoad 1.2s infinite ease-in-out; }
 .sk-name { width: 140px; height: 14px; }
 .sk-meta { width: 180px; height: 10px; }
 .sk-code { width: 80px; height: 20px; }
@@ -330,12 +364,17 @@
 .sk-date { width: 100px; height: 14px; }
 .sk-btn  { width: 70px; height: 28px; border-radius: 8px; }
 
-@keyframes sk-load { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+@keyframes skLoad { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
 .te-empty-state {
   background: #fff; padding: 60px 24px; display: flex; flex-direction: column;
   align-items: center; text-align: center; gap: 8px;
-  .te-empty-icon { font-size: 36px; margin-bottom: 4px; }
+  .te-empty-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--bg-row-odd); color: var(--text-hint);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 4px;
+  }
   .te-empty-title { font-size: 16px; font-weight: 700; margin: 0; color: #2d3748; }
   .te-empty-sub { font-size: 13px; color: var(--text-muted); margin: 0; }
 }
@@ -356,7 +395,7 @@
 
 .te-confirm-icon {
   width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 1rem;
-  display: flex; align-items: center; justify-content: center; font-size: 22px;
+  display: flex; align-items: center; justify-content: center;
   background: var(--danger-light); color: var(--danger);
 }
 
@@ -411,7 +450,7 @@
 
 .te-toast-icon {
   width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
   background: #f0fdf4; color: #16a34a; margin-top: 1px;
 
   .te-is-error & { background: var(--danger-light); color: var(--danger); }
@@ -422,8 +461,10 @@
 .te-toast-message { font-size: 12px; color: var(--text-muted); line-height: 1.4; word-break: break-word; }
 
 .te-toast-close-btn {
-  position: absolute; top: 10px; right: 10px; background: none; border: none;
-  color: var(--text-hint); font-size: 12px; cursor: pointer; padding: 4px;
+  position: absolute; top: 10px; right: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none;
+  color: var(--text-hint); cursor: pointer; padding: 4px;
   border-radius: 4px; line-height: 1; transition: all 0.15s;
   &:hover { color: var(--text-muted); background: var(--bg-row-odd); }
 }
@@ -447,3 +488,88 @@
   from { transform: scaleX(1); }
   to { transform: scaleX(0); }
 }
+
+// ══════════════════════════════════════════════════════
+// ─── RESPONSIVE ────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+
+@media (max-width: 1024px) {
+  .te-header-card { padding: 18px 20px; }
+  .te-title { font-size: 1.3rem; }
+}
+
+@media (max-width: 768px) {
+  .te-header-card { padding: 16px; gap: 12px; }
+  .te-eyebrow { font-size: 10.5px; }
+  .te-title { font-size: 1.15rem; }
+
+  // Filters stack: search bar takes its own row, action buttons split below
+  .te-filters-row {
+    gap: 10px;
+  }
+  .te-search-input-wrap {
+    flex: 1 1 100%;
+    min-width: 0;
+    order: 1;
+  }
+  .te-btn-search {
+    flex: 1 1 calc(50% - 5px);
+    justify-content: center;
+    order: 2;
+  }
+  .te-btn-add {
+    flex: 1 1 calc(50% - 5px);
+    justify-content: center;
+    order: 3;
+  }
+
+  .avatar { width: 34px; height: 32px; font-size: 12px; }
+  .teacher-name { font-size: 13px; }
+  .teacher-email { font-size: 11.5px; }
+
+  .pagination {
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .te-toast-notification {
+    left: 12px;
+    right: 12px;
+    top: 12px;
+    width: auto;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .list-wrapper { gap: 12px; }
+  .table-pane { border-radius: 12px; }
+  .te-header-card { padding: 14px; }
+  .te-title { font-size: 1.05rem; }
+  .te-eyebrow { letter-spacing: 0.03em; }
+
+  .te-search-input { padding: 9px 32px 9px 34px; font-size: 13px; }
+  .te-search-icon { left: 12px; }
+
+  // Icon-only action buttons on very small screens to save space
+  .te-btn-search span,
+  .te-btn-add span { display: none; }
+  .te-btn-search, .te-btn-add {
+    padding: 10px 14px;
+  }
+
+  .btn-dots { width: 30px; height: 30px; }
+  .action-dropdown { min-width: 148px; }
+  .dropdown-item { padding: 9px 10px; font-size: 12px; }
+
+  .pg-btn { min-width: 30px; height: 30px; font-size: 12.5px; }
+
+  .te-confirm-box { padding: 1.4rem; }
+  .te-confirm-title { font-size: 1rem; }
+}
+
+// Table itself intentionally keeps its horizontal scroll (min-width: 900px)
+// on small screens rather than squeezing 5 data columns unreadably — the
+// wrapper's overflow-x: auto + -webkit-overflow-scrolling: touch already
+// gives a smooth native swipe to see the rest of the row.

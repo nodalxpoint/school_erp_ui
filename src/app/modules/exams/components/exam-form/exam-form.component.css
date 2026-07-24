@@ -1,3 +1,4 @@
+@charset "UTF-8";
 :host {
   --primary: #2b6cb0;
   --primary-light: #ebf4ff;
@@ -6,6 +7,9 @@
   --teal: #2c7a7b;
   --teal-light: #e6fffa;
   --teal-border: #81e6d9;
+  --danger: #e53e3e;
+  --danger-light: #fff5f5;
+  --danger-border: #fed7d7;
   --border: #e2e8f0;
   --border-dark: #cbd5e0;
   --bg-white: #ffffff;
@@ -176,10 +180,32 @@
   font-size: 13.5px;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 .form-control:focus {
   border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.12);
+}
+.form-control.invalid {
+  border-color: var(--danger);
+  background: var(--danger-light);
+}
+.form-control.invalid:focus {
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
+}
+
+.field-error {
+  font-size: 11.5px;
+  color: var(--danger);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+}
+.field-error::before {
+  content: "⚠";
+  font-size: 11px;
 }
 
 select.form-control.select-pilled {
@@ -228,8 +254,12 @@ select.form-control.select-pilled {
   font-size: 13.5px;
   cursor: pointer;
 }
-.btn-submit:hover {
+.btn-submit:hover:not(:disabled) {
   background: var(--primary-hover);
+}
+.btn-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .form-group-disabled {
@@ -245,11 +275,6 @@ select.form-control.select-pilled {
 .form-group-disabled .form-control.select-pilled {
   background-image: none !important;
   padding-right: 14px !important;
-}
-
-.form-page {
-  max-width: 900px;
-  margin: 20px auto;
 }
 
 .ef-toast-notification {
@@ -271,7 +296,7 @@ select.form-control.select-pilled {
   animation: efToastSlideIn 0.25s ease-out;
 }
 .ef-toast-notification.ef-is-error {
-  border-left-color: #e53e3e;
+  border-left-color: var(--danger);
 }
 
 .ef-toast-icon {
@@ -288,8 +313,8 @@ select.form-control.select-pilled {
   margin-top: 1px;
 }
 .ef-is-error .ef-toast-icon {
-  background: #fff5f5;
-  color: #e53e3e;
+  background: var(--danger-light);
+  color: var(--danger);
 }
 
 .ef-toast-content {
@@ -348,7 +373,7 @@ select.form-control.select-pilled {
   animation: efToastTimerShrink 4s linear forwards;
 }
 .ef-toast-timer-bar.ef-timer-error {
-  background: #e53e3e;
+  background: var(--danger);
 }
 
 @keyframes efToastSlideIn {

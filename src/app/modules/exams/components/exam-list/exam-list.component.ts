@@ -7,7 +7,16 @@ import { ExamDto, ExamFilterRequest } from '../../models/exam.model';
 import { ParamDropdownOption } from '../../../timetable/services/timetable.service';
 import { AuthStateService } from '../../../../core/auth/auth-state.service';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
+
+const EX_STATE_KEY = 'ex_exam_registry_state_v1';
+const SEARCH_DEBOUNCE_MS = 2000;
+
+interface PersistedExState {
+  page: number;
+  examName: string | undefined;
+  academicSessionId: string | undefined;
+}
 
 @Component({
   selector: 'app-exam-list',
@@ -22,16 +31,23 @@ export class ExamListComponent implements OnInit, OnDestroy {
   sessions: ParamDropdownOption[] = [];
   isLoading = false;
   isAdmin = false;
-  
+
   // ✅ Track strictly which exam is dynamically marked as Active on Frontend
   pendingActiveExamId: string | null = null;
   hasChanges = false;
-  originalExams: ExamDto[] = []; 
+  originalExams: ExamDto[] = [];
 
   currentDateTimeStr = '';
   currentDayName = '';
   private timerIntervalId: any = null;
   private destroy$ = new Subject<void>();
+
+  // ✅ naya — debounced search stream (2s)
+  private searchInput$ = new Subject<string>();
+
+  // ✅ naya — sessionStorage se restore hone tak yahi hold rakhta hai
+  private restoredSessionId: string | undefined;
+  private hasRestoredOnce = false;
 
   filter: ExamFilterRequest = {
     page: 0, size: 50, sortBy: 'startDate', sortDirection: 'desc',
@@ -48,6 +64,20 @@ export class ExamListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.startLiveClock();
     this.checkUserRoleAccess();
+
+    // ✅ debounce search: 2 seconds ruk ke hi call jayegi
+    this.searchInput$
+      .pipe(
+        debounceTime(SEARCH_DEBOUNCE_MS),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.filter.page = 0;
+        this.loadExams();
+      });
+
+    this.restoreState();
     this.loadSessionsAndInitialData();
   }
 
@@ -71,9 +101,9 @@ export class ExamListComponent implements OnInit, OnDestroy {
   startLiveClock(): void {
     const runClock = () => {
       const now = new Date();
-      const options: Intl.DateTimeFormatOptions = { 
+      const options: Intl.DateTimeFormatOptions = {
         day: 'numeric', month: 'short', year: 'numeric',
-        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
       };
       const weekdays = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
       this.currentDateTimeStr = now.toLocaleString('en-US', options);
@@ -84,22 +114,77 @@ export class ExamListComponent implements OnInit, OnDestroy {
     this.timerIntervalId = setInterval(runClock, 1000);
   }
 
+  // ─── State persistence: page/search/session yaad rehta hai
+  // jab tum doosre page pe jaake wapas is list pe aate ho ────────
+  private restoreState(): void {
+    try {
+      const raw = sessionStorage.getItem(EX_STATE_KEY);
+      if (!raw) return;
+      const saved: PersistedExState = JSON.parse(raw);
+      this.filter.page = saved.page ?? 0;
+      this.filter.examName = saved.examName ?? '';
+      this.restoredSessionId = saved.academicSessionId;
+    } catch {
+      // corrupt/inaccessible storage — silently ignore, defaults apply
+    }
+  }
+
+  private persistState(): void {
+    try {
+      const toSave: PersistedExState = {
+        page: this.filter.page,
+        examName: this.filter.examName,
+        academicSessionId: this.filter.academicSessionId
+      };
+      sessionStorage.setItem(EX_STATE_KEY, JSON.stringify(toSave));
+    } catch {
+      // storage unavailable — non-fatal, just won't persist
+    }
+  }
+
+  // ✅ naya — session label (e.g. "2026-2027") se saal nikal ke
+  // current running academic year wala session default select hota hai
+  private resolveDefaultSessionId(sessions: ParamDropdownOption[]): string {
+    const currentYear = new Date().getFullYear();
+
+    const matched = sessions.find(s => {
+      const years = (s.label.match(/\d{4}/g) || []).map(Number);
+      if (years.length >= 2) {
+        const [start, end] = years;
+        return currentYear >= start && currentYear < end;
+      }
+      if (years.length === 1) {
+        return years[0] === currentYear;
+      }
+      return false;
+    });
+
+    return matched?.id ?? sessions[0]?.id ?? '';
+  }
+
   loadSessionsAndInitialData(): void {
     this.isLoading = true;
     this.cdr.markForCheck();
 
     this.examService.getAcademicSessions().subscribe(data => {
       this.sessions = data;
+
       if (this.sessions.length > 0) {
-        this.filter.academicSessionId = this.sessions[0].id;
+        const restoredIsStillValid = !!this.restoredSessionId &&
+          this.sessions.some(s => s.id === this.restoredSessionId);
+
+        this.filter.academicSessionId = restoredIsStillValid
+          ? this.restoredSessionId!
+          : this.resolveDefaultSessionId(this.sessions);
       }
+
       this.loadExams();
     });
   }
 
   loadExams(): void {
     this.isLoading = true;
-    this.hasChanges = false; 
+    this.hasChanges = false;
     this.pendingActiveExamId = null; // Clean active dynamic state
     this.cdr.markForCheck();
 
@@ -111,10 +196,22 @@ export class ExamListComponent implements OnInit, OnDestroy {
         this.exams = res.data ?? [];
         this.originalExams = JSON.parse(JSON.stringify(this.exams));
         this.isLoading = false;
+        this.persistState();
         this.cdr.markForCheck();
       },
       error: () => { this.isLoading = false; this.cdr.markForCheck(); }
     });
+  }
+
+  // ✅ naya — search box se hit hota hai; actual load 2s debounce ke baad hi
+  onSearchInputChange(value: string): void {
+    this.filter.examName = value;
+    this.searchInput$.next(value);
+  }
+
+  onSessionChange(): void {
+    this.filter.page = 0;
+    this.loadExams();
   }
 
   // ✅ FIXED LOCAL TOGGLE: Ensures exactly one row stays 'Y', others strictly stay 'N'

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -14,16 +14,25 @@ import { DropdownOption } from '../../../student/models/student.model';
   styleUrls: ['./fee-structure-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FeeStructureFormComponent implements OnInit {
+export class FeeStructureFormComponent implements OnInit, OnDestroy {
   isEditMode = false;
   isLoading = false;
   classes: DropdownOption[] = [];
   academicSessions: DropdownOption[] = [];
 
+  // ✅ naya — submit try karne ke baad hi red validation errors dikhengi
+  submitted = false;
+
   showToast = false;
   toastMessage = '';
   toastType: 'success' | 'error' = 'success';
-  private toastTimer: any;
+
+  // ✅ fix — pehle ek hi timer variable dono kaam ke liye (auto-hide + navigate)
+  // reuse ho raha tha, isliye error toast kabhi auto-hide hi nahi hota tha.
+  // Ab dono alag hain.
+  private toastAutoHideTimer: any = null;
+  private navigateTimer: any = null;
+  private readonly TOAST_DURATION = 4000;
 
   formData: SaveFeeStructureRequest = {
     classId: '',
@@ -76,15 +85,33 @@ export class FeeStructureFormComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    if (this.toastAutoHideTimer) clearTimeout(this.toastAutoHideTimer);
+    if (this.navigateTimer) clearTimeout(this.navigateTimer);
+  }
+
   private fireToast(type: 'success' | 'error', message: string): void {
-    clearTimeout(this.toastTimer);
+    if (this.toastAutoHideTimer) clearTimeout(this.toastAutoHideTimer);
+
     this.toastType = type;
     this.toastMessage = message;
     this.showToast = true;
     this.cdr.markForCheck();
+
+    // ✅ naya — ab error toast bhi apne aap 4s baad band ho jaayega
+    // (pehle sirf success case me navigate hone tak dikhta rehta,
+    // error hamesha screen pe chipka reh jaata tha)
+    this.toastAutoHideTimer = setTimeout(() => this.closeToast(), this.TOAST_DURATION);
   }
 
-  // 🔑 Ek hi jagah se navigation hoga, absolute path se — relative path ki dikkat khatam
+  // ✅ naya — manual close button ke liye
+  closeToast(): void {
+    if (this.toastAutoHideTimer) { clearTimeout(this.toastAutoHideTimer); this.toastAutoHideTimer = null; }
+    this.showToast = false;
+    this.cdr.markForCheck();
+  }
+
+  // 🔑 Ek hi jagah se navigation hoga
   private goToList(): void {
     this.router.navigate(['list'], { relativeTo: this.route.parent })
       .then(success => {
@@ -100,6 +127,10 @@ export class FeeStructureFormComponent implements OnInit {
   }
 
   onSaveSubmit(): void {
+    // ✅ naya — submit try hote hi red field errors dikhne lagenge
+    this.submitted = true;
+    this.cdr.markForCheck();
+
     if (!this.formData.classId) {
       this.fireToast('error', 'Please select a class.');
       return;
@@ -122,24 +153,25 @@ export class FeeStructureFormComponent implements OnInit {
 
     const payload: SaveFeeStructureRequest = {
       ...this.formData,
-      dueDate: this.formData.dueDate || null   
+      dueDate: this.formData.dueDate || null
     };
 
     this.feeService.saveFeeStructure(payload).subscribe({
       next: (response: any) => {
         this.isLoading = false;
-        this.cdr.markForCheck();               // 👈 missing tha, isi wajah se button stuck tha
+        this.cdr.markForCheck();
 
         const msg = response?.message || 'Fee structure saved successfully';
         this.fireToast('success', msg);
 
-        this.toastTimer = setTimeout(() => {
+        if (this.navigateTimer) clearTimeout(this.navigateTimer);
+        this.navigateTimer = setTimeout(() => {
           this.goToList();
         }, 900);
       },
       error: (err) => {
         this.isLoading = false;
-        this.cdr.markForCheck();               // 👈 ye already tha, sahi hai
+        this.cdr.markForCheck();
         const msg = err?.error?.message || 'Failed to save. Please try again.';
         this.fireToast('error', msg);
       }

@@ -33,6 +33,7 @@ export interface CreateSubjectDto {
 }
 
 export interface AssignSubjectTeacherDto {
+  assignmentId?: string;
   subjectId: string;
   teacherId: string;
   classId: string;

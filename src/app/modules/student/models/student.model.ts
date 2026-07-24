@@ -94,7 +94,7 @@ export interface ParamListRequest {
   size: number;
   sortBy: string;
   sortDirection: 'ASC' | 'DESC';
-  type: 'classes' | 'sections' | 'teachers' | 'subjects' | 'students' | 'academic_sessions';
+  type: 'classes' | 'sections' | 'teachers' | 'subjects' | 'students' | 'academic_sessions' | 'fee_structures' | string;
   classId?: string;
   search?: string;
 }
@@ -102,6 +102,7 @@ export interface ParamListRequest {
 export interface DropdownOption {
   id: string;
   label: string;
+  amount?: number;
 }
 // Isko student.model.ts file ke end me append kar lijiye
 

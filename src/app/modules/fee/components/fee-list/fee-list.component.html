@@ -1,5 +1,17 @@
 <div class="school-erp-container">
 
+  <div class="fl-toast-notification" *ngIf="showResultPopup" [class.fl-is-error]="popupType === 'error'">
+    <div class="fl-toast-icon">
+      <svg *ngIf="popupType === 'success'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      <svg *ngIf="popupType === 'error'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div class="fl-toast-content">
+      <span class="fl-toast-title">{{ popupType === 'success' ? 'Success' : 'Validation Required' }}</span>
+      <span class="fl-toast-message">{{ popupMessage }}</span>
+    </div>
+    <button class="fl-toast-close-btn" (click)="closePopup()">✕</button>
+  </div>
+
   <div class="app-header">
     <div class="page-title-node">
       <span>Fee Records</span>
@@ -29,37 +41,10 @@
       <div class="filter-column-wrapper">
         <div class="select-group">
           <label class="filter-label">Session</label>
-          <select class="premium-input select-native" [(ngModel)]="filters.academicSessionId">
+          <select class="premium-input select-native" [(ngModel)]="filters.academicSessionId" (change)="onFilterChange()">
             <option value="">Select Session</option>
             <option *ngFor="let s of sessions" [value]="s.id">{{s.label}}</option>
           </select>
-        </div>
-
-        <div class="select-group student-search-group" style="position: relative;">
-          <label class="filter-label">Student Search</label>
-          <div class="search-input-wrapper" style="position: relative; display: flex; align-items: center;">
-            <input type="text"
-                   class="premium-input text-input"
-                   placeholder="Search student..."
-                   [(ngModel)]="studentSearchQuery"
-                   (input)="onStudentSearchInput()"
-                   (blur)="onStudentBlur()"
-                   [disabled]="!!filters.classId">
-            <button class="clear-search-btn"
-                    *ngIf="selectedStudent || studentSearchQuery"
-                    (click)="clearSelectedStudent()">
-              ×
-            </button>
-          </div>
-          
-          <div class="student-suggestions-box" *ngIf="showSuggestions && dynamicStudentsList.length > 0">
-            <div class="suggestion-row-item"
-                 *ngFor="let student of dynamicStudentsList"
-                 (click)="selectStudent(student)">
-              <span class="st-name">{{ student.firstName }} {{ student.lastName }}</span>
-              <span class="st-meta">Class {{ student.className }} ({{ student.sectionName }}) · {{ student.admissionNo }}</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -73,7 +58,7 @@
 
       <div class="select-group">
         <label class="filter-label">Section</label>
-        <select class="premium-input select-native" [(ngModel)]="filters.sectionId" [disabled]="!filters.classId || !!selectedStudent">
+        <select class="premium-input select-native" [(ngModel)]="filters.sectionId" (change)="onFilterChange()" [disabled]="!filters.classId || !!selectedStudent">
           <option value="">Select Section</option>
           <option *ngFor="let s of sections" [value]="s.id">{{s.label}}</option>
         </select>
@@ -81,17 +66,26 @@
 
       <div class="select-group">
         <label class="filter-label">Status</label>
-        <select class="premium-input select-native" [(ngModel)]="filters.paymentStatus" [disabled]="!!selectedStudent">
-          <option value="">Status</option>
+        <select class="premium-input select-native" [(ngModel)]="filters.paymentStatus" (change)="onFilterChange()" [disabled]="!!selectedStudent">
+          <option value="">Select Status</option>
           <option value="PAID">PAID</option>
           <option value="PENDING">PENDING</option>
+          <option value="PARTIAL">PARTIAL</option>
+        </select>
+      </div>
+
+      <div class="select-group">
+        <label class="filter-label">Fee Type</label>
+        <select class="premium-input select-native" [(ngModel)]="filters.feeStructureId" (change)="onFilterChange()" [disabled]="!filters.classId || !!selectedStudent">
+          <option value="">Select Fee Type</option>
+          <option *ngFor="let fs of feeStructures" [value]="fs.id">{{fs.label}}</option>
         </select>
       </div>
 
       <div class="select-group">
         <label class="filter-label">Month</label>
-        <select class="premium-input select-native" [(ngModel)]="filters.feeMonth">
-          <option [value]="undefined">All Months</option>
+        <select class="premium-input select-native" [(ngModel)]="filters.feeMonth" (change)="onFilterChange()">
+          <option [value]="undefined">Select Month</option>
           <option [value]="1">January</option>
           <option [value]="2">February</option>
           <option [value]="3">March</option>
@@ -109,11 +103,14 @@
 
       <div class="select-group">
         <label class="filter-label">Year</label>
-        <input type="number" class="premium-input" placeholder="Year" [(ngModel)]="filters.feeYear" min="2020" max="2099">
+        <select class="premium-input select-native" [(ngModel)]="filters.feeYear" (change)="onFilterChange()">
+          <option [value]="undefined">Select Year</option>
+          <option *ngFor="let y of yearOptions" [value]="y">{{ y }}</option>
+        </select>
       </div>
 
       <div class="filter-actions-group">
-        <button class="btn-primary-trigger" (click)="onSearch()">Search</button>
+        <button class="btn-primary-trigger" (click)="onSearch(true, true)">Search</button>
         <button class="btn-secondary-clear" (click)="clearAllFilters()" title="Reset All Filters">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M23 4v6h-6M1 20v-6h6"></path>
@@ -135,24 +132,26 @@
       <div class="table-responsive" *ngIf="!loading">
         <table class="premium-table">
           <colgroup>
-            <col style="width: 21%;">
-            <col style="width: 14%;">
-            <col style="width: 14%;">
-            <col style="width: 14%;">
+            <col style="width: 20%;">
+            <col style="width: 15%;">
             <col style="width: 12%;">
-            <col style="width: 16%;">
+            <col style="width: 13%;">
+            <col style="width: 13%;">
+            <col style="width: 12%;">
+            <col style="width: 15%;">
           </colgroup>
           <thead>
             <tr>
               <th>Student</th>
               <th>Fee Structure</th>
               <th>Month / Year</th>
-              <th>Amount</th>
+              <th>Fee Amount</th>
+              <th>Paid Amount</th>
               <th>Status</th>
               <th class="text-right">Actions</th>
             </tr>
           </thead>
-      <tbody>
+          <tbody>
             <tr *ngFor="let f of fees">
               <td data-label="Student">
                 <div class="student-profile-cell">
@@ -162,24 +161,38 @@
               </td>
               <td data-label="Fee Structure"><span class="structure-name-txt">{{ f.feeStructureName || '—' }}</span></td>
               <td data-label="Month / Year"><span class="term-pill-node">{{f.feeMonth | number:'2.0-0'}} / {{f.feeYear}}</span></td>
-              <td data-label="Amount"><strong class="currency-node">{{ f.totalAmount != null ? '₹' + (f.totalAmount | number:'1.2-2') : '—' }}</strong></td>
+              <td data-label="Fee Amount"><strong class="currency-node">{{ f.totalAmount != null ? '₹' + (f.totalAmount | number:'1.2-2') : '—' }}</strong></td>
+              <td data-label="Paid Amount"><strong class="currency-node paid-amt">{{ f.paidAmount != null ? '₹' + (f.paidAmount | number:'1.2-2') : '₹0.00' }}</strong></td>
               <td data-label="Status">
                 <span [class]="'badge ' + (f.paymentStatus === 'PAID' ? 'status-paid' : f.paymentStatus === 'PARTIAL' ? 'status-partial' : 'status-pending')">
                   {{f.paymentStatus}}
                 </span>
               </td>
               <td class="text-right" data-label="Actions">
-                <button class="btn-row-edit" (click)="openFeeForm(f)">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                  </svg>
-                  <span>Edit</span>
-                </button>
+                <!-- PENDING virtual row: id = null → Pay Now button -->
+                <ng-container *ngIf="!f.id">
+                  <button class="btn-row-pay" (click)="openFeeForm(f)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <span>Pay Now</span>
+                  </button>
+                </ng-container>
+                <!-- Existing record: id present → Edit button -->
+                <ng-container *ngIf="f.id">
+                  <button class="btn-row-edit" (click)="openFeeForm(f)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    <span>Edit</span>
+                  </button>
+                </ng-container>
               </td>
             </tr>
             <tr *ngIf="fees.length === 0">
-              <td colspan="6" class="no-data-fallback">No fee records found. Use filters above or create a new fee entry.
+              <td colspan="7" class="no-data-fallback">No fee records found. Use filters above or create a new fee entry.
               </td>
             </tr>
           </tbody>
@@ -199,11 +212,27 @@
       </select>
     </div>
     <div class="page-btns" *ngIf="totalPages > 1">
-      <button class="page-btn" (click)="goToPage(0)" [disabled]="filters.page === 0">«</button>
-      <button class="page-btn" (click)="goToPage(filters.page - 1)" [disabled]="filters.page === 0">‹</button>
+      <button class="page-btn" (click)="goToPage(0)" [disabled]="filters.page === 0" aria-label="First page">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>
+        </svg>
+      </button>
+      <button class="page-btn" (click)="goToPage(filters.page - 1)" [disabled]="filters.page === 0" aria-label="Previous page">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
       <button *ngFor="let p of pages" class="page-btn" [class.active]="p === filters.page" (click)="goToPage(p)">{{ p + 1 }}</button>
-      <button class="page-btn" (click)="goToPage(filters.page + 1)" [disabled]="filters.page >= totalPages - 1">›</button>
-      <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="filters.page >= totalPages - 1">»</button>
+      <button class="page-btn" (click)="goToPage(filters.page + 1)" [disabled]="filters.page >= totalPages - 1" aria-label="Next page">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+      <button class="page-btn" (click)="goToPage(totalPages - 1)" [disabled]="filters.page >= totalPages - 1" aria-label="Last page">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>
+        </svg>
+      </button>
     </div>
   </div>
 

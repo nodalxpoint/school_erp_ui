@@ -146,7 +146,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
   isSubjectsActive(): boolean { return SUBJECTS_ROUTES.some(r => this.currentPath.startsWith(r)) && !this.currentPath.includes('assign-teacher'); }
   isExamsActive(): boolean { return EXAMS_ROUTES.some(r => this.currentPath.startsWith(r)); }
   isFeesActive(): boolean { return FEES_ROUTES.some(r => this.currentPath.startsWith(r)); }
+isStudentFeesActive(): boolean {
+  return this.isExactActive('/fees') ||
+    (this.currentPath.startsWith('/fees/') && !this.currentPath.startsWith('/fees/history'));
+}
 
+isFeeHistoryActive(): boolean {
+  return this.isExactActive('/fees/history');
+}
   toggleTeachersDropdown(): void {
     this.teachersDropdownOpen = !this.teachersDropdownOpen;
     if (this.teachersDropdownOpen) { this.subjectsDropdownOpen = false; this.examsDropdownOpen = false; }

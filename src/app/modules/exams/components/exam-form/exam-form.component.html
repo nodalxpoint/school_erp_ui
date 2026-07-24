@@ -29,34 +29,48 @@
       </div>
     </div>
 
-    <form (ngSubmit)="onSubmit()" #examForm="ngForm" class="form-grid">
-      
+    <form (ngSubmit)="onSubmit(examForm)" #examForm="ngForm" class="form-grid">
+
       <div class="form-group">
         <label class="form-label">Academic Session *</label>
-        <select class="form-control select-pilled" [(ngModel)]="formModel.academicSessionId" name="academicSession" required>
+        <select class="form-control select-pilled"
+          [class.invalid]="academicSession.invalid && academicSession.touched"
+          [(ngModel)]="formModel.academicSessionId" name="academicSession"
+          #academicSession="ngModel" required>
           <option value="" disabled>Select Session</option>
           <option *ngFor="let s of sessions" [value]="s.id">{{ s.label }}</option>
         </select>
+        <span class="field-error" *ngIf="academicSession.invalid && academicSession.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Examination Term Name *</label>
-        <input type="text" class="form-control" placeholder="e.g. Mid-Term Examination 2026" [(ngModel)]="formModel.examName" name="examName" required />
+        <input type="text" class="form-control"
+          [class.invalid]="examName.invalid && examName.touched"
+          placeholder="e.g. Mid-Term Examination 2026"
+          [(ngModel)]="formModel.examName" name="examName" #examName="ngModel" required />
+        <span class="field-error" *ngIf="examName.invalid && examName.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">Start Date *</label>
-        <input type="date" class="form-control" [(ngModel)]="formModel.startDate" name="startDate" required />
+        <input type="date" class="form-control"
+          [class.invalid]="startDate.invalid && startDate.touched"
+          [(ngModel)]="formModel.startDate" name="startDate" #startDate="ngModel" required />
+        <span class="field-error" *ngIf="startDate.invalid && startDate.touched">This field is required.</span>
       </div>
 
       <div class="form-group">
         <label class="form-label">End Date *</label>
-        <input type="date" class="form-control" [(ngModel)]="formModel.endDate" name="endDate" required />
+        <input type="date" class="form-control"
+          [class.invalid]="endDate.invalid && endDate.touched"
+          [(ngModel)]="formModel.endDate" name="endDate" #endDate="ngModel" required />
+        <span class="field-error" *ngIf="endDate.invalid && endDate.touched">This field is required.</span>
       </div>
 
       <div class="form-actions full-width">
         <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
-        <button type="submit" class="btn-submit" [disabled]="!examForm.form.valid || isSaving">
+        <button type="submit" class="btn-submit" [disabled]="isSaving">
           {{ isSaving ? 'Saving exam params...' : (isEditMode ? 'Update Configuration' : 'Confirm Registration') }}
         </button>
       </div>

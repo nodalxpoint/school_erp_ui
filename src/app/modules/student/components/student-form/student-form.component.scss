@@ -37,6 +37,20 @@
   background: transparent; border: 1px solid var(--danger); color: var(--danger); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s;
   &:hover { background: var(--danger); color: #fff; }
 }
+
+/* ✅ naya — form khud flex container hona chahiye taaki andar ke saare
+   sections (.form-section, parent-strategy-wrapper, form-actions, etc.)
+   ke beech consistent gap aaye. Pehle sirf .form-page pe gap tha jo
+   sirf uske direct children (form-header, form-title-row, <form>) tak
+   hi limited tha — form ke ANDAR ke blocks aapas me chipke hue the. */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  @media (max-width: 480px) { gap: 1.25rem; }
+}
+
 .form-section {
   background: var(--bg-white); border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 14px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03); transition: box-shadow 0.2s ease;
   &:hover { box-shadow: 0 6px 20px rgba(43, 108, 176, 0.08); }
@@ -106,7 +120,7 @@ select.form-control.select-pilled {
 .text-mono { font-family: Monaco, monospace; letter-spacing: 0.03em; }
 
 .parent-strategy-wrapper {
-  background: #f8fafc; border: 1px dashed var(--border-dark); border-radius: 14px; padding: 2rem; text-align: center; margin-top: 0.5rem;
+  background: #f8fafc; border: 1px dashed var(--border-dark); border-radius: 14px; padding: 2rem; text-align: center;
   h3 { margin: 0 0 0.5rem; font-size: 1.15rem; font-weight: 700; color: var(--text-primary); }
   p { margin: 0 0 1.5rem; font-size: 0.88rem; color: var(--text-secondary); }
 }
@@ -120,7 +134,7 @@ select.form-control.select-pilled {
 }
 .lookup-header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; .header-left { display: flex; align-items: center; gap: 1rem; } }
 .btn-change-mode { background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 700; cursor: pointer; padding: 6px 12px; border-radius: 6px; transition: all 0.15s; &:hover { color: var(--danger); background: var(--danger-light); } }
-.mode-reset-row { display: flex; justify-content: flex-start; margin-bottom: -0.5rem; }
+.mode-reset-row { display: flex; justify-content: flex-start; }
 .lookup-search-box { padding: 1.5rem; }
 .search-input-group { display: flex; gap: 12px; width: 100%; .search-bar { flex: 1; } }
 .btn-search-trigger {

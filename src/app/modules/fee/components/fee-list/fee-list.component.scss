@@ -33,6 +33,78 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  position: relative;
+}
+
+// ─── TOAST NOTIFICATION ─────────────────────────────────
+.fl-toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-dark);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  min-width: 320px;
+  max-width: 450px;
+  animation: flSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &.fl-is-error {
+    border-left: 4px solid var(--danger);
+    .fl-toast-icon { color: var(--danger); background: var(--danger-light); }
+  }
+
+  .fl-toast-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .fl-toast-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .fl-toast-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .fl-toast-message {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .fl-toast-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    line-height: 1;
+    &:hover { color: var(--text-primary); background: var(--bg-row-odd); }
+  }
+}
+
+@keyframes flSlideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 // ─── HEADER ──────────────────────────────────────────────
@@ -190,8 +262,6 @@ input.premium-input {
   right: 10px;
   background: none;
   border: none;
-  font-size: 18px;
-  font-weight: 700;
   color: var(--text-muted);
   cursor: pointer;
   display: flex;
@@ -334,7 +404,10 @@ input.premium-input {
   }
 
   .term-pill-node { font-weight: 600; color: var(--text-muted); background: var(--bg-row-odd); padding: 3px 9px; border-radius: 6px; border: 1px solid var(--border); font-size: 12px; white-space: nowrap; }
-  .currency-node { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+  .currency-node {
+    font-size: 14px; font-weight: 800; color: var(--text-primary);
+    &.paid-amt { color: #276749; }
+  }
   .structure-name-txt { font-size: 13px; color: var(--text-muted); font-weight: 500; text-align: right; }
 
   .badge {
@@ -349,6 +422,13 @@ input.premium-input {
     padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
     transition: all 0.15s ease;
     &:hover { background: var(--primary); color: #fff; }
+  }
+
+  .btn-row-pay {
+    background: var(--teal-light); border: 1px solid var(--teal-border); color: var(--teal);
+    padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    transition: all 0.15s ease;
+    &:hover { background: var(--teal); color: #fff; }
   }
 
   .no-data-fallback {

@@ -1,3 +1,4 @@
+@charset "UTF-8";
 :host {
   --primary: #2b6cb0;
   --primary-light: #ebf4ff;
@@ -216,6 +217,7 @@
   flex-direction: column;
   gap: 1px;
   overflow: hidden;
+  flex: 1;
 }
 .student-search-container .selected-profile-confirmation-badge .profile-details strong {
   font-size: 13.5px;
@@ -227,6 +229,24 @@
 .student-search-container .selected-profile-confirmation-badge .profile-details span {
   font-size: 11px;
   color: var(--text-muted);
+}
+
+.btn-change-student {
+  background: var(--bg-white);
+  border: 1px solid var(--teal-border);
+  color: var(--teal);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.btn-change-student:hover {
+  background: var(--teal);
+  color: #fff;
 }
 
 .modal-input {
@@ -253,9 +273,39 @@ input.modal-input[readonly] {
   cursor: not-allowed;
 }
 
+.modal-input.invalid {
+  border-color: var(--danger) !important;
+  background: var(--danger-light) !important;
+}
+.modal-input.invalid:focus {
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15);
+}
+
+.field-error {
+  font-size: 11px;
+  color: var(--danger);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+}
+.field-error::before {
+  content: "⚠";
+  font-size: 10.5px;
+}
+
 .required-star {
   color: var(--danger);
   margin-left: 2px;
+}
+
+.search-hint-text {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 2px;
+  display: inline-block;
 }
 
 .form-info-banner {
@@ -539,5 +589,13 @@ input.modal-input[readonly] {
     max-width: 1280px;
     margin: 0 auto;
     padding: 32px;
+  }
+}
+@media (max-width: 480px) {
+  .ff-toast-notification {
+    top: 12px;
+    right: 12px;
+    left: 12px;
+    width: auto;
   }
 }/*# sourceMappingURL=fee-form.component.css.map */

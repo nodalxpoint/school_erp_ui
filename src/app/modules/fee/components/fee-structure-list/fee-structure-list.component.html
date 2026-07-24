@@ -33,16 +33,9 @@
       </div>
       <div class="select-group">
         <label class="filter-label">Fee Name</label>
-        <input class="premium-input" type="text" [(ngModel)]="filters.feeName" placeholder="Search fee name...">
-      </div>
-      <div class="select-group">
-        <label class="filter-label">Frequency</label>
-        <select class="premium-input" [(ngModel)]="filters.frequency">
-          <option value="">All Frequencies</option>
-          <option value="MONTHLY">Monthly</option>
-          <option value="QUARTERLY">Quarterly</option>
-          <option value="ANNUALLY">Annually</option>
-          <option value="ONE_TIME">One Time</option>
+        <select class="premium-input" [(ngModel)]="filters.feeName">
+          <option value="">All Fee Names</option>
+          <option *ngFor="let fn of feeNames" [value]="fn.label">{{ fn.label }}</option>
         </select>
       </div>
       <div class="filter-actions-group">

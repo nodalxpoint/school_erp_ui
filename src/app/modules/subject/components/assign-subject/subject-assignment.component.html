@@ -1,14 +1,14 @@
 <div class="ex-page-wrapper">
 
   <div class="ex-full-form-canvas" *ngIf="isFormOpen">
-    
+
     <div class="ex-form-navigation">
       <div class="ex-breadcrumb">
         <span class="ex-crumb-link" (click)="isFormOpen = false">Subject Mapping</span>
         <span class="ex-crumb-sep">/</span>
-        <span class="ex-crumb-current">New Assignment Mapping</span>
+        <span class="ex-crumb-current">{{ formModel.assignmentId ? 'Modify Assignment Mapping' : 'New Assignment Mapping' }}</span>
       </div>
-      
+
       <button class="ex-btn-top-back" type="button" (click)="isFormOpen = false" [disabled]="isSaving">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -19,7 +19,7 @@
     </div>
 
     <div class="ex-form-workspace-card">
-      
+
       <div class="ex-form-header-banner">
         <div class="ex-header-icon-box">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -27,13 +27,13 @@
           </svg>
         </div>
         <div class="ex-header-text-block">
-          <h3 class="ex-form-main-title">New Academic Assignment Mapping</h3>
+          <h3 class="ex-form-main-title">{{ formModel.assignmentId ? 'Modify Academic Assignment Mapping' : 'New Academic Assignment Mapping' }}</h3>
           <p class="ex-form-sub-title">Configure course books allocations and anchor specialized faculty experts straight inside the classroom matrix.</p>
         </div>
       </div>
 
       <form (ngSubmit)="onSubmitAssignment()" #assignForm="ngForm" class="ex-form-body-container">
-        
+
         <div class="ex-group-divider">
           <span>Roster Session Parameters</span>
         </div>
@@ -43,7 +43,7 @@
           <div class="ex-select-custom-wrapper">
             <select class="ex-form-select" [(ngModel)]="formModel.academicSessionId" name="academicSession" required [disabled]="isSaving">
               <option value="">Select current configuration session</option>
-              <option *ngFor="let s of sessions" [value]="s.id">📆 Session {{s.label}}</option>
+              <option *ngFor="let s of sessions" [value]="s.id">Session {{s.label}}</option>
             </select>
           </div>
         </div>
@@ -58,7 +58,7 @@
             <div class="ex-select-custom-wrapper">
               <select class="ex-form-select" [(ngModel)]="formModel.classId" name="class" (change)="onFormClassChange(formModel.classId)" required [disabled]="isSaving">
                 <option value="">Select Class</option>
-                <option *ngFor="let c of classes" [value]="c.id">🏫 {{c.label}}</option>
+                <option *ngFor="let c of classes" [value]="c.id">{{c.label}}</option>
               </select>
             </div>
           </div>
@@ -68,7 +68,7 @@
             <div class="ex-select-custom-wrapper">
               <select class="ex-form-select" [(ngModel)]="formModel.sectionId" name="section" [disabled]="!formModel.classId || isSaving" required>
                 <option value="">Select Section</option>
-                <option *ngFor="let s of sections" [value]="s.id">✨ Section {{s.label}}</option>
+                <option *ngFor="let s of sections" [value]="s.id">Section {{s.label}}</option>
               </select>
             </div>
           </div>
@@ -79,7 +79,7 @@
           <div class="ex-select-custom-wrapper">
             <select class="ex-form-select" [(ngModel)]="formModel.subjectId" name="subject" required [disabled]="isSaving">
               <option value="">Select target course book subject</option>
-              <option *ngFor="let sb of subjects" [value]="sb.id">📘 {{sb.label}}</option>
+              <option *ngFor="let sb of subjects" [value]="sb.id">{{sb.label}}</option>
             </select>
           </div>
         </div>
@@ -89,7 +89,7 @@
           <div class="ex-select-custom-wrapper">
             <select class="ex-form-select" [(ngModel)]="formModel.teacherId" name="teacher" required [disabled]="isSaving">
               <option value="">Select teacher specialist profile</option>
-              <option *ngFor="let t of teachers" [value]="t.id">👤 {{t.label}}</option>
+              <option *ngFor="let t of teachers" [value]="t.id">{{t.label}}</option>
             </select>
           </div>
         </div>
@@ -98,7 +98,7 @@
           <button type="button" class="ex-modal-btn-secondary" (click)="isFormOpen = false" [disabled]="isSaving">Dismiss</button>
           <button type="submit" class="ex-modal-btn-primary" [disabled]="!assignForm.form.valid || isSaving">
             <span class="ex-micro-spinner" *ngIf="isSaving"></span>
-            {{ isSaving ? 'Compiling Parameters...' : 'Confirm Assignment Mapping' }}
+            {{ isSaving ? 'Compiling Parameters...' : (formModel.assignmentId ? 'Update Assignment Mapping' : 'Confirm Assignment Mapping') }}
           </button>
         </div>
       </form>
@@ -107,7 +107,7 @@
   </div>
 
   <div class="ex-master-list-canvas" *ngIf="!isFormOpen">
-    
+
     <div class="ex-header-card">
       <div class="ex-header-top">
         <div class="ex-title-block">
@@ -151,6 +151,14 @@
         </div>
 
         <div class="ex-filter-group">
+          <label class="ex-label">Subject</label>
+          <select class="ex-select" [(ngModel)]="filter.subjectId" (change)="onApplyFilters()">
+            <option value="">All Subjects</option>
+            <option *ngFor="let sb of subjects" [value]="sb.id">{{sb.label}}</option>
+          </select>
+        </div>
+
+        <div class="ex-filter-group">
           <label class="ex-label">Teacher Faculty</label>
           <select class="ex-select" [(ngModel)]="filter.teacherId" (change)="onApplyFilters()">
             <option value="">All Teachers</option>
@@ -158,7 +166,6 @@
           </select>
         </div>
 
-        <!-- NEW: Dedicated Roster Refresh Button Component Action Anchor -->
         <div class="ex-filter-group ex-refresh-action-container">
           <label class="ex-label" style="opacity: 0;">Sync</label>
           <button class="ex-btn-refresh-matrix" type="button" (click)="onApplyFilters()" [disabled]="isLoading" title="Refresh Roster Streams">
@@ -166,6 +173,16 @@
               <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
             </svg>
             <span>Refresh Map</span>
+          </button>
+        </div>
+
+        <div class="ex-filter-group ex-refresh-action-container" *ngIf="hasActiveFilters()">
+          <label class="ex-label" style="opacity: 0;">Clear</label>
+          <button class="ex-btn-clear-matrix" type="button" (click)="clearFilters()" title="Clear all filters">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            <span>Clear Filters</span>
           </button>
         </div>
 
@@ -178,7 +195,11 @@
     </div>
 
     <div class="ex-empty-state" *ngIf="!isLoading && assignments.length === 0">
-      <div class="ex-empty-icon">📂</div>
+      <div class="ex-empty-icon">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
       <h3 class="ex-empty-title">No subject-teacher allocations configured</h3>
       <p class="ex-empty-sub">Modify your matrix query parameters or map a new faculty member above.</p>
     </div>
@@ -188,16 +209,17 @@
         <table class="ex-registry-table">
           <thead>
             <tr>
-              <th style="width: 25%;">Target Classroom</th>
-              <th style="width: 30%;">Subject Mapping</th>
+              <th style="width: 20%;">Target Classroom</th>
+              <th style="width: 25%;">Subject Mapping</th>
               <th style="width: 25%;">Assigned Teacher</th>
-              <th style="width: 20%;">Academic Session</th>
+              <th style="width: 15%;">Academic Session</th>
+              <th style="width: 15%; text-align: right; padding-right: 20px;">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let a of assignments" class="ex-table-data-row">
               <td>
-                <span class="ex-cell-main">🏫 {{ a.className }}</span>
+                <span class="ex-cell-main">{{ a.className }}</span>
                 <span class="ex-cell-sub">Section {{ a.sectionName }}</span>
               </td>
               <td>
@@ -211,7 +233,21 @@
                 </div>
               </td>
               <td>
-                <span class="ex-session-tag">... {{ a.academicSessionName }}</span>
+                <span class="ex-session-tag">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  {{ a.academicSessionName }}
+                </span>
+              </td>
+              <td style="text-align: right; padding-right: 20px;">
+                <button class="ex-btn-edit-action" type="button" (click)="onEditAssignment(a)" title="Modify Mapping Parameters">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  <span>Edit</span>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -219,9 +255,17 @@
       </div>
 
       <div class="ex-pagination-bar" *ngIf="totalPages > 1">
-        <button class="ex-pg-arrow" [disabled]="currentPage === 0" (click)="onPageChange(currentPage - 1)">‹</button>
+        <button class="ex-pg-arrow" [disabled]="currentPage === 0" (click)="onPageChange(currentPage - 1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
         <button *ngFor="let p of pages" class="ex-pg-num" [class.ex-pg-num--active]="p === currentPage" (click)="onPageChange(p)">{{ p + 1 }}</button>
-        <button class="ex-pg-arrow" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 1)">›</button>
+        <button class="ex-pg-arrow" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -230,14 +274,23 @@
 <!-- Result Toast -->
   <div class="ex-toast-notification" *ngIf="showResultPopup" [class.ex-is-error]="popupType === 'error'">
     <div class="ex-toast-icon">
-      <span *ngIf="popupType === 'success'">✔</span>
-      <span *ngIf="popupType === 'error'">⚠</span>
+      <svg *ngIf="popupType === 'success'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <svg *ngIf="popupType === 'error'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
     </div>
     <div class="ex-toast-content">
       <span class="ex-toast-title">{{ popupType === 'success' ? 'Success' : 'Something went wrong' }}</span>
       <span class="ex-toast-message">{{ popupMessage }}</span>
     </div>
-    <button class="ex-toast-close-btn" (click)="closePopup()">✕</button>
+    <button class="ex-toast-close-btn" (click)="closePopup()" aria-label="Close">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
     <div class="ex-toast-timer-track"><div class="ex-toast-timer-bar" [class.ex-timer-error]="popupType === 'error'"></div></div>
   </div>
 

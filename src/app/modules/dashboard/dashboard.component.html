@@ -5,7 +5,7 @@
       <div class="db-eyebrow-badge">{{ isAdmin ? 'Admin Dashboard' : 'School ERP' }} · Live Synchronization Active</div>
       <h2 class="db-welcome-title">
         {{ greeting }}, {{ firstName }}
-        <span *ngIf="isParent && selectedChild">({{ selectedChild.firstName }})</span> 👋
+        <span *ngIf="isParent && selectedChild">({{ selectedChild.firstName }})</span>
       </h2>
       <p class="db-subtitle-meta">
         Secure token verified entry session logged into core parameters architecture.
@@ -73,15 +73,26 @@
       <h3 class="db-stat-value-digits">{{ s.value }}</h3>
       <div class="db-stat-trend-footer">
         <span class="trend-badge-indicator trend-{{ s.changeType }}">
-          {{ s.changeType === 'up' ? '▲' : s.changeType === 'down' ? '▼' : '●' }} {{ s.change }}
+          <svg class="trend-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <ng-container [ngSwitch]="s.changeType">
+              <polyline *ngSwitchCase="'up'" points="18 15 12 9 6 15"/>
+              <polyline *ngSwitchCase="'down'" points="6 9 12 15 18 9"/>
+              <circle *ngSwitchDefault cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/>
+            </ng-container>
+          </svg>
+          {{ s.change }}
         </span>
       </div>
     </div>
   </div>
 
-  <div *ngIf="isParent" style="margin-bottom: 20px; text-align: right;">
-    <button (click)="showParentModal = true; loadParentChildren()" style="padding: 10px 16px; background: #3b82f6; color: white; border-radius: 8px; border: none; cursor: pointer; font-weight: 600;">
-      🔄 Switch Child Profile
+  <div *ngIf="isParent" class="db-switch-child-row">
+    <button (click)="showParentModal = true; loadParentChildren()" class="db-switch-child-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+      </svg>
+      Switch Child Profile
     </button>
   </div>
 
@@ -152,7 +163,7 @@
           </div>
           <span class="db-pillar-bottom-day-lbl">{{ d.day }}</span>
         </div>
-        <p *ngIf="weekAttendance.length === 0" style="text-align:center;color:#a0aec0;width:100%;">No attendance records found.</p>
+        <p *ngIf="weekAttendance.length === 0" class="db-empty-state-text">No attendance records found.</p>
       </div>
     </div>
 
@@ -211,24 +222,7 @@
             {{ cls.status === 'done' ? 'Completed' : cls.status === 'active' ? 'Active Now' : 'Upcoming' }}
           </span>
         </div>
-        <p *ngIf="todaySchedule.length === 0" style="text-align:center;color:#a0aec0;padding:20px 0;">No classes scheduled today.</p>
-      </div>
-    </div>
-
-    <!-- Recent Activity — admin-tier roles only -->
-    <div *ngIf="showRecentActivity" class="db-editorial-chart-card" [class.db-full-width-card-override]="!isAdmin && !isTeacher">
-      <div class="db-card-header-block">
-        <h4 class="db-card-inside-title">Recent Institutional Operational Streams Log</h4>
-        <button class="db-card-header-view-all-link-btn">Audit Records</button>
-      </div>
-      <div class="db-activity-streams-vertical-timeline">
-        <div *ngFor="let item of recentActivity" class="db-stream-timeline-row-item">
-          <div class="db-stream-timeline-left-node-dot dot-type-color-{{ item.type }}"></div>
-          <div class="db-stream-timeline-right-content-card">
-            <p class="db-stream-timeline-message-text">{{ item.message }}</p>
-            <p class="db-stream-timeline-timestamp-lbl">🕒 System Clock Trace: {{ item.time }}</p>
-          </div>
-        </div>
+        <p *ngIf="todaySchedule.length === 0" class="db-empty-state-text">No classes scheduled today.</p>
       </div>
     </div>
 
@@ -238,7 +232,7 @@
 <div *ngIf="showParentModal" class="parent-lock-fullscreen-overlay">
   <div class="selection-modal-card">
     <div class="modal-header">
-      <h2>Welcome back, Parent! 👋</h2>
+      <h2>Welcome back, Parent!</h2>
       <p>Please select a student profile to unlock the dashboard parameters.</p>
     </div>
 

@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TimetableService, ParamDropdownOption } from '../../services/timetable.service';
 import { TimetableDto } from '../../models/timetable.model';
@@ -135,7 +135,32 @@ export class TimetableFormComponent implements OnInit {
     });
   }
 
- onSubmit(): void {
+  onSubmit(form: NgForm): void {
+    // ✅ naya — pehle yaha koi validity check nahi tha, sab fields mandatory
+    // hone ke bawajood form invalid state me bhi save call ja sakti thi.
+    // Ab required fields check hoga, touched mark hoga (red errors ke liye)
+    // aur ek clear "form fill nahi hai" wala toast bhi dikhega.
+    if (form.invalid) {
+      form.form.markAllAsTouched();
+      this.popupType = 'error';
+      this.popupMessage = 'Please fill all the required fields correctly before submitting.';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+      return;
+    }
+
+    // ✅ naya — basic sanity check: end time start time se pehle/barabar na ho
+    if (this.formModel.startTime && this.formModel.endTime &&
+        this.formModel.endTime <= this.formModel.startTime) {
+      this.popupType = 'error';
+      this.popupMessage = 'End time must be after the start time.';
+      this.showResultPopup = true;
+      this.cdr.markForCheck();
+      this.startPopupTimer();
+      return;
+    }
+
     this.isSaving = true;
     this.cdr.markForCheck();
 

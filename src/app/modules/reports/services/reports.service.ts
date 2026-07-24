@@ -32,4 +32,8 @@ export class ReportsService {
       request
     );
   }
+
+  getReportCards(request: { classId: string; sectionId: string; academicSessionId?: string; examId?: string }): Observable<any[]> {
+    return this.http.post<any[]>(`${this.BASE}/reportCards`, request);
+  }
 }

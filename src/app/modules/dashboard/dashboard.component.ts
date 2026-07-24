@@ -22,13 +22,6 @@ export interface StatCard {
   route?: string;
 }
 
-export interface ActivityItem {
-  id: string;
-  message: string;
-  time: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-}
-
 export interface QuickAction {
   label: string;
   icon: string;
@@ -67,12 +60,12 @@ const ROLE_STATS: Record<UserRole, StatCard[]> = {
     { title: 'Unread Notices Board', value: '2', change: 'Unread', changeType: 'neutral', icon: 'bell', color: 'purple' },
     { title: 'Upcoming Exam Terms', value: '3', change: 'Upcoming', changeType: 'neutral', icon: 'file-text', color: 'orange' },
   ],
-ACCOUNTANT: [
-  { title: 'Total Active Students', value: '1,248', change: '+12 this month', changeType: 'up', icon: 'graduation-cap', color: 'blue' }, // route hataya
-  { title: 'Faculty Members', value: '86', change: '+3 this month', changeType: 'up', icon: 'users', color: 'purple' }, // route hataya
-  { title: 'Fee Ledger Collection', value: '₹8.4L', change: '92% completed', changeType: 'up', icon: 'credit-card', color: 'green', route: '/fees' }, // ye rakho, valid hai
-  { title: 'Present ', value: '94.2%', change: '-0.8% vs last', changeType: 'down', icon: 'calendar-check', color: 'orange' },
-],
+  ACCOUNTANT: [
+    { title: 'Total Active Students', value: '1,248', change: '+12 this month', changeType: 'up', icon: 'graduation-cap', color: 'blue' },
+    { title: 'Faculty Members', value: '86', change: '+3 this month', changeType: 'up', icon: 'users', color: 'purple' },
+    { title: 'Fee Ledger Collection', value: '₹8.4L', change: '92% completed', changeType: 'up', icon: 'credit-card', color: 'green', route: '/fees' },
+    { title: 'Present ', value: '94.2%', change: '-0.8% vs last', changeType: 'down', icon: 'calendar-check', color: 'orange' },
+  ],
   SCHOOL_ADMIN: [
     { title: 'Total Active Students', value: '1,248', change: '+12 this month', changeType: 'up', icon: 'graduation-cap', color: 'blue', route: '/students' },
     { title: 'Faculty Members', value: '86', change: '+3 this month', changeType: 'up', icon: 'users', color: 'purple', route: '/teachers' },
@@ -80,16 +73,6 @@ ACCOUNTANT: [
     { title: 'Attendance Rate', value: '94.2%', change: 'Today vs total', changeType: 'up', icon: 'clipboard', color: 'green' },
   ],
 };
-
-// TODO: replace with real notices/audit-log API — no such service found yet
-const RECENT_ACTIVITY: ActivityItem[] = [
-  { id: '1', message: 'New student Aryan Sharma enrolled in Class 10-A', time: '2 min ago', type: 'success' },
-  { id: '2', message: 'Fee payment received from Priya Singh — ₹12,500', time: '18 min ago', type: 'success' },
-  { id: '3', message: 'Teacher Anita Joshi marked attendance for Class 9-B', time: '1 hr ago', type: 'info' },
-  { id: '4', message: 'Salary disbursement completed for October', time: '3 hrs ago', type: 'info' },
-  { id: '5', message: 'Fee overdue for 14 students in Class 12', time: 'Yesterday', type: 'warning' },
-  { id: '6', message: 'Monthly report generated for September 2025', time: 'Yesterday', type: 'info' },
-];
 
 const ROLE_QUICK_ACTIONS: Record<UserRole, QuickAction[]> = {
   SUPER_ADMIN: [
@@ -107,7 +90,7 @@ const ROLE_QUICK_ACTIONS: Record<UserRole, QuickAction[]> = {
   TEACHER: [
     { label: 'Mark Attendance Now', icon: 'calendar-check', route: '/attendance/mark', color: 'green' },
     { label: 'Teacher Timetable', icon: 'calendar-days', route: '/teacher-timetable', color: 'purple' },
-    { label: 'Performance Reports', icon: 'bar-chart-3', route: '/attendance', color: 'orange' }, // ⚠️ see note below
+    { label: 'Performance Reports', icon: 'bar-chart-3', route: '/attendance', color: 'orange' },
   ],
   STUDENT: [
     { label: 'Track Attendance', icon: 'calendar-check', route: '/attendance', color: 'green' },
@@ -144,7 +127,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   user: any = null;
   stats: StatCard[] = [];
   quickActions: QuickAction[] = [];
-  recentActivity: ActivityItem[] = RECENT_ACTIVITY; // TODO: still dummy, no notices API yet
 
   currentClockTimeStr = '';
   currentDayLabelStr = '';
@@ -190,19 +172,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.stats = ROLE_STATS[role];
     this.quickActions = ROLE_QUICK_ACTIONS[role];
 
-if (role === 'PARENT') {
-  this.selectedChild = this.parentService.getActiveChildValue();
-  this.loadParentChildren();
+    if (role === 'PARENT') {
+      this.selectedChild = this.parentService.getActiveChildValue();
+      this.loadParentChildren();
 
-  if (this.selectedChild) {
-    this.loadOutstandingFees(this.selectedChild.id, this.selectedChild.academicSessionId);
-    this.loadChildAttendancePct(this.selectedChild.id);
-  }
-}
+      if (this.selectedChild) {
+        this.loadOutstandingFees(this.selectedChild.id, this.selectedChild.academicSessionId);
+        this.loadChildAttendancePct(this.selectedChild.id);
+      }
+    }
 
     if (role === 'STUDENT') {
-  this.loadOutstandingFees(this.user?.id, this.user?.academicSessionId);
-}
+      this.loadOutstandingFees(this.user?.id, this.user?.academicSessionId);
+    }
 
     if (role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'ACCOUNTANT' || role === 'SCHOOL_ADMIN') {
       this.loadAdminStats();
@@ -248,7 +230,6 @@ if (role === 'PARENT') {
             if (f.dueDate && f.dueDate < today) overdue += due;
             else pending += due;
           }
-          // WAIVED → not counted as receivable
         });
 
         const total = collected + pending + overdue || 1;
@@ -268,7 +249,6 @@ if (role === 'PARENT') {
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const days: { day: string; date: string }[] = [];
 
-    // pichle 6 din (aaj samet), latest din last me
     for (let i = 5; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
@@ -343,33 +323,31 @@ if (role === 'PARENT') {
     return `${h12}:${m.toString().padStart(2, '0')} ${period}`;
   }
 
-  // ── Parent/Student: outstanding dues ──
-// ── Parent/Student: outstanding dues (monthly status se) ──
-loadOutstandingFees(studentId: string, academicSessionId?: string): void {
-  if (!studentId) return;
+  // ── Parent/Student: outstanding dues (monthly status se) ──
+  loadOutstandingFees(studentId: string, academicSessionId?: string): void {
+    if (!studentId) return;
 
-  const sessionId = academicSessionId || this.selectedChild?.academicSessionId;
-  if (!sessionId) {
-    console.warn('academicSessionId missing, cannot load monthly fee status');
-    return;
+    const sessionId = academicSessionId || this.selectedChild?.academicSessionId;
+    if (!sessionId) {
+      console.warn('academicSessionId missing, cannot load monthly fee status');
+      return;
+    }
+
+    this.feeService.getMonthlyFeeStatus(studentId, sessionId)
+      .pipe(catchError(err => { console.error('Monthly fee status load failed:', err); return of(null); }))
+      .subscribe(res => {
+        if (!res || !res.months) return;
+
+        const unpaidMonths = res.months.filter(m => m.status === 'PENDING');
+        this.outstandingFeeAmount = unpaidMonths.reduce(
+          (sum, m) => sum + (m.totalAmount - m.paidAmount), 0
+        );
+        this.outstandingFeeDueDate = unpaidMonths[0]?.monthName ?? null;
+
+        this.updateFeeStatCard();
+        this.cdr.markForCheck();
+      });
   }
-
-  this.feeService.getMonthlyFeeStatus(studentId, sessionId)
-    .pipe(catchError(err => { console.error('Monthly fee status load failed:', err); return of(null); }))
-    .subscribe(res => {
-      if (!res || !res.months) return;
-
-      const unpaidMonths = res.months.filter(m => m.status === 'PENDING');
-      this.outstandingFeeAmount = unpaidMonths.reduce(
-        (sum, m) => sum + (m.totalAmount - m.paidAmount), 0
-      );
-      // sabse pehla pending month due date ke liye (monthName use kar lo, dueDate field nahi hai yaha)
-      this.outstandingFeeDueDate = unpaidMonths[0]?.monthName ?? null;
-
-      this.updateFeeStatCard();
-      this.cdr.markForCheck();
-    });
-}
 
   // ── Parent: child attendance % ──
   loadChildAttendancePct(studentId: string): void {
@@ -391,47 +369,47 @@ loadOutstandingFees(studentId: string, academicSessionId?: string): void {
       });
   }
 
- private updateFeeStatCard(): void {
-  const stat = this.stats.find(s => s.title === 'Outstanding Fees Due');
-  if (stat) {
-    stat.value = this.formatCurrency(this.outstandingFeeAmount);
-    stat.change = this.outstandingFeeDueDate ? `Pending: ${this.outstandingFeeDueDate}` : 'No dues pending';
-    stat.changeType = this.outstandingFeeAmount > 0 ? 'down' : 'neutral';
-  }
-}
-
-loadParentChildren(): void {
-  this.isLoadingChildren = true;
-  this.parentService.getChildrenRegistry().subscribe({
-    next: (data) => {
-      this.childrenList = data;
-      this.isLoadingChildren = false;
-
-     if (!this.selectedChild && this.childrenList.length > 0) {
-  this.selectedChild = this.childrenList[0];
-  this.parentService.setActiveChild(this.selectedChild);
-  this.loadOutstandingFees(this.selectedChild.id, this.selectedChild.academicSessionId); // 👈 sessionId add
-  this.loadChildAttendancePct(this.selectedChild.id);
-}
-
-      this.cdr.markForCheck();
-    },
-    error: (err) => {
-      console.error('Error fetching children endpoints:', err);
-      this.isLoadingChildren = false;
-      this.cdr.markForCheck();
+  private updateFeeStatCard(): void {
+    const stat = this.stats.find(s => s.title === 'Outstanding Fees Due');
+    if (stat) {
+      stat.value = this.formatCurrency(this.outstandingFeeAmount);
+      stat.change = this.outstandingFeeDueDate ? `Pending: ${this.outstandingFeeDueDate}` : 'No dues pending';
+      stat.changeType = this.outstandingFeeAmount > 0 ? 'down' : 'neutral';
     }
-  });
-}
+  }
 
- selectChildProfile(child: ChildStudentDto): void {
-  this.parentService.setActiveChild(child);
-  this.selectedChild = child;
-  this.showParentModal = false;
-  this.loadOutstandingFees(child.id, child.academicSessionId); 
-  this.loadChildAttendancePct(child.id);
-  this.cdr.markForCheck();
-}
+  loadParentChildren(): void {
+    this.isLoadingChildren = true;
+    this.parentService.getChildrenRegistry().subscribe({
+      next: (data) => {
+        this.childrenList = data;
+        this.isLoadingChildren = false;
+
+        if (!this.selectedChild && this.childrenList.length > 0) {
+          this.selectedChild = this.childrenList[0];
+          this.parentService.setActiveChild(this.selectedChild);
+          this.loadOutstandingFees(this.selectedChild.id, this.selectedChild.academicSessionId);
+          this.loadChildAttendancePct(this.selectedChild.id);
+        }
+
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error fetching children endpoints:', err);
+        this.isLoadingChildren = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  selectChildProfile(child: ChildStudentDto): void {
+    this.parentService.setActiveChild(child);
+    this.selectedChild = child;
+    this.showParentModal = false;
+    this.loadOutstandingFees(child.id, child.academicSessionId);
+    this.loadChildAttendancePct(child.id);
+    this.cdr.markForCheck();
+  }
 
   ngOnDestroy(): void {
     if (this.clockIntervalId) clearInterval(this.clockIntervalId);
@@ -460,10 +438,10 @@ loadParentChildren(): void {
     return 'Good evening';
   }
 
-  // Broad "admin-tier" flag — only for cosmetic labels (eyebrow badge) and
-  // gating the general activity log. NEVER used alone to pick charts/stats —
-  // those use the specific role getters below so Accountant-only data never
-  // bleeds into School Admin's view or vice versa.
+  // Broad "admin-tier" flag — only for cosmetic labels (eyebrow badge).
+  // NEVER used alone to pick charts/stats — those use the specific role
+  // getters below so Accountant-only data never bleeds into School Admin's
+  // view or vice versa.
   get isAdmin(): boolean {
     return this.isSuperAdmin || this.isAdminRole || this.isAccountant || this.isSchoolAdmin;
   }
@@ -486,11 +464,6 @@ loadParentChildren(): void {
     return this.isAccountant;
   }
 
-  // Recent activity log — admin-tier events only.
-  get showRecentActivity(): boolean {
-    return this.isAdmin;
-  }
-
   get firstName(): string {
     return this.user?.name ? this.user.name.split(' ')[0] : 'User';
   }
@@ -511,14 +484,14 @@ loadParentChildren(): void {
           const attendanceRate = total > 0 ? (present / total) * 100 : 0;
           const attendanceRateStr = `${attendanceRate.toFixed(1)}%`;
 
-         if (this.isAccountant) {
-  this.stats = [
-    { title: 'Total Active Students', value: total.toLocaleString(), change: 'Total enrolled', changeType: 'neutral', icon: 'graduation-cap', color: 'blue' }, // route: '/students' hataya
-    { title: 'Faculty Members', value: data.totalTeachers.toLocaleString(), change: 'Total staff', changeType: 'neutral', icon: 'users', color: 'purple' }, // route: '/teachers' hataya
-    { title: 'Fee Ledger Collection', value: this.formatCurrency(data.totalAmountCollected), change: 'Total collected', changeType: 'up', icon: 'credit-card', color: 'green', route: '/fees' },
-    { title: 'Present ', value: present.toLocaleString(), change: `${attendanceRateStr} attendance`, changeType: 'neutral', icon: 'calendar-check', color: 'orange' }
-  ];
-}else {
+          if (this.isAccountant) {
+            this.stats = [
+              { title: 'Total Active Students', value: total.toLocaleString(), change: 'Total enrolled', changeType: 'neutral', icon: 'graduation-cap', color: 'blue' },
+              { title: 'Faculty Members', value: data.totalTeachers.toLocaleString(), change: 'Total staff', changeType: 'neutral', icon: 'users', color: 'purple' },
+              { title: 'Fee Ledger Collection', value: this.formatCurrency(data.totalAmountCollected), change: 'Total collected', changeType: 'up', icon: 'credit-card', color: 'green', route: '/fees' },
+              { title: 'Present ', value: present.toLocaleString(), change: `${attendanceRateStr} attendance`, changeType: 'neutral', icon: 'calendar-check', color: 'orange' }
+            ];
+          } else {
             this.stats = [
               { title: 'Total Active Students', value: total.toLocaleString(), change: 'Total enrolled', changeType: 'neutral', icon: 'graduation-cap', color: 'blue', route: '/students' },
               { title: 'Faculty Members', value: data.totalTeachers.toLocaleString(), change: 'Total staff', changeType: 'neutral', icon: 'users', color: 'purple', route: '/teachers' },
