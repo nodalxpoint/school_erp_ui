@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SchoolService } from '../services/school.service';
 import { CreateSchoolResult, School } from '../models/school.model';
+import { AuthStateService } from '../../../core/auth/auth-state.service';
 
 @Component({
   selector: 'app-school-form',
@@ -27,6 +28,7 @@ export class SchoolFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private schoolService: SchoolService,
+    private authState: AuthStateService,
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
@@ -49,6 +51,11 @@ export class SchoolFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (!this.authState.canEditAsPlatformAdmin) {
+      this.router.navigate(['/schools']);
+      return;
+    }
+
     this.schoolId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.schoolId;
 

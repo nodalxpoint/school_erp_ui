@@ -2,6 +2,10 @@
 
 export type UserRole = 'PLATFORM_ADMIN' | 'SUPER_ADMIN' | 'ADMIN' | 'TEACHER' | 'STUDENT' | 'PARENT' | 'ACCOUNTANT' | 'SCHOOL_ADMIN';
 
+// Only meaningful when role === 'PLATFORM_ADMIN'. Absent/null means EDIT (backend
+// grandfathers platform admins created before this field existed as full-rights).
+export type PlatformAdminAccessLevel = 'EDIT' | 'VIEW_ONLY';
+
 export interface User {
   id: string;
   name: string;
@@ -9,6 +13,7 @@ export interface User {
   role: UserRole;
   avatar?: string;
   schoolId: string;
+  platformAdminAccessLevel?: PlatformAdminAccessLevel | null;
 }
 
 export interface LoginRequest {

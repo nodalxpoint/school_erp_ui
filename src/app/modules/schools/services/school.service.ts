@@ -4,14 +4,18 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { HttpService } from '../../../core/services/http.service';
 import {
+  CreatePlatformAdminForm,
+  CreatePlatformAdminResult,
   CreateSchoolForm,
   CreateSchoolResult,
+  PlatformAdmin,
   PlatformPagedResponse,
   PlatformStudentSummary,
   PlatformTeacherSummary,
   SaveSchoolForm,
   School,
   SchoolListApiResponse,
+  UpdatePlatformAdminForm,
 } from '../models/school.model';
 
 interface ApiEnvelope<T> {
@@ -63,5 +67,23 @@ export class SchoolService {
       `${this.baseUrl}/${schoolId}/teachers`,
       { page: String(page), size: String(size) }
     );
+  }
+
+  listPlatformAdmins(): Observable<PlatformAdmin[]> {
+    return this.http
+      .get<ApiEnvelope<PlatformAdmin[]>>('/platform-admin/admins')
+      .pipe(map((res) => res.data ?? []));
+  }
+
+  createPlatformAdmin(form: CreatePlatformAdminForm): Observable<CreatePlatformAdminResult> {
+    return this.http
+      .post<ApiEnvelope<CreatePlatformAdminResult>>('/platform-admin/admins', form)
+      .pipe(map((res) => res.data));
+  }
+
+  updatePlatformAdmin(id: string, form: UpdatePlatformAdminForm): Observable<PlatformAdmin> {
+    return this.http
+      .put<ApiEnvelope<PlatformAdmin>>(`/platform-admin/admins/${id}`, form)
+      .pipe(map((res) => res.data));
   }
 }

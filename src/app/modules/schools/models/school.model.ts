@@ -82,3 +82,34 @@ export interface PlatformPagedResponse<T> {
   last: boolean;
   data: T[];
 }
+
+export type PlatformAdminAccessLevel = 'EDIT' | 'VIEW_ONLY';
+
+export interface PlatformAdmin {
+  id: string;
+  firstName: string;
+  lastName?: string | null;
+  email: string;
+  accessLevel: PlatformAdminAccessLevel;
+  isActive: boolean;
+  createdAt?: string;
+}
+
+export interface CreatePlatformAdminForm {
+  firstName: string;
+  lastName?: string;
+  email: string;
+  accessLevel: PlatformAdminAccessLevel;
+}
+
+export interface CreatePlatformAdminResult {
+  id: string;
+  email: string;
+  accessLevel: PlatformAdminAccessLevel;
+  temporaryPassword: string;
+}
+
+export interface UpdatePlatformAdminForm {
+  accessLevel: PlatformAdminAccessLevel;
+  isActive: boolean;
+}

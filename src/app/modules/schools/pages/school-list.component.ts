@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SchoolService } from '../services/school.service';
 import { School } from '../models/school.model';
+import { AuthStateService } from '../../../core/auth/auth-state.service';
 
 @Component({
   selector: 'app-school-list',
@@ -18,12 +19,16 @@ export class SchoolListComponent implements OnInit {
   isLoading = false;
   search = '';
   toast: { message: string; type: 'success' | 'error' } | null = null;
+  canEdit = false;
 
   constructor(
     private schoolService: SchoolService,
+    private authState: AuthStateService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) {
+    this.canEdit = this.authState.canEditAsPlatformAdmin;
+  }
 
   ngOnInit(): void {
     const state = history.state as { toast?: { message: string; type: 'success' | 'error' } };

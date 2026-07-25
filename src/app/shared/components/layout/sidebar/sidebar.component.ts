@@ -20,6 +20,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Schools', href: '/schools', icon: 'layout-dashboard', roles: ['PLATFORM_ADMIN'] },
+  { label: 'Platform Admins', href: '/schools/admins', icon: 'users', roles: ['PLATFORM_ADMIN'] },
   { label: 'Admin Dashboard', href: '/dashboard', icon: 'layout-dashboard', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
   { label: 'Dashboard', href: '/dashboard', icon: 'layout-dashboard', roles: ['TEACHER', 'STUDENT', 'PARENT', 'ACCOUNTANT'] },
   { label: 'Students', href: '/students', icon: 'graduation-cap', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },

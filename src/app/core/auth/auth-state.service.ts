@@ -44,6 +44,7 @@ export class AuthStateService {
           email:    decoded.sub ?? '',
           role:     decoded.role as UserRole,
           schoolId: decoded.schoolId ?? '',   // ← FIX 1: schoolId add kiya
+          platformAdminAccessLevel: decoded.platformAdminAccessLevel ?? null,
         };
         this.tokenService.setUser(builtUser); // ← FIX 2: null nahi, typed User
         user = builtUser;
@@ -76,5 +77,14 @@ export class AuthStateService {
 
   get isAuthenticated(): boolean {
     return this._isAuthenticated$.value;
+  }
+
+  // True for every role except a platform admin explicitly marked VIEW_ONLY.
+  // Null/undefined access level is treated as EDIT to match the backend's
+  // grandfathering of platform admins created before this field existed.
+  get canEditAsPlatformAdmin(): boolean {
+    const user = this.currentUser;
+    if (!user || user.role !== 'PLATFORM_ADMIN') return false;
+    return user.platformAdminAccessLevel !== 'VIEW_ONLY';
   }
 }

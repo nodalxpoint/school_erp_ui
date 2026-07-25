@@ -80,6 +80,7 @@ export class AuthService {
       email,
       role,
       schoolId: decoded.schoolId ?? '',
+      platformAdminAccessLevel: decoded.platformAdminAccessLevel ?? null,
     };
   }
 

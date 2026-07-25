@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SchoolService } from '../services/school.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { AuthStateService } from '../../../core/auth/auth-state.service';
 import { PlatformStudentSummary, PlatformTeacherSummary } from '../models/school.model';
 
 @Component({
@@ -26,14 +27,18 @@ export class SchoolDashboardComponent implements OnInit {
   impersonateEmail = '';
   isImpersonating = false;
   impersonateError: string | null = null;
+  canEdit = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private schoolService: SchoolService,
     private authService: AuthService,
+    private authState: AuthStateService,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) {
+    this.canEdit = this.authState.canEditAsPlatformAdmin;
+  }
 
   ngOnInit(): void {
     this.schoolId = this.route.snapshot.paramMap.get('id') ?? '';

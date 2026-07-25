@@ -8,8 +8,8 @@
     </div>
   </div>
 
-  <!-- Impersonate panel -->
-  <div class="impersonate-card">
+  <!-- Impersonate panel — requires edit-level platform admin access -->
+  <div class="impersonate-card" *ngIf="canEdit">
     <h3 class="section-title">Debug as user</h3>
     <p class="muted small">Enter a teacher, admin, or accountant's email from this school to log in as them for bug reproduction. No password needed — every use is logged.</p>
     <div class="impersonate-row">

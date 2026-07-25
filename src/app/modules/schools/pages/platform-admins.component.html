@@ -1,0 +1,182 @@
+<div class="page-wrapper">
+
+  <div class="toast" *ngIf="toast" [class.toast-success]="toast.type === 'success'" [class.toast-error]="toast.type === 'error'">
+    {{ toast.message }}
+  </div>
+
+  <div class="page-header">
+    <div>
+      <button class="back-link" (click)="back()">&larr; All Schools</button>
+      <h1 class="page-title">Platform Admins</h1>
+      <p class="page-sub">{{ admins.length }} {{ admins.length === 1 ? 'admin' : 'admins' }} with platform-level access</p>
+    </div>
+    <button class="btn-primary" (click)="toggleAddPanel()" *ngIf="canEdit">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Add Platform Admin
+    </button>
+  </div>
+
+  <div class="alert alert-info" *ngIf="!canEdit">
+    You have view-only platform admin access. You can see this list but cannot add or edit platform admins.
+  </div>
+
+  <!-- Add panel -->
+  <div class="add-card" *ngIf="showAddPanel">
+
+    <ng-container *ngIf="!createdResult">
+      <h3 class="section-title">New platform admin</h3>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="add-form">
+        <div class="form-row">
+          <label>First name</label>
+          <input type="text" formControlName="firstName" placeholder="Jane" />
+        </div>
+        <div class="form-row">
+          <label>Last name</label>
+          <input type="text" formControlName="lastName" placeholder="Doe" />
+        </div>
+        <div class="form-row">
+          <label>Email</label>
+          <input type="email" formControlName="email" placeholder="jane@yourcompany.com" />
+        </div>
+        <div class="form-row">
+          <label>Access level</label>
+          <select formControlName="accessLevel">
+            <option value="VIEW_ONLY">View only</option>
+            <option value="EDIT">Edit (full rights)</option>
+          </select>
+        </div>
+
+        <div class="alert alert-error" *ngIf="error">{{ error }}</div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="toggleAddPanel()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="isSaving">
+            {{ isSaving ? 'Creating...' : 'Create admin' }}
+          </button>
+        </div>
+      </form>
+    </ng-container>
+
+    <ng-container *ngIf="createdResult">
+      <h3 class="section-title">Platform admin created</h3>
+      <p class="muted small">Save this password now — it will never be shown again.</p>
+      <div class="credential-box">
+        <div class="credential-row"><span class="credential-label">Email</span><span class="credential-value">{{ createdResult.email }}</span></div>
+        <div class="credential-row">
+          <span class="credential-label">Temporary password</span>
+          <span class="credential-value mono">{{ createdResult.temporaryPassword }}</span>
+          <button class="copy-btn" (click)="copyPassword()" title="Copy password">Copy</button>
+        </div>
+        <div class="credential-row"><span class="credential-label">Access level</span><span class="credential-value">{{ createdResult.accessLevel === 'EDIT' ? 'Edit (full rights)' : 'View only' }}</span></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" (click)="doneAfterCreate()">Done</button>
+      </div>
+    </ng-container>
+
+  </div>
+
+  <div class="list-wrap">
+
+    <!-- Loading skeleton -->
+    <ng-container *ngIf="isLoading">
+      <div class="skeleton-list">
+        <div class="skel-row" *ngFor="let i of [1,2,3]">
+          <div class="skel skel-name"></div>
+          <div class="skel skel-badge"></div>
+          <div class="skel skel-name" style="max-width: 100px;"></div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="!isLoading && admins.length === 0">
+      <div class="empty-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/>
+        </svg>
+      </div>
+      <p class="empty-title">No platform admins yet</p>
+      <p class="empty-sub">Click "Add Platform Admin" to create the first one.</p>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap" *ngIf="!isLoading && admins.length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Access</th>
+            <th>Status</th>
+            <th *ngIf="canEdit">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let admin of admins">
+            <ng-container *ngIf="editingRowId !== admin.id; else editRow">
+              <td class="name-cell">{{ admin.firstName }} {{ admin.lastName }}</td>
+              <td>{{ admin.email }}</td>
+              <td>
+                <span class="badge" [class.badge-edit]="admin.accessLevel === 'EDIT'" [class.badge-view]="admin.accessLevel === 'VIEW_ONLY'">
+                  {{ admin.accessLevel === 'EDIT' ? 'Edit' : 'View only' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [class.badge-active]="admin.isActive" [class.badge-inactive]="!admin.isActive">
+                  {{ admin.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td *ngIf="canEdit">
+                <button
+                  class="act-btn edit"
+                  *ngIf="admin.id !== currentUserId"
+                  (click)="startEditRow(admin)"
+                >
+                  Edit
+                </button>
+                <span class="muted small" *ngIf="admin.id === currentUserId">(you)</span>
+              </td>
+            </ng-container>
+
+            <ng-template #editRow>
+              <td class="name-cell">{{ admin.firstName }} {{ admin.lastName }}</td>
+              <td>{{ admin.email }}</td>
+              <td>
+                <select #accessSel [value]="admin.accessLevel">
+                  <option value="VIEW_ONLY">View only</option>
+                  <option value="EDIT">Edit (full rights)</option>
+                </select>
+              </td>
+              <td>
+                <select #activeSel [value]="admin.isActive ? 'true' : 'false'">
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </td>
+              <td>
+                <div class="action-row">
+                  <button
+                    class="act-btn edit"
+                    [disabled]="rowSaving"
+                    (click)="saveRow(admin, accessSel.value, activeSel.value === 'true')"
+                  >
+                    Save
+                  </button>
+                  <button class="act-btn" [disabled]="rowSaving" (click)="cancelEditRow()">Cancel</button>
+                </div>
+              </td>
+            </ng-template>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <span class="total-count">{{ admins.length }} {{ admins.length === 1 ? 'admin' : 'admins' }} total</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
