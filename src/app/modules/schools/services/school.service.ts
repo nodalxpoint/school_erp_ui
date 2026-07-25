@@ -14,6 +14,7 @@ import {
   PlatformTeacherSummary,
   SaveSchoolForm,
   School,
+  SchoolFeature,
   SchoolListApiResponse,
   UpdatePlatformAdminForm,
 } from '../models/school.model';
@@ -85,5 +86,17 @@ export class SchoolService {
     return this.http
       .put<ApiEnvelope<PlatformAdmin>>(`/platform-admin/admins/${id}`, form)
       .pipe(map((res) => res.data));
+  }
+
+  getSchoolFeatures(schoolId: string): Observable<SchoolFeature[]> {
+    return this.http
+      .get<ApiEnvelope<SchoolFeature[]>>(`${this.baseUrl}/${schoolId}/features`)
+      .pipe(map((res) => res.data ?? []));
+  }
+
+  updateSchoolFeatures(schoolId: string, features: Record<string, boolean>): Observable<SchoolFeature[]> {
+    return this.http
+      .put<ApiEnvelope<SchoolFeature[]>>(`${this.baseUrl}/${schoolId}/features`, { features })
+      .pipe(map((res) => res.data ?? []));
   }
 }

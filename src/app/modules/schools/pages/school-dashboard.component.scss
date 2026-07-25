@@ -220,6 +220,54 @@
   letter-spacing: .03em;
 }
 
+// ── Feature toggle switch ────────────────────────────────────────────────
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 21px;
+  vertical-align: middle;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .toggle-track { background: var(--primary); }
+    &:checked + .toggle-track::before { transform: translateX(17px); }
+    &:disabled + .toggle-track { opacity: 0.5; cursor: not-allowed; }
+  }
+}
+
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border-dark);
+  border-radius: 21px;
+  transition: background .15s;
+  cursor: pointer;
+
+  &::before {
+    content: '';
+    position: absolute;
+    height: 15px;
+    width: 15px;
+    left: 3px;
+    top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .15s;
+  }
+}
+
+.pending-tag {
+  margin-left: 8px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--warning);
+  vertical-align: middle;
+}
+
 // ── Table footer ─────────────────────────────────────────────────────────
 .table-footer {
   display: flex;

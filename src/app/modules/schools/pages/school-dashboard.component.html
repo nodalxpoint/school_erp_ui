@@ -30,9 +30,59 @@
   <div class="tabs">
     <button class="tab" [class.active]="activeTab === 'students'" (click)="setTab('students')">Students</button>
     <button class="tab" [class.active]="activeTab === 'teachers'" (click)="setTab('teachers')">Teachers</button>
+    <button class="tab" [class.active]="activeTab === 'features'" (click)="setTab('features')">Features</button>
   </div>
 
-  <div class="list-wrap">
+  <!-- Features panel — separate from the students/teachers skeleton+table below -->
+  <div class="list-wrap" *ngIf="activeTab === 'features'">
+    <ng-container *ngIf="featuresLoading">
+      <div class="skeleton-list">
+        <div class="skel-row" *ngFor="let i of [1,2,3,4,5]">
+          <div class="skel skel-name"></div>
+          <div class="skel skel-badge"></div>
+        </div>
+      </div>
+    </ng-container>
+
+    <div class="table-wrap" *ngIf="!featuresLoading">
+      <table class="data-table">
+        <thead>
+          <tr><th>Feature</th><th>Type</th><th>Enabled</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let feature of features">
+            <td class="name-cell">{{ feature.label }}</td>
+            <td>
+              <span class="code-chip" *ngIf="feature.isAddon">Addon</span>
+              <span class="muted" *ngIf="!feature.isAddon">Core</span>
+            </td>
+            <td>
+              <label class="toggle">
+                <input
+                  type="checkbox"
+                  [checked]="effectiveEnabled(feature)"
+                  [disabled]="!canEdit"
+                  (change)="onFeatureToggle(feature, $any($event.target).checked)"
+                />
+                <span class="toggle-track"></span>
+              </label>
+              <span class="pending-tag" *ngIf="isPending(feature)">unsaved</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer" *ngIf="canEdit">
+        <button class="btn-primary" [disabled]="!hasPendingFeatureChanges || featuresSaving" (click)="saveFeatures()">
+          {{ featuresSaving ? 'Saving...' : 'Save Changes' }}
+        </button>
+        <button class="back-link" style="margin-left: 12px;" *ngIf="hasPendingFeatureChanges" (click)="discardFeatureChanges()">
+          Discard
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="list-wrap" *ngIf="activeTab !== 'features'">
 
     <!-- Loading skeleton -->
     <ng-container *ngIf="isLoading">

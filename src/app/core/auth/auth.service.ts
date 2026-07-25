@@ -6,6 +6,8 @@ import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { HttpService } from '../services/http.service';
 import { AuthStateService } from './auth-state.service';
+import { FeatureFlagService } from '../services/feature-flag.service';
+import { SchoolProfileService } from '../services/school-profile.service';
 import { ENDPOINTS } from '../services/endpoints';
 import { LoginRequest, RegisterRequest, AuthResponse, LoginApiResponse, User } from '../models/auth.model';
 import { jwtDecode } from 'jwt-decode';
@@ -15,6 +17,8 @@ export class AuthService {
   constructor(
     private http: HttpService,
     private authState: AuthStateService,
+    private featureFlags: FeatureFlagService,
+    private schoolProfile: SchoolProfileService,
     private router: Router,
   ) {}
 
@@ -108,6 +112,8 @@ export class AuthService {
 
   private clearAndRedirect(): void {
     this.authState.clearAuth();
+    this.featureFlags.clear();
+    this.schoolProfile.clear();
     this.router.navigate(['/auth/login']);
   }
 }

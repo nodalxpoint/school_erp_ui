@@ -3,6 +3,7 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { featureGuard } from './core/guards/feature.guard';
 import { ProfileComponent } from './modules/user/components/profile/profile.component';
 
 export const routes: Routes = [
@@ -45,13 +46,13 @@ export const routes: Routes = [
       // toggle hoti hai jiske andar Teacher Timetable / Teacher Mapping alag routes hain).
       {
         path: 'teachers',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN']), featureGuard('TEACHERS')],
         loadChildren: () => import('./modules/teacher/teacher.routes').then(m => m.TEACHER_ROUTES)
       },
 
       {
         path: 'subjects',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN']), featureGuard('SUBJECTS')],
         loadChildren: () => import('./modules/subject/subject.routes').then(m => m.SUBJECT_ROUTES)
       },
 
@@ -59,56 +60,56 @@ export const routes: Routes = [
       // hai), lekin andar STUDENT_ROUTES ke child routes khud restrict karte hain.
       {
         path: 'students',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER']), featureGuard('STUDENTS')],
         loadChildren: () => import('./modules/student/student.routes').then(m => m.STUDENT_ROUTES)
       },
 
       {
         path: 'timetable',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN']), featureGuard('TIMETABLE')],
         loadChildren: () => import('./modules/timetable/timetable.routes').then(m => m.TIMETABLE_ROUTES)
       },
 
       // ⚠️ orphan route — koi sidebar link nahi, koi guard nahi tha. Neeche note dekho.
       {
         path: 'classes',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN']), featureGuard('CLASSES')],
         loadChildren: () => import('./modules/class/class.routes').then(m => m.CLASS_ROUTES)
       },
 
       {
         path: 'attendance',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER', 'STUDENT'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER', 'STUDENT']), featureGuard('ATTENDANCE')],
         loadChildren: () => import('./modules/attendance/attendance.routes').then(m => m.ATTENDANCE_ROUTES)
       },
 
       {
         path: 'teacher-timetable',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER']), featureGuard('TEACHERS')],
         loadChildren: () => import('./modules/teacher-timetable/teacher-timetable.routes').then(m => m.TEACHER_TIMETABLE_ROUTES)
       },
 
       {
         path: 'exams',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN']), featureGuard('EXAMS')],
         loadChildren: () => import('./modules/exams/exams.routes').then(m => m.EXAMS_ROUTES)
       },
 
       {
         path: 'exam-schedule',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN']), featureGuard('EXAMS')],
         loadChildren: () => import('./modules/exam-schedule/exam-schedule.routes').then(m => m.EXAM_SCHEDULE_ROUTES)
       },
 
       {
         path: 'teacher-mapping',
-        canActivate: [roleGuard(['TEACHER'])],
+        canActivate: [roleGuard(['TEACHER']), featureGuard('TEACHERS')],
         loadChildren: () => import('./modules/teacher-mapping/teacher-mapping.routes').then(m => m.TEACHER_MAPPING_ROUTES)
       },
 
       {
         path: 'exam-marks',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN']), featureGuard('EXAMS')],
         loadChildren: () => import('./modules/exam-marks/exam-marks.routes').then(m => m.EXAM_MARKS_ROUTES)
       },
 
@@ -116,12 +117,12 @@ export const routes: Routes = [
       // andar FEE_ROUTES ke children apna specific restriction lagate hain (neeche dekho).
       {
         path: 'fees',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'STUDENT', 'ACCOUNTANT'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'STUDENT', 'ACCOUNTANT']), featureGuard('FEES')],
         loadChildren: () => import('./modules/fee/fee.routes').then(m => m.FEE_ROUTES)
       },
       {
         path: 'fee-structure',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'ACCOUNTANT'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'ACCOUNTANT']), featureGuard('FEES')],
         loadChildren: () => import('./modules/fee/fee-structure.routes').then(m => m.FEE_STRUCTURE_ROUTES)
       },
 
@@ -132,12 +133,12 @@ export const routes: Routes = [
       },
       {
         path: 'udise',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN']), featureGuard('UDISE')],
         loadChildren: () => import('./modules/udise/udise.routes').then(m => m.UDISE_ROUTES)
       },
       {
         path: 'reports',
-        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
+        canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN']), featureGuard('REPORTS')],
         loadChildren: () => import('./modules/reports/reports.routes').then(m => m.REPORTS_ROUTES)
       },
     ]

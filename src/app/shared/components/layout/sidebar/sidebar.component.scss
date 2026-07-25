@@ -111,6 +111,13 @@
     }
   }
 
+  &__logo-img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
   &__logo-text { flex: 1; min-width: 0; }
 
   &__logo-name {

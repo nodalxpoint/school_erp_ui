@@ -6,8 +6,12 @@ import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { UiStateService } from '../../../../core/services/ui-state.service';
 import { AuthStateService } from '../../../../core/auth/auth-state.service';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { FeatureFlagService } from '../../../../core/services/feature-flag.service';
+import { SchoolProfileService } from '../../../../core/services/school-profile.service';
 import { getInitials } from '../../../utils/format.utils';
 import { UserRole } from '../../../../core/models/auth.model';
+import { FeatureKey } from '../../../../core/models/feature.model';
+import { SchoolProfile } from '../../../../core/models/school-profile.model';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
@@ -16,6 +20,7 @@ interface NavItem {
   href: string;
   icon: string;
   roles: UserRole[] | 'all';
+  featureKey?: FeatureKey;
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -23,29 +28,29 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Platform Admins', href: '/schools/admins', icon: 'users', roles: ['PLATFORM_ADMIN'] },
   { label: 'Admin Dashboard', href: '/dashboard', icon: 'layout-dashboard', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
   { label: 'Dashboard', href: '/dashboard', icon: 'layout-dashboard', roles: ['TEACHER', 'STUDENT', 'PARENT', 'ACCOUNTANT'] },
-  { label: 'Students', href: '/students', icon: 'graduation-cap', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'UDISE Compliance', href: '/udise', icon: 'shield-check', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'Teachers', href: '/teachers', icon: 'users', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER'] },
-  { label: 'Subjects', href: '/subjects', icon: 'book-open', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'Class Timetable', href: '/timetable', icon: 'calendar-check', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'Exams Module', href: '/exams', icon: 'exam-sheet', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'Exam-Marks', href: '/exam-marks', icon: 'check-square', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
-  { label: 'Attendance', href: '/attendance', icon: 'calendar-check', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER', 'STUDENT'] },
-  { label: 'Student Progression', href: '/students/progression', icon: 'graduation-cap', roles: ['TEACHER'] },
+  { label: 'Students', href: '/students', icon: 'graduation-cap', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'], featureKey: 'STUDENTS' },
+  { label: 'UDISE Compliance', href: '/udise', icon: 'shield-check', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'], featureKey: 'UDISE' },
+  { label: 'Teachers', href: '/teachers', icon: 'users', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER'], featureKey: 'TEACHERS' },
+  { label: 'Subjects', href: '/subjects', icon: 'book-open', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'], featureKey: 'SUBJECTS' },
+  { label: 'Class Timetable', href: '/timetable', icon: 'calendar-check', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'], featureKey: 'TIMETABLE' },
+  { label: 'Exams Module', href: '/exams', icon: 'exam-sheet', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'], featureKey: 'EXAMS' },
+  { label: 'Exam-Marks', href: '/exam-marks', icon: 'check-square', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'], featureKey: 'EXAMS' },
+  { label: 'Attendance', href: '/attendance', icon: 'calendar-check', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER', 'STUDENT'], featureKey: 'ATTENDANCE' },
+  { label: 'Student Progression', href: '/students/progression', icon: 'graduation-cap', roles: ['TEACHER'], featureKey: 'STUDENTS' },
 
 
   // ✅ PARENT LINKS ENCODED SAFELY MATCHING BACKEND ROLE SPEC
-  { label: 'Children Attendance', href: '/parent/attendance', icon: 'calendar-check', roles: ['PARENT'] },
-  { label: 'Exam Results', href: '/parent/exams', icon: 'exam-sheet', roles: ['PARENT'] },
-  { label: 'Class Timetable', href: '/parent/timetable', icon: 'calendar-days', roles: ['PARENT'] },
-  { label: 'Children Fees', href: '/parent/fees', icon: 'credit-card', roles: ['PARENT'] },
+  { label: 'Children Attendance', href: '/parent/attendance', icon: 'calendar-check', roles: ['PARENT'], featureKey: 'ATTENDANCE' },
+  { label: 'Exam Results', href: '/parent/exams', icon: 'exam-sheet', roles: ['PARENT'], featureKey: 'EXAMS' },
+  { label: 'Class Timetable', href: '/parent/timetable', icon: 'calendar-days', roles: ['PARENT'], featureKey: 'TIMETABLE' },
+  { label: 'Children Fees', href: '/parent/fees', icon: 'credit-card', roles: ['PARENT'], featureKey: 'FEES' },
 
-  { label: 'Fees', href: '/fees', icon: 'credit-card', roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT'] },
-  { label: 'Student Fees', href: '/fees', icon: 'credit-card', roles: ['ACCOUNTANT'] },
-  { label: 'Fee Structure', href: '/fee-structure', icon: 'exam-sheet', roles: ['ACCOUNTANT'] },
-  { label: 'Fee History', href: '/fees/history', icon: 'bar-chart-3', roles: ['ACCOUNTANT'] },
+  { label: 'Fees', href: '/fees', icon: 'credit-card', roles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT'], featureKey: 'FEES' },
+  { label: 'Student Fees', href: '/fees', icon: 'credit-card', roles: ['ACCOUNTANT'], featureKey: 'FEES' },
+  { label: 'Fee Structure', href: '/fee-structure', icon: 'exam-sheet', roles: ['ACCOUNTANT'], featureKey: 'FEES' },
+  { label: 'Fee History', href: '/fees/history', icon: 'bar-chart-3', roles: ['ACCOUNTANT'], featureKey: 'FEES' },
   { label: 'Users', href: '/users', icon: 'users', roles: ['SUPER_ADMIN'] },
-  { label: 'Reports', href: '/reports', icon: 'bar-chart-3', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
+  { label: 'Reports', href: '/reports', icon: 'bar-chart-3', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'], featureKey: 'REPORTS' },
   { label: 'Profile', href: '/profile', icon: 'user', roles: 'all' },
 ];
 
@@ -67,6 +72,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   sidebarCollapsed = false;
   currentPath = '';
   currentRole: UserRole | null = null;
+  schoolProfile: SchoolProfile | null = null;
 
   teachersDropdownOpen = false;
   subjectsDropdownOpen = false;
@@ -79,6 +85,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
     public uiState: UiStateService,
     public authState: AuthStateService,
     private authService: AuthService,
+    private featureFlags: FeatureFlagService,
+    private schoolProfile$: SchoolProfileService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) { }
@@ -120,6 +128,20 @@ export class SidebarComponent implements OnInit, OnDestroy {
       }
       this.cdr.markForCheck();
     });
+
+    // Re-render once feature flags resolve so disabled modules drop out of the nav
+    // without needing a route change to trigger it.
+    this.featureFlags.ensureLoaded().pipe(takeUntil(this.destroy$)).subscribe(() => this.cdr.markForCheck());
+
+    // School branding in the sidebar (tenant users only — see template).
+    this.schoolProfile$.profileChanges$.pipe(takeUntil(this.destroy$)).subscribe(profile => {
+      this.schoolProfile = profile;
+      this.cdr.markForCheck();
+    });
+  }
+
+  get isPlatformAdmin(): boolean {
+    return this.currentRole === 'PLATFORM_ADMIN';
   }
 
   ngOnDestroy(): void {
@@ -136,10 +158,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   get filteredNavItems(): NavItem[] {
     const role = this.currentRole;
-    if (!role) return NAV_ITEMS.filter(item => item.roles === 'all');
-    return NAV_ITEMS.filter(item =>
-      item.roles === 'all' || (Array.isArray(item.roles) && item.roles.includes(role))
-    );
+    const byRole = !role
+      ? NAV_ITEMS.filter(item => item.roles === 'all')
+      : NAV_ITEMS.filter(item => item.roles === 'all' || (Array.isArray(item.roles) && item.roles.includes(role)));
+
+    return byRole.filter(item => !item.featureKey || this.featureFlags.isEnabled(item.featureKey));
   }
 
   isActive(href: string): boolean { return this.currentPath === href || this.currentPath.startsWith(href + '/'); }
@@ -155,6 +178,13 @@ isStudentFeesActive(): boolean {
 
 isFeeHistoryActive(): boolean {
   return this.isExactActive('/fees/history');
+}
+
+// '/schools/admins' is its own nav item, so plain startsWith('/schools/') would
+// also light up the 'Schools' item while on the Platform Admins page.
+isSchoolsActive(): boolean {
+  return this.currentPath === '/schools'
+    || (this.currentPath.startsWith('/schools/') && !this.currentPath.startsWith('/schools/admins'));
 }
   toggleTeachersDropdown(): void {
     this.teachersDropdownOpen = !this.teachersDropdownOpen;
