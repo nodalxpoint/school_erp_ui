@@ -51,7 +51,7 @@
       <!-- Fee Name -->
       <div class="form-group">
         <label>Fee Name</label>
-        <select [(ngModel)]="selectedFeeStructureId">
+        <select [(ngModel)]="selectedFeeStructureId" [disabled]="!selectedStudent() || feeStructures().length === 0">
           <option value="">All Fee Names</option>
           <option *ngFor="let fee of feeStructures()" [value]="fee.id">
             {{ fee.label }}

@@ -71,16 +71,15 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadAcademicSessions();
-    this.loadFeeStructures();
 
     this.studentSearchControl.valueChanges
       .pipe(
-        // ✅ naya — jaise hi user dobara type kare, purani confirmed selection
-        // turant invalidate ho jaati hai (debounce se pehle hi) — warna
-        // "Search" button purani selection ke saath hi chal jaata tha
+        // ✅ jaise hi user dobara type kare, purani confirmed selection turant invalidate ho jaati hai
         tap(() => {
           if (this.selectedStudent()) {
             this.selectedStudent.set(null);
+            this.feeStructures.set([]);
+            this.selectedFeeStructureId = '';
           }
         }),
         debounceTime(1000),
@@ -118,6 +117,12 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
         { emitEvent: false }
       );
       this.selectedSessionId = cached.sessionId;
+
+      const classId = cached.student.classId || cached.student.classes?.id || cached.student.class_id;
+      if (classId) {
+        this.loadFeeStructuresForClass(classId);
+      }
+
       // Trigger search after a brief timeout to guarantee dropdowns have populated
       setTimeout(() => this.search(), 50);
     }
@@ -137,9 +142,13 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadFeeStructures(): void {
-    this.feeService.getParams('fee_structures').subscribe(res => {
-      this.feeStructures.set(res);
+  loadFeeStructuresForClass(classId: string): void {
+    if (!classId) {
+      this.feeStructures.set([]);
+      return;
+    }
+    this.feeService.getParams('class_fee_structures', classId).subscribe(res => {
+      this.feeStructures.set(res ?? []);
     });
   }
 
@@ -150,6 +159,14 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
       { emitEvent: false }
     );
     this.showStudentDropdown.set(false);
+    this.selectedFeeStructureId = '';
+
+    const classId = student.classId || student.classes?.id || student.class_id;
+    if (classId) {
+      this.loadFeeStructuresForClass(classId);
+    } else {
+      this.feeStructures.set([]);
+    }
   }
 
   clearStudent(): void {
@@ -159,6 +176,8 @@ export class FeeHistoryComponent implements OnInit, OnDestroy {
     this.monthlyStatus.set(null);
     this.searched.set(false);
     this.errorMsg.set('');
+    this.feeStructures.set([]);
+    this.selectedFeeStructureId = '';
 
     this.feeService.clearRecentSearch();
   }
