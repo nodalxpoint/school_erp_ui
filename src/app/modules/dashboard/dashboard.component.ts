@@ -30,6 +30,9 @@ export interface QuickAction {
 }
 
 const ROLE_STATS: Record<UserRole, StatCard[]> = {
+  // PLATFORM_ADMIN never lands here — it's redirected to /schools — but the map must
+  // still be exhaustive over UserRole.
+  PLATFORM_ADMIN: [],
   SUPER_ADMIN: [
     { title: 'Total Active Students', value: '1,248', change: '+12 this month', changeType: 'up', icon: 'graduation-cap', color: 'blue' },
     { title: 'Faculty Members', value: '86', change: '+3 this month', changeType: 'up', icon: 'users', color: 'purple' },
@@ -75,6 +78,7 @@ const ROLE_STATS: Record<UserRole, StatCard[]> = {
 };
 
 const ROLE_QUICK_ACTIONS: Record<UserRole, QuickAction[]> = {
+  PLATFORM_ADMIN: [],
   SUPER_ADMIN: [
     { label: 'Add New Student', icon: 'user-plus', route: '/students/add', color: 'blue' },
     { label: 'Add Faculty', icon: 'user-plus', route: '/teachers/add', color: 'purple' },

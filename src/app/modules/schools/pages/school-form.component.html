@@ -1,0 +1,108 @@
+<div class="page-wrapper">
+
+  <!-- Success view after create: show the one-time generated password -->
+  <div class="card success-card" *ngIf="createdResult">
+    <div class="success-icon">✓</div>
+    <h2>School created</h2>
+    <p class="muted">Share these credentials with the school admin. The password is shown only once and cannot be retrieved again.</p>
+
+    <div class="cred-row">
+      <span class="cred-label">School</span>
+      <span class="cred-value">{{ createdResult.schoolName }} ({{ createdResult.schoolCode }})</span>
+    </div>
+    <div class="cred-row">
+      <span class="cred-label">Admin email</span>
+      <span class="cred-value">{{ createdResult.adminEmail }}</span>
+    </div>
+    <div class="cred-row">
+      <span class="cred-label">Temporary password</span>
+      <span class="cred-value password-value">{{ createdResult.adminTemporaryPassword }}</span>
+      <button class="btn-secondary btn-sm" (click)="copyPassword()">Copy</button>
+    </div>
+
+    <button class="btn-primary" (click)="doneAfterCreate()">Done</button>
+  </div>
+
+  <!-- Form -->
+  <ng-container *ngIf="!createdResult">
+    <div class="page-header">
+      <h1 class="page-title">{{ isEditMode ? 'Edit School' : 'Add School' }}</h1>
+    </div>
+
+    <div class="alert alert-error" *ngIf="error">{{ error }}</div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="card form-card">
+
+      <h3 class="section-title">School Details</h3>
+      <div class="form-grid">
+        <div class="field">
+          <label>School Name *</label>
+          <input type="text" formControlName="schoolName" placeholder="e.g. Greenwood High" />
+        </div>
+        <div class="field">
+          <label>School Code *</label>
+          <input type="text" formControlName="schoolCode" placeholder="e.g. GWH001" />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" formControlName="schoolEmail" />
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input type="text" formControlName="schoolPhone" />
+        </div>
+        <div class="field full">
+          <label>Address</label>
+          <input type="text" formControlName="address" />
+        </div>
+        <div class="field">
+          <label>City</label>
+          <input type="text" formControlName="city" />
+        </div>
+        <div class="field">
+          <label>State</label>
+          <input type="text" formControlName="state" />
+        </div>
+        <div class="field">
+          <label>Country</label>
+          <input type="text" formControlName="country" />
+        </div>
+        <div class="field">
+          <label>Logo URL</label>
+          <input type="text" formControlName="logoUrl" />
+        </div>
+      </div>
+
+      <ng-container *ngIf="!isEditMode">
+        <h3 class="section-title">First Admin Account</h3>
+        <p class="muted small">A random password will be generated and shown once after creation.</p>
+        <div class="form-grid">
+          <div class="field">
+            <label>Admin First Name *</label>
+            <input type="text" formControlName="adminFirstName" />
+          </div>
+          <div class="field">
+            <label>Admin Last Name</label>
+            <input type="text" formControlName="adminLastName" />
+          </div>
+          <div class="field">
+            <label>Admin Email *</label>
+            <input type="email" formControlName="adminEmail" />
+          </div>
+          <div class="field">
+            <label>Admin Phone</label>
+            <input type="text" formControlName="adminPhone" />
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="isSaving">
+          {{ isSaving ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Create School') }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+
+</div>

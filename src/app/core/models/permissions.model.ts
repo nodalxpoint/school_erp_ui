@@ -11,6 +11,8 @@ export type Permission =
   | 'dashboard:read';
 
 const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
+  // Cross-tenant, no school-scoped permissions apply — it uses /schools, not /dashboard.
+  PLATFORM_ADMIN: [],
   SUPER_ADMIN: [
     'students:read', 'students:write', 'students:delete',
     'teachers:read', 'teachers:write', 'teachers:delete',

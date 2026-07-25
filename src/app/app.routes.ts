@@ -29,6 +29,12 @@ export const routes: Routes = [
       { path: 'profile', component: ProfileComponent },
 
       {
+        path: 'schools',
+        canActivate: [roleGuard(['PLATFORM_ADMIN'])],
+        loadChildren: () => import('./modules/schools/schools.routes').then(m => m.SCHOOLS_ROUTES)
+      },
+
+      {
         path: 'parent',
         canActivate: [roleGuard(['PARENT'])],
         loadChildren: () => import('./modules/parent/parent.routes').then(m => m.PARENT_ROUTES)

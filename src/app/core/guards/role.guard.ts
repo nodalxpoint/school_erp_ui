@@ -18,8 +18,9 @@ export const roleGuard = (allowedRoles: UserRole[]): CanActivateFn => {
 
     if (allowedRoles.includes(user.role)) return true;
 
-    // Redirect to their own dashboard
-    router.navigate(['/dashboard']);
+    // Redirect to their own landing page. PLATFORM_ADMIN has no school, so /dashboard
+    // (which is per-school) doesn't apply to it — send it to the schools list instead.
+    router.navigate([user.role === 'PLATFORM_ADMIN' ? '/schools' : '/dashboard']);
     return false;
   };
 };

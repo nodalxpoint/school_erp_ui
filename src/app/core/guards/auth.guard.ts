@@ -21,6 +21,7 @@ export const guestGuard: CanActivateFn = () => {
 
   if (!authState.isAuthenticated) return true;
 
-  router.navigate(['/dashboard']);
+  const isPlatformAdmin = authState.currentUser?.role === 'PLATFORM_ADMIN';
+  router.navigate([isPlatformAdmin ? '/schools' : '/dashboard']);
   return false;
 };

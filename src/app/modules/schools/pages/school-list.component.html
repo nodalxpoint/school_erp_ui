@@ -1,0 +1,105 @@
+<div class="page-wrapper">
+
+  <div class="toast" *ngIf="toast" [class.toast-success]="toast.type === 'success'" [class.toast-error]="toast.type === 'error'">
+    {{ toast.message }}
+  </div>
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Schools</h1>
+      <p class="page-sub">{{ schools.length }} {{ schools.length === 1 ? 'school' : 'schools' }} on the platform</p>
+    </div>
+    <button class="btn-primary" (click)="onAdd()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Add School
+    </button>
+  </div>
+
+  <div class="search-bar">
+    <input
+      type="text"
+      placeholder="Search by name or code..."
+      [(ngModel)]="search"
+      (ngModelChange)="onSearchChange()"
+    />
+  </div>
+
+  <div class="list-wrap">
+
+    <!-- Loading skeleton -->
+    <ng-container *ngIf="isLoading">
+      <div class="skeleton-list">
+        <div class="skel-row" *ngFor="let i of [1,2,3,4,5]">
+          <div class="skel skel-name"></div>
+          <div class="skel skel-badge"></div>
+          <div class="skel skel-name" style="max-width: 100px;"></div>
+          <div class="skel skel-actions"></div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="!isLoading && schools.length === 0">
+      <div class="empty-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 21h18M5 21V7l8-4 8 4v14M9 9h1M9 13h1M14 9h1M14 13h1M9 21v-4h6v4"/>
+        </svg>
+      </div>
+      <p class="empty-title">No schools yet</p>
+      <p class="empty-sub">Click "Add School" to create the first one.</p>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap" *ngIf="!isLoading && schools.length > 0">
+      <table class="school-table">
+        <thead>
+          <tr>
+            <th class="col-name">Name</th>
+            <th class="col-code">Code</th>
+            <th class="col-city">City</th>
+            <th class="col-email">Email</th>
+            <th class="col-created">Created</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let school of schools" class="table-row">
+            <td class="col-name">
+              <span class="school-name-text">{{ school.schoolName }}</span>
+            </td>
+            <td class="col-code"><span class="code-chip">{{ school.schoolCode }}</span></td>
+            <td class="col-city">{{ school.city || '—' }}</td>
+            <td class="col-email">{{ school.email || '—' }}</td>
+            <td class="col-created">{{ school.createdAt ? (school.createdAt | date:'mediumDate') : '—' }}</td>
+            <td class="col-actions">
+              <div class="action-row">
+                <button class="act-btn view" (click)="onView(school)" title="View school dashboard">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  View
+                </button>
+                <button class="act-btn edit" (click)="onEdit(school)" title="Edit school">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  Edit
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="table-footer">
+        <span class="total-count">{{ schools.length }} {{ schools.length === 1 ? 'school' : 'schools' }} total</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>

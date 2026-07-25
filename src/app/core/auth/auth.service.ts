@@ -27,40 +27,60 @@ export class AuthService {
         }
 
         const { token, role } = res.data;
+        const user = this.decodeToUser(token, role);
 
-        let decoded: any = {};
-        try {
-          decoded = jwtDecode(token);
-        } catch (e) {
-          console.error('[AuthService] JWT decode failed', e);
+        this.authState.setAuth(token, user);
+
+        // PLATFORM_ADMIN has no school of its own — there's nothing for it on the
+        // per-school /dashboard, so it lands on the schools list instead.
+        if (role === 'PLATFORM_ADMIN') {
+          this.router.navigate(['/schools']);
+        } else {
+          this.router.navigate(['/dashboard']);
         }
-
-        const email = decoded.sub ?? '';
-        const nameFromEmail = email.split('@')[0] ?? 'User';
-
-        const user: User = {
-          id:    decoded.userId ?? '',
-          name:  decoded.name ?? decoded.firstName
-                   ? `${decoded.firstName} ${decoded.lastName ?? ''}`.trim()
-                   : nameFromEmail,
-          email,
-          role,   
-          schoolId: decoded.schoolId ?? '',
-        };
-
-      console.log('[AuthService] Storing user:', user); 
-this.authState.setAuth(token, user);
-
-// ⚡ FIX HERE: Agar parent hai toh use direct selection screen ya block modal dashboard pe bhejenge
-if (role === 'PARENT') {
-  // Aap direct /dashboard pe bhejenge but wahan modal load hoga
-  this.router.navigate(['/dashboard']);
-} else {
-  // Baki roles ke liye default behaviour
-  this.router.navigate(['/dashboard']);
-}
       })
     );
+  }
+
+  // Platform-admin-only: "view as" a specific tenant user by email, without ever
+  // touching their password. Backend logs every call (who impersonated whom, when).
+  impersonate(email: string): Observable<LoginApiResponse> {
+    return this.http.post<LoginApiResponse>('/platform-admin/impersonate', { email }).pipe(
+      tap((res) => {
+        if (!res?.data?.token) {
+          console.error('[AuthService] impersonate: token missing in response', res);
+          return;
+        }
+
+        const { token, role } = res.data;
+        const user = this.decodeToUser(token, role);
+
+        this.authState.setAuth(token, user);
+        this.router.navigate(['/dashboard']);
+      })
+    );
+  }
+
+  private decodeToUser(token: string, role: LoginApiResponse['data']['role']): User {
+    let decoded: any = {};
+    try {
+      decoded = jwtDecode(token);
+    } catch (e) {
+      console.error('[AuthService] JWT decode failed', e);
+    }
+
+    const email = decoded.sub ?? '';
+    const nameFromEmail = email.split('@')[0] ?? 'User';
+
+    return {
+      id:    decoded.userId ?? '',
+      name:  decoded.name ?? decoded.firstName
+               ? `${decoded.firstName} ${decoded.lastName ?? ''}`.trim()
+               : nameFromEmail,
+      email,
+      role,
+      schoolId: decoded.schoolId ?? '',
+    };
   }
 
   resetPassword(payload: { email: string; passKey: string; newPassword: string }): Observable<any> {
