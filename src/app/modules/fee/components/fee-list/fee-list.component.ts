@@ -165,9 +165,7 @@ export class FeeListComponent implements OnInit, OnDestroy {
       if (this.sessions && this.sessions.length > 0 && !this.filters.academicSessionId) {
         this.filters.academicSessionId = this.sessions[0].id;
       }
-      if (this.areAllFiltersSelected()) {
-        this.onSearch(true);
-      }
+      this.onSearch(true);
       this.cdr.markForCheck();
     });
     this.feeService.getParams('classes').subscribe(data => { this.classes = data; this.cdr.markForCheck(); });
@@ -216,6 +214,7 @@ export class FeeListComponent implements OnInit, OnDestroy {
     this.dynamicStudentsList = [];
     this.showSuggestions = false;
     this.cdr.markForCheck();
+    this.onSearch(true);
   }
 
   onStudentBlur(): void {
@@ -259,23 +258,6 @@ export class FeeListComponent implements OnInit, OnDestroy {
   }
 
   onSearch(resetPage = false, isUserAction = false): void {
-    if (isUserAction && !this.areAllFiltersSelected() && !this.selectedStudent) {
-      this.showToast('error', 'Please select all filters (Session, Class, Section, Status, Fee Type, Month, Year) before searching.');
-      this.fees = [];
-      this.totalPages = 0;
-      this.loading = false;
-      this.cdr.markForCheck();
-      return;
-    }
-
-    if (!this.areAllFiltersSelected() && !this.selectedStudent) {
-      this.fees = [];
-      this.totalPages = 0;
-      this.loading = false;
-      this.cdr.markForCheck();
-      return;
-    }
-
     if (resetPage) {
       this.filters.page = 0;
     }
@@ -306,7 +288,7 @@ export class FeeListComponent implements OnInit, OnDestroy {
 
     this.feeService.filterFees(cleanPayload).subscribe({
       next: (res: any) => {
-        this.fees = res.data?.data ?? [];
+        this.fees = res.data?.content ?? res.data?.data ?? [];
         this.totalPages = res.data?.totalPages ?? 0;
         this.loading = false;
         this.cdr.markForCheck();
@@ -333,10 +315,8 @@ export class FeeListComponent implements OnInit, OnDestroy {
     this.showSuggestions = false;
     this.sections = [];
     this.feeStructures = [];
-    this.fees = [];
-    this.totalPages = 0;
     this.listState.clear();
-    this.cdr.markForCheck();
+    this.onSearch(true);
   }
 
   // ── FIXED: Proper relative link matrix redirection ──

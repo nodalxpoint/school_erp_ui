@@ -21,6 +21,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: 'Admin Dashboard', href: '/dashboard', icon: 'layout-dashboard', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
   { label: 'Dashboard', href: '/dashboard', icon: 'layout-dashboard', roles: ['TEACHER', 'STUDENT', 'PARENT', 'ACCOUNTANT'] },
+  { label: 'Classes', href: '/classes', icon: 'building', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
   { label: 'Students', href: '/students', icon: 'graduation-cap', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
   { label: 'UDISE Compliance', href: '/udise', icon: 'shield-check', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
   { label: 'Teachers', href: '/teachers', icon: 'users', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'TEACHER'] },
