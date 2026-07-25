@@ -2,6 +2,7 @@ import { DropdownOption } from '../../student/models/student.model';
 
 // Backend ka raw response shape — har entry ek examSubject hai jiske
 // andar records[] hota hai (abhi 1 record per entry, future me multiple ho sakte hain)
+// model uses for exam module
 export interface ExamMarksRecord {
   studentId: string;
   studentName?: string;
