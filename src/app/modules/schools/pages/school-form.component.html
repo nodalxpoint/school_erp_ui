@@ -37,39 +37,79 @@
       <div class="form-grid">
         <div class="field">
           <label>School Name *</label>
-          <input type="text" formControlName="schoolName" placeholder="e.g. Greenwood High" />
+          <input type="text" formControlName="schoolName" placeholder="e.g. Greenwood High"
+            [class.field-input--error]="form.get('schoolName')?.invalid && form.get('schoolName')?.touched" />
+          <p class="field-error" *ngIf="form.get('schoolName')?.invalid && form.get('schoolName')?.touched">
+            <ng-container *ngIf="form.get('schoolName')?.errors?.['required'] || form.get('schoolName')?.errors?.['whitespace']">School name is required.</ng-container>
+            <ng-container *ngIf="form.get('schoolName')?.errors?.['maxlength']">Must be 150 characters or fewer.</ng-container>
+          </p>
         </div>
         <div class="field">
           <label>School Code *</label>
-          <input type="text" formControlName="schoolCode" placeholder="e.g. GWH001" />
+          <input type="text" formControlName="schoolCode" placeholder="e.g. GWH001"
+            [class.field-input--error]="form.get('schoolCode')?.invalid && form.get('schoolCode')?.touched" />
+          <p class="field-error" *ngIf="form.get('schoolCode')?.invalid && form.get('schoolCode')?.touched">
+            <ng-container *ngIf="form.get('schoolCode')?.errors?.['required'] || form.get('schoolCode')?.errors?.['whitespace']">School code is required.</ng-container>
+            <ng-container *ngIf="form.get('schoolCode')?.errors?.['minlength']">Must be at least 2 characters.</ng-container>
+            <ng-container *ngIf="form.get('schoolCode')?.errors?.['maxlength']">Must be 20 characters or fewer.</ng-container>
+            <ng-container *ngIf="form.get('schoolCode')?.errors?.['pattern']">Only letters, numbers, hyphens, and underscores allowed.</ng-container>
+          </p>
         </div>
         <div class="field">
           <label>Email</label>
-          <input type="email" formControlName="schoolEmail" />
+          <input type="email" formControlName="schoolEmail"
+            [class.field-input--error]="form.get('schoolEmail')?.invalid && form.get('schoolEmail')?.touched" />
+          <p class="field-error" *ngIf="form.get('schoolEmail')?.invalid && form.get('schoolEmail')?.touched">
+            Enter a valid email address.
+          </p>
         </div>
         <div class="field">
           <label>Phone</label>
-          <input type="text" formControlName="schoolPhone" />
+          <input type="text" formControlName="schoolPhone" placeholder="e.g. +91 98765 43210"
+            [class.field-input--error]="form.get('schoolPhone')?.invalid && form.get('schoolPhone')?.touched" />
+          <p class="field-error" *ngIf="form.get('schoolPhone')?.invalid && form.get('schoolPhone')?.touched">
+            Enter a valid phone number.
+          </p>
         </div>
         <div class="field full">
           <label>Address</label>
-          <input type="text" formControlName="address" />
+          <input type="text" formControlName="address"
+            [class.field-input--error]="form.get('address')?.invalid && form.get('address')?.touched" />
+          <p class="field-error" *ngIf="form.get('address')?.invalid && form.get('address')?.touched">
+            Must be 500 characters or fewer.
+          </p>
         </div>
         <div class="field">
           <label>City</label>
-          <input type="text" formControlName="city" />
+          <input type="text" formControlName="city"
+            [class.field-input--error]="form.get('city')?.invalid && form.get('city')?.touched" />
+          <p class="field-error" *ngIf="form.get('city')?.invalid && form.get('city')?.touched">
+            Must be 100 characters or fewer.
+          </p>
         </div>
         <div class="field">
           <label>State</label>
-          <input type="text" formControlName="state" />
+          <input type="text" formControlName="state"
+            [class.field-input--error]="form.get('state')?.invalid && form.get('state')?.touched" />
+          <p class="field-error" *ngIf="form.get('state')?.invalid && form.get('state')?.touched">
+            Must be 100 characters or fewer.
+          </p>
         </div>
         <div class="field">
           <label>Country</label>
-          <input type="text" formControlName="country" />
+          <input type="text" formControlName="country"
+            [class.field-input--error]="form.get('country')?.invalid && form.get('country')?.touched" />
+          <p class="field-error" *ngIf="form.get('country')?.invalid && form.get('country')?.touched">
+            Must be 100 characters or fewer.
+          </p>
         </div>
         <div class="field">
           <label>Logo URL</label>
-          <input type="text" formControlName="logoUrl" />
+          <input type="text" formControlName="logoUrl" placeholder="https://... or a relative asset path"
+            [class.field-input--error]="form.get('logoUrl')?.invalid && form.get('logoUrl')?.touched" />
+          <p class="field-error" *ngIf="form.get('logoUrl')?.invalid && form.get('logoUrl')?.touched">
+            Must be 500 characters or fewer.
+          </p>
         </div>
       </div>
 
@@ -79,19 +119,38 @@
         <div class="form-grid">
           <div class="field">
             <label>Admin First Name *</label>
-            <input type="text" formControlName="adminFirstName" />
+            <input type="text" formControlName="adminFirstName"
+              [class.field-input--error]="form.get('adminFirstName')?.invalid && form.get('adminFirstName')?.touched" />
+            <p class="field-error" *ngIf="form.get('adminFirstName')?.invalid && form.get('adminFirstName')?.touched">
+              <ng-container *ngIf="form.get('adminFirstName')?.errors?.['required'] || form.get('adminFirstName')?.errors?.['whitespace']">Admin first name is required.</ng-container>
+              <ng-container *ngIf="form.get('adminFirstName')?.errors?.['maxlength']">Must be 100 characters or fewer.</ng-container>
+            </p>
           </div>
           <div class="field">
             <label>Admin Last Name</label>
-            <input type="text" formControlName="adminLastName" />
+            <input type="text" formControlName="adminLastName"
+              [class.field-input--error]="form.get('adminLastName')?.invalid && form.get('adminLastName')?.touched" />
+            <p class="field-error" *ngIf="form.get('adminLastName')?.invalid && form.get('adminLastName')?.touched">
+              Must be 100 characters or fewer.
+            </p>
           </div>
           <div class="field">
             <label>Admin Email *</label>
-            <input type="email" formControlName="adminEmail" />
+            <input type="email" formControlName="adminEmail"
+              [class.field-input--error]="form.get('adminEmail')?.invalid && form.get('adminEmail')?.touched" />
+            <p class="field-error" *ngIf="form.get('adminEmail')?.invalid && form.get('adminEmail')?.touched">
+              <ng-container *ngIf="form.get('adminEmail')?.errors?.['required']">Admin email is required.</ng-container>
+              <ng-container *ngIf="form.get('adminEmail')?.errors?.['email']">Enter a valid email address.</ng-container>
+              <ng-container *ngIf="form.get('adminEmail')?.errors?.['maxlength']">Must be 150 characters or fewer.</ng-container>
+            </p>
           </div>
           <div class="field">
             <label>Admin Phone</label>
-            <input type="text" formControlName="adminPhone" />
+            <input type="text" formControlName="adminPhone" placeholder="e.g. +91 98765 43210"
+              [class.field-input--error]="form.get('adminPhone')?.invalid && form.get('adminPhone')?.touched" />
+            <p class="field-error" *ngIf="form.get('adminPhone')?.invalid && form.get('adminPhone')?.touched">
+              Enter a valid phone number.
+            </p>
           </div>
         </div>
       </ng-container>

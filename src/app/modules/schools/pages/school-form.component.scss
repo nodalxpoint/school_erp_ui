@@ -61,7 +61,19 @@
     font-size: 13.5px;
 
     &:focus { border-color: hsl(var(--ring)); }
+
+    &.field-input--error {
+      border-color: hsl(var(--destructive));
+
+      &:focus { border-color: hsl(var(--destructive)); }
+    }
   }
+}
+
+.field-error {
+  margin: 0;
+  font-size: 11.5px;
+  color: hsl(var(--destructive));
 }
 
 .form-actions {

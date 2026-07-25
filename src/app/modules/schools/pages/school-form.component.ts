@@ -1,11 +1,20 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SchoolService } from '../services/school.service';
 import { CreateSchoolResult, School } from '../models/school.model';
 import { AuthStateService } from '../../../core/auth/auth-state.service';
+
+// Validators.required treats a whitespace-only string as present — this catches it.
+function noWhitespaceValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null =>
+    control.value && !control.value.trim() ? { whitespace: true } : null;
+}
+
+const CODE_PATTERN = /^[A-Za-z0-9_-]+$/;
+const PHONE_PATTERN = /^[0-9+\-\s()]{7,20}$/;
 
 @Component({
   selector: 'app-school-form',
@@ -34,19 +43,19 @@ export class SchoolFormComponent implements OnInit {
     private cdr: ChangeDetectorRef,
   ) {
     this.form = this.fb.group({
-      schoolName: ['', Validators.required],
-      schoolCode: ['', Validators.required],
-      schoolEmail: [''],
-      schoolPhone: [''],
-      address: [''],
-      city: [''],
-      state: [''],
-      country: [''],
-      logoUrl: [''],
-      adminFirstName: [''],
-      adminLastName: [''],
-      adminEmail: [''],
-      adminPhone: [''],
+      schoolName: ['', [Validators.required, noWhitespaceValidator(), Validators.maxLength(150)]],
+      schoolCode: ['', [Validators.required, noWhitespaceValidator(), Validators.minLength(2), Validators.maxLength(20), Validators.pattern(CODE_PATTERN)]],
+      schoolEmail: ['', [Validators.email, Validators.maxLength(150)]],
+      schoolPhone: ['', [Validators.pattern(PHONE_PATTERN)]],
+      address: ['', [Validators.maxLength(500)]],
+      city: ['', [Validators.maxLength(100)]],
+      state: ['', [Validators.maxLength(100)]],
+      country: ['', [Validators.maxLength(100)]],
+      logoUrl: ['', [Validators.maxLength(500)]],
+      adminFirstName: ['', [Validators.maxLength(100)]],
+      adminLastName: ['', [Validators.maxLength(100)]],
+      adminEmail: ['', [Validators.email, Validators.maxLength(150)]],
+      adminPhone: ['', [Validators.pattern(PHONE_PATTERN)]],
     });
   }
 
@@ -78,8 +87,8 @@ export class SchoolFormComponent implements OnInit {
         });
       }
     } else {
-      this.form.get('adminFirstName')?.setValidators(Validators.required);
-      this.form.get('adminEmail')?.setValidators([Validators.required, Validators.email]);
+      this.form.get('adminFirstName')?.setValidators([Validators.required, noWhitespaceValidator(), Validators.maxLength(100)]);
+      this.form.get('adminEmail')?.setValidators([Validators.required, Validators.email, Validators.maxLength(150)]);
     }
     this.form.get('adminFirstName')?.updateValueAndValidity();
     this.form.get('adminEmail')?.updateValueAndValidity();
@@ -142,7 +151,14 @@ export class SchoolFormComponent implements OnInit {
 
   private handleError(err: HttpErrorResponse): void {
     this.isSaving = false;
-    this.error = err.error?.message ?? 'Something went wrong. Please try again.';
+
+    const validationErrors = err.error?.validationErrors as Record<string, string> | undefined;
+    if (validationErrors && Object.keys(validationErrors).length > 0) {
+      this.error = Object.entries(validationErrors).map(([field, msg]) => `${field}: ${msg}`).join('; ');
+    } else {
+      this.error = err.error?.message ?? 'Something went wrong. Please try again.';
+    }
+
     this.cdr.markForCheck();
   }
 
