@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ReportsService, ReportQueryRequest, ReportDataResponse } from './services/reports.service';
+import { ReportsService, ReportQueryRequest, ReportDataResponse, UploadedFileDto } from './services/reports.service';
 import { StudentService } from '../student/services/student.service';
 import { ExamMarksService } from '../exam-marks/services/exam-marks.service';
 import { DropdownOption } from '../student/models/student.model';
@@ -19,7 +19,6 @@ import html2canvas from 'html2canvas';
 export class ReportsComponent implements OnInit {
   activeTab = 'reportCards';
   loading = false;
-  
   academicSessions: DropdownOption[] = [];
   classes: DropdownOption[] = [];
   sections: DropdownOption[] = [];
@@ -38,6 +37,14 @@ export class ReportsComponent implements OnInit {
   currentPrintStudent: any = null;
   currentPage = 0;
   pageSize = 15;
+
+  // ── Import tab state ──
+  selectedFile: File | null = null;
+  isDragOver = false;
+  uploading = false;
+  uploadedFile: UploadedFileDto | null = null;
+  importError: string | null = null;
+  readonly allowedExtensions = ['.xlsx', '.xls', '.csv'];
 
   constructor(
     private reportsService: ReportsService,
@@ -81,6 +88,7 @@ export class ReportsComponent implements OnInit {
   switchTab(tabName: string): void {
     this.activeTab = tabName;
     this.clearFilters();
+    this.clearImportState();
   }
 
   clearFilters(): void {
@@ -171,34 +179,28 @@ export class ReportsComponent implements OnInit {
     try {
       for (const student of this.reportCardsList) {
         this.currentPrintStudent = student;
-        // Force immediate render in Angular DOM
         this.cdr.detectChanges();
 
-        // Small delay to ensure rendering is complete
         await new Promise(resolve => setTimeout(resolve, 250));
 
         const element = document.getElementById('pdf-report-card-template');
         if (element) {
           const canvas = await html2canvas(element, {
-            scale: 2, // Increases quality/resolution
+            scale: 2,
             useCORS: true
           });
 
           const imgData = canvas.toDataURL('image/png');
-          
-          // PDF dimensions based on A4 size (portrait)
           const pdf = new jsPDF('p', 'mm', 'a4');
-          const imgWidth = 210; // A4 width in mm
-          const pageHeight = 295; // A4 height in mm
+          const imgWidth = 210;
+          const pageHeight = 295;
           const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          
           let heightLeft = imgHeight;
           let position = 0;
 
           pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
           heightLeft -= pageHeight;
 
-          // If the report card flows to multiple pages
           while (heightLeft >= 0) {
             position = heightLeft - imgHeight;
             pdf.addPage();
@@ -262,12 +264,117 @@ export class ReportsComponent implements OnInit {
     return Array.from({ length: Math.min(total, end - start + 1) }, (_, i) => start + i);
   }
 
-  get startIndex(): number { 
-    return this.currentPage * this.pageSize + 1; 
+  get startIndex(): number {
+    return this.currentPage * this.pageSize + 1;
   }
-  
-  get endIndex(): number { 
+
+  get endIndex(): number {
     if (!this.reportData) return 0;
-    return Math.min((this.currentPage + 1) * this.pageSize, this.reportData.totalElements); 
+    return Math.min((this.currentPage + 1) * this.pageSize, this.reportData.totalElements);
+  }
+
+  // ═══════════════════════════════════════════════
+  // Import tab (upload only — no data processing)
+  // ═══════════════════════════════════════════════
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length > 0 ? input.files[0] : null;
+    this.setSelectedFile(file);
+    input.value = '';
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+  }
+
+  onFileDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+
+    const file = event.dataTransfer?.files && event.dataTransfer.files.length > 0
+      ? event.dataTransfer.files[0]
+      : null;
+    this.setSelectedFile(file);
+  }
+
+  private setSelectedFile(file: File | null): void {
+    this.uploadedFile = null;
+    this.importError = null;
+
+    if (!file) {
+      this.selectedFile = null;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const ext = '.' + (file.name.split('.').pop() || '').toLowerCase();
+    if (!this.allowedExtensions.includes(ext)) {
+      this.importError = `Unsupported file type. Please upload ${this.allowedExtensions.join(', ')} files only.`;
+      this.selectedFile = null;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.selectedFile = file;
+    this.cdr.markForCheck();
+  }
+
+  clearSelectedFile(): void {
+    this.selectedFile = null;
+    this.uploadedFile = null;
+    this.importError = null;
+    this.cdr.markForCheck();
+  }
+
+  uploadImportFile(): void {
+    if (!this.selectedFile) return;
+
+    this.uploading = true;
+    this.uploadedFile = null;
+    this.importError = null;
+    this.cdr.markForCheck();
+
+    this.reportsService.uploadFile(this.selectedFile).subscribe({
+      next: (res) => {
+        this.uploading = false;
+        if (res.success) {
+          this.uploadedFile = res.data;
+        } else {
+          this.importError = res.message || 'Upload failed. Please try again.';
+        }
+        this.selectedFile = null;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('File upload failed:', err);
+        this.uploading = false;
+        this.importError = err?.error?.message || 'Upload failed. Please check the file and try again.';
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  clearImportState(): void {
+    this.selectedFile = null;
+    this.isDragOver = false;
+    this.uploading = false;
+    this.uploadedFile = null;
+    this.importError = null;
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 }

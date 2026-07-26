@@ -21,10 +21,16 @@
       (click)="switchTab('students')">
       Student Directory Report
     </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab === 'import'" 
+      (click)="switchTab('import')">
+      Import Data
+    </button>
   </div>
 
-  <!-- Filter Card -->
-  <div class="filter-card">
+  <!-- Filter Card (Report Card / Student Directory tabs only) -->
+  <div class="filter-card" *ngIf="activeTab !== 'import'">
     <div class="filter-grid">
       <!-- Session -->
       <div class="filter-group">
@@ -118,7 +124,10 @@
 
     <!-- Empty State -->
     <div class="empty-state" *ngIf="!loading && (!reportCardsList || reportCardsList.length === 0)">
-      <div class="empty-state__icon">📋</div>
+      <svg class="empty-state__icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
       <h3 class="empty-state__title">Generate Report Cards</h3>
       <p class="empty-state__description">
         Choose your parameters above and click "Generate Report Cards" to prepare files.
@@ -127,17 +136,19 @@
 
     <!-- Ready state -->
     <div class="empty-state" *ngIf="!loading && reportCardsList && reportCardsList.length > 0">
-      <div class="empty-state__icon" style="color: #2ec4b6; font-size: 40px; margin-bottom: 10px;">✓</div>
+      <svg class="empty-state__icon-svg empty-state__icon-svg--success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/>
+      </svg>
       <h3 class="empty-state__title" style="color: #2ec4b6;">Report Cards Generated!</h3>
       <p class="empty-state__description" style="margin-bottom: 20px;">
         Found <strong>{{ reportCardsList.length }}</strong> student report cards. Click "Download Report Cards" to save them one-by-one.
       </p>
-      
+
       <!-- List of generated students for admin visibility -->
-      <div style="margin-top: 20px; max-height: 250px; overflow-y: auto; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto; padding: 15px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);">
-        <div *ngFor="let s of reportCardsList" style="padding: 8px 0; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; font-size: 14px; font-family: inherit;">
-          <span style="font-weight: 500;">Roll {{ s.rollNo || '-' }} - {{ s.firstName }} {{ s.lastName }}</span>
-          <span style="color: #6c757d; font-size: 13px;">Adm No: {{ s.admissionNo }}</span>
+      <div class="report-cards-preview-list">
+        <div *ngFor="let s of reportCardsList" class="report-cards-preview-row">
+          <span class="report-cards-preview-name">Roll {{ s.rollNo || '-' }} - {{ s.firstName }} {{ s.lastName }}</span>
+          <span class="report-cards-preview-adm">Adm No: {{ s.admissionNo }}</span>
         </div>
       </div>
     </div>
@@ -151,7 +162,10 @@
 
     <!-- Empty State -->
     <div class="empty-state" *ngIf="!loading && (!reportData || reportData.rows.length === 0)">
-      <div class="empty-state__icon">📋</div>
+      <svg class="empty-state__icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
       <h3 class="empty-state__title">No Report Data</h3>
       <p class="empty-state__description">
         Choose your parameters above and click "Generate Report" to view results.
@@ -208,11 +222,85 @@
       </div>
     </div>
   </div>
+  <!-- Import Data Tab -->
+  <div class="table-card import-card" *ngIf="activeTab === 'import'">
+    <div class="import-panel">
+
+      <div class="import-panel__header">
+        <h3 class="import-panel__title">Bulk File Import</h3>
+        <p class="import-panel__subtitle">Upload an Excel or CSV file — it will be securely stored and linked to your records.</p>
+      </div>
+
+      <!-- Dropzone -->
+      <div class="import-dropzone"
+           [class.import-dropzone--dragover]="isDragOver"
+           [class.import-dropzone--has-file]="selectedFile"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave($event)"
+           (drop)="onFileDrop($event)"
+           (click)="fileInput.click()">
+
+        <input #fileInput type="file" accept=".xlsx,.xls,.csv" style="display: none;" (change)="onFileSelected($event)" />
+
+        <ng-container *ngIf="!selectedFile">
+          <svg class="import-dropzone__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <p class="import-dropzone__text">
+            <strong>Click to upload</strong> or drag and drop
+          </p>
+          <p class="import-dropzone__hint">XLSX, XLS or CSV files supported</p>
+        </ng-container>
+
+        <ng-container *ngIf="selectedFile">
+          <svg class="import-dropzone__icon import-dropzone__icon--file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <p class="import-dropzone__filename">{{ selectedFile.name }}</p>
+          <p class="import-dropzone__hint">{{ formatFileSize(selectedFile.size) }}</p>
+        </ng-container>
+      </div>
+
+      <!-- Error -->
+      <div class="import-alert import-alert--error" *ngIf="importError">
+        <svg class="import-alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>{{ importError }}</span>
+      </div>
+
+      <!-- Success — uploaded file card -->
+      <div class="uploaded-file-card" *ngIf="uploadedFile">
+        <div class="uploaded-file-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/>
+          </svg>
+        </div>
+        <div class="uploaded-file-card__info">
+          <p class="uploaded-file-card__name">{{ uploadedFile.fileName }}</p>
+          <p class="uploaded-file-card__meta">
+            {{ uploadedFile.fileType.toUpperCase() }} · {{ formatFileSize(uploadedFile.fileSize) }} · Uploaded successfully
+          </p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="import-panel__actions">
+        <button class="btn btn--secondary" (click)="clearSelectedFile()" [disabled]="!selectedFile && !uploadedFile && !importError">
+          Clear
+        </button>
+        <button class="btn btn--primary" (click)="uploadImportFile()" [disabled]="!selectedFile || uploading">
+          <ng-container *ngIf="!uploading">Upload File</ng-container>
+          <ng-container *ngIf="uploading">Uploading...</ng-container>
+        </button>
+      </div>
+
+    </div>
+  </div>
 </div>
 
-<!-- ========================================================================= -->
-<!-- 📄 DYNAMIC DOCK-HIDDEN REPORT CARD HTML TEMPLATE FOR HIGH-QUALITY PDF      -->
-<!-- ========================================================================= -->
 <div *ngIf="currentPrintStudent" id="pdf-report-card-template" style="position: absolute; left: -9999px; top: -9999px; width: 790px; padding: 45px; background: #ffffff; color: #000000; font-family: 'Times New Roman', Times, serif; box-sizing: border-box; border: 4px double #000000; line-height: 1.4;">
   
   <!-- School Logo/Header Name -->

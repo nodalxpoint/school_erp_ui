@@ -88,7 +88,7 @@ const ROLE_QUICK_ACTIONS: Record<UserRole, QuickAction[]> = {
     { label: 'View Reports Panel', icon: 'bar-chart-3', route: '/reports', color: 'orange' },
   ],
   TEACHER: [
-    { label: 'Mark Attendance Now', icon: 'calendar-check', route: '/attendance/mark', color: 'green' },
+    { label: 'Mark Attendance Now', icon: 'calendar-check', route: '/attendance', color: 'green' },
     { label: 'Teacher Timetable', icon: 'calendar-days', route: '/teacher-timetable', color: 'purple' },
     { label: 'Performance Reports', icon: 'bar-chart-3', route: '/attendance', color: 'orange' },
   ],
@@ -200,6 +200,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     if (this.isTeacher) {
       this.loadTeacherSchedule();
+      this.loadTeacherClassStudentCount(); 
     }
 
     this.cdr.markForCheck();
@@ -242,6 +243,61 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       });
   }
+  isLoadingClassStrength = false; 
+loadTeacherClassStudentCount(): void {
+  this.isLoadingClassStrength = true;
+
+  // hardcoded/purana value turant hata do, jab tak real data na aaye
+  const strengthStat = this.stats.find(s => s.title === 'My Classroom Students');
+  if (strengthStat) strengthStat.value = '—';
+  this.cdr.markForCheck();
+
+  this.http.get<any>('/teacher/myClass')
+    .pipe(catchError(err => { console.error('myClass load failed:', err); return of(null); }))
+    .subscribe(classRes => {
+      if (!classRes || !classRes.success || !classRes.data) {
+        this.isLoadingClassStrength = false;
+        this.cdr.markForCheck();
+        return;
+      }
+
+      const { classId, sectionId, className, sectionName } = classRes.data;
+
+      this.http.post<any>('/param/list', {
+        page: 0, size: 100, sortBy: 'sessionName', sortDirection: 'ASC', type: 'academic_sessions'
+      })
+        .pipe(catchError(err => { console.error('Academic session fetch failed:', err); return of(null); }))
+        .subscribe(sessionRes => {
+          const academicSessionId = sessionRes?.data?.[0]?.id;
+          if (!academicSessionId) {
+            console.warn('No active academic session found');
+            this.isLoadingClassStrength = false;
+            this.cdr.markForCheck();
+            return;
+          }
+
+          this.http.post<any>('/students/list', {
+            page: 0, size: 1,
+            classId, sectionId, academicSessionId,
+            sortBy: 'firstName', sortDirection: 'asc'
+          })
+            .pipe(catchError(err => { console.error('Class strength load failed:', err); return of(null); }))
+            .subscribe(studentsRes => {
+              this.isLoadingClassStrength = false; // NEW: turn off blur regardless
+
+              if (studentsRes && studentsRes.success) {
+                const stat = this.stats.find(s => s.title === 'My Classroom Students');
+                if (stat) {
+                  stat.value = (studentsRes.totalElements ?? 0).toLocaleString();
+                  stat.change = `${className} - ${sectionName}`;
+                  stat.changeType = 'neutral';
+                }
+              }
+              this.cdr.markForCheck();
+            });
+        });
+    });
+}
 
   // ── Admin: real weekly attendance (last 6 days, school-wide) ──
   loadWeeklyAttendance(): void {

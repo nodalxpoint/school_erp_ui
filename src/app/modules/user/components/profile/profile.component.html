@@ -1,5 +1,18 @@
 <div class="profile-container">
 
+    <!-- Toast -->
+  <div class="custom-toast" *ngIf="toast" [ngClass]="'custom-toast--' + toast.type">
+    <div class="toast-icon-wrap">
+      <svg *ngIf="toast.type === 'success'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <svg *ngIf="toast.type === 'error'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </div>
+    <span class="toast-message-text">{{ toast.message }}</span>
+  </div>
+  
   <!-- Loading state -->
   <div *ngIf="loading" class="profile-loading">
     <div class="loading-ring">

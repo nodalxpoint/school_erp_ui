@@ -27,10 +27,11 @@
   </div>
 
   <div class="db-stats-matrix-grid">
-    <div *ngFor="let s of stats; let i = index"
-         class="db-stat-luxury-card card-accent-{{ s.color }}"
-         [routerLink]="s.route ? s.route : null"
-         [style.cursor]="s.route ? 'pointer' : 'default'">
+   <div *ngFor="let s of stats; let i = index"
+     class="db-stat-luxury-card card-accent-{{ s.color }}"
+     [class.db-stat-card-loading-blur]="s.title === 'My Classroom Students' && isLoadingClassStrength"
+     [routerLink]="s.route ? s.route : null"
+     [style.cursor]="s.route ? 'pointer' : 'default'">
       <div class="db-stat-card-top-row">
         <p class="db-stat-label">{{ s.title }}</p>
         <div class="db-stat-icon-wrapper theme-wrap-{{ s.color }}">

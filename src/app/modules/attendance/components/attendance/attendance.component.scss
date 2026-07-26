@@ -392,3 +392,78 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+// ── Responsive: Mobile Fixes ──
+
+.table-scroll-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 640px) {
+  .attendance-container {
+    gap: 14px;
+  }
+
+  // Clock banner — stack + shrink
+  .live-clock-banner {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+  .clock-left { gap: 10px; }
+  .clock-icon-wrap { width: 34px; height: 34px; }
+  .clock-value { font-size: 12.5px; }
+  .clock-label { font-size: 10px; }
+  .clock-right { padding: 4px 10px; }
+
+  // Toast — don't let it overflow viewport width
+  .custom-toast {
+    top: 12px;
+    right: 12px;
+    left: 12px;
+    max-width: none;
+    padding: 12px 16px;
+  }
+
+  // No-class alert — stack icon above text
+  .no-class-card {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    padding: 18px;
+    gap: 14px;
+  }
+
+  // Filter form — single column, tighter padding
+  .filter-body-grid {
+    grid-template-columns: 1fr;
+    padding: 14px;
+    gap: 12px;
+  }
+  .filter-header-bar { padding: 14px; }
+  .filter-footer-actions { padding: 12px 14px; }
+  .btn-primary-fetch { width: 100%; }
+
+  // Sheet header — stack label + bulk controls
+  .sheet-action-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px;
+  }
+  .quick-bulk-controls { width: 100%; }
+
+  // Table — minimum width so it scrolls instead of squishing
+  .attendance-table {
+    min-width: 560px;
+    th, td { padding: 10px 12px; font-size: 12.5px; }
+  }
+
+  .remarks-ctrl-input { min-width: 140px; }
+
+  .sheet-submit-footer {
+    padding: 14px;
+    .btn-save-attendance { width: 100%; }
+  }
+}

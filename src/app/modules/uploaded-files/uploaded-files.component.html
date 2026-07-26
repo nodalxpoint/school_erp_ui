@@ -1,0 +1,72 @@
+<div class="files-container">
+  <div class="page-header">
+    <h1 class="page-header__title">Uploaded Files</h1>
+    <p class="page-header__subtitle">All files uploaded to the system, available for download.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="loader-overlay" *ngIf="loading">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && errorMsg">
+      <svg class="empty-state__icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <h3 class="empty-state__title">Something went wrong</h3>
+      <p class="empty-state__description">{{ errorMsg }}</p>
+      <button class="btn btn--secondary" (click)="loadFiles()" style="margin-top: 12px;">Retry</button>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && !errorMsg && files.length === 0">
+      <svg class="empty-state__icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+      <h3 class="empty-state__title">No files uploaded yet</h3>
+      <p class="empty-state__description">Files uploaded from the Import screen will appear here.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="!loading && !errorMsg && files.length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>File Name</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Uploaded On</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of files">
+            <td class="file-name-cell">
+              <svg class="file-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              {{ f.fileName }}
+            </td>
+            <td><span class="badge badge--active">{{ f.fileType.toUpperCase() }}</span></td>
+            <td>{{ formatFileSize(f.fileSize) }}</td>
+            <td>{{ formatDate(f.createdAt) }}</td>
+            <td style="text-align: right;">
+              <button class="icon-btn" title="Download" (click)="downloadFile(f)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              </button>
+              <button class="icon-btn icon-btn--danger" title="Delete" [disabled]="deletingId === f.id" (click)="deleteFile(f)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4a2 2 0 012-2h0a2 2 0 012 2v2"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

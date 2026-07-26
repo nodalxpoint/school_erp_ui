@@ -21,6 +21,9 @@ export class ProfileComponent implements OnInit {
   showParentPassKey = false;
   copiedKey: string | null = null;
 
+  toast: { type: 'success' | 'error'; message: string } | null = null; // NEW
+  private toastTimeoutId: any = null; // NEW
+
   constructor(private authService: AuthService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
@@ -73,13 +76,62 @@ export class ProfileComponent implements OnInit {
   }
 
   copyToClipboard(value: string, key: string): void {
+  if (!value) return;
+
+  if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(value).then(() => {
-      this.copiedKey = key;
-      setTimeout(() => {
-        this.copiedKey = null;
-        this.cdr.markForCheck();
-      }, 2000);
-      this.cdr.markForCheck();
+      this.onCopySuccess(key);
+    }).catch(() => {
+      this.fallbackCopy(value, key);
     });
+  } else {
+    // HTTP / non-secure context — navigator.clipboard undefined hota hai
+    this.fallbackCopy(value, key);
+  }
+}
+
+private fallbackCopy(value: string, key: string): void {
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = value;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textarea);
+
+    if (successful) {
+      this.onCopySuccess(key);
+    } else {
+      this.showToast('error', 'Failed to copy. Please try again.');
+    }
+  } catch (err) {
+    console.error('Fallback copy failed:', err);
+    this.showToast('error', 'Failed to copy. Please try again.');
+  }
+}
+
+private onCopySuccess(key: string): void {
+  this.copiedKey = key;
+  this.showToast('success', 'Copied to clipboard!');
+  setTimeout(() => {
+    this.copiedKey = null;
+    this.cdr.markForCheck();
+  }, 2000);
+  this.cdr.markForCheck();
+}
+
+   private showToast(type: 'success' | 'error', message: string): void {
+    this.toast = { type, message };
+    this.cdr.markForCheck();
+    clearTimeout(this.toastTimeoutId);
+    this.toastTimeoutId = setTimeout(() => {
+      this.toast = null;
+      this.cdr.markForCheck();
+    }, 2500);
   }
 }
