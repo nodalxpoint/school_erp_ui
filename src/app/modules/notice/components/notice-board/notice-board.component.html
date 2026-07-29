@@ -1,0 +1,179 @@
+<div class="notice-container">
+
+  <div class="custom-toast" *ngIf="toast" [ngClass]="'custom-toast--' + toast.type">
+    <div class="toast-icon-wrap">
+      <svg *ngIf="toast.type === 'success'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <svg *ngIf="toast.type === 'error'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </div>
+    <span class="toast-message-text">{{ toast.message }}</span>
+  </div>
+
+  <div class="notice-header-bar">
+    <div class="header-left">
+      <div class="header-icon-badge">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </div>
+      <div>
+        <h2>Notice Board</h2>
+        <p>Announcements and updates for the school community.</p>
+      </div>
+    </div>
+    <button *ngIf="canCreate" class="btn-create" (click)="openCreatePage()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      New Notice
+    </button>
+  </div>
+
+  <!-- Parent: select child + academic session -->
+  <div class="filter-bar" *ngIf="isParent">
+    <div class="filter-bar-inner">
+      <div class="filter-field">
+        <label>Child</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="selectedChildId"
+          (ngModelChange)="onChildFilterChange()"
+          [disabled]="loadingChildren">
+          <option *ngFor="let c of childrenList" [value]="c.id">{{ c.firstName }} {{ c.lastName }} ({{ c.className }}-{{ c.sectionName }})</option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label>Academic Session</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="selectedSessionId"
+          (ngModelChange)="onSessionFilterChange()"
+          [disabled]="loadingSessions">
+          <option value="">All Sessions</option>
+          <option *ngFor="let s of academicSessions" [value]="s.id">{{ s.label }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Teacher / Parent: School Notice vs Class Notice tabs -->
+  <div class="notice-tabs" *ngIf="isTeacher || isParent">
+     <button
+      class="notice-tab"
+      [class.notice-tab--active]="activeTab === 'class'"
+      (click)="switchTab('class')">
+      Class Notice
+    </button>
+    <button
+      class="notice-tab"
+      [class.notice-tab--active]="activeTab === 'school'"
+      (click)="switchTab('school')">
+      School Notice
+    </button>
+   
+  </div>
+
+  <!-- Admin: session + class + section filters -->
+  <div class="filter-bar" *ngIf="isAdmin">
+    <div class="filter-bar-inner">
+      <div class="filter-field">
+        <label>Academic Session</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="selectedSessionId"
+          (ngModelChange)="onSessionFilterChange()"
+          [disabled]="loadingSessions">
+          <option value="">All Sessions</option>
+          <option *ngFor="let s of academicSessions" [value]="s.id">{{ s.label }}</option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label>Class</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="selectedClassId"
+          (ngModelChange)="onClassFilterChange()"
+          [disabled]="loadingClasses">
+          <option value="">All Classes</option>
+          <option *ngFor="let c of classes" [value]="c.id">{{ c.label }}</option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label>Section</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="selectedSectionId"
+          (ngModelChange)="onSectionFilterChange()"
+          [disabled]="!selectedClassId || loadingSections || sections.length === 0">
+          <option value="">All Sections</option>
+          <option *ngFor="let s of sections" [value]="s.id">{{ s.label }}</option>
+        </select>
+      </div>
+
+      <button class="btn-clear-filter" *ngIf="hasActiveFilter" (click)="clearFilters()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <div class="skeleton-layer" *ngIf="isLoading">
+    <div class="sk-card" *ngFor="let i of [1,2,3]"></div>
+  </div>
+
+  <div class="notice-list" *ngIf="!isLoading && notices.length > 0">
+    <div class="notice-card status-border--{{ getStatus(n) }}" *ngFor="let n of notices">
+      <div class="notice-card-top">
+        <span class="status-pill status--{{ getStatus(n) }}">{{ getStatus(n) }}</span>
+        <span class="target-pill">{{ n.classId ? (n.className || 'Class Specific') : 'All Students' }}</span>
+        <button *ngIf="canCreate" class="edit-link-btn" (click)="openEditPage(n)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Edit
+        </button>
+      </div>
+      <h3 class="notice-title">{{ n.title }}</h3>
+      <p class="notice-desc">{{ n.description }}</p>
+      <div class="notice-dates">
+        <span>Published: {{ n.publishDate | date:'mediumDate' }}</span>
+        <span>Expires: {{ n.expiryDate | date:'mediumDate' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && notices.length === 0">
+    <div class="empty-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+    </div>
+    <p>No notices published yet.</p>
+  </div>
+
+  <div class="pagination-bar" *ngIf="!isLoading && totalElements > 0">
+    <span class="page-info">Page {{ page + 1 }} of {{ totalPages }} · {{ totalElements }} notices</span>
+    <div class="page-controls">
+      <button (click)="goToPage(page - 1)" [disabled]="page === 0">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Prev
+      </button>
+      <button (click)="goToPage(page + 1)" [disabled]="page + 1 >= totalPages">
+        Next
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+</div>

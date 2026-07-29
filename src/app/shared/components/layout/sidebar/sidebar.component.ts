@@ -46,6 +46,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Users', href: '/users', icon: 'users', roles: ['SUPER_ADMIN'] },
   { label: 'Reports', href: '/reports', icon: 'bar-chart-3', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
   { label: 'Uploaded Files', href: '/uploaded-files', icon: 'file-text', roles: ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'] },
+  { label: 'Notice Board', href: '/notices', icon: 'bell', roles:  ['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN', 'PARENT', 'TEACHER']},
   { label: 'Profile', href: '/profile', icon: 'user', roles: 'all' },
 ];
 

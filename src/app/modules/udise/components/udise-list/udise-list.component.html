@@ -15,17 +15,60 @@
       <h1>UDISE Compliance Management</h1>
       <p>{{ totalElements }} compliance records logged in the system</p>
     </div>
-    <button class="btn-primary" (click)="onOpenAddUdiseFlow()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-      </svg>
-      Add UDISE Record
-    </button>
+    <div class="header-actions">
+      <button class="btn-primary" (click)="onOpenAddUdiseFlow()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Add UDISE Record
+      </button>
+    </div>
   </div>
 
   <!-- Error Alerts -->
   <div class="alert-error" *ngIf="error">⚠ {{ error }}</div>
+
+  <!-- Filters Toolbar -->
+  <div class="filters-toolbar">
+    <div class="filter-field filter-field--search">
+      <span class="field-label">Search PEN</span>
+      <div class="field-control">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" placeholder="Filter by PEN..." [(ngModel)]="searchPen" (input)="onSearch()" />
+      </div>
+    </div>
+
+    <div class="filter-field">
+      <span class="field-label">Academic Session</span>
+      <div class="field-control">
+        <select [(ngModel)]="selectedAcademicSessionId" (change)="onSearch()" [disabled]="loadingSessions">
+          <option value="">{{ loadingSessions ? 'Loading...' : 'All Sessions' }}</option>
+          <option *ngFor="let a of academicSessions" [value]="a.id">{{ a.label }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filter-field">
+      <span class="field-label">Status</span>
+      <div class="field-control">
+        <select [(ngModel)]="selectedStatus" (change)="onSearch()">
+          <option value="">All Statuses</option>
+          <option value="PENDING">PENDING</option>
+          <option value="IN_PROGRESS">IN PROGRESS</option>
+          <option value="COMPLETED">COMPLETED</option>
+          <option value="VERIFIED">VERIFIED</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-clear-filter" *ngIf="hasActiveFilters()" (click)="clearFilters()">
+      ✕ Clear Filters
+    </button>
+  </div>
+
 
   <!-- Search Student Dropdown (Add UDISE Record Mode) -->
   <div class="search-overlay-panel" *ngIf="showStudentSearch">
@@ -36,10 +79,10 @@
       </div>
       <div class="panel-body">
         <div class="search-box-row">
-          <input type="text" 
-                 class="search-input" 
-                 placeholder="Type student first name to search..." 
-                 [(ngModel)]="studentSearchQuery" 
+          <input type="text"
+                 class="search-input"
+                 placeholder="Type student first name to search..."
+                 [(ngModel)]="studentSearchQuery"
                  (input)="searchStudents()" />
           <button class="btn-search-trigger" (click)="searchStudents()">Search</button>
         </div>
@@ -71,7 +114,6 @@
 
   <!-- Table Card -->
   <div class="table-card">
-    
     <div class="loading-overlay" *ngIf="loading">
       <div class="spinner"></div>
       <span>Loading compliance ledger...</span>
@@ -79,38 +121,6 @@
 
     <table class="data-table">
       <thead>
-         <!-- Filter Row -->
-        <tr class="filter-row">
-          <td class="col-no"></td>
-          <td class="col-name"></td>
-          <td class="col-pen">
-            <input class="col-filter" type="text" placeholder="Filter PEN..." 
-                   [(ngModel)]="searchPen" (input)="onSearch()" />
-          </td>
-          <td class="col-apaar"></td>
-          <td class="col-aadhaar"></td>
-          <td class="col-session">
-            <select class="col-filter select-arrow" [(ngModel)]="selectedAcademicSessionId" 
-                    (change)="onSearch()" [disabled]="loadingSessions">
-              <option value="">{{ loadingSessions ? '...' : 'All Sessions' }}</option>
-              <option *ngFor="let a of academicSessions" [value]="a.id">{{ a.label }}</option>
-            </select>
-          </td>
-          <td class="col-status">
-            <select class="col-filter select-arrow" [(ngModel)]="selectedStatus" (change)="onSearch()">
-              <option value="">All Statuses</option>
-              <option value="PENDING">PENDING</option>
-              <option value="IN_PROGRESS">IN PROGRESS</option>
-              <option value="COMPLETED">COMPLETED</option>
-              <option value="VERIFIED">VERIFIED</option>
-            </select>
-          </td>
-          <td class="col-actions filter-clear-cell">
-            <button class="btn-clear-filter" *ngIf="hasActiveFilters()" (click)="clearFilters()">
-              ✕ Clear
-            </button>
-          </td>
-        </tr>
         <tr class="header-row">
           <th class="col-no">No</th>
           <th class="col-name">Student Name</th>
@@ -121,35 +131,33 @@
           <th class="col-status">Status</th>
           <th class="col-actions">Actions</th>
         </tr>
-
-       
       </thead>
 
       <tbody>
         <ng-container *ngIf="!loading && records.length > 0">
           <tr *ngFor="let rec of records; let i = index" class="data-row">
-            <td class="col-no text-muted">{{ startIndex + i }}</td>
-            <td class="col-name fw-600">{{ rec.studentName }}</td>
-            <td class="col-pen">
+            <td class="col-no text-muted" data-label="No">{{ startIndex + i }}</td>
+            <td class="col-name fw-600" data-label="Student Name">{{ rec.studentName }}</td>
+            <td class="col-pen" data-label="PEN">
               <span class="pen-badge" *ngIf="rec.pen">{{ rec.pen }}</span>
               <span class="text-muted" *ngIf="!rec.pen">—</span>
             </td>
-            <td class="col-apaar text-muted">{{ rec.apaarId || '—' }}</td>
-            <td class="col-aadhaar text-muted">{{ rec.aadhaarLastFour ? '•••• ' + rec.aadhaarLastFour : '—' }}</td>
-            <td class="col-session text-muted">{{ rec.academicSessionName }}</td>
-            <td class="col-status">
+            <td class="col-apaar text-muted" data-label="APAAR ID">{{ rec.apaarId || '—' }}</td>
+            <td class="col-aadhaar text-muted" data-label="Aadhaar">{{ rec.aadhaarLastFour ? '•••• ' + rec.aadhaarLastFour : '—' }}</td>
+            <td class="col-session text-muted" data-label="Session">{{ rec.academicSessionName }}</td>
+            <td class="col-status" data-label="Status">
               <span class="status-chip" [class]="(rec.udiseStatus || '').toLowerCase().replace('_', '-')">
                 {{ rec.udiseStatus }}
               </span>
             </td>
-            <td class="col-actions">
+            <td class="col-actions" data-label="Actions">
               <div class="action-btns">
                 <button class="btn-edit" (click)="onEditRecord(rec)">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                   </svg>
-                  Edit compliance
+                  <span class="btn-label">Edit compliance</span>
                 </button>
               </div>
             </td>

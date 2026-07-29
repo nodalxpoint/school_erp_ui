@@ -125,37 +125,47 @@ export class AttendanceComponent implements OnInit, OnDestroy {
     });
   }
 
-  checkTeacherClassAndAutoFetch(): void {
-    this.attendanceService.getMyClassDetails().subscribe({
-      next: (res) => {
-        this.isInitializing = false;
-        if (res.success && res.data?.classId) {
-          this.selectedClassId = res.data.classId;
-          this.selectedSectionId = res.data.sectionId;
-          this.isTeacherClassAllocated = true;
-          this.isNoClassAssigned = false;
+ checkTeacherClassAndAutoFetch(): void {
+  const isTeacher = this.isTeacherRole || this.authState.currentUser?.role === 'TEACHER';
 
-          if (res.data.attendanceCheck === 'ATTENDANCE_TAKEN') {
-            this.isAttendanceAlreadyTaken = true;
-          }
-
-          this.classes = [{ id: res.data.classId, label: res.data.className }];
-          this.sections = [{ id: res.data.sectionId, label: res.data.sectionName }];
-
-          this.loadAttendanceSheet();
-        } else {
-          this.handleNoClassOrFallback(res?.message);
-        }
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.isInitializing = false;
-        const errorMsg = err?.error?.message || err?.message;
-        this.handleNoClassOrFallback(errorMsg);
-        this.cdr.markForCheck();
-      },
-    });
+  if (!isTeacher) {
+    // ✅ Admin/non-teacher: myClassDetails API skip, seedha class list load karo
+    this.isInitializing = false;
+    this.loadAllClassesViaParam();
+    this.cdr.markForCheck();
+    return;
   }
+
+  this.attendanceService.getMyClassDetails().subscribe({
+    next: (res) => {
+      this.isInitializing = false;
+      if (res.success && res.data?.classId) {
+        this.selectedClassId = res.data.classId;
+        this.selectedSectionId = res.data.sectionId;
+        this.isTeacherClassAllocated = true;
+        this.isNoClassAssigned = false;
+
+        if (res.data.attendanceCheck === 'ATTENDANCE_TAKEN') {
+          this.isAttendanceAlreadyTaken = true;
+        }
+
+        this.classes = [{ id: res.data.classId, label: res.data.className }];
+        this.sections = [{ id: res.data.sectionId, label: res.data.sectionName }];
+
+        this.loadAttendanceSheet();
+      } else {
+        this.handleNoClassOrFallback(res?.message);
+      }
+      this.cdr.markForCheck();
+    },
+    error: (err) => {
+      this.isInitializing = false;
+      const errorMsg = err?.error?.message || err?.message;
+      this.handleNoClassOrFallback(errorMsg);
+      this.cdr.markForCheck();
+    },
+  });
+}
 
   private handleNoClassOrFallback(serverMessage?: string): void {
     const isTeacher = this.isTeacherRole || this.authState.currentUser?.role === 'TEACHER';

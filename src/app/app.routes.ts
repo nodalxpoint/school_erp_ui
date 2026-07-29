@@ -139,6 +139,10 @@ export const routes: Routes = [
         canActivate: [roleGuard(['SUPER_ADMIN', 'ADMIN', 'SCHOOL_ADMIN'])],
         loadChildren: () => import('./modules/uploaded-files/uploaded-files.routes').then(m => m.UPLOADED_FILES_ROUTES)
       },
+      {
+  path: 'notices',
+  loadChildren: () => import('./modules/notice/notice.routes').then(m => m.NOTICE_ROUTES)
+},
     ]
   },
 

@@ -1,72 +1,126 @@
 <div class="files-container">
-  <div class="page-header">
-    <h1 class="page-header__title">Uploaded Files</h1>
-    <p class="page-header__subtitle">All files uploaded to the system, available for download.</p>
+
+  <!-- Toast -->
+  <div class="custom-toast" *ngIf="toast" [ngClass]="'custom-toast--' + toast.type">
+    <div class="toast-icon-wrap">
+      <svg *ngIf="toast.type === 'success'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <svg *ngIf="toast.type === 'error'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </div>
+    <span class="toast-message-text">{{ toast.message }}</span>
   </div>
 
-  <div class="table-card">
-    <div class="loader-overlay" *ngIf="loading">
-      <div class="spinner"></div>
+  <!-- Header + Actions -->
+  <div class="files-header-bar">
+    <div class="header-left">
+      <h2>Uploaded Files</h2>
+      <p>Manage documents, images, and other assets stored on the server.</p>
     </div>
 
-    <div class="empty-state" *ngIf="!loading && errorMsg">
-      <svg class="empty-state__icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      <h3 class="empty-state__title">Something went wrong</h3>
-      <p class="empty-state__description">{{ errorMsg }}</p>
-      <button class="btn btn--secondary" (click)="loadFiles()" style="margin-top: 12px;">Retry</button>
+    <div class="header-right">
+      <div class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" placeholder="Search by file name..." [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)" />
+      </div>
+
+      <input #fileInputRef type="file" hidden (change)="onFileSelected($event)" />
+      <button class="btn-upload" (click)="triggerFilePicker()" [disabled]="isUploading">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        {{ isUploading ? 'Uploading...' : 'Upload File' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="files-table-card">
+
+    <div class="skeleton-layer" *ngIf="isLoading">
+      <div class="sk-row-item" *ngFor="let item of [1,2,3,4,5]"></div>
     </div>
 
-    <div class="empty-state" *ngIf="!loading && !errorMsg && files.length === 0">
-      <svg class="empty-state__icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-      </svg>
-      <h3 class="empty-state__title">No files uploaded yet</h3>
-      <p class="empty-state__description">Files uploaded from the Import screen will appear here.</p>
-    </div>
-
-    <div class="table-responsive" *ngIf="!loading && !errorMsg && files.length > 0">
-      <table class="data-table">
+    <div class="table-scroll-wrap" *ngIf="!isLoading && files.length > 0">
+      <table class="files-table">
         <thead>
           <tr>
-            <th>File Name</th>
-            <th>Type</th>
-            <th>Size</th>
-            <th>Uploaded On</th>
-            <th style="text-align: right;">Actions</th>
+            <th>File</th>
+            <th width="100px">Type</th>
+            <th width="110px">Size</th>
+            <th width="160px">Uploaded On</th>
+            <th width="120px" class="txt-center">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let f of files">
-            <td class="file-name-cell">
-              <svg class="file-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-              </svg>
-              {{ f.fileName }}
+            <td>
+              <div class="file-name-cell">
+                <div class="file-icon-box" [ngClass]="'icon--' + getFileIcon(f.fileType)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                </div>
+                <span class="file-name-text" [title]="f.fileName">{{ f.fileName }}</span>
+              </div>
             </td>
-            <td><span class="badge badge--active">{{ f.fileType.toUpperCase() }}</span></td>
-            <td>{{ formatFileSize(f.fileSize) }}</td>
-            <td>{{ formatDate(f.createdAt) }}</td>
-            <td style="text-align: right;">
-              <button class="icon-btn" title="Download" (click)="downloadFile(f)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-              </button>
-              <button class="icon-btn icon-btn--danger" title="Delete" [disabled]="deletingId === f.id" (click)="deleteFile(f)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="3 6 5 6 21 6"/>
-                  <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4a2 2 0 012-2h0a2 2 0 012 2v2"/>
-                </svg>
-              </button>
+            <td><span class="type-pill">{{ f.fileType?.toUpperCase() }}</span></td>
+            <td class="mono-cell">{{ formatFileSize(f.fileSize) }}</td>
+            <td class="mono-cell">{{ f.createdAt | date:'mediumDate' }}</td>
+            <td class="txt-center">
+              <div class="row-actions">
+                <a [href]="f.filePath" target="_blank" rel="noopener" class="action-btn action-btn--view" title="View / Download">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                </a>
+                <button class="action-btn action-btn--delete" title="Delete" (click)="confirmDelete(f.id)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                    <path d="M10 11v6M14 11v6"/>
+                  </svg>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <div class="empty-state" *ngIf="!isLoading && files.length === 0">
+      <p>No files found. Upload your first file to get started.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-bar" *ngIf="!isLoading && totalElements > 0">
+      <span class="page-info">Page {{ page + 1 }} of {{ totalPages }} · {{ totalElements }} files</span>
+      <div class="page-controls">
+        <button (click)="goToPage(page - 1)" [disabled]="page === 0">Prev</button>
+        <button (click)="goToPage(page + 1)" [disabled]="page + 1 >= totalPages">Next</button>
+      </div>
+    </div>
   </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="confirm-overlay" *ngIf="deleteTargetId">
+    <div class="confirm-modal">
+      <h3>Delete this file?</h3>
+      <p>This action cannot be undone. The file will be permanently removed from storage.</p>
+      <div class="confirm-actions">
+        <button class="btn-cancel" (click)="cancelDelete()" [disabled]="isDeleting">Cancel</button>
+        <button class="btn-confirm-delete" (click)="proceedDelete()" [disabled]="isDeleting">
+          {{ isDeleting ? 'Deleting...' : 'Delete' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>
